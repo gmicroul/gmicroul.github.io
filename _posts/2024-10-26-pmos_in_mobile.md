@@ -7,7 +7,5 @@
 Aritifect:
 
 Arch Linux tty UI of mobile:
-<img src="![image](https://github.com/user-attachments/assets/6b0eeb8b-cc4c-4738-b0a5-5edee843bd7b)" alt="Arch Linux tty UI of mobile:" width="500" height="600">
-
-
+![image](https://github.com/user-attachments/assets/6b0eeb8b-cc4c-4738-b0a5-5edee843bd7b)
 
