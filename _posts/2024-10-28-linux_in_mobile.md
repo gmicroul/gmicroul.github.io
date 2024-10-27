@@ -1,10 +1,10 @@
 ---
 layout: post
-title: "linux In Mobile"
+title: "Linux In Mobile"
 date:   2024-10-28
 tags: [web]
 comments: true
-author: gmicroul
+author: GM
 ---
 
 # Ubuntu touch
