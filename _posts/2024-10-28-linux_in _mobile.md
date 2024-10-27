@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "linux in mobile"
+title: "linux In Mobile"
 date:   2024-10-28
 tags: [web]
 comments: true
