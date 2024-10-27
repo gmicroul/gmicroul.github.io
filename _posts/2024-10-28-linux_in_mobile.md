@@ -1,4 +1,11 @@
-
+---
+layout: post
+title: "Linux In Mobile"
+date:   2024-10-28
+tags: [web]
+comments: true
+author: GM
+---
 
 # Ubuntu touch
 # Postmarketos 
