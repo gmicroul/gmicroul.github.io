@@ -8,13 +8,13 @@ author: gmicroul
 ---
 
 
-# Ubuntu touch
-# Postmarketos 
-# Mobian
-# Arch Linux
-# Mobile Nixos
+### Ubuntu touch
+### Postmarketos 
+### Mobian
+### Arch Linux
+### Mobile Nixos
 
-Artifact:
+-Artifact:
 
-Arch Linux tty UI of mobile:
+-Arch Linux tty UI of mobile:
 ![image](https://github.com/user-attachments/assets/6b0eeb8b-cc4c-4738-b0a5-5edee843bd7b)
