@@ -1,3 +1,12 @@
+---
+layout: post
+title: "linux in mobile"
+date:   2024-10-28
+tags: [web]
+comments: true
+author: gmicroul
+---
+
 # Ubuntu touch
 # Postmarketos 
 # Mobian
