@@ -25,4 +25,3 @@ author: gmicroul
 
 <img src="/images/archlinux-ttyescape.png" alt="image" class="custom-image">
 
-![image](https://github.com/user-attachments/assets/6b0eeb8b-cc4c-4738-b0a5-5edee843bd7b) 
