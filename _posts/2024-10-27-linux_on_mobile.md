@@ -16,5 +16,5 @@ author: gmicroul
 
 #### Artifact:
 ##### Arch Linux tty UI of mobile:
-![image](/images/archlinux-ttyescape.png =200x)
+![Image](/images/archlinux-ttyescape.png =200x300)
 ###![image](https://github.com/user-attachments/assets/6b0eeb8b-cc4c-4738-b0a5-5edee843bd7b) 
