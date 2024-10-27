@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "linux on mobile"
-date:   2024-10-28
+date:   2024-10-27
 tags: [web]
 comments: true
 author: gmicroul
