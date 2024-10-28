@@ -7,7 +7,7 @@ comments: true
 author: gmicroul
 ---
 
-#### Artifact:
+#### Artifacts:
 ---
 
 |  ## Arch Linux ##  | ## Mobian ##   |  ## Nixos ##   | ## Postmarketos ##   | ## [Ubuntu Touch] ## |
