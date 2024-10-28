@@ -2,7 +2,7 @@
 layout: post
 title: "Linux On Mobile"
 date:   2024-10-27
-tags: [web]
+tags: [Linux Mobile,TTY Keyboard]
 comments: true
 author: gmicroul
 ---
