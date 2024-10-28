@@ -7,4 +7,4 @@ comments: true
 author: gmicroul
 ---
 
-<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=113371433143958&bvid=BV1uD1pYTEEV&cid=26466127835&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="false" style="height:400px;width:600px></iframe>
+<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=113371433143958&bvid=BV1uD1pYTEEV&cid=26466127835&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="false"></iframe>
