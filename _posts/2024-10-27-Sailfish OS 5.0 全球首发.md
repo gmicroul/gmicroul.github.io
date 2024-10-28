@@ -1,3 +1,3 @@
-<video width="320" height="240" controls>
-  <source src="[video.mov](https://www.bilibili.com/video/BV1n4taeXEP4?)" type="video/mp4">
-</video>
+Sailfish OS 5.0 全球首发--BirdZhang
+
+<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=113371433143958&bvid=BV1uD1pYTEEV&cid=26466127835&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
