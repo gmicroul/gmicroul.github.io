@@ -7,11 +7,11 @@ comments: true
 author: gmicroul
 ---
 
-https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/index.html
+# https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/index.html
 
 ### user:password
 #### phablet:1234
-##### root:linux
+#### root:linux
 
 [ICO]	Name	Last modified	Size
 
