@@ -17,7 +17,7 @@ author: gmicroul
 
 [DIR]	Parent Directory
 
-	<href="https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img">sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img	2023-01-30T20:35:48.860000	2.9 GB
+	<a href="https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img">sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img</a>	2023-01-30T20:35:48.860000	2.9 GB
 	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6enchilada.aarch64.boot.img	2023-01-30T20:49:57.341000	34 MB
 	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6fajita.aarch64.boot.img	2023-01-30T20:49:57.409000	34 MB
 	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-pocof1beryllium-ebbg.aarch64.boot.img	2022-11-17T17:07:52.856000	33 MB
