@@ -10,8 +10,8 @@ author: gmicroul
 #### Artifacts:
 ---
 
-|   Arch Linux   |  Mobian    |   Nixos    |  SailfishOs    |  [Ubuntu Touch]  |  PostmarketOS  | ** openSUSE  | 
-|----------------|------------|------------|----------------|------------------|----------------|--------------|
+|   Arch Linux   |  Mobian    |   Nixos    |  SailfishOs    |  [Ubuntu Touch]  |  PostmarketOS  | **openSUSE  | 
+|----------------|------------|------------|----------------|------------------|----------------|-------------|
 |<style>.custom-image {width: 100px;height: auto;}</style><img src="/images/archlinux-ttyescape.png" alt="image" class="custom-image">   | <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/mobian-ttyescape.png" alt="image" class="custom-image">  | <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/nixos-ttyescape.png" alt="image" class="custom-image">  | <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/sailfishos.png" alt="image" class="custom-image">  | <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/ubuntu-touch.png" alt="image" class="custom-image">  |<style>.custom-image {width: 100px;height: auto;}</style><img src="/images/postmarketos-ttyescape.png" alt="image" class="custom-image"> |<style>.custom-image {width: 100px;height: auto;}</style><img src="/images/opensuse.png" alt="image" class="custom-image">|  
  
  ---
