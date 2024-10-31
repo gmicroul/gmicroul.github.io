@@ -16,6 +16,7 @@ author: gmicroul
 [ICO]	Name	Last modified	Size
 
 [DIR]	Parent Directory
+sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img(https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img "openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img")	2023-01-30T20:35:48.860000	2.9 GB
 
 	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img(https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img "openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img")	2023-01-30T20:35:48.860000	2.9 GB
 	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6enchilada.aarch64.boot.img	2023-01-30T20:49:57.341000	34 MB
