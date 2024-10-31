@@ -8,6 +8,7 @@ author: gmicroul
 ---
 
 #### <a href="https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/index.html" title="opensuse-mobile-releases">opensuse-mobile-releases</a>
+<iframe width="560" height="315" src="https://github.com/gmicroul/gmicroul.github.io/raw/refs/heads/main/images/opensuse.MP4" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="false"></iframe>
 
 ### user:password
 #### phablet:1234
