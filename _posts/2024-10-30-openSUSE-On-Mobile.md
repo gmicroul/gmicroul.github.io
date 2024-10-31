@@ -13,11 +13,13 @@ author: gmicroul
 #### phablet:1234
 #### root:linux
 
-[ICO]	Name	Last modified	Size
+<a href="https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img" title="openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img">sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img</a> 			2023-01-30T20:35:48.860000	2.9 GB
 
-[DIR]	Parent Directory
+<a href="https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6enchilada.aarch64.boot.img" title="openSUSE-Tumbleweed-ARM-PHOSH-oneplus6enchilada.aarch64.boot.img">sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6enchilada.aarch64.boot.img</a>		2023-01-30T20:49:57.341000	34 MB
 
-	<a href="https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img" title="openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img">sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img   		2023-01-30T20:35:48.860000	2.9 GB</a>
+<a href="https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6fajita.aarch64.boot.img" title="openSUSE-Tumbleweed-ARM-PHOSH-oneplus6fajita.aarch64.boot.img">sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6fajita.aarch64.boot.img</a>		2023-01-30T20:49:57.409000	34 MB
+
+	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6.aarch64.root.img 			2023-01-30T20:35:48.860000	2.9 GB
 	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6enchilada.aarch64.boot.img		2023-01-30T20:49:57.341000	34 MB
 	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-oneplus6fajita.aarch64.boot.img		2023-01-30T20:49:57.409000	34 MB
 	sdm845/openSUSE-Tumbleweed-ARM-PHOSH-pocof1beryllium-ebbg.aarch64.boot.img	2022-11-17T17:07:52.856000	33 MB
