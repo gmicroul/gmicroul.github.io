@@ -8,7 +8,7 @@ author: gmicroul
 ---
 
 #### <a href="https://swiftobjectstorage.eu-madrid-1.oraclecloud.com/v1/axvje53kuldk/opensuse-mobile-releases/index.html" title="opensuse-mobile-releases">opensuse-mobile-releases</a>
-<iframe width="1024" height="576" src="https://media.ccc.de/v/4199-mobile-devices-and-opensuse-is-it-posible/oembed" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="//player.bilibili.com/player.html?isOutside=true&aid=113405037905738&bvid=BV1neSQYLE4R&cid=26556498453&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 
 ### user:password
 #### phablet:1234
