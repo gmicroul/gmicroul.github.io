@@ -15,7 +15,7 @@ author: gmicroul
 
 |  **Docker**  |  **appStore**  |  **Others**  | 
 |--------------|----------------|--------------|
-|<style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-docker.png" alt="image" class="custom-image">   | <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-appstore.png" alt="image" class="custom-image">  | <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-appFM.png" alt="image" class="custom-image">  |
+|<style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-docker.png" alt="image" class="custom-image">| <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-appstore.png" alt="image" class="custom-image">| <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-appFM.png" alt="image" class="custom-image">|
  
  ---
  <iframe width="280" height="160" src="//player.bilibili.com/player.html?isOutside=true&aid=113481072316396&bvid=BV1rqULYCEz3&cid=26757497587&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="false"></iframe>
