@@ -8,6 +8,7 @@ author: gmicroul
 ---
 
 #### <a href="https://appcatalog.webosarchive.org/showMuseum.php" title="webOS App Museum II">webOS App Museum II</a>
+<iframe width="560" height="315" src="//player.bilibili.com/player.html?isOutside=true&aid=113481072316396&bvid=BV1rqULYCEz3&cid=26757497587&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="false"></iframe>
 
 #### Artifacts:
 
