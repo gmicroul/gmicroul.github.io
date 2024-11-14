@@ -13,8 +13,8 @@ author: gmicroul
 
 ---
 
-|  **Docker**  |  **appStore**  |  **Others**  | 
-|--------------|----------------|--------------|
+|**Docker**|**appStore**|**Others**| 
+|----------|------------|----------|
 |<style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-docker.png" alt="image" class="custom-image">| <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-appstore.png" alt="image" class="custom-image">| <style>.custom-image {width: 100px;height: auto;}</style><img src="/images/luneos-appFM.png" alt="image" class="custom-image">|
  
  ---
