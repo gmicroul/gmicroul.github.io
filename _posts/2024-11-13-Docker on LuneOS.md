@@ -18,6 +18,6 @@ author: gmicroul
 |<style>.custom-image {width: 100px;height: auto;}</style><img align="center" src="/images/luneos-docker.png" alt="image" class="custom-image">| <style>.custom-image {width: 100px;height: auto;}</style><img align="center" src="/images/luneos-appstore.png" alt="image" class="custom-image">| <style>.custom-image {width: 100px;height: auto;}</style><img align="center" src="/images/luneos-appFM.png" alt="image" class="custom-image">|
  
  ---
- <iframe width="480" height="852" src="//player.bilibili.com/player.html?isOutside=true&aid=113481072316396&bvid=BV1rqULYCEz3&cid=26757497587&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="false"></iframe>
+ <iframe width="240" height="426" src="//player.bilibili.com/player.html?isOutside=true&aid=113481072316396&bvid=BV1rqULYCEz3&cid=26757497587&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="false"></iframe>
 
 
