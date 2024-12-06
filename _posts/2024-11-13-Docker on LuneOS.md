@@ -9,6 +9,8 @@ author: gmicroul
 
 #### <a href="https://appcatalog.webosarchive.org/showMuseum.php" title="webOS App Museum II">webOS App Museum II</a>
 
+https://github.com/andrew-d/static-binaries
+
 #### Artifacts:
 
 ---
