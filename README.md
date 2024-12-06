@@ -2,6 +2,7 @@
 
 My Personal Blog via GitHub
 
+成功后的镜像将会保存在 ~/.cache/kupfer/images
 
 正常需要选择-full.img的后缀刷入机器
 
