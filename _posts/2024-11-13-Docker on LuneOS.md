@@ -11,6 +11,7 @@ author: gmicroul
 
 https://github.com/andrew-d/static-binaries
 https://github.com/Azathothas/Static-Binaries/tree/main/baseutils/aarch64_arm64
+https://github.com/polaco1782/linux-static-binaries/tree/master/armv8-aarch64
 
 #### Artifacts:
 
