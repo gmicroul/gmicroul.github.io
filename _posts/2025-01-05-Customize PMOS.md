@@ -59,7 +59,7 @@ OK: 34764 distinct packages available
 ### 差不多了，清凉的PMOS，尽情享受听着音乐，看着视频，玩玩容器，开开心心每一天。
 完蛋，忘记第二步了。
 
-目标是在无桌面，默认进入了phosh后调节完第一步，就用一句话。搞定。
+目标是无桌面，默认进入了phosh后调节完第一步，就用一句话。搞定。
 
 ##### oneplus-fajita:~$ sudo rc-update del tinydm
 然后重启即可。
