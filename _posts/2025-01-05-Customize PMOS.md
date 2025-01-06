@@ -7,7 +7,6 @@ comments: true
 author: gmicroul
 ---
 
-### 定制PostmarketOS
 为了实现PMOS轻量化，让其在没有桌面的条件下实现在线音乐/视频播放，体验podman的功能，进行如下定制。
 #### 首先值得点赞的是24.12开始，PMOS已经收集到很多用户需求也满足用户体验，默认phosh已经集成hkdm（buffyboard）tty键盘，在PMOS称为ttyescape。
 #### 第一步先把wifi，声音（第一次启动默认选的是speaker，只需要把声音调到最大），时区，电源优化只保留熄屏时间1分钟。
