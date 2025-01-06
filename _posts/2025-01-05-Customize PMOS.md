@@ -71,5 +71,5 @@ OK: 34764 distinct packages available
 # -------------------------------------------------------K.A.O---> 
 音乐音乐，没有音乐何来调节心情,去吧。。。
 
-去https://github.com/gmicroul/go-musicfox/releases/tag/musicfox-pmos这里下吧，解压后加x运行即可。
+去 https://github.com/gmicroul/go-musicfox/releases/tag/musicfox-pmos 这里下吧，解压后加x运行即可。
 
