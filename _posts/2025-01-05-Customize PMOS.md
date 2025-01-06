@@ -39,3 +39,9 @@ author: gmicroul
 ##### oneplus-fajita:~$ sudo apk add mpv yt-dlp git ......mpv/yt-dlp为了在线播放B，git就不说了。
 
 ### 差不多了，清凉的PMOS，尽情享受听着音乐，看着视频，玩玩容器，开开心心每一天。
+
+完蛋，忘记第二步了。
+目标是在无桌面，默认进入了phosh后调节完第一步，就用一句话。搞定。
+##### oneplus-fajita:~$ sudo rc-update del tinydm
+然后重启即可。
+重启后你会发现进入了tty。然后开始抓狂。当然你懂就没事，没事去wiki看看。
