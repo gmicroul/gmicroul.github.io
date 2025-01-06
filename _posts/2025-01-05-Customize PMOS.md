@@ -72,3 +72,9 @@ OK: 34764 distinct packages available
 
 去 https://github.com/gmicroul/go-musicfox/releases/tag/musicfox-pmos 这里下吧，解压后加x运行即可。
 
+
+
+Just-For-Myself:
+
+https://pkgs.alpinelinux.org/packages?name=nmon&branch=edge&repo=&arch=aarch64&origin=&flagged=&maintainer=
+
