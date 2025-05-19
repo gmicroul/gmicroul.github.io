@@ -13,3 +13,5 @@ debugfs boot.img -R 'dump /aboot.img /tmp/aboot.img'
 通过这种方式可以将生成的boot转换为安卓系统的boot镜像
 
 最后通过fastboot工具刷入机器即可
+
+http://dl-cdn.alpinelinux.org/alpine/edge/community/aarch64/nmon-16q-r0.apk
