@@ -16,5 +16,5 @@ author: gmicroul
  
  ---
 
-https://www.bilibili.com/video/BV1cuK8znEXL/?spm_id_from=333.337.search-card.all.click
+<iframe width="320" height="240" src="//player.bilibili.com/player.html?isOutside=true&aid=114732216360906&bvid=BV1cuK8znEXL&cid=30655974149&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 
