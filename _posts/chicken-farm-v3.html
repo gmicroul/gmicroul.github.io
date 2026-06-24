@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>🐔 养鸡场 v3 - Chicken Farm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0a;overflow:hidden;font-family:'Georgia',serif}
+canvas{display:block;cursor:crosshair}
+#loading{position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c8a832;font-size:28px;z-index:999;text-shadow:0 0 10px rgba(200,168,50,0.5)}
+#loading .sub{font-size:14px;color:#8a7a4a;margin-top:10px}
+#achievement{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(15,8,0,0.95);border:3px solid #ffd700;border-radius:12px;padding:30px 50px;text-align:center;z-index:1000;display:none;box-shadow:0 0 40px rgba(255,215,0,0.4)}
+#achievement h2{color:#ffd700;font-size:28px;margin-bottom:10px}
+#achievement p{color:#e8d8a0;font-size:16px}
+</style>
+</head>
+<body>
+<div id="loading">🐔 养鸡场 v3<div class="sub">Loading...</div></div>
+<div id="achievement"><h2>🏆 成就解锁！</h2><p id="ach-text"></p></div>
+<canvas id="game"></canvas>
+<script>
+// ============================================================
+//  🐔 养鸡场 v3 - 暗黑风格养鸡模拟
+//  混沌模式 | 家庭配对 | 鸡对话气泡 | NPC巡逻聊天
+// ============================================================
+
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    if(typeof r==='number')r=[r,r,r,r];
+    const[tl,tr,br,bl]=r;
+    this.moveTo(x+tl,y);this.lineTo(x+w-tr,y);this.quadraticCurveTo(x+w,y,x+w,y+tr);
+    this.lineTo(x+w,y+h-br);this.quadraticCurveTo(x+w,y+h,x+w-br,y+h);
+    this.lineTo(x+bl,y+h);this.quadraticCurveTo(x,y+h,x,y+h-bl);
+    this.lineTo(x,y+tl);this.quadraticCurveTo(x,y,x+tl,y);this.closePath();return this;
+  };
+}
+
+// === CONFIG ===
+const CFG={
+  TILE_W:64,TILE_H:32,MAP_SIZE:22,
+  PLAYER_SPEED:3.5,
+  CHICKEN_SPEED:1.2,CHICKEN_FLEE_SPEED:3.0,
+  CHICKEN_FLEE_RADIUS:2.2,CHICKEN_FLEE_DIST:3.5,
+  EGG_MIN_TIME:25,EGG_MAX_TIME:50,
+  HATCH_TIME:50,
+  CHICK_GROW_TIME:60,
+  COLLECT_RADIUS:1.0,
+  INTERACT_RADIUS:2.0,
+  CAM_SMOOTH:0.08,
+  DAY_LENGTH:180,
+  WORM_SPAWN_INTERVAL:8,
+  MAX_WORMS:8,
+  CHAOS_THRESHOLD:1000,
+  CHAOS_DURATION:60,
+  CHAOS_SPEED_MULT:3,
+  CHAOS_EGG_MULT:2,
+  MAX_CHICKS_PER_MOTHER:3,
+  CHICK_FOLLOW_DIST:0.8,
+  NPC_WALK_SPEED:1.0,
+  NPC_CHAT_RANGE:3.5,
+  NPC_CHAT_INTERVAL:25,
+  DIALOG_TRIGGER_INTERVAL:8,
+  // chaos dance
+  DANCE_PHASE_DURATION:12,  // seconds of square dance
+  DANCE_GROUP_RADIUS:3,
+  DANCE_CENTER_X:11,DANCE_CENTER_Y:11,
+};
+
+// === COLORS ===
+const C={
+  grassA:'#2a4a1a',grassB:'#2d4e1e',grassC:'#244216',
+  dirtA:'#5a3a20',dirtB:'#5e3e24',dirtC:'#523618',
+  pathA:'#5e5e5e',pathB:'#666',pathC:'#555',
+  fence:'#8a6a30',fenceD:'#6a4a10',
+  coopW:'#7a5a2a',coopR:'#8a3020',coopD:'#3a1a08',
+  waterA:'#1a3a6a',waterB:'#224478',waterC:'#163260',
+  trunk:'#4a2a0a',leafA:'#1a3a0e',leafB:'#224812',leafC:'#143008',
+  mktAwn:'#8a6a3a',mktCntr:'#5a4a2a',
+  sandA:'#c8b070',sandB:'#b8a060',sandC:'#d0c080',
+  gardenA:'#4a3018',gardenB:'#3a2810',plant:'#3a8a2a',plantD:'#2a6a1a',
+  vegRed:'#cc3333',vegOrange:'#dd8833',vegGreen:'#44aa44',
+  pBody:'#4a6a8a',pSkin:'#d4a574',pHat:'#6a4a2a',pHatB:'#4a3018',
+  cBody:'#e8d8a0',cBodyD:'#c8b880',cComb:'#cc3333',cBeak:'#cc8800',
+  cLeg:'#b8860b',cWing:'#d0c090',
+  chickBody:'#ffee88',chickBeak:'#ee9922',
+  nWang:'#8a6a3a',nLi:'#cccccc',nElder:'#5a3a7a',
+  dlgBg:'rgba(15,8,0,0.94)',dlgBorder:'#c8a832',dlgBorder2:'#8a6a20',
+  dlgText:'#e8d8a0',dlgName:'#ffd700',dlgOpt:'#c8a832',dlgOptH:'#ffe066',
+  hudBg:'rgba(0,0,0,0.65)',hudText:'#e8d8a0',hudGold:'#ffd700',
+};
+
+// === MAP ===
+const MAP=[
+  [6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6],
+  [6,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,6],
+  [6,0,0,0,0,3,4,4,3,3,0,0,0,0,0,0,0,6,0,0,0,6],
+  [6,0,0,0,0,3,4,4,3,0,0,0,0,0,0,0,0,0,0,0,0,6],
+  [6,0,0,0,0,3,3,1,3,0,0,2,0,0,0,0,0,0,0,0,0,6],
+  [6,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,9,9,5,5,6],
+  [6,0,3,3,3,3,0,0,0,2,2,0,0,0,0,0,9,9,5,5,5,6],
+  [6,0,3,4,4,3,0,0,2,2,0,0,0,0,0,0,0,0,5,5,0,6],
+  [6,0,3,4,4,3,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,6],
+  [6,0,3,3,1,3,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,6],
+  [6,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,6],
+  [6,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,6],
+  [6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,6],
+  [6,0,7,7,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,6],
+  [6,0,7,7,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,6],
+  [6,0,0,0,0,0,0,0,3,3,3,3,0,0,0,2,0,0,0,0,0,6],
+  [6,0,0,0,0,0,0,0,3,4,4,3,0,0,0,2,0,0,0,0,0,6],
+  [6,0,0,0,0,0,0,0,3,4,4,3,0,0,0,2,2,2,0,0,0,6],
+  [6,0,0,0,0,0,0,0,3,3,1,3,0,0,0,0,0,2,0,0,0,6],
+  [6,0,0,8,8,8,8,0,0,0,0,0,0,0,9,9,9,2,0,0,0,6],
+  [6,0,0,8,8,8,8,0,0,0,0,0,0,0,9,9,9,0,0,0,0,6],
+  [6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6],
+];
+
+// === UTILS ===
+function w2s(wx,wy){return{x:(wx-wy)*CFG.TILE_W/2,y:(wx+wy)*CFG.TILE_H/2}}
+function s2w(sx,sy){const a=sx/(CFG.TILE_W/2),b=sy/(CFG.TILE_H/2);return{x:(a+b)/2,y:(b-a)/2}}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function rand(a,b){return a+Math.random()*(b-a)}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+function lerp(a,b,t){return a+(b-a)*t}
+function tileAt(wx,wy){const tx=Math.floor(wx),ty=Math.floor(wy);if(tx<0||ty<0||tx>=CFG.MAP_SIZE||ty>=CFG.MAP_SIZE)return 6;return MAP[ty][tx]}
+function isWalkable(wx,wy){const t=tileAt(wx,wy);return t!==3&&t!==5&&t!==6&&t!==7}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+// === SOUND ===
+let audioCtx=null;
+function initAudio(){audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
+function playSound(f,d,tp,v){if(!audioCtx)return;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=tp||'sine';o.frequency.value=f;g.gain.setValueAtTime(v||0.15,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d)}
+function sndCollect(){playSound(880,0.15,'sine',0.2);setTimeout(()=>playSound(1100,0.12,'sine',0.15),80)}
+function sndCluck(){playSound(300+Math.random()*100,0.12,'square',0.06)}
+function sndTalk(){playSound(400,0.08,'triangle',0.1)}
+function sndLay(){playSound(600,0.2,'sine',0.12);setTimeout(()=>playSound(500,0.15,'sine',0.1),100)}
+function sndHatch(){playSound(700,0.1,'sine',0.15);setTimeout(()=>playSound(900,0.15,'sine',0.18),120);setTimeout(()=>playSound(1100,0.12,'sine',0.12),250)}
+function sndChirp(){playSound(800+Math.random()*200,0.08,'sine',0.05)}
+function sndChaos(){playSound(150,0.5,'sawtooth',0.1);setTimeout(()=>playSound(200,0.3,'square',0.08),200);setTimeout(()=>playSound(100,0.4,'sawtooth',0.1),400)}
+function sndGoldRain(){playSound(1200,0.1,'sine',0.1);setTimeout(()=>playSound(1500,0.08,'sine',0.08),60)}
+function sndDance(){playSound(523,0.15,'square',0.08);setTimeout(()=>playSound(659,0.12,'square',0.06),150);setTimeout(()=>playSound(784,0.1,'square',0.05),300)}
+
+// === CANVAS ===
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W,H;
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+window.addEventListener('resize',resize);resize();
+
+// === CAMERA ===
+const cam={x:0,y:0,shakeX:0,shakeY:0,shakeIntensity:0};
+function updateCam(t){
+  const sp=w2s(t.x,t.y);
+  cam.x=lerp(cam.x,sp.x-W/2,CFG.CAM_SMOOTH);
+  cam.y=lerp(cam.y,sp.y-H/2,CFG.CAM_SMOOTH);
+  if(cam.shakeIntensity>0){
+    cam.shakeX=rand(-cam.shakeIntensity,cam.shakeIntensity);
+    cam.shakeY=rand(-cam.shakeIntensity,cam.shakeIntensity);
+    cam.shakeIntensity*=0.95;
+    if(cam.shakeIntensity<0.3)cam.shakeIntensity=0;
+  }
+}
+function toScreen(wx,wy){const sp=w2s(wx,wy);return{x:sp.x-cam.x+cam.shakeX,y:sp.y-cam.y+cam.shakeY}}
+
+// === INPUT ===
+const keys={};
+let mouseX=0,mouseY=0,mouseClicked=false;
+window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true});
+window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});
+canvas.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY});
+canvas.addEventListener('click',e=>{if(!audioCtx)initAudio();mouseX=e.clientX;mouseY=e.clientY;mouseClicked=true});
+
+// ============================================================
+//  MAP RENDERING
+// ============================================================
+function drawIsoDiamond(sx,sy,colors){
+  const hw=CFG.TILE_W/2,hh=CFG.TILE_H/2;
+  ctx.beginPath();ctx.moveTo(sx,sy-hh);ctx.lineTo(sx+hw,sy);ctx.lineTo(sx,sy+hh);ctx.lineTo(sx-hw,sy);ctx.closePath();
+  if(Array.isArray(colors)){const g=ctx.createLinearGradient(sx-hw,sy-hh,sx+hw,sy+hh);colors.forEach((c,i)=>g.addColorStop(i/(colors.length-1),c));ctx.fillStyle=g}
+  else ctx.fillStyle=colors;
+  ctx.fill();
+}
+
+function drawTile(tx,ty){
+  const sp=toScreen(tx+0.5,ty+0.5),sx=sp.x,sy=sp.y;
+  if(sx<-CFG.TILE_W*2||sx>W+CFG.TILE_W*2||sy<-80||sy>H+80)return;
+  const t=MAP[ty][tx],hash=(tx*7+ty*13)%3;
+  switch(t){
+    case 0:{
+      const cols=hash===0?[C.grassA,C.grassB]:hash===1?[C.grassB,C.grassC]:[C.grassA,C.grassC];
+      drawIsoDiamond(sx,sy,cols);
+      const seed=(tx*31+ty*17)%100;
+      if(seed<25){ctx.strokeStyle='#1a3a0e';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx-5,sy-2);ctx.lineTo(sx-3,sy-8);ctx.moveTo(sx+4,sy);ctx.lineTo(sx+6,sy-6);ctx.stroke()}
+      else if(seed<35){const fc=['#cc4466','#ddaa33','#8866cc','#ee8844'][seed%4];ctx.fillStyle=fc;ctx.beginPath();ctx.arc(sx+(seed%7)-3,sy-3+(seed%5),2,0,Math.PI*2);ctx.fill()}
+      else if(seed<42){ctx.fillStyle='#5a5a50';ctx.beginPath();ctx.ellipse(sx+(seed%9)-4,sy+(seed%5)-2,3,2,0.3,0,Math.PI*2);ctx.fill()}
+      break}
+    case 1:{drawIsoDiamond(sx,sy,hash===0?[C.dirtA,C.dirtB]:hash===1?[C.dirtB,C.dirtC]:[C.dirtA,C.dirtC]);break}
+    case 2:{drawIsoDiamond(sx,sy,hash===0?[C.pathA,C.pathB]:[C.pathB,C.pathC]);break}
+    case 3:{
+      drawIsoDiamond(sx,sy,[C.grassA,C.grassB]);
+      ctx.fillStyle=C.fence;ctx.fillRect(sx-1,sy-18,3,18);
+      ctx.fillStyle=C.fenceD;ctx.fillRect(sx-2,sy-18,5,3);
+      ctx.strokeStyle=C.fence;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx-CFG.TILE_W/2,sy-12);ctx.lineTo(sx+CFG.TILE_W/2,sy-12);ctx.stroke();break}
+    case 4:{
+      drawIsoDiamond(sx,sy,[C.dirtA,'#6a4a2a']);
+      ctx.strokeStyle='#b8960a';ctx.lineWidth=1;
+      for(let i=0;i<3;i++){const ox=(hash*5+i*7)%20-10,oy=(hash*3+i*5)%10-5;ctx.beginPath();ctx.moveTo(sx+ox,sy+oy);ctx.lineTo(sx+ox+3,sy+oy-4);ctx.stroke()}
+      break}
+    case 5:{
+      const wt=Date.now()/1000,shift=Math.sin(wt+tx+ty)*0.1;
+      drawIsoDiamond(sx,sy,[C.waterA,C.waterB,C.waterC]);
+      ctx.strokeStyle=`rgba(100,160,220,${0.3+shift})`;ctx.lineWidth=0.5;ctx.beginPath();ctx.ellipse(sx+Math.sin(wt+tx)*3,sy-2,8,4,0,0,Math.PI*2);ctx.stroke();break}
+    case 6:{
+      drawIsoDiamond(sx,sy,[C.grassA,C.grassC]);
+      ctx.fillStyle=C.trunk;ctx.fillRect(sx-3,sy-35,6,30);
+      ctx.fillStyle='rgba(0,0,0,0.3)';ctx.beginPath();ctx.ellipse(sx+8,sy+2,12,6,0.3,0,Math.PI*2);ctx.fill();
+      const lc=[C.leafA,C.leafB,C.leafC];for(let i=2;i>=0;i--){ctx.fillStyle=lc[i];ctx.beginPath();ctx.ellipse(sx+(i-1)*3,sy-38-i*8,16-i*2,12-i*2,0,0,Math.PI*2);ctx.fill()}
+      break}
+    case 7:{
+      drawIsoDiamond(sx,sy,[C.dirtA,C.dirtB]);
+      ctx.fillStyle=C.mktCntr;ctx.fillRect(sx-18,sy-16,36,12);
+      ctx.fillStyle=C.mktAwn;ctx.beginPath();ctx.moveTo(sx-22,sy-16);ctx.lineTo(sx,sy-30);ctx.lineTo(sx+22,sy-16);ctx.closePath();ctx.fill();
+      ['#dd4444','#dddd44','#44aa44'].forEach((gc,i)=>{ctx.fillStyle=gc;ctx.beginPath();ctx.arc(sx-10+i*10,sy-14,3,0,Math.PI*2);ctx.fill()});break}
+    case 8:{
+      drawIsoDiamond(sx,sy,[C.gardenA,C.gardenB]);
+      const growStage=Math.floor(((tx*13+ty*7+Math.floor(gameTime/15))%3));
+      ctx.strokeStyle=C.plantD;ctx.lineWidth=1;
+      for(let r=0;r<3;r++){
+        const ry=sy-6+r*4;
+        for(let c=0;c<3;c++){
+          const cx=sx-8+c*8;
+          if(growStage>=1){ctx.fillStyle=C.plant;ctx.fillRect(cx-1,ry-6,2,6)}
+          if(growStage>=2){const vc=[C.vegRed,C.vegOrange,C.vegGreen][(r+c)%3];ctx.fillStyle=vc;ctx.beginPath();ctx.arc(cx,ry-7,2.5,0,Math.PI*2);ctx.fill()}}
+      }
+      break}
+    case 9:{
+      drawIsoDiamond(sx,sy,hash===0?[C.sandA,C.sandB]:hash===1?[C.sandB,C.sandC]:[C.sandA,C.sandC]);
+      ctx.fillStyle='rgba(160,140,80,0.4)';
+      for(let i=0;i<3;i++){const dx=(hash*5+i*11)%16-8,dy=(hash*3+i*7)%8-4;ctx.beginPath();ctx.arc(sx+dx,sy+dy,1,0,Math.PI*2);ctx.fill()}
+      break}
+  }
+}
+
+function drawCoopRoof(tx,ty){
+  const sp=toScreen(tx+1,ty+1),sx=sp.x,sy=sp.y;
+  if(sx<-120||sx>W+120||sy<-100||sy>H+100)return;
+  ctx.fillStyle=C.coopR;ctx.beginPath();ctx.moveTo(sx,sy-48);ctx.lineTo(sx+36,sy-16);ctx.lineTo(sx-36,sy-16);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#5a1a08';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.strokeStyle='#aa3a20';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx,sy-48);ctx.lineTo(sx,sy-16);ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,0.25)';ctx.beginPath();ctx.ellipse(sx+6,sy+4,28,14,0.2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#2a1208';ctx.fillRect(sx-5,sy-16,10,12);
+}
+
+function renderMap(){
+  for(let sum=0;sum<CFG.MAP_SIZE*2-1;sum++){
+    for(let ty=0;ty<CFG.MAP_SIZE;ty++){const tx=sum-ty;if(tx<0||tx>=CFG.MAP_SIZE)continue;drawTile(tx,ty)}
+  }
+  for(let ty=0;ty<CFG.MAP_SIZE;ty++){
+    for(let tx=0;tx<CFG.MAP_SIZE;tx++){
+      if(MAP[ty][tx]===4){if(ty>0&&MAP[ty-1][tx]===4)continue;if(tx>0&&MAP[ty][tx-1]===4)continue;drawCoopRoof(tx,ty)}
+    }
+  }
+}
+
+// ============================================================
+//  DAY/NIGHT
+// ============================================================
+let dayTime=0.35;
+function getDayPhase(){
+  const t=dayTime;
+  if(t<0.2)return{name:'night',brightness:0.35,tint:'rgba(10,10,50,'};
+  if(t<0.3)return{name:'dawn',brightness:lerp(0.35,1,(t-0.2)/0.1),tint:'rgba(255,180,100,'};
+  if(t<0.7)return{name:'day',brightness:1,tint:null};
+  if(t<0.8)return{name:'dusk',brightness:lerp(1,0.35,(t-0.7)/0.1),tint:'rgba(200,100,50,'};
+  return{name:'night',brightness:0.35,tint:'rgba(10,10,50,'};
+}
+
+function drawSky(){
+  const phase=getDayPhase();
+  const skyH=H*0.15;
+  if(chaosMode.active){
+    const t=gameTime;
+    const g=ctx.createLinearGradient(0,0,0,skyH);
+    g.addColorStop(0,`hsl(${(t*30)%360},80%,15%)`);
+    g.addColorStop(0.5,`hsl(${(t*30+30)%360},70%,25%)`);
+    g.addColorStop(1,'#4a1020');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,skyH);
+    if(Math.random()<0.02){ctx.fillStyle='rgba(255,200,200,0.15)';ctx.fillRect(0,0,W,H)}
+  }else if(phase.name==='night'){
+    ctx.fillStyle='#080820';ctx.fillRect(0,0,W,skyH);
+    ctx.fillStyle='rgba(255,255,220,0.6)';
+    for(let i=0;i<20;i++){const sx=(i*137+50)%W,sy=(i*89+20)%(skyH-10);ctx.beginPath();ctx.arc(sx,sy,1,0,Math.PI*2);ctx.fill()}
+    const mx=W*0.75,my=skyH*0.4;
+    ctx.fillStyle='#eee8d0';ctx.beginPath();ctx.arc(mx,my,18,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#080820';ctx.beginPath();ctx.arc(mx+6,my-4,15,0,Math.PI*2);ctx.fill();
+  }else if(phase.name==='dawn'){
+    const g=ctx.createLinearGradient(0,0,0,skyH);g.addColorStop(0,'#1a1040');g.addColorStop(0.5,'#cc6630');g.addColorStop(1,'#ffaa44');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,skyH);
+  }else if(phase.name==='dusk'){
+    const g=ctx.createLinearGradient(0,0,0,skyH);g.addColorStop(0,'#1a1040');g.addColorStop(0.5,'#aa4420');g.addColorStop(1,'#ff8833');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,skyH);
+  }else{
+    const g=ctx.createLinearGradient(0,0,0,skyH);g.addColorStop(0,'#2244aa');g.addColorStop(1,'#6688cc');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,skyH);
+  }
+  if(!chaosMode.active&&(phase.name==='day'||phase.name==='dawn'||phase.name==='dusk')){
+    const progress=(dayTime-0.2)/0.6;
+    const sunX=W*progress,sunY=skyH*0.3-Math.sin(Math.PI*progress)*skyH*0.15;
+    ctx.fillStyle='rgba(255,220,80,0.3)';ctx.beginPath();ctx.arc(sunX,sunY,25,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ffdd44';ctx.beginPath();ctx.arc(sunX,sunY,14,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function drawDayNightOverlay(){
+  if(chaosMode.active){
+    const g=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*0.3,W/2,H/2,Math.max(W,H)*0.7);
+    g.addColorStop(0,'rgba(0,0,0,0)');
+    g.addColorStop(1,'rgba(180,20,20,0.35)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    return;
+  }
+  const phase=getDayPhase();
+  if(phase.tint){
+    const alpha=1-phase.brightness;
+    ctx.fillStyle=phase.tint+(alpha*0.5)+')';ctx.fillRect(0,0,W,H);
+  }
+}
+
+// ============================================================
+//  PARTICLES
+// ============================================================
+const particles=[];
+function spawnDust(wx,wy){for(let i=0;i<3;i++)particles.push({x:wx+rand(-0.3,0.3),y:wy+rand(-0.3,0.3),vx:rand(-0.5,0.5),vy:rand(-1.5,-0.5),life:rand(0.5,1),maxLife:1,size:rand(1,3),color:'rgba(180,160,120,'})}
+function spawnSandPuff(wx,wy){for(let i=0;i<4;i++)particles.push({x:wx+rand(-0.4,0.4),y:wy+rand(-0.2,0.2),vx:rand(-0.8,0.8),vy:rand(-1.2,-0.3),life:rand(0.6,1.2),maxLife:1.2,size:rand(2,4),color:'rgba(200,180,120,'})}
+function spawnChaosDust(wx,wy){for(let i=0;i<5;i++)particles.push({x:wx+rand(-0.5,0.5),y:wy+rand(-0.5,0.5),vx:rand(-1.5,1.5),vy:rand(-2,-0.5),life:rand(0.8,1.5),maxLife:1.5,size:rand(2,5),color:'rgba(160,140,100,'})}
+function spawnFeather(wx,wy){particles.push({x:wx+rand(-0.3,0.3),y:wy+rand(-0.3,0.3),vx:rand(-0.8,0.8),vy:rand(-2,-0.8),life:rand(1.5,3),maxLife:3,size:rand(3,5),color:'rgba(230,220,180,',isFeather:true,rot:rand(0,6.28),rotV:rand(-3,3)})}
+function spawnGoldCoin(wx,wy){particles.push({x:wx+rand(-0.5,0.5),y:wy+rand(-2,-1),vx:rand(-0.3,0.3),vy:rand(0.5,1.5),life:rand(2,3.5),maxLife:3.5,size:rand(3,5),color:'rgba(255,215,0,',isCoin:true})}
+
+function updateParticles(dt){
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx*dt;p.y+=p.vy*dt;
+    if(p.isCoin){p.vy+=1.5*dt;p.vx*=0.98}
+    else{p.vy+=0.3*dt}
+    if(p.isFeather){p.rot+=p.rotV*dt;p.vx+=Math.sin(gameTime*2+p.rot)*0.3*dt}
+    p.life-=dt;
+    if(p.life<=0){
+      if(p.isCoin){player.gold++;sndGoldRain()}
+      particles.splice(i,1)
+    }
+  }
+}
+function drawParticles(){
+  for(const p of particles){
+    const sp=toScreen(p.x,p.y);
+    const a=clamp(p.life/p.maxLife,0,1);
+    if(p.isFeather){
+      ctx.save();ctx.translate(sp.x,sp.y);ctx.rotate(p.rot);
+      ctx.fillStyle=p.color+a+')';
+      ctx.beginPath();ctx.ellipse(0,0,p.size,p.size*0.3,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='rgba(200,180,140,'+a+')';ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(-p.size,0);ctx.lineTo(p.size,0);ctx.stroke();
+      ctx.restore();
+    }else if(p.isCoin){
+      ctx.fillStyle=p.color+a+')';ctx.beginPath();ctx.arc(sp.x,sp.y,p.size,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(255,255,200,'+a*0.6+')';ctx.font='bold '+Math.floor(p.size*2)+'px Georgia';ctx.textAlign='center';ctx.fillText('$',sp.x,sp.y+p.size*0.5);
+    }else{
+      ctx.fillStyle=p.color+a+')';ctx.beginPath();ctx.arc(sp.x,sp.y,p.size,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+// ============================================================
+//  FIREFLIES
+// ============================================================
+const fireflies=[];
+for(let i=0;i<12;i++)fireflies.push({x:rand(2,CFG.MAP_SIZE-2),y:rand(2,CFG.MAP_SIZE-2),phase:rand(0,Math.PI*2),speed:rand(0.3,0.8),radius:rand(1,3)});
+function drawFireflies(){
+  if(getDayPhase().name!=='night'||chaosMode.active)return;
+  const t=gameTime;
+  for(const ff of fireflies){
+    const a=(Math.sin(t*ff.speed+ff.phase)*0.5+0.5)*0.6;if(a<0.1)continue;
+    const ox=Math.sin(t*0.4+ff.phase)*ff.radius,oy=Math.cos(t*0.3+ff.phase)*ff.radius*0.5;
+    const sp=toScreen(ff.x+ox,ff.y+oy);if(sp.x<-20||sp.x>W+20||sp.y<-20||sp.y>H+20)continue;
+    ctx.fillStyle=`rgba(200,220,100,${a})`;ctx.beginPath();ctx.arc(sp.x,sp.y,2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=`rgba(200,220,100,${a*0.3})`;ctx.beginPath();ctx.arc(sp.x,sp.y,5,0,Math.PI*2);ctx.fill();
+  }
+}
+
+// ============================================================
+//  WORMS
+// ============================================================
+const worms=[];
+function spawnWorm(){
+  if(worms.length>=CFG.MAX_WORMS)return;
+  const wx=rand(1,CFG.MAP_SIZE-1),wy=rand(1,CFG.MAP_SIZE-1);
+  const t=tileAt(Math.floor(wx),Math.floor(wy));
+  if(t===0||t===1)worms.push({x:wx,y:wy,life:rand(15,30),anim:Math.random()*6});
+}
+function updateWorms(dt){
+  for(let i=worms.length-1;i>=0;i--){worms[i].life-=dt;worms[i].anim+=dt*3;if(worms[i].life<=0)worms.splice(i,1)}
+}
+function drawWorm(w){
+  const sp=toScreen(w.x,w.y),sx=sp.x,sy=sp.y;
+  if(sx<-10||sx>W+10||sy<-10||sy>H+10)return;
+  const wobble=Math.sin(w.anim)*2;
+  ctx.strokeStyle='#cc8866';ctx.lineWidth=2;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(sx-4,sy-2);ctx.quadraticCurveTo(sx+wobble,sy-5,sx+4,sy-2);ctx.stroke();
+  ctx.fillStyle='#443322';ctx.beginPath();ctx.arc(sx+4,sy-2,1,0,Math.PI*2);ctx.fill();
+}
+
+// ============================================================
+//  FLOATING TEXT
+// ============================================================
+const floatingTexts=[];
+function addFloatingText(wx,wy,text,color,size){floatingTexts.push({x:wx,y:wy,text,color,timer:2.5,vy:-1,size:size||14})}
+function updateFloatingTexts(dt){for(let i=floatingTexts.length-1;i>=0;i--){const ft=floatingTexts[i];ft.timer-=dt;ft.y+=ft.vy*dt;if(ft.timer<=0)floatingTexts.splice(i,1)}}
+function drawFloatingTexts(){for(const ft of floatingTexts){const sp=toScreen(ft.x,ft.y);ctx.globalAlpha=clamp(ft.timer,0,1);ctx.fillStyle=ft.color;ctx.font=`bold ${ft.size}px Georgia`;ctx.textAlign='center';ctx.fillText(ft.text,sp.x,sp.y-30);ctx.globalAlpha=1}}
+
+// ============================================================
+//  ACHIEVEMENT
+// ============================================================
+const achievements={chaosFarmer:false};
+function unlockAchievement(name,text){
+  if(achievements[name])return;
+  achievements[name]=true;
+  const el=document.getElementById('achievement');
+  document.getElementById('ach-text').textContent=text;
+  el.style.display='block';
+  setTimeout(()=>el.style.display='none',4000);
+}
+
+// ============================================================
+//  CHAOS MODE (v3) - 大型广场舞 + 解散游荡
+// ============================================================
+const chaosMode={
+  active:false,
+  // phases: 'forming' -> 'dancing' -> 'wandering'
+  phase:'idle',
+  phaseTimer:0,
+  totalTimer:0,
+  eggMultTimer:0,
+  goldRainTimer:0,
+  particleTimer:0,
+  featherTimer:0,
+  danceAngle:0,
+  // per-chicken dance target
+  danceTargets:new Map(),
+  // wander dialog timer
+  wanderDialogTimer:0,
+};
+
+function updateChaosMode(dt){
+  const totalChickens=chickens.length+chicks.length;
+
+  // trigger chaos
+  if(!chaosMode.active&&totalChickens>=CFG.CHAOS_THRESHOLD){
+    chaosMode.active=true;
+    chaosMode.phase='forming';
+    chaosMode.phaseTimer=0;
+    chaosMode.totalTimer=0;
+    chaosMode.danceTargets.clear();
+    cam.shakeIntensity=25;
+    sndChaos();
+    unlockAchievement('chaosFarmer','🐔 混沌农场主 — 养鸡数量突破1000！');
+    addFloatingText(player.x,player.y,'🔥 混沌模式启动！','#ff4400',20);
+  }
+
+  if(!chaosMode.active)return;
+
+  chaosMode.totalTimer+=dt;
+  chaosMode.phaseTimer+=dt;
+
+  // continuous shake
+  cam.shakeIntensity=Math.max(cam.shakeIntensity,3+Math.sin(gameTime*2)*2);
+
+  // chaos particles
+  chaosMode.particleTimer-=dt;
+  if(chaosMode.particleTimer<=0){
+    chaosMode.particleTimer=0.08;
+    if(chickens.length>0){const rc=pick(chickens);spawnChaosDust(rc.x,rc.y)}
+  }
+  chaosMode.featherTimer-=dt;
+  if(chaosMode.featherTimer<=0){
+    chaosMode.featherTimer=0.12;
+    if(chickens.length>0){const rc=pick(chickens);spawnFeather(rc.x,rc.y)}
+  }
+  // gold rain
+  chaosMode.goldRainTimer-=dt;
+  if(chaosMode.goldRainTimer<=0){
+    chaosMode.goldRainTimer=rand(0.3,0.8);
+    spawnGoldCoin(rand(2,CFG.MAP_SIZE-2),rand(2,CFG.MAP_SIZE-2));
+  }
+
+  const cx=CFG.DANCE_CENTER_X,cy=CFG.DANCE_CENTER_Y;
+
+  switch(chaosMode.phase){
+    case 'forming':{
+      // all chickens rush to center, forming circles
+      const formTime=8;
+      if(chaosMode.phaseTimer>formTime){
+        chaosMode.phase='dancing';
+        chaosMode.phaseTimer=0;
+        chaosMode.danceAngle=0;
+        addFloatingText(cx,cy,'💃 广场舞开始！','#ff88ff',18);
+      }
+      break;
+    }
+    case 'dancing':{
+      // square dance - chickens in rotating formation
+      chaosMode.danceAngle+=dt*1.5;
+      if(chaosMode.phaseTimer>CFG.DANCE_PHASE_DURATION){
+        chaosMode.phase='wandering';
+        chaosMode.phaseTimer=0;
+        chaosMode.wanderDialogTimer=0;
+        chaosMode.danceTargets.clear();
+        addFloatingText(cx,cy,'🚶 散场！去谈人生吧...','#88ccff',16);
+      }
+      break;
+    }
+    case 'wandering':{
+      // chickens wander freely across the map, chatting
+      chaosMode.wanderDialogTimer-=dt;
+      if(chaosMode.wanderDialogTimer<=0){
+        chaosMode.wanderDialogTimer=rand(2,4);
+        // pick 2 random chickens close to each other to chat
+        if(chickens.length>=2){
+          const c1=pick(chickens);
+          let c2=null,bestD=Infinity;
+          for(const c of chickens){
+            if(c===c1)continue;
+            const d=dist(c1,c);
+            if(d<4&&d<bestD){bestD=d;c2=c}
+          }
+          if(c2){
+            const lines=['今天广场舞跳得不错','是啊是啊','你觉得人生是什么','养鸡就是人生','金蛋会来的','嗯，随缘吧','这农场真大','世界那么大','你说我们为什么在这','可能因为...代码？','哈哈','别想太多，吃虫子'];
+            c1.dialogSys.bubble={text:pick(lines),timer:3,emotion:'happy'};
+            c2.dialogSys.bubble={text:pick(lines),timer:3,emotion:'happy'};
+          }
+        }
+      }
+      // exit chaos when chicken count drops
+      if(chaosMode.totalTimer>CFG.CHAOS_DURATION){
+        chaosMode.active=false;
+        chaosMode.phase='idle';
+        chaosMode.danceTargets.clear();
+        addFloatingText(player.x,player.y,'✨ 混沌模式结束','#88ff88',16);
+      }
+      break;
+    }
+  }
+}
+
+// ============================================================
+//  FAMILY SYSTEM (v3)
+// ============================================================
+const familySystem={families:new Map()};
+function removeFamilyRef(chick){
+  if(chick.mother){
+    const children=familySystem.families.get(chick.mother);
+    if(children){const idx=children.indexOf(chick);if(idx>=0)children.splice(idx,1)}
+  }
+}
+function drawFamilyLines(){
+  ctx.lineWidth=1;ctx.setLineDash([3,4]);
+  for(const [mother,children] of familySystem.families){
+    for(const chick of children){
+      const sp1=toScreen(mother.x,mother.y),sp2=toScreen(chick.x,chick.y);
+      ctx.strokeStyle='rgba(255,200,100,0.3)';
+      ctx.beginPath();ctx.moveTo(sp1.x,sp1.y-5);ctx.lineTo(sp2.x,sp2.y-3);ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+}
+
+// ============================================================
+//  CHICKEN DIALOG SYSTEM (v3)
+// ============================================================
+const chickenDialogs={
+  idle:['今天天气真好','好困啊','溜达溜达','发呆中...','嗯~舒服'],
+  wander:['溜达溜达','这虫子不错','散步真好','看看风景','走走走'],
+  eat:['好吃！','还有吗？','嗯嗯嗯','虫子大餐','美味~'],
+  nest:['该生蛋了','找个舒服的地方','专心下蛋','嗯...用力！'],
+  flee:['啊！别追我！','救命啊！','别赶我！','我错了还不行吗','跑跑跑！'],
+  sleep:['z z z...','呼噜...','做好梦...'],
+  sand:['真舒服~','洗个澡','沙浴真棒','搓搓搓'],
+  worm:['虫子！冲！','有虫子！','开饭了！'],
+  lay:['下蛋了！','今天收获不错','累死我了','又一个！'],
+  golden:['哇！金蛋！','传说中的金蛋！','发财了！'],
+  happy:['😊 咯咯哒','😊 心情好','😊 嘎嘎'],
+  scared:['😱 别过来！','😱 好可怕','😱 呜呜'],
+  hungry:['😋 好饿','😋 有吃的吗','😋 虫子呢'],
+  sleepy:['😴 困了','😴 想睡觉','😴 晚安'],
+  growUp:['我要独立了！','我长大了！','自由啦！'],
+  garden:['来菜园逛逛','这里有虫子','菜长得不错'],
+  sandArea:['沙子真暖和','洗个沙浴','搓搓羽毛'],
+};
+const emotionEmoji={happy:'😊',scared:'😱',sleepy:'😴',hungry:'😋'};
+
+class ChickenDialog{
+  constructor(){this.bubble=null;this.triggerTimer=rand(3,8)}
+  update(dt,chicken){
+    if(this.bubble){this.bubble.timer-=dt;if(this.bubble.timer<=0)this.bubble=null}
+    this.triggerTimer-=dt;
+    if(this.triggerTimer<=0){this.triggerTimer=rand(3,8);this.trigger(chicken)}
+  }
+  trigger(chicken){
+    let pool=null;
+    const state=chicken.state;
+    if(chicken.eggTimer<5)pool=chickenDialogs.hungry;
+    else if(state===CH_ST.FLEE)pool=chickenDialogs.flee;
+    else if(state===CH_ST.SLEEP)pool=chickenDialogs.sleep;
+    else if(state===CH_ST.SAND_BATH)pool=chickenDialogs.sand;
+    else if(state===CH_ST.NEST)pool=chickenDialogs.nest;
+    else if(state===CH_ST.EAT)pool=chickenDialogs.eat;
+    else if(state===CH_ST.WANDER){
+      // check if near garden or sand
+      const tx=Math.floor(chicken.x),ty=Math.floor(chicken.y);
+      const t=tileAt(tx,ty);
+      if(t===8)pool=chickenDialogs.garden;
+      else if(t===9)pool=chickenDialogs.sandArea;
+      else pool=chickenDialogs.wander;
+    }
+    else pool=chickenDialogs.idle;
+    if(pool&&pool.length>0){
+      const emotion=state===CH_ST.FLEE?'scared':state===CH_ST.SLEEP?'sleepy':chicken.eggTimer<5?'hungry':'happy';
+      this.bubble={text:pick(pool),timer:2.5+Math.random(),emotion};
+    }
+  }
+  draw(sx,sy,bob){
+    if(!this.bubble)return;
+    const text=this.bubble.text;
+    ctx.font='10px Georgia';
+    const tw=ctx.measureText(text).width;
+    const bw=tw+16,bh=18;
+    const bx=sx-bw/2,by=sy-48+bob;
+    ctx.fillStyle='rgba(255,255,240,0.92)';
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,5);ctx.fill();
+    ctx.strokeStyle='rgba(180,160,100,0.6)';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,5);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,240,0.92)';
+    ctx.beginPath();ctx.moveTo(sx-3,by+bh);ctx.lineTo(sx+3,by+bh);ctx.lineTo(sx,by+bh+5);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#333';ctx.textAlign='center';ctx.fillText(text,sx,by+13);
+  }
+}
+
+// ============================================================
+//  NPC ROAMING SYSTEM (v3) - 全地图巡逻
+// ============================================================
+// 每个NPC覆盖大范围的巡逻路线
+// 所有路线经过验证，全部在可行走地块上（grass/path/garden/sand）
+const NPC_PATROL_ROUTES={
+  // 老王: 市场旁 -> 左侧纵穿 -> 顶部横穿 -> 中央 -> 右下菜园 -> 回来
+  merchant:[
+    {x:4,y:13},{x:4,y:10},{x:1,y:10},{x:1,y:7},{x:1,y:4},
+    {x:4,y:1},{x:10,y:1},{x:10,y:4},{x:10,y:10},
+    {x:12,y:14},{x:3,y:19},{x:1,y:16},{x:4,y:13},
+  ],
+  // 小李: 中央路径 -> 右上 -> 右侧纵穿 -> 左下菜园 -> 左侧 -> 中央
+  vet:[
+    {x:11,y:4},{x:16,y:4},{x:19,y:3},{x:19,y:9},
+    {x:16,y:11},{x:12,y:11},{x:12,y:14},{x:10,y:14},
+    {x:12,y:18},{x:9,y:19},{x:4,y:20},{x:1,y:19},
+    {x:1,y:13},{x:10,y:10},{x:11,y:4},
+  ],
+  // 老者: 右侧 -> 右下沙地 -> 菜园 -> 中央 -> 左侧 -> 回来
+  elder:[
+    {x:19,y:3},{x:19,y:9},{x:16,y:11},{x:16,y:14},
+    {x:16,y:18},{x:15,y:19},{x:12,y:19},{x:12,y:14},
+    {x:10,y:10},{x:8,y:10},{x:8,y:11},{x:10,y:11},
+    {x:16,y:11},{x:16,y:7},{x:19,y:3},
+  ],
+};
+const NPC_CHAT_PAIRS=[
+  {a:'merchant',b:'vet',lines:['最近鸡蛋生意怎么样？','鸡都很健康','产量上去了','继续保持','听说有新的饲料']},
+  {a:'merchant',b:'elder',lines:['听说有金蛋传说？','年轻人别信那些','但我真的见过','那是运气好','天地玄黄...']},
+  {a:'vet',b:'elder',lines:['您身体怎么样？','老了老了','要注意养生','养鸡就是养生','鸡比人健康']},
+];
+const NPC_SELF_TALK=['今天天气不错','该干活了','嗯...','有意思','看看鸡去','加油干','这路真长','歇会儿'];
+
+class NPCRoaming{
+  constructor(npc,routeName){
+    this.npc=npc;
+    this.route=NPC_PATROL_ROUTES[routeName]||[{x:npc.x,y:npc.y}];
+    this.waypointIdx=0;
+    this.waitTimer=0;
+    this.chatBubble=null;
+    this.chatTimer=rand(10,CFG.NPC_CHAT_INTERVAL);
+    this.paused=false;
+    // stuck detection
+    this.stuckTimer=0;
+    this.lastX=npc.x;this.lastY=npc.y;
+  }
+  update(dt,player){
+    const dToPlayer=dist(this.npc,player);
+    this.paused=dToPlayer<CFG.INTERACT_RADIUS*1.5;
+    if(this.chatBubble){this.chatBubble.timer-=dt;if(this.chatBubble.timer<=0)this.chatBubble=null}
+    if(this.paused){this.waitTimer=0;return}
+    if(this.waitTimer>0){this.waitTimer-=dt;return}
+    const target=this.route[this.waypointIdx];
+    const d=dist(this.npc,target);
+    if(d>0.3){
+      const dx=(target.x-this.npc.x)/d,dy=(target.y-this.npc.y)/d;
+      const nx=this.npc.x+dx*CFG.NPC_WALK_SPEED*dt;
+      const ny=this.npc.y+dy*CFG.NPC_WALK_SPEED*dt;
+      if(isWalkable(nx,this.npc.y))this.npc.x=nx;
+      if(isWalkable(this.npc.x,ny))this.npc.y=ny;
+      // stuck detection: if barely moved for 2s, skip waypoint
+      const moved=Math.hypot(this.npc.x-this.lastX,this.npc.y-this.lastY);
+      if(moved<0.05){this.stuckTimer+=dt}else{this.stuckTimer=0}
+      this.lastX=this.npc.x;this.lastY=this.npc.y;
+      if(this.stuckTimer>2){this.waypointIdx=(this.waypointIdx+1)%this.route.length;this.stuckTimer=0;this.waitTimer=0}
+    }else{
+      this.waypointIdx=(this.waypointIdx+1)%this.route.length;
+      this.waitTimer=rand(0.5,2);
+    }
+    this.chatTimer-=dt;
+    if(this.chatTimer<=0){
+      this.chatTimer=rand(10,CFG.NPC_CHAT_INTERVAL);
+      this.chatBubble={text:pick(NPC_SELF_TALK),timer:3};
+    }
+  }
+  tryChatWith(otherRoaming){
+    if(this.chatBubble||otherRoaming.chatBubble)return;
+    const d=dist(this.npc,otherRoaming.npc);
+    if(d<CFG.NPC_CHAT_RANGE){
+      for(const pair of NPC_CHAT_PAIRS){
+        if((this.npc.dialogs===pair.a&&otherRoaming.npc.dialogs===pair.b)||(this.npc.dialogs===pair.b&&otherRoaming.npc.dialogs===pair.a)){
+          const line=pick(pair.lines);
+          this.chatBubble={text:line,timer:4};
+          otherRoaming.chatBubble={text:pick(pair.lines.filter(l=>l!==line))||'嗯嗯',timer:4};
+          break;
+        }
+      }
+    }
+  }
+  drawChatBubble(sx,sy,bob){
+    if(!this.chatBubble)return;
+    const text=this.chatBubble.text;
+    ctx.font='11px Georgia';
+    const tw=ctx.measureText(text).width;
+    const bw=tw+16,bh=20;
+    const bx=sx-bw/2,by=sy-50+bob;
+    ctx.fillStyle='rgba(200,220,255,0.92)';
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,5);ctx.fill();
+    ctx.strokeStyle='rgba(100,140,200,0.6)';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,5);ctx.stroke();
+    ctx.fillStyle='rgba(200,220,255,0.92)';
+    ctx.beginPath();ctx.moveTo(sx-3,by+bh);ctx.lineTo(sx+3,by+bh);ctx.lineTo(sx,by+bh+5);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#223';ctx.textAlign='center';ctx.fillText(text,sx,by+15);
+  }
+}
+const npcRoamings=[];
+
+// ============================================================
+//  PLAYER
+// ============================================================
+class Player{
+  constructor(x,y){this.x=x;this.y=y;this.targetX=x;this.targetY=y;this.facing=0;this.moving=false;this.anim=0;this.gold=0;this.eggs=0}
+  update(dt){
+    let dx=0,dy=0;
+    if(keys['w']||keys['arrowup']){dx--;dy--}if(keys['s']||keys['arrowdown']){dx++;dy++}
+    if(keys['a']||keys['arrowleft']){dx--;dy++}if(keys['d']||keys['arrowright']){dx++;dy--}
+    if(dx!==0||dy!==0){
+      const len=Math.hypot(dx,dy);dx/=len;dy/=len;
+      const nx=this.x+dx*CFG.PLAYER_SPEED*dt,ny=this.y+dy*CFG.PLAYER_SPEED*dt;
+      if(isWalkable(nx,this.y))this.x=nx;if(isWalkable(this.x,ny))this.y=ny;
+      this.moving=true;this.anim+=dt*8;
+      if(dx>0&&dy<=0)this.facing=0;else if(dx<=0&&dy>0)this.facing=1;else if(dx<0&&dy<=0)this.facing=2;else this.facing=3;
+    }else{
+      const d=dist(this,{x:this.targetX,y:this.targetY});
+      if(d>0.1){const dx2=(this.targetX-this.x)/d,dy2=(this.targetY-this.y)/d;const nx=this.x+dx2*CFG.PLAYER_SPEED*dt,ny=this.y+dy2*CFG.PLAYER_SPEED*dt;if(isWalkable(nx,this.y))this.x=nx;if(isWalkable(this.x,ny))this.y=ny;this.moving=true;this.anim+=dt*8;if(dx2>0&&dy2<=0)this.facing=0;else if(dx2<=0&&dy2>0)this.facing=1;else if(dx2<0&&dy2<=0)this.facing=2;else this.facing=3}
+      else this.moving=false;
+    }
+    this.x=clamp(this.x,0.5,CFG.MAP_SIZE-0.5);this.y=clamp(this.y,0.5,CFG.MAP_SIZE-0.5);
+  }
+  draw(){
+    const sp=toScreen(this.x,this.y),sx=sp.x,sy=sp.y,bob=this.moving?Math.sin(this.anim)*2:0;
+    ctx.fillStyle='rgba(0,0,0,0.35)';ctx.beginPath();ctx.ellipse(sx,sy+2,10,5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=C.pBody;ctx.fillRect(sx-6,sy-22+bob,12,16);
+    ctx.fillStyle=C.pSkin;ctx.fillRect(sx-9,sy-18+bob,4,8);ctx.fillRect(sx+5,sy-18+bob,4,8);
+    ctx.fillStyle=C.pSkin;ctx.beginPath();ctx.arc(sx,sy-26+bob,6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=C.pHat;ctx.fillRect(sx-10,sy-32+bob,20,4);
+    ctx.fillStyle=C.pHatB;ctx.fillRect(sx-5,sy-36+bob,10,5);
+    const legOff=this.moving?Math.sin(this.anim)*3:0;
+    ctx.fillStyle='#3a2a1a';ctx.fillRect(sx-4,sy-6+bob,3,8+legOff);ctx.fillRect(sx+1,sy-6+bob,3,8-legOff);
+    ctx.fillStyle='#2a1a08';ctx.fillRect(sx-5,sy+2+bob+legOff,5,3);ctx.fillRect(sx,sy+2+bob-legOff,5,3);
+  }
+}
+
+// ============================================================
+//  CHICKEN
+// ============================================================
+const CH_ST={IDLE:0,WANDER:1,EAT:2,NEST:3,FLEE:4,SLEEP:5,SAND_BATH:6};
+
+// helper: random walkable target across the whole map
+function randomMapTarget(){
+  for(let tries=0;tries<50;tries++){
+    const x=rand(1.5,CFG.MAP_SIZE-1.5),y=rand(1.5,CFG.MAP_SIZE-1.5);
+    if(isWalkable(x,y))return{x,y};
+  }
+  return{x:11,y:11};
+}
+// helper: random walkable target biased toward a tile type
+function randomTileTarget(tileType){
+  const candidates=[];
+  for(let ty=0;ty<CFG.MAP_SIZE;ty++)for(let tx=0;tx<CFG.MAP_SIZE;tx++)if(MAP[ty][tx]===tileType)candidates.push({x:tx+rand(0.3,0.7),y:ty+rand(0.3,0.7)});
+  if(candidates.length>0)return pick(candidates);
+  return randomMapTarget();
+}
+
+class Chicken{
+  constructor(x,y){
+    this.x=x;this.y=y;this.state=CH_ST.IDLE;this.stateTimer=rand(1,3);
+    this.facing=Math.random()<0.5?1:-1;this.anim=Math.random()*6;
+    this.eggTimer=rand(CFG.EGG_MIN_TIME,CFG.EGG_MAX_TIME);this.eggsLaid=0;
+    this.targetX=x;this.targetY=y;
+    this.dialogSys=new ChickenDialog();
+    this.emotion='happy';
+    // chaos dance: assigned position in formation
+    this.danceSlot=-1;
+  }
+  update(dt,player){
+    this.anim+=dt*4;this.eggTimer-=dt;
+    this.dialogSys.update(dt,this);
+
+    // === CHAOS MODE BEHAVIOR ===
+    if(chaosMode.active){
+      this._updateChaos(dt,player);
+      return;
+    }
+
+    // night: force sleep
+    const phase=getDayPhase();
+    if(phase.name==='night'&&this.state!==CH_ST.SLEEP&&this.state!==CH_ST.FLEE){
+      this.state=CH_ST.SLEEP;this.stateTimer=99;this._findNest();this.emotion='sleepy';return;
+    }
+    if(phase.name!=='night'&&this.state===CH_ST.SLEEP){this.state=CH_ST.IDLE;this.stateTimer=rand(1,2);this.emotion='happy'}
+
+    const dToPlayer=dist(this,player);
+    if(dToPlayer<CFG.CHICKEN_FLEE_RADIUS&&this.state!==CH_ST.FLEE&&this.state!==CH_ST.SLEEP){
+      this.state=CH_ST.FLEE;this.stateTimer=1.5;this.emotion='scared';
+      const angle=Math.atan2(this.y-player.y,this.x-player.x);
+      this.targetX=clamp(this.x+Math.cos(angle)*CFG.CHICKEN_FLEE_DIST,1,CFG.MAP_SIZE-2);
+      this.targetY=clamp(this.y+Math.sin(angle)*CFG.CHICKEN_FLEE_DIST,1,CFG.MAP_SIZE-2);
+      this.dialogSys.trigger(this);
+    }
+
+    // protect chicks
+    const myChicks=familySystem.families.get(this)||[];
+    for(const chick of myChicks){
+      if(dist(player,chick)<1.5&&this.state!==CH_ST.FLEE){
+        this.state=CH_ST.WANDER;this.stateTimer=2;
+        this.targetX=chick.x;this.targetY=chick.y;
+        this.emotion='scared';this.dialogSys.trigger(this);break;
+      }
+    }
+
+    this.stateTimer-=dt;
+    switch(this.state){
+      case CH_ST.IDLE:
+        if(this.stateTimer<=0){
+          if(this.eggTimer<=0){this.state=CH_ST.NEST;this.stateTimer=8;this._findNest();this.emotion='happy'}
+          else{const r=Math.random();
+            // biased toward sand and garden areas
+            if(r<0.2){this.state=CH_ST.SAND_BATH;this.stateTimer=rand(3,5);this._findSand()}
+            else if(r<0.4){this.state=CH_ST.WANDER;this.stateTimer=rand(3,6);const t=randomTileTarget(8);this.targetX=t.x;this.targetY=t.y}
+            else if(r<0.6){this.state=CH_ST.WANDER;this.stateTimer=rand(3,6);const t=randomTileTarget(9);this.targetX=t.x;this.targetY=t.y}
+            else if(r<0.85){this.state=CH_ST.WANDER;this.stateTimer=rand(3,6);const t=randomMapTarget();this.targetX=t.x;this.targetY=t.y}
+            else{this.state=CH_ST.EAT;this.stateTimer=rand(2,4)}}
+        }break;
+      case CH_ST.WANDER:{
+        const d=dist(this,{x:this.targetX,y:this.targetY});
+        if(d>0.3&&this.stateTimer>0){
+          const dx=(this.targetX-this.x)/d,dy=(this.targetY-this.y)/d;
+          const nx=this.x+dx*CFG.CHICKEN_SPEED*dt,ny=this.y+dy*CFG.CHICKEN_SPEED*dt;
+          if(isWalkable(nx,this.y)){this.x=nx;this.facing=dx>0?1:-1}
+          if(isWalkable(this.x,ny))this.y=ny;
+        }else{this.state=CH_ST.IDLE;this.stateTimer=rand(1,3)}
+      }break;
+      case CH_ST.EAT:{
+        // actively seek nearby worms
+        let nearestWorm=null,wd=Infinity;
+        for(const w of worms){const d=dist(this,w);if(d<3&&d<wd){wd=d;nearestWorm=w}}
+        if(nearestWorm&&wd>0.5){
+          // move toward worm
+          const dx=(nearestWorm.x-this.x)/wd,dy=(nearestWorm.y-this.y)/wd;
+          const nx=this.x+dx*CFG.CHICKEN_SPEED*1.2*dt,ny=this.y+dy*CFG.CHICKEN_SPEED*1.2*dt;
+          if(isWalkable(nx,this.y)){this.x=nx;this.facing=dx>0?1:-1}
+          if(isWalkable(this.x,ny))this.y=ny;
+        }
+        // eat worm if close
+        for(let i=worms.length-1;i>=0;i--){
+          if(dist(this,worms[i])<0.8){
+            worms.splice(i,1);this.eggTimer=Math.max(0,this.eggTimer-8);
+            this.dialogSys.bubble={text:pick(chickenDialogs.worm),timer:2,emotion:'happy'};break;
+          }
+        }
+        if(this.stateTimer<=0){this.state=CH_ST.IDLE;this.stateTimer=rand(1,2)}
+      }break;
+      case CH_ST.NEST:{const d=dist(this,{x:this.targetX,y:this.targetY});if(d>0.5&&this.stateTimer>0){const dx=(this.targetX-this.x)/d,dy=(this.targetY-this.y)/d;const nx=this.x+dx*CFG.CHICKEN_SPEED*dt,ny=this.y+dy*CFG.CHICKEN_SPEED*dt;if(isWalkable(nx,this.y)){this.x=nx;this.facing=dx>0?1:-1}if(isWalkable(this.x,ny))this.y=ny}else{this._layEgg();this.state=CH_ST.IDLE;this.stateTimer=rand(2,4)}}break;
+      case CH_ST.FLEE:{const d=dist(this,{x:this.targetX,y:this.targetY});if(d>0.3&&this.stateTimer>0){const dx=(this.targetX-this.x)/d,dy=(this.targetY-this.y)/d;const nx=this.x+dx*CFG.CHICKEN_FLEE_SPEED*dt,ny=this.y+dy*CFG.CHICKEN_FLEE_SPEED*dt;if(isWalkable(nx,this.y)){this.x=nx;this.facing=dx>0?1:-1}if(isWalkable(this.x,ny))this.y=ny;if(Math.random()<0.3)spawnDust(this.x,this.y)}else{this.state=CH_ST.IDLE;this.stateTimer=rand(1,2);this.emotion='happy'}}break;
+      case CH_ST.SLEEP:{const d=dist(this,{x:this.targetX,y:this.targetY});if(d>0.5){const dx=(this.targetX-this.x)/d,dy=(this.targetY-this.y)/d;this.x+=dx*CFG.CHICKEN_SPEED*0.5*dt;this.y+=dy*CFG.CHICKEN_SPEED*0.5*dt}}break;
+      case CH_ST.SAND_BATH:{
+        if(Math.random()<0.15)spawnSandPuff(this.x,this.y);
+        if(this.stateTimer<=0){this.state=CH_ST.IDLE;this.stateTimer=rand(1,2)}}break;
+    }
+  }
+
+  // chaos mode behavior
+  _updateChaos(dt,player){
+    this.stateTimer-=dt;
+    const cx=CFG.DANCE_CENTER_X,cy=CFG.DANCE_CENTER_Y;
+
+    switch(chaosMode.phase){
+      case 'forming':{
+        // rush to center, form circles
+        if(this.danceSlot<0)this.danceSlot=Math.floor(Math.random()*200);
+        const ring=Math.floor(this.danceSlot/20);
+        const idx=this.danceSlot%20;
+        const angle=(idx/20)*Math.PI*2;
+        const radius=2+ring*1.8;
+        this.targetX=cx+Math.cos(angle)*radius;
+        this.targetY=cy+Math.sin(angle)*radius;
+        this._moveToward(this.targetX,this.targetY,dt,CFG.CHICKEN_SPEED*CFG.CHAOS_SPEED_MULT);
+        // dialog
+        if(Math.random()<0.002)this.dialogSys.bubble={text:'集合集合！',timer:2,emotion:'scared'};
+        break;
+      }
+      case 'dancing':{
+        // rotate in formation
+        if(this.danceSlot<0)this.danceSlot=Math.floor(Math.random()*200);
+        const ring=Math.floor(this.danceSlot/20);
+        const idx=this.danceSlot%20;
+        const baseAngle=chaosMode.danceAngle+(idx/20)*Math.PI*2;
+        const radius=2+ring*1.8;
+        // alternate rings rotate opposite
+        const finalAngle=ring%2===0?baseAngle:-baseAngle;
+        const tx=cx+Math.cos(finalAngle)*radius;
+        const ty=cy+Math.sin(finalAngle)*radius;
+        this._moveToward(tx,ty,dt,CFG.CHICKEN_SPEED*2);
+        this.facing=Math.cos(finalAngle)>0?1:-1;
+        // dance dialog
+        if(Math.random()<0.003)this.dialogSys.bubble={text:pick(['💃 跳起来！','🎵 咯咯哒~','🎶 左右左','🕺 转圈圈']),timer:2,emotion:'happy'};
+        break;
+      }
+      case 'wandering':{
+        // free roam across entire map
+        this.stateTimer-=dt;
+        if(this.stateTimer<=0||dist(this,{x:this.targetX,y:this.targetY})<0.5){
+          this.stateTimer=rand(4,8);
+          const t=randomMapTarget();
+          this.targetX=t.x;this.targetY=t.y;
+        }
+        this._moveToward(this.targetX,this.targetY,dt,CFG.CHICKEN_SPEED);
+        // random life dialog
+        if(Math.random()<0.001)this.dialogSys.bubble={text:pick(['人生啊...','你觉得鸡生的意义是什么','也许就是下蛋吧','金蛋在哪呢','想去看海','今天天气不错','你幸福吗','我很快乐','知足常乐']),timer:3,emotion:'happy'};
+        break;
+      }
+    }
+  }
+
+  _moveToward(tx,ty,dt,speed){
+    const d=dist(this,{x:tx,y:ty});
+    if(d>0.3){
+      const dx=(tx-this.x)/d,dy=(ty-this.y)/d;
+      const nx=this.x+dx*speed*dt,ny=this.y+dy*speed*dt;
+      if(isWalkable(nx,this.y)){this.x=nx;this.facing=dx>0?1:-1}
+      if(isWalkable(this.x,ny))this.y=ny;
+    }
+  }
+
+  _findNest(){let best=null,bestD=Infinity;for(let ty=0;ty<CFG.MAP_SIZE;ty++)for(let tx=0;tx<CFG.MAP_SIZE;tx++)if(MAP[ty][tx]===4){const d=dist(this,{x:tx+0.5,y:ty+0.5});if(d<bestD){bestD=d;best={x:tx+0.5,y:ty+0.5}}}if(best){this.targetX=best.x;this.targetY=best.y}else{this.targetX=this.x;this.targetY=this.y}}
+  _findSand(){const t=randomTileTarget(9);this.targetX=t.x;this.targetY=t.y}
+  _layEgg(){
+    const isGolden=Math.random()<0.08;
+    eggs.push(new Egg(this.x+rand(-0.3,0.3),this.y+rand(-0.3,0.3),isGolden));
+    this.eggTimer=rand(CFG.EGG_MIN_TIME,CFG.EGG_MAX_TIME);this.eggsLaid++;sndLay();
+    this.dialogSys.bubble={text:isGolden?pick(chickenDialogs.golden):pick(chickenDialogs.lay),timer:2.5,emotion:'happy'};
+    if(isGolden)addFloatingText(this.x,this.y,'✨ 金蛋！','#ffd700');
+  }
+  draw(){
+    const sp=toScreen(this.x,this.y),sx=sp.x,sy=sp.y;
+    const eating=this.state===CH_ST.EAT,fleeing=this.state===CH_ST.FLEE,sleeping=this.state===CH_ST.SLEEP,bathing=this.state===CH_ST.SAND_BATH;
+    const bob=sleeping?0:Math.sin(this.anim)*(fleeing?2.5:1.5);
+    const headBob=eating?4:0;const f=this.facing;
+    const chaosTint=chaosMode.active;
+
+    ctx.fillStyle='rgba(0,0,0,0.25)';ctx.beginPath();ctx.ellipse(sx,sy+3,8,4,0,0,Math.PI*2);ctx.fill();
+    if(sleeping){
+      ctx.fillStyle=C.cBodyD;ctx.beginPath();ctx.ellipse(sx,sy-6,9,5,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=C.cBody;ctx.beginPath();ctx.ellipse(sx,sy-7,7,4,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(100,150,255,0.6)';ctx.font='10px Georgia';ctx.textAlign='center';ctx.fillText('z z z',sx,sy-18);
+    }else{
+      ctx.fillStyle=chaosTint?'#d8a080':C.cBodyD;
+      ctx.beginPath();ctx.moveTo(sx-f*6,sy-10+bob);ctx.lineTo(sx-f*12,sy-16+bob);ctx.lineTo(sx-f*4,sy-12+bob);ctx.closePath();ctx.fill();
+      ctx.fillStyle=chaosTint?'#e0b090':C.cWing;
+      ctx.beginPath();ctx.ellipse(sx-f*2,sy-8+bob,6,5,f*0.3,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=chaosTint?'#f0c8a0':C.cBody;
+      ctx.beginPath();ctx.ellipse(sx,sy-8+bob,8,7,0,0,Math.PI*2);ctx.fill();
+      const legAnim=(this.state===CH_ST.WANDER||fleeing||chaosMode.active)?Math.sin(this.anim*2)*3:0;
+      ctx.strokeStyle=C.cLeg;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(sx-3,sy-2+bob);ctx.lineTo(sx-4,sy+2+legAnim);ctx.moveTo(sx+3,sy-2+bob);ctx.lineTo(sx+4,sy+2-legAnim);ctx.stroke();
+      const hx=sx+f*5,hy=sy-16+bob+headBob;
+      ctx.fillStyle=chaosTint?'#f0c8a0':C.cBody;ctx.beginPath();ctx.arc(hx,hy,5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#111';ctx.beginPath();ctx.arc(hx+f*2,hy-1,1.2,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=C.cBeak;ctx.beginPath();ctx.moveTo(hx+f*5,hy);ctx.lineTo(hx+f*8,hy+1);ctx.lineTo(hx+f*5,hy+2);ctx.closePath();ctx.fill();
+      ctx.fillStyle=chaosTint?'#ee5533':C.cComb;ctx.beginPath();ctx.moveTo(hx-2,hy-5);ctx.lineTo(hx,hy-9);ctx.lineTo(hx+2,hy-5);ctx.closePath();ctx.fill();
+      if(fleeing&&!chaosMode.active){ctx.fillStyle='#ff4444';ctx.font='10px Georgia';ctx.textAlign='center';ctx.fillText('!',sx,sy-28+bob)}
+      if(bathing){ctx.fillStyle='rgba(200,180,100,0.3)';ctx.beginPath();ctx.ellipse(sx,sy+2,12,6,0,0,Math.PI*2);ctx.fill()}
+    }
+    this.dialogSys.draw(sx,sy,bob);
+  }
+}
+
+// ============================================================
+//  CHICK
+// ============================================================
+class Chick{
+  constructor(x,y,mother){
+    this.x=x;this.y=y;this.mother=mother;this.age=0;this.anim=Math.random()*6;this.facing=1;
+    this.dialogSys=new ChickenDialog();
+    this.dialogSys.triggerTimer=rand(5,15);
+  }
+  update(dt){
+    // chaos mode: freeze growth
+    if(chaosMode.active){
+      this.anim+=dt*6;
+      this.dialogSys.update(dt,this);
+      // during forming/dancing, follow mother or go to center
+      if(this.mother){
+        const d=dist(this,this.mother);
+        if(d>CFG.CHICK_FOLLOW_DIST){
+          const dx=(this.mother.x-this.x)/d,dy=(this.mother.y-this.y)/d;
+          this.x+=dx*3*dt;this.y+=dy*3*dt;this.facing=dx>0?1:-1;
+        }
+      }
+      return false; // never grow during chaos
+    }
+
+    this.age+=dt;this.anim+=dt*6;
+    this.dialogSys.update(dt,this);
+
+    if(this.mother){
+      const d=dist(this,this.mother);
+      if(d>CFG.CHICK_FOLLOW_DIST){
+        const dx=(this.mother.x-this.x)/d,dy=(this.mother.y-this.y)/d;
+        const speed=this.mother.state===CH_ST.FLEE?CFG.CHICKEN_FLEE_SPEED*0.8:2;
+        this.x+=dx*speed*dt;this.y+=dy*speed*dt;this.facing=dx>0?1:-1;
+      }
+    }
+    if(Math.random()<0.005)sndChirp();
+    if(this.age>=CFG.CHICK_GROW_TIME-5&&this.dialogSys.bubble===null){
+      this.dialogSys.bubble={text:pick(chickenDialogs.growUp),timer:3,emotion:'happy'};
+    }
+    return this.age>=CFG.CHICK_GROW_TIME;
+  }
+  draw(){
+    const sp=toScreen(this.x,this.y),sx=sp.x,sy=sp.y;
+    const bob=Math.sin(this.anim)*1.5,f=this.facing;
+    ctx.fillStyle='rgba(0,0,0,0.15)';ctx.beginPath();ctx.ellipse(sx,sy+2,5,3,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=C.chickBody;ctx.beginPath();ctx.ellipse(sx,sy-5+bob,5,4,0,0,Math.PI*2);ctx.fill();
+    const hx=sx+f*3,hy=sy-10+bob;
+    ctx.fillStyle=C.chickBody;ctx.beginPath();ctx.arc(hx,hy,3.5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#111';ctx.beginPath();ctx.arc(hx+f*1.5,hy-0.5,0.8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=C.chickBeak;ctx.beginPath();ctx.moveTo(hx+f*3.5,hy);ctx.lineTo(hx+f*5,hy+0.5);ctx.lineTo(hx+f*3.5,hy+1.5);ctx.closePath();ctx.fill();
+    ctx.fillStyle=C.cComb;ctx.beginPath();ctx.arc(hx,hy-3.5,1.5,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=C.cLeg;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx-2,sy-1+bob);ctx.lineTo(sx-2,sy+2);ctx.moveTo(sx+2,sy-1+bob);ctx.lineTo(sx+2,sy+2);ctx.stroke();
+    this.dialogSys.draw(sx,sy,bob);
+  }
+}
+
+// ============================================================
+//  NPC
+// ============================================================
+class NPC{
+  constructor(x,y,name,color,dialogs){this.x=x;this.y=y;this.name=name;this.color=color;this.dialogs=dialogs;this.anim=0;this.glowTimer=0}
+  update(dt,player){this.anim+=dt*2;const d=dist(this,player);this.glowTimer=d<CFG.INTERACT_RADIUS?Math.min(this.glowTimer+dt*3,1):Math.max(this.glowTimer-dt*3,0)}
+  draw(){
+    const sp=toScreen(this.x,this.y),sx=sp.x,sy=sp.y,bob=Math.sin(this.anim)*1;
+    if(this.glowTimer>0){ctx.fillStyle=`rgba(200,168,50,${this.glowTimer*0.15})`;ctx.beginPath();ctx.ellipse(sx,sy,20,12,0,0,Math.PI*2);ctx.fill()}
+    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.beginPath();ctx.ellipse(sx,sy+2,10,5,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=this.color;ctx.beginPath();ctx.moveTo(sx-8,sy-6+bob);ctx.lineTo(sx+8,sy-6+bob);ctx.lineTo(sx+10,sy+2);ctx.lineTo(sx-10,sy+2);ctx.closePath();ctx.fill();
+    ctx.fillRect(sx-7,sy-20+bob,14,15);
+    ctx.fillStyle=C.pSkin;ctx.beginPath();ctx.arc(sx,sy-24+bob,6,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=C.dlgName;ctx.font='11px Georgia';ctx.textAlign='center';ctx.fillText(this.name,sx,sy-34+bob);
+    if(this.glowTimer>0.5){ctx.fillStyle=`rgba(255,255,200,${0.5+Math.sin(Date.now()/300)*0.3})`;ctx.font='10px Georgia';ctx.fillText('[E/点击对话]',sx,sy-42+bob)}
+  }
+}
+
+// ============================================================
+//  EGG
+// ============================================================
+class Egg{
+  constructor(x,y,golden){this.x=x;this.y=y;this.age=0;this.collected=false;this.sparkle=0;this.golden=golden||false;this.value=golden?5:1;this.hatchTimer=rand(CFG.HATCH_TIME-10,CFG.HATCH_TIME+15)}
+  update(dt){this.age+=dt;this.sparkle+=dt*3;this.hatchTimer-=dt}
+  canHatch(){return this.hatchTimer<=0&&!this.collected&&!chaosMode.active}
+  draw(){
+    if(this.collected)return;
+    const sp=toScreen(this.x,this.y),sx=sp.x,sy=sp.y;
+    if(sx<-20||sx>W+20||sy<-20||sy>H+20)return;
+    ctx.fillStyle='rgba(0,0,0,0.2)';ctx.beginPath();ctx.ellipse(sx,sy+2,5,3,0,0,Math.PI*2);ctx.fill();
+    const pulse=this.hatchTimer<10?Math.sin(this.sparkle*3)*0.15+1:1;
+    ctx.fillStyle=this.golden?'#ffd700':'#f5f0e0';
+    ctx.beginPath();ctx.ellipse(sx,sy-4,5*pulse,7*pulse,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle=this.golden?'#cc9900':'#d0c8a0';ctx.lineWidth=0.5;ctx.stroke();
+    ctx.fillStyle=this.golden?'rgba(255,255,200,0.6)':'rgba(255,255,255,0.4)';
+    ctx.beginPath();ctx.ellipse(sx-1,sy-6,2,3,-0.3,0,Math.PI*2);ctx.fill();
+    if(this.golden){const glow=Math.sin(this.sparkle*2)*0.3+0.4;ctx.fillStyle=`rgba(255,215,0,${glow})`;ctx.beginPath();ctx.arc(sx,sy-4,10,0,Math.PI*2);ctx.fill()}
+    if(this.hatchTimer<15&&!this.golden&&!chaosMode.active){ctx.fillStyle='rgba(255,255,200,0.5)';ctx.font='8px Georgia';ctx.textAlign='center';ctx.fillText('孵化中...',sx,sy-14)}
+  }
+}
+
+// ============================================================
+//  DIALOG SYSTEM (NPC)
+// ============================================================
+const dialogState={active:false,npc:null,page:0,anim:0};
+const DIALOGS={
+  merchant:[
+    {text:"哟！农场主来了！今天要卖鸡蛋吗？我这儿价格公道！",options:[
+      {text:"💰 卖鸡蛋（每个1金币）",action:'sell'},
+      {text:"📈 最近生意怎么样？",goto:1},
+      {text:"👋 再见",action:'close'}]},
+    {text:"唉，最近鸡蛋不太好卖啊。不过你要是能多养几只鸡，产量上去了，自然就赚得多。听说鸡在鸡舍里生蛋效率更高！",options:[
+      {text:"💡 有什么经营诀窍吗？",goto:2},
+      {text:"💰 我还是先卖鸡蛋吧",action:'sell'},
+      {text:"👋 再见",action:'close'}]},
+    {text:"诀窍嘛...多驱赶母鸡回鸡舍生蛋，鸡舍里生的蛋品质更好！还有，别把鸡赶太急了，它们会吓得到处乱跑。蛋放久了会孵化小鸡哦！",options:[
+      {text:"📝 原来如此！",goto:0},
+      {text:"👋 再见",action:'close'}]},
+  ],
+  vet:[
+    {text:"你好！我是农场的兽医小李。你的鸡看起来都很健康！",options:[
+      {text:"🏥 鸡怎么才能多生蛋？",goto:1},
+      {text:"💊 鸡会生病吗？",goto:2},
+      {text:"👋 再见",action:'close'}]},
+    {text:"鸡需要安全感才会安心生蛋。你把它们赶回鸡舍，它们会觉得安全。另外，让鸡在沙地里洗沙浴也有助于健康！",options:[
+      {text:"📝 受教了！",goto:0},
+      {text:"👋 再见",action:'close'}]},
+    {text:"目前来看你的鸡都很健康！注意保持鸡舍清洁就好。对了，如果你看到鸡头顶冒感叹号，说明它被吓到了。晚上鸡会自己回鸡舍睡觉。",options:[
+      {text:"📝 明白了！",goto:0},
+      {text:"👋 再见",action:'close'}]},
+  ],
+  elder:[
+    {text:"年轻人...这片土地有着悠久的历史。你可知道这里曾经发生过什么？",options:[
+      {text:"🔮 什么历史？",goto:1},
+      {text:"🐔 我只想好好养鸡",goto:3},
+      {text:"👋 再见",action:'close'}]},
+    {text:"很久以前，这里是一位伟大法师的庄园。他养的鸡...不是普通的鸡。传说中，金色的鸡蛋蕴含着神奇的力量。",options:[
+      {text:"✨ 金色鸡蛋？",goto:2},
+      {text:"👋 再见",action:'close'}]},
+    {text:"传说当一个农场收集到100个鸡蛋时...不，算了，那只是老人们的传说罢了。你好好养鸡吧，年轻人。也许有一天，传说会成真。",options:[
+      {text:"🤔 我会记住的...",goto:0},
+      {text:"👋 再见",action:'close'}]},
+    {text:"哈哈，务实的年轻人。也好，养鸡也是一门学问。用心对待你的鸡，它们会回报你的。",options:[
+      {text:"📝 说得好！",goto:0},
+      {text:"👋 再见",action:'close'}]},
+  ],
+};
+
+function openDialog(npc){dialogState.active=true;dialogState.npc=npc;dialogState.page=0;dialogState.anim=0;sndTalk()}
+function closeDialog(){dialogState.active=false;dialogState.npc=null}
+
+function handleDialogClick(mx,my){
+  if(!dialogState.active)return false;
+  const npc=dialogState.npc,dlg=DIALOGS[npc.dialogs];if(!dlg)return false;
+  const page=dlg[dialogState.page];if(!page)return false;
+  const bw=Math.min(W*0.75,700);
+  const bx=(W-bw)/2;
+  ctx.font='15px Georgia';
+  const maxTextW=bw-60;
+  let textLines=1,line='';
+  for(const ch of page.text){const test=line+ch;if(ctx.measureText(test).width>maxTextW){textLines++;line=ch}else line=test}
+  const textH=textLines*20;
+  const bh=Math.max(180,60+textH+15+page.options.length*30+20);
+  const by=H-bh-30;
+  const optY=by+58+textH+10;
+  for(let i=0;i<page.options.length;i++){
+    const oy=optY+i*30;
+    if(mx>=bx+30&&mx<=bx+bw-30&&my>=oy-10&&my<=oy+16){
+      const opt=page.options[i];
+      if(opt.action==='close'){closeDialog();return true}
+      if(opt.action==='sell'){
+        if(player.eggs>0){player.gold+=player.eggs;addFloatingText(player.x,player.y,`+${player.eggs} 金币`,'#ffd700');player.eggs=0;sndCollect()}
+        else addFloatingText(player.x,player.y,'没有鸡蛋可卖','#ff6666');
+        closeDialog();return true}
+      if(opt.goto!==undefined){dialogState.page=opt.goto;sndTalk();return true}
+    }
+  }
+  return true;
+}
+
+function wrapText(text,maxW){
+  ctx.font='15px Georgia';
+  const lines=[];let line='';
+  for(const ch of text){const test=line+ch;if(ctx.measureText(test).width>maxW){lines.push(line);line=ch}else line=test}
+  if(line)lines.push(line);return lines;
+}
+
+function drawDialog(){
+  if(!dialogState.active)return;
+  const npc=dialogState.npc,dlg=DIALOGS[npc.dialogs];if(!dlg)return;
+  const page=dlg[dialogState.page];if(!page)return;
+  dialogState.anim=Math.min(dialogState.anim+0.05,1);
+  const alpha=dialogState.anim;
+
+  const bw=Math.min(W*0.75,700),maxTextW=bw-60;
+  const lines=wrapText(page.text,maxTextW);
+  const textH=lines.length*20;
+  const bh=Math.max(180,60+textH+15+page.options.length*30+20);
+  const bx=(W-bw)/2,by=H-bh-30;
+
+  ctx.fillStyle=`rgba(0,0,0,${0.4*alpha})`;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle=C.dlgBorder;ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(bx-4,by-4,bw+8,bh+8,8);ctx.stroke();
+  ctx.strokeStyle=C.dlgBorder2;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(bx-1,by-1,bw+2,bh+2,6);ctx.stroke();
+  ctx.fillStyle=C.dlgBg;ctx.beginPath();ctx.roundRect(bx,by,bw,bh,6);ctx.fill();
+  [[8,8],[bw-8,8],[8,bh-8],[bw-8,bh-8]].forEach(([ox,oy])=>{ctx.fillStyle=C.dlgBorder;ctx.beginPath();ctx.arc(bx+ox,by+oy,4,0,Math.PI*2);ctx.fill()});
+
+  ctx.fillStyle=C.dlgName;ctx.font='bold 18px Georgia';ctx.textAlign='left';ctx.fillText(npc.name,bx+30,by+28);
+  ctx.strokeStyle=C.dlgBorder2;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(bx+20,by+38);ctx.lineTo(bx+bw-20,by+38);ctx.stroke();
+
+  ctx.fillStyle=C.dlgText;ctx.font='15px Georgia';ctx.textAlign='left';
+  lines.forEach((ln,i)=>ctx.fillText(ln,bx+30,by+58+i*20));
+
+  const optStartY=by+58+textH+10;
+  const mx=mouseX,my=mouseY;
+  for(let i=0;i<page.options.length;i++){
+    const oy=optStartY+i*30;
+    const hovered=mx>=bx+30&&mx<=bx+bw-30&&my>=oy-10&&my<=oy+16;
+    ctx.fillStyle=hovered?C.dlgOptH:C.dlgOpt;ctx.font=hovered?'bold 14px Georgia':'14px Georgia';ctx.textAlign='left';
+    ctx.fillText(`▸ ${page.options[i].text}`,bx+40,oy+4);
+    if(hovered)canvas.style.cursor='pointer';
+  }
+}
+
+// ============================================================
+//  HUD
+// ============================================================
+function drawHUD(){
+  const pw=240,ph=chaosMode.active?145:130;
+  ctx.fillStyle=C.hudBg;ctx.beginPath();ctx.roundRect(10,10,pw,ph,6);ctx.fill();
+  ctx.strokeStyle=C.dlgBorder2;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(10,10,pw,ph,6);ctx.stroke();
+  ctx.fillStyle=C.hudText;ctx.font='14px Georgia';ctx.textAlign='left';
+  ctx.fillText(`🥚 鸡蛋: ${player.eggs}`,25,32);
+  ctx.fillStyle=C.hudGold;ctx.fillText(`💰 金币: ${player.gold}`,25,52);
+  ctx.fillStyle='#aaa';ctx.font='11px Georgia';
+  const adultCount=chickens.length,chickCount=chicks.length;
+  ctx.fillText(`🐔 母鸡: ${adultCount} | 🐤 小鸡: ${chickCount}`,25,72);
+  ctx.fillText(`📊 总产蛋: ${totalEggsCollected}`,25,90);
+
+  if(chaosMode.active){
+    const phaseNames={forming:'🌀 集合中',dancing:'💃 广场舞',wandering:'🚶 谈人生'};
+    ctx.fillStyle='#ff4444';ctx.font='bold 12px Georgia';
+    ctx.fillText(`🔥 ${phaseNames[chaosMode.phase]||'混沌'} (${Math.floor(chaosMode.totalTimer)}s)`,25,108);
+    ctx.fillStyle='#ffaa44';ctx.font='10px Georgia';
+    ctx.fillText(`停止产蛋/孵化/成长`,25,122);
+    ctx.fillStyle='#ff8888';ctx.font='10px Georgia';
+    const remain=Math.max(0,CFG.CHAOS_DURATION-chaosMode.totalTimer);
+    ctx.fillText(`剩余时间: ${Math.ceil(remain)}秒`,25,136);
+  }else{
+    ctx.fillStyle='#666';ctx.font='10px Georgia';
+    ctx.fillText(`混沌触发: ${adultCount+chickCount}/${CFG.CHAOS_THRESHOLD}`,25,108);
+  }
+
+  const phase=getDayPhase();
+  const timeNames={dawn:'🌅 黎明',day:'☀️ 白天',dusk:'🌆 黄昏',night:'🌙 夜晚'};
+  ctx.fillStyle='#aaa';ctx.font='11px Georgia';ctx.textAlign='right';
+  ctx.fillText(timeNames[phase.name]||'',W-18,32);
+
+  ctx.fillStyle='rgba(0,0,0,0.5)';ctx.beginPath();ctx.roundRect(W-380,H-50,370,40,4);ctx.fill();
+  ctx.fillStyle='#888';ctx.font='11px Georgia';ctx.textAlign='right';
+  ctx.fillText('WASD移动 | E/点击NPC对话 | R快速卖蛋 | 靠近鸡驱赶',W-18,H-28);
+
+  if(!dialogState.active){
+    let nearest=null,nearD=Infinity;
+    for(const ch of chickens){const d=dist(player,ch);if(d<nearD&&d<3){nearD=d;nearest=ch}}
+    if(nearest){
+      const sp=toScreen(nearest.x,nearest.y);
+      ctx.fillStyle='rgba(0,0,0,0.6)';ctx.beginPath();ctx.roundRect(sp.x-40,sp.y-55,80,18,3);ctx.fill();
+      ctx.fillStyle='#ccc';ctx.font='10px Georgia';ctx.textAlign='center';
+      const stateNames=['休息','散步','吃食','回窝','逃跑','睡觉','沙浴'];
+      const emotionStr=emotionEmoji[nearest.emotion]||'';
+      ctx.fillText(emotionStr+stateNames[nearest.state]+(nearest.eggTimer<10?' | 快生蛋了':''),sp.x,sp.y-43);
+    }
+  }
+}
+
+// ============================================================
+//  MINIMAP
+// ============================================================
+function drawMinimap(){
+  const ms=4,mw=CFG.MAP_SIZE*ms,mh=CFG.MAP_SIZE*ms,mx=W-mw-15,my=15;
+  ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(mx-2,my-2,mw+4,mh+4);
+  const tileColors={0:'#2a4a1a',1:'#5a3a20',2:'#5e5e5e',3:'#8a6a30',4:'#7a5a2a',5:'#1a3a6a',6:'#143008',7:'#8a6a3a',8:'#3a6a2a',9:'#c8b070'};
+  for(let ty=0;ty<CFG.MAP_SIZE;ty++)for(let tx=0;tx<CFG.MAP_SIZE;tx++){ctx.fillStyle=tileColors[MAP[ty][tx]]||'#333';ctx.fillRect(mx+tx*ms,my+ty*ms,ms,ms)}
+  if(chickens.length<200){
+    ctx.fillStyle='#ffcc00';for(const ch of chickens)ctx.fillRect(mx+ch.x*ms-1,my+ch.y*ms-1,3,3);
+  }else{
+    ctx.fillStyle='rgba(255,204,0,0.5)';
+    const grid=2;const clusters={};
+    for(const ch of chickens){const k=Math.floor(ch.x/grid)+','+Math.floor(ch.y/grid);clusters[k]=(clusters[k]||0)+1}
+    for(const[k,cnt]of Object.entries(clusters)){
+      const[kx,ky]=k.split(',').map(Number);
+      const size=Math.min(3+Math.floor(cnt/10),6);
+      ctx.fillRect(mx+kx*grid*ms,my+ky*grid*ms,size,size);
+    }
+  }
+  ctx.fillStyle='#aaffaa';for(const ch of chicks)ctx.fillRect(mx+ch.x*ms-1,my+ch.y*ms-1,2,2);
+  ctx.fillStyle='#44aaff';ctx.fillRect(mx+player.x*ms-2,my+player.y*ms-2,4,4);
+  ctx.fillStyle='#ff88ff';for(const npc of npcs)ctx.fillRect(mx+npc.x*ms-1,my+npc.y*ms-1,3,3);
+  if(chaosMode.active){
+    ctx.strokeStyle='rgba(255,50,50,'+((Math.sin(gameTime*4)*0.3+0.5))+')';ctx.lineWidth=2;
+    ctx.strokeRect(mx-3,my-3,mw+6,mh+6);
+  }else{
+    ctx.strokeStyle=C.dlgBorder2;ctx.lineWidth=1;ctx.strokeRect(mx-2,my-2,mw+4,mh+4);
+  }
+}
+
+// ============================================================
+//  GAME STATE
+// ============================================================
+let player,chickens,npcs,eggs,chicks;
+let gameTime=0,titleTimer=5,totalEggsCollected=0,wormSpawnTimer=0;
+let npcChatCheckTimer=0;
+
+function initGame(){
+  player=new Player(11,20);
+  chickens=[];npcs=[];eggs=[];chicks=[];
+  [[4,4],[5,5],[3,6],[5,3],[5,8],[3,8],[4,10],[10,16],[10,17]].forEach(p=>chickens.push(new Chicken(p[0]+0.5,p[1]+0.5)));
+  // 出生点对应巡逻路线第一个路点附近的可达地块
+  const npcWang=new NPC(4.5,13.5,'商人·骚总',C.nWang,'merchant');
+  const npcLi=new NPC(11.5,4.5,'兽医·骚李',C.nLi,'vet');
+  const npcElder=new NPC(19.5,3.5,'神骚剑影',C.nElder,'elder');
+  npcs.push(npcWang,npcLi,npcElder);
+  npcRoamings.push(new NPCRoaming(npcWang,'merchant'));
+  npcRoamings.push(new NPCRoaming(npcLi,'vet'));
+  npcRoamings.push(new NPCRoaming(npcElder,'elder'));
+  document.getElementById('loading').style.display='none';
+}
+
+// ============================================================
+//  MAIN LOOP
+// ============================================================
+let lastTime=0;
+function gameLoop(timestamp){
+  const dt=Math.min((timestamp-lastTime)/1000,0.05);lastTime=timestamp;gameTime+=dt;
+  update(dt);render();requestAnimationFrame(gameLoop);
+}
+
+function update(dt){
+  canvas.style.cursor='crosshair';
+  dayTime=(dt/CFG.DAY_LENGTH+dayTime)%1;
+
+  if(dialogState.active){
+    if(mouseClicked){handleDialogClick(mouseX,mouseY);mouseClicked=false}
+    if(keys['escape']){closeDialog();keys['escape']=false}
+    return;
+  }
+  titleTimer-=dt;
+
+  // R key quick sell
+  if(keys['r']){for(const npc of npcs){if(npc.dialogs==='merchant'&&dist(player,npc)<CFG.INTERACT_RADIUS*2){if(player.eggs>0){player.gold+=player.eggs;addFloatingText(player.x,player.y,`+${player.eggs} 金币`,'#ffd700');player.eggs=0;sndCollect()}else addFloatingText(player.x,player.y,'没有鸡蛋','#ff6666');break}}keys['r']=false}
+
+  // NPC interaction
+  if(mouseClicked||keys['e']){
+    let hit=false;
+    if(keys['e']){let best=null,bestD=Infinity;for(const npc of npcs){const d=dist(player,npc);if(d<CFG.INTERACT_RADIUS*1.5&&d<bestD){bestD=d;best=npc}}if(best){openDialog(best);hit=true}keys['e']=false}
+    if(!hit&&mouseClicked){for(const npc of npcs){if(dist(player,npc)<CFG.INTERACT_RADIUS){const sp=toScreen(npc.x,npc.y);if(Math.hypot(mouseX-sp.x,mouseY-sp.y)<50){openDialog(npc);hit=true;break}}}}
+    if(!hit&&mouseClicked){const w=s2w(mouseX+cam.x,mouseY+cam.y);if(isWalkable(w.x,w.y)){player.targetX=w.x;player.targetY=w.y}}
+    mouseClicked=false;
+  }
+
+  player.update(dt);
+  for(const ch of chickens)ch.update(dt,player);
+
+  // update chaos mode
+  updateChaosMode(dt);
+
+  // egg updates + hatching (BLOCKED during chaos)
+  if(!chaosMode.active){
+    for(let i=eggs.length-1;i>=0;i--){
+      eggs[i].update(dt);
+      if(eggs[i].canHatch()){
+        const egg=eggs[i];
+        let mother=null,motherD=Infinity;
+        for(const ch of chickens){
+          const children=familySystem.families.get(ch)||[];
+          if(children.length>=CFG.MAX_CHICKS_PER_MOTHER)continue;
+          const d=dist(egg,ch);
+          if(d<motherD){motherD=d;mother=ch}
+        }
+        const chick=new Chick(egg.x,egg.y,mother);
+        if(mother){
+          if(!familySystem.families.has(mother))familySystem.families.set(mother,[]);
+          familySystem.families.get(mother).push(chick);
+        }
+        chicks.push(chick);
+        eggs.splice(i,1);sndHatch();addFloatingText(egg.x,egg.y,'🐣 孵化了！','#ffdd44');
+      }
+    }
+  }
+
+  // collect eggs (still allowed during chaos)
+  for(const egg of eggs){if(!egg.collected&&dist(player,egg)<CFG.COLLECT_RADIUS){egg.collected=true;player.eggs+=egg.value;totalEggsCollected+=egg.value;if(egg.golden){sndCollect();setTimeout(()=>sndCollect(),100);addFloatingText(egg.x,egg.y,`+${egg.value} ✨金蛋`,'#ffd700')}else{sndCollect();addFloatingText(egg.x,egg.y,'+1 🥚','#ffffff')}}}
+  for(let i=eggs.length-1;i>=0;i--)if(eggs[i].collected)eggs.splice(i,1);
+
+  // chick updates (BLOCKED growth during chaos)
+  for(let i=chicks.length-1;i>=0;i--){
+    if(chicks[i].update(dt)){
+      const ch=chicks[i];
+      removeFamilyRef(ch);
+      chickens.push(new Chicken(ch.x,ch.y));
+      chicks.splice(i,1);
+      addFloatingText(ch.x,ch.y,'🐔 长大了！','#88ff88');
+    }
+  }
+
+  // NPC roaming
+  for(const nr of npcRoamings)nr.update(dt,player);
+  npcChatCheckTimer-=dt;
+  if(npcChatCheckTimer<=0){
+    npcChatCheckTimer=2;
+    for(let i=0;i<npcRoamings.length;i++){
+      for(let j=i+1;j<npcRoamings.length;j++){
+        npcRoamings[i].tryChatWith(npcRoamings[j]);
+      }
+    }
+  }
+
+  // worm spawning
+  wormSpawnTimer-=dt;
+  if(wormSpawnTimer<=0){spawnWorm();wormSpawnTimer=rand(CFG.WORM_SPAWN_INTERVAL-2,CFG.WORM_SPAWN_INTERVAL+2)}
+  updateWorms(dt);
+  updateParticles(dt);
+  updateFloatingTexts(dt);
+  updateCam(player);
+  for(const npc of npcs)npc.update(dt,player);
+}
+
+function render(){
+  ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,W,H);
+  drawSky();
+  renderMap();
+  drawFamilyLines();
+  const drawables=[];
+  for(const w of worms)drawables.push({e:w,d:w.x+w.y,t:'worm'});
+  for(const egg of eggs)drawables.push({e:egg,d:egg.x+egg.y,t:'egg'});
+  for(const ch of chicks)drawables.push({e:ch,d:ch.x+ch.y,t:'chick'});
+  for(const ch of chickens)drawables.push({e:ch,d:ch.x+ch.y,t:'chicken'});
+  for(const npc of npcs)drawables.push({e:npc,d:npc.x+npc.y,t:'npc'});
+  drawables.push({e:player,d:player.x+player.y,t:'player'});
+  drawables.sort((a,b)=>a.d-b.d);
+  for(const d of drawables){
+    if(d.t==='worm')drawWorm(d.e);
+    else d.e.draw();
+    if(d.t==='npc'){
+      const nr=npcRoamings.find(r=>r.npc===d.e);
+      if(nr){const sp=toScreen(d.e.x,d.e.y);nr.drawChatBubble(sp.x,sp.y,Math.sin(d.e.anim)*1)}
+    }
+  }
+  drawFireflies();drawParticles();drawFloatingTexts();
+  drawDayNightOverlay();
+  drawHUD();drawMinimap();
+  if(titleTimer>0){
+    const a=Math.min(titleTimer,1);
+    ctx.fillStyle=`rgba(0,0,0,${a*0.7})`;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=`rgba(200,168,50,${a})`;ctx.font='bold 42px Georgia';ctx.textAlign='center';ctx.fillText('🐔 养鸡场 v3 🐔',W/2,H/2-80);
+    ctx.fillStyle=`rgba(200,180,120,${a*0.9})`;ctx.font='18px Georgia';ctx.fillText('— 暗黑风格养鸡模拟 —',W/2,H/2-45);
+    ctx.fillStyle=`rgba(180,170,140,${a*0.8})`;ctx.font='14px Georgia';
+    ctx.fillText('WASD移动 | 靠近鸡驱赶 | 走到鸡蛋上收集',W/2,H/2);
+    ctx.fillText('E键/点击与NPC对话 | R键快速卖蛋 | ESC关闭对话',W/2,H/2+25);
+    ctx.fillStyle=`rgba(255,215,0,${a*0.6})`;ctx.font='12px Georgia';
+    ctx.fillText('💡 把母鸡赶回鸡舍生蛋效率更高！蛋放久了会孵化小鸡！',W/2,H/2+60);
+    ctx.fillText('☀️ 白天鸡找食物，🌙 晚上回鸡舍睡觉',W/2,H/2+80);
+    ctx.fillStyle=`rgba(255,100,50,${a*0.5})`;ctx.font='11px Georgia';
+    ctx.fillText('v3: 🔥1000鸡混沌广场舞 | 👨‍👩‍👦家庭配对 | 💬鸡对话 | 🚶NPC全图巡逻',W/2,H/2+110);
+  }
+  drawDialog();
+}
+
+initGame();requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
