@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Circle Jump - 圆圈跳跃</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+canvas {
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(0, 255, 102, 0.1);
+}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+const W = 480;
+const H = 854;
+canvas.width = W;
+canvas.height = H;
+
+function resizeCanvas() {
+    const scaleX = window.innerWidth / W;
+    const scaleY = window.innerHeight / H;
+    const scale = Math.min(scaleX, scaleY);
+    canvas.style.width = (W * scale) + 'px';
+    canvas.style.height = (H * scale) + 'px';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// ==================== AUDIO ====================
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        audioCtx = new AudioCtx();
+    }
+}
+
+function playTone(freq, duration, type = 'sine', volume = 0.15) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+function playJumpSound() {
+    playTone(440, 0.15, 'triangle', 0.12);
+    setTimeout(() => playTone(660, 0.1, 'triangle', 0.08), 50);
+}
+
+function playCaptureSound() {
+    playTone(523, 0.1, 'sine', 0.1);
+    setTimeout(() => playTone(659, 0.15, 'sine', 0.12), 80);
+    setTimeout(() => playTone(784, 0.2, 'sine', 0.08), 160);
+}
+
+function playOrbitSound() {
+    playTone(880, 0.08, 'square', 0.05);
+}
+
+function playLevelUpSound() {
+    playTone(523, 0.12, 'sine', 0.1);
+    setTimeout(() => playTone(659, 0.12, 'sine', 0.1), 100);
+    setTimeout(() => playTone(784, 0.12, 'sine', 0.1), 200);
+    setTimeout(() => playTone(1047, 0.25, 'sine', 0.15), 300);
+}
+
+function playDeathSound() {
+    playTone(200, 0.3, 'sawtooth', 0.1);
+    setTimeout(() => playTone(150, 0.4, 'sawtooth', 0.08), 150);
+}
+
+function playNewRecordSound() {
+    const notes = [523, 659, 784, 1047, 784, 1047];
+    notes.forEach((n, i) => {
+        setTimeout(() => playTone(n, 0.2, 'sine', 0.1), i * 100);
+    });
+}
+
+// ==================== COLORS ====================
+const theme = {
+    background: [50, 50, 70],
+    player_body: [203, 255, 0],
+    player_trail: [204, 0, 255],
+    circle_fill: [255, 0, 110],
+    circle_static: [0, 255, 102],
+    circle_limited: [204, 0, 255]
+};
+
+function rgb(c, a = 1) {
+    return `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+}
+
+// ==================== GAME STATE ====================
+let gameState = 'title';
+let score = 0;
+let highscore = parseInt(localStorage.getItem('circleJumpHighscore')) || 0;
+let bonus = 0;
+let level = 1;
+let numCircles = 0;
+let newHighscore = false;
+let circlesPerLevel = 5;
+
+let player = null;
+let camera = { x: W / 2, y: H - 160, targetX: W / 2, targetY: H - 160 };
+let circles = [];
+let effects = [];
+let nextCircle = null;  // 下一个目标圆
+
+const TRAIL_LENGTH = 30;
+let animTime = 0;
+let messageText = '';
+let messageTimer = 0;
+
+// ==================== PARTICLES ====================
+class Particle {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 200;
+        this.vy = (Math.random() - 0.5) * 200;
+        this.life = 0.5 + Math.random() * 0.5;
+        this.maxLife = this.life;
+        this.size = 2 + Math.random() * 4;
+        this.color = color;
+    }
+
+    update(delta) {
+        this.life -= delta;
+        this.x += this.vx * delta;
+        this.y += this.vy * delta;
+        this.vx *= 0.98;
+        this.vy *= 0.98;
+        return this.life > 0;
+    }
+
+    draw() {
+        const alpha = this.life / this.maxLife;
+        const x = this.x - camera.x + W / 2;
+        const y = this.y - camera.y + H / 2;
+        ctx.beginPath();
+        ctx.arc(x, y, this.size * alpha, 0, Math.PI * 2);
+        ctx.fillStyle = rgb(this.color, alpha * 0.8);
+        ctx.fill();
+    }
+}
+
+// ==================== EFFECTS ====================
+class CaptureEffect {
+    constructor(x, y, radius, color) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.life = 1;
+        this.maxRadius = radius * 2.5;
+    }
+
+    update(delta) {
+        this.life -= delta * 2;
+        return this.life > 0;
+    }
+
+    draw() {
+        const alpha = this.life * 0.6;
+        const r = this.radius + (this.maxRadius - this.radius) * (1 - this.life);
+        const x = this.x - camera.x + W / 2;
+        const y = this.y - camera.y + H / 2;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = rgb(this.color, alpha);
+        ctx.lineWidth = 3 * this.life;
+        ctx.stroke();
+    }
+}
+
+class ImplodeEffect {
+    constructor(x, y, radius, color) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.life = 1;
+        this.particles = [];
+        for (let i = 0; i < 16; i++) {
+            const angle = (i / 16) * Math.PI * 2;
+            this.particles.push({
+                angle: angle,
+                dist: radius * 0.3,
+                speed: 80 + Math.random() * 180
+            });
+        }
+    }
+
+    update(delta) {
+        this.life -= delta * 2;
+        this.particles.forEach(p => {
+            p.dist += p.speed * delta;
+        });
+        return this.life > 0;
+    }
+
+    draw() {
+        const alpha = this.life;
+        this.particles.forEach(p => {
+            const x = this.x + Math.cos(p.angle) * p.dist;
+            const y = this.y + Math.sin(p.angle) * p.dist;
+            const sx = x - camera.x + W / 2;
+            const sy = y - camera.y + H / 2;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 3 * this.life, 0, Math.PI * 2);
+            ctx.fillStyle = rgb(this.color, alpha);
+            ctx.fill();
+        });
+    }
+}
+
+// ==================== CIRCLE ====================
+class Circle {
+    constructor(x, y, level) {
+        this.x = x;
+        this.y = y;
+        this.radius = 80;
+        this.rotationSpeed = 2.5;
+        this.mode = 'static';
+        this.moveRange = 0;
+        this.moveSpeed = 2.0;
+        this.numOrbits = 3;
+        this.currentOrbits = 0;
+        this.orbitStart = null;
+        this.orbitAngle = 0;
+        this.moveT = 0;
+        this.jumper = null;
+        this.alive = true;
+        this.imploding = false;
+        this.implodeScale = 1;
+        this.captureAnim = 0;
+        this.baseX = x;
+        this.pulseTime = Math.random() * 10;
+
+        // Mode selection based on level
+        const modeChance = Math.max(0, (level - 1)) / 10;
+        this.mode = Math.random() < modeChance ? 'limited' : 'static';
+
+        // Moving circles at higher levels
+        const moveChance = Math.max(0, Math.min(0.9, (level - 10) / 10));
+        if (Math.random() < moveChance) {
+            this.moveRange = Math.max(25, 100 * (0.75 + Math.random() * 0.5) * moveChance) * (Math.random() < 0.5 ? 1 : -1);
+            this.moveSpeed = Math.max(0.75, 2.5 - Math.floor(level / 5) * 0.25);
+        }
+
+        // Smaller circles at higher levels
+        const smallChance = Math.min(0.9, Math.max(0, (level - 10) / 20));
+        if (Math.random() < smallChance) {
+            this.radius = Math.max(50, this.radius - level * (0.75 + Math.random() * 0.5));
+        }
+
+        if (Math.random() < 0.5) this.rotationSpeed *= -1;
+    }
+
+    update(delta) {
+        this.pulseTime += delta;
+
+        if (this.imploding) {
+            this.implodeScale -= delta * 3;
+            if (this.implodeScale <= 0) {
+                this.alive = false;
+                return;
+            }
+        }
+
+        if (this.captureAnim > 0) {
+            this.captureAnim -= delta * 2;
+        }
+
+        this.orbitAngle += this.rotationSpeed * delta;
+
+        if (this.moveRange !== 0 && !this.imploding) {
+            this.moveT += delta / this.moveSpeed;
+            this.x = this.baseX + Math.sin(this.moveT * Math.PI) * this.moveRange;
+        }
+
+        if (this.jumper && this.orbitStart !== null) {
+            const diff = Math.abs(this.orbitAngle - this.orbitStart);
+            if (diff > 2 * Math.PI) {
+                this.currentOrbits++;
+                effects.push(new CaptureEffect(this.x, this.y, this.radius, theme.circle_fill));
+                playOrbitSound();
+
+                if (this.mode === 'limited') {
+                    if (this.currentOrbits >= this.numOrbits) {
+                        this.jumper.die();
+                        this.jumper = null;
+                        this.implode();
+                    }
+                }
+                this.orbitStart = this.orbitAngle;
+            }
+        }
+    }
+
+    draw() {
+        const cx = this.x - camera.x + W / 2;
+        const cy = this.y - camera.y + H / 2;
+
+        // Skip if off screen
+        if (cx < -this.radius * 2 || cx > W + this.radius * 2 ||
+            cy < -this.radius * 2 || cy > H + this.radius * 2) return;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        const scale = this.imploding ? Math.max(0, this.implodeScale) : 1;
+        ctx.scale(scale, scale);
+
+        const color = this.mode === 'static' ? theme.circle_static : theme.circle_limited;
+        const pulse = 1 + Math.sin(this.pulseTime * 3) * 0.03;
+        const r = this.radius * pulse;
+
+        // Outer glow
+        const glowGrad = ctx.createRadialGradient(0, 0, r * 0.5, 0, 0, r * 1.4);
+        glowGrad.addColorStop(0, rgb(color, 0.12));
+        glowGrad.addColorStop(0.6, rgb(color, 0.04));
+        glowGrad.addColorStop(1, rgb(color, 0));
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 1.4, 0, Math.PI * 2);
+        ctx.fillStyle = glowGrad;
+        ctx.fill();
+
+        // Main ring
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.strokeStyle = rgb(color, 0.9);
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        // Inner ring
+        ctx.beginPath();
+        ctx.arc(0, 0, r - 4, 0, Math.PI * 2);
+        ctx.strokeStyle = rgb(color, 0.25);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Fill
+        ctx.beginPath();
+        ctx.arc(0, 0, r - 6, 0, Math.PI * 2);
+        ctx.fillStyle = rgb(color, 0.06);
+        ctx.fill();
+
+        // Dashed inner pattern for limited circles
+        if (this.mode === 'limited') {
+            ctx.save();
+            ctx.setLineDash([8, 8]);
+            ctx.lineDashOffset = this.pulseTime * 20;
+            ctx.beginPath();
+            ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2);
+            ctx.strokeStyle = rgb(color, 0.2);
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Orbit progress for limited mode
+        if (this.mode === 'limited' && this.jumper && this.numOrbits > 0) {
+            const progress = this.currentOrbits / this.numOrbits;
+            if (progress > 0) {
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.55, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2);
+                ctx.strokeStyle = rgb(theme.circle_fill, 0.8);
+                ctx.lineWidth = 6;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+
+            // Remaining count
+            const remaining = Math.max(0, this.numOrbits - this.currentOrbits);
+            ctx.fillStyle = remaining <= 1 ? rgb(theme.circle_fill) : '#fff';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.globalAlpha = 0.9;
+            ctx.fillText(remaining, 0, 0);
+            ctx.globalAlpha = 1;
+        }
+
+        // Capture flash effect
+        if (this.captureAnim > 0) {
+            ctx.beginPath();
+            ctx.arc(0, 0, r * (1 + (1 - this.captureAnim) * 0.5), 0, Math.PI * 2);
+            ctx.strokeStyle = rgb([255, 255, 255], this.captureAnim * 0.5);
+            ctx.lineWidth = 4 * this.captureAnim;
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    implode() {
+        this.imploding = true;
+        this.implodeScale = 1;
+        effects.push(new ImplodeEffect(this.x, this.y, this.radius,
+            this.mode === 'static' ? theme.circle_static : theme.circle_limited));
+        // Add extra particles
+        for (let i = 0; i < 8; i++) {
+            effects.push(new Particle(this.x, this.y,
+                this.mode === 'static' ? theme.circle_static : theme.circle_limited));
+        }
+    }
+
+    capture(jumper) {
+        this.currentOrbits = 0;
+        this.jumper = jumper;
+        this.captureAnim = 1;
+        this.orbitStart = this.orbitAngle;
+        // Capture particles
+        for (let i = 0; i < 6; i++) {
+            effects.push(new Particle(this.x, this.y, theme.player_body));
+        }
+    }
+
+    getOrbitPosition() {
+        return {
+            x: this.x + Math.cos(this.orbitAngle) * this.radius,
+            y: this.y + Math.sin(this.orbitAngle) * this.radius
+        };
+    }
+}
+
+// ==================== JUMPER ====================
+class Jumper {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = 0;
+        this.vy = 0;
+        this.jumpSpeed = 1500;
+        this.target = null;
+        this.trail = [];
+        this.alive = true;
+        this.angle = 0;          // 朝向（径向朝外，跟随轨道旋转）
+        this.blinkTimer = 0;
+        this.prevX = x;
+        this.prevY = y;
+    }
+
+    update(delta) {
+        this.trail.push({ x: this.x, y: this.y });
+        if (this.trail.length > TRAIL_LENGTH) {
+            this.trail.shift();
+        }
+
+        this.blinkTimer += delta;
+        // 记录上一帧位置（用于连续碰撞检测）
+        this.prevX = this.x;
+        this.prevY = this.y;
+
+        if (this.target) {
+            const pos = this.target.getOrbitPosition();
+            this.x = pos.x;
+            this.y = pos.y;
+            // 箭头径向朝外，跟随轨道旋转（等价于 Godot 的 transform.x）
+            this.angle = Math.atan2(this.y - this.target.y, this.x - this.target.x);
+        } else {
+            this.x += this.vx * delta;
+            this.y += this.vy * delta;
+        }
+    }
+
+    draw() {
+        if (!this.alive) return;
+
+        const cx = this.x - camera.x + W / 2;
+        const cy = this.y - camera.y + H / 2;
+
+        // Draw trail
+        if (this.trail.length > 1) {
+            ctx.beginPath();
+            for (let i = 0; i < this.trail.length; i++) {
+                const t = this.trail[i];
+                const tx = t.x - camera.x + W / 2;
+                const ty = t.y - camera.y + H / 2;
+                if (i === 0) ctx.moveTo(tx, ty);
+                else ctx.lineTo(tx, ty);
+            }
+            const trailGrad = ctx.createLinearGradient(
+                this.trail[0].x - camera.x + W / 2,
+                this.trail[0].y - camera.y + H / 2,
+                cx, cy
+            );
+            trailGrad.addColorStop(0, rgb(theme.player_trail, 0));
+            trailGrad.addColorStop(1, rgb(theme.player_trail, 0.7));
+            ctx.strokeStyle = trailGrad;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+        }
+
+        // Draw player
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(this.angle + Math.PI / 2);
+
+        // Glow
+        const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 28);
+        glowGrad.addColorStop(0, rgb(theme.player_body, 0.3));
+        glowGrad.addColorStop(1, rgb(theme.player_body, 0));
+        ctx.beginPath();
+        ctx.arc(0, 0, 28, 0, Math.PI * 2);
+        ctx.fillStyle = glowGrad;
+        ctx.fill();
+
+        // Triangle body
+        ctx.beginPath();
+        ctx.moveTo(0, -18);
+        ctx.lineTo(-13, 14);
+        ctx.lineTo(0, 7);
+        ctx.lineTo(13, 14);
+        ctx.closePath();
+        ctx.fillStyle = rgb(theme.player_body);
+        ctx.fill();
+
+        // Edge highlight
+        ctx.beginPath();
+        ctx.moveTo(0, -18);
+        ctx.lineTo(-13, 14);
+        ctx.strokeStyle = rgb([255, 255, 255], 0.3);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Eye (blinking)
+        const blink = Math.sin(this.blinkTimer * 2) > 0.95;
+        if (!blink) {
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(0, -6, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+
+    jump() {
+        if (!this.target) return;
+        this.target.implode();
+        this.target = null;
+        this.vx = Math.cos(this.angle) * this.jumpSpeed;
+        this.vy = Math.sin(this.angle) * this.jumpSpeed;
+        playJumpSound();
+    }
+
+    die() {
+        this.alive = false;
+        this.target = null;
+        playDeathSound();
+        // Death particles
+        for (let i = 0; i < 12; i++) {
+            effects.push(new Particle(this.x, this.y, theme.player_body));
+        }
+    }
+
+    isOffScreen() {
+        return this.x < camera.x - W || this.x > camera.x + W ||
+            this.y < camera.y - H * 1.5 || this.y > camera.y + H;
+    }
+}
+
+// ==================== COLLISION ====================
+// 圆心到线段最短距离的平方
+function pointSegDistSq(px, py, ax, ay, bx, by) {
+    const dx = bx - ax, dy = by - ay;
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) { const ex = px - ax, ey = py - ay; return ex * ex + ey * ey; }
+    let t = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    const cx = ax + t * dx - px, cy = ay + t * dy - py;
+    return cx * cx + cy * cy;
+}
+
+
+// ==================== GAME FUNCTIONS ====================
+function spawnCircle(x, y) {
+    const c = new Circle(x, y, level);
+    circles.push(c);
+    return c;
+}
+
+function startGame() {
+    initAudio();
+    gameState = 'playing';
+    score = 0;
+    bonus = 0;
+    level = 1;
+    numCircles = 0;
+    newHighscore = false;
+    circles = [];
+    effects = [];
+    nextCircle = null;
+
+    const startX = W / 2;
+    const startY = H - 160;
+
+    camera.x = startX;
+    camera.y = startY;
+    camera.targetX = startX;
+    camera.targetY = startY;
+
+    player = new Jumper(startX, startY);
+    const startCircle = spawnCircle(startX, startY);
+    startCircle.capture(player);
+    player.target = startCircle;
+
+    spawnNextCircle();
+    showMessage('Go!');
+}
+
+function spawnNextCircle() {
+    const offsetX = (Math.random() - 0.5) * 300;   // ±150（与原版一致）
+    const offsetY = -400 - Math.random() * 150;     // -400到-550（原版-400到-500，稍远）
+    const x = player.target.x + offsetX;
+    const y = player.target.y + offsetY;
+    nextCircle = spawnCircle(x, y);
+    updateCameraTarget();
+}
+
+function updateCameraTarget() {
+    if (!player || !player.target) return;
+    const cur = player.target;
+    const nxt = nextCircle;
+    if (nxt && !nxt.imploding) {
+        // 相机设在两个圆的中间，确保都可见
+        const midX = (cur.x + nxt.x) / 2;
+        const midY = (cur.y + nxt.y) / 2;
+        // 往下偏移，让两个圆在屏幕上半部分可见
+        camera.targetX = midX;
+        camera.targetY = midY + 80;
+    } else {
+        camera.targetX = cur.x;
+        camera.targetY = cur.y;
+    }
+}
+
+function onJumperCaptured(circle) {
+    circle.capture(player);
+    player.target = circle;
+
+    spawnNextCircle();
+
+    const bonusMultiplier = bonus || 1;
+    score += bonusMultiplier;
+    bonus++;
+    numCircles++;
+
+    playCaptureSound();
+
+    if (numCircles > 0 && numCircles % circlesPerLevel === 0) {
+        level++;
+        showMessage('Level ' + level);
+        playLevelUpSound();
+    }
+}
+
+function onJumperDied() {
+    if (score > highscore) {
+        highscore = score;
+        localStorage.setItem('circleJumpHighscore', highscore);
+        newHighscore = true;
+        setTimeout(() => playNewRecordSound(), 500);
+    }
+    gameState = 'gameover';
+    circles.forEach(c => { if (!c.imploding) c.implode(); });
+}
+
+function showMessage(text) {
+    messageText = text;
+    messageTimer = 1.5;
+}
+
+// ==================== INPUT ====================
+function handleInput() {
+    initAudio();
+    if (gameState === 'title') {
+        startGame();
+    } else if (gameState === 'playing') {
+        if (player && player.alive && player.target) {
+            player.jump();
+        }
+    } else if (gameState === 'gameover') {
+        startGame();
+    }
+}
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleInput();
+});
+
+canvas.addEventListener('mousedown', (e) => {
+    handleInput();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.code === 'Enter' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        handleInput();
+    }
+});
+
+// ==================== DRAW HELPERS ====================
+function drawBackground() {
+    // Gradient background
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#1a1a2e');
+    grad.addColorStop(0.5, rgb(theme.background));
+    grad.addColorStop(1, '#16213e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+    }
+    for (let y = 0; y < H; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+    }
+}
+
+function drawTitle() {
+    drawBackground();
+
+    // Floating circles
+    for (let i = 0; i < 8; i++) {
+        const x = W / 2 + Math.sin(animTime * 0.4 + i * 1.2) * 140;
+        const y = H / 3 + Math.cos(animTime * 0.3 + i * 0.8) * 100;
+        const r = 40 + Math.sin(animTime * 0.5 + i) * 15;
+        const color = i % 2 === 0 ? theme.circle_static : theme.circle_limited;
+
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = rgb(color, 0.25 + Math.sin(animTime + i) * 0.1);
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        const glow = ctx.createRadialGradient(x, y, r * 0.3, x, y, r * 1.8);
+        glow.addColorStop(0, rgb(color, 0.06));
+        glow.addColorStop(1, rgb(color, 0));
+        ctx.fillStyle = glow;
+        ctx.fill();
+    }
+
+    // Title shadow
+    ctx.shadowColor = rgb(theme.player_body, 0.6);
+    ctx.shadowBlur = 30;
+    ctx.fillStyle = rgb(theme.player_body);
+    ctx.font = 'bold 60px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('CIRCLE', W / 2, H / 2 - 100);
+    ctx.shadowBlur = 0;
+
+    ctx.shadowColor = rgb(theme.circle_fill, 0.6);
+    ctx.shadowBlur = 30;
+    ctx.fillStyle = rgb(theme.circle_fill);
+    ctx.font = 'bold 60px Arial';
+    ctx.fillText('JUMP', W / 2, H / 2 - 35);
+    ctx.shadowBlur = 0;
+
+    // Decorative line
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 80, H / 2 + 5);
+    ctx.lineTo(W / 2 + 80, H / 2 + 5);
+    ctx.strokeStyle = rgb(theme.player_body, 0.3);
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Subtitle
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '16px Arial';
+    ctx.fillText('在圆圈间跳跃，不要掉下去！', W / 2, H / 2 + 30);
+
+    if (highscore > 0) {
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = 'bold 22px Arial';
+        ctx.fillText('最高分: ' + highscore, W / 2, H / 2 + 75);
+    }
+
+    // Controls hint
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '14px Arial';
+    ctx.fillText('点击/触摸/空格键 开始游戏', W / 2, H / 2 + 120);
+
+    const alpha = 0.5 + Math.sin(animTime * 3) * 0.4;
+    ctx.fillStyle = rgb([255, 255, 255], alpha);
+    ctx.font = 'bold 28px Arial';
+    ctx.fillText('点击开始', W / 2, H / 2 + 160);
+}
+
+function drawHUD() {
+    // Score background
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    roundRect(ctx, 15, 15, 120, 45, 12);
+    ctx.fill();
+    ctx.strokeStyle = rgb(theme.player_body, 0.2);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Score icon
+    ctx.fillStyle = rgb(theme.player_body);
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('★', 25, 20);
+
+    // Score value
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 22px Arial';
+    ctx.fillText(score, 50, 22);
+
+    // Level badge
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    roundRect(ctx, 15, 70, 80, 28, 8);
+    ctx.fill();
+    ctx.strokeStyle = rgb(theme.circle_static, 0.3);
+    ctx.stroke();
+
+    ctx.fillStyle = rgb(theme.circle_static);
+    ctx.font = 'bold 14px Arial';
+    ctx.fillText('Lv.' + level, 28, 76);
+
+    // Bonus
+    if (bonus > 1) {
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        roundRect(ctx, W - 95, 15, 80, 40, 12);
+        ctx.fill();
+        ctx.strokeStyle = rgb(theme.circle_fill, 0.3);
+        ctx.stroke();
+
+        ctx.fillStyle = rgb(theme.circle_fill);
+        ctx.font = 'bold 22px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText(bonus + 'x', W - 25, 22);
+
+        // Bonus pulse animation
+        if (bonus > 2) {
+            const pulse = Math.sin(animTime * 4) * 0.3 + 0.7;
+            ctx.fillStyle = rgb(theme.circle_fill, pulse * 0.2);
+            roundRect(ctx, W - 95, 15, 80, 40, 12);
+            ctx.fill();
+        }
+    }
+
+    // Highscore
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('最高: ' + highscore, W / 2, 8);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+function drawGame() {
+    drawBackground();
+
+    // Draw circles
+    circles.forEach(c => c.draw());
+
+    // Draw effects
+    effects.forEach(e => e.draw());
+
+    // Draw player
+    if (player && player.alive) player.draw();
+
+    drawHUD();
+
+    // Message
+    if (messageTimer > 0 && messageText) {
+        const t = 1.5 - messageTimer;
+        const scale = 1 + t * 0.3;
+        const alpha = messageTimer > 0.3 ? 1 : messageTimer / 0.3;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#fff';
+        ctx.font = `bold 48px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 15;
+        ctx.fillText(messageText, W / 2, H / 2 - 120);
+        ctx.shadowBlur = 0;
+        ctx.restore();
+    }
+}
+
+function drawGameOver() {
+    // Dark overlay with gradient
+    const overlayGrad = ctx.createRadialGradient(W / 2, H / 2, 50, W / 2, H / 2, 400);
+    overlayGrad.addColorStop(0, 'rgba(0,0,0,0.6)');
+    overlayGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
+    ctx.fillStyle = overlayGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Panel
+    ctx.fillStyle = 'rgba(30,30,50,0.95)';
+    roundRect(ctx, W / 2 - 170, H / 2 - 180, 340, 340, 24);
+    ctx.fill();
+    ctx.strokeStyle = rgb(theme.circle_fill, 0.4);
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Decorative top line
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 60, H / 2 - 140);
+    ctx.lineTo(W / 2 + 60, H / 2 - 140);
+    ctx.strokeStyle = rgb(theme.circle_fill, 0.6);
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Game Over
+    ctx.fillStyle = rgb(theme.circle_fill);
+    ctx.font = 'bold 42px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = rgb(theme.circle_fill, 0.5);
+    ctx.shadowBlur = 20;
+    ctx.fillText('游戏结束', W / 2, H / 2 - 110);
+    ctx.shadowBlur = 0;
+
+    // Score
+    ctx.fillStyle = '#fff';
+    ctx.font = '28px Arial';
+    ctx.fillText('得分: ' + score, W / 2, H / 2 - 55);
+
+    // Best
+    ctx.fillStyle = rgb(theme.player_body);
+    ctx.font = 'bold 24px Arial';
+    ctx.fillText('最高: ' + highscore, W / 2, H / 2 - 15);
+
+    // New record
+    if (newHighscore) {
+        const alpha = 0.5 + Math.sin(animTime * 5) * 0.5;
+        ctx.fillStyle = rgb(theme.circle_fill, alpha);
+        ctx.font = 'bold 24px Arial';
+        ctx.fillText('★ 新纪录！★', W / 2, H / 2 + 30);
+    }
+
+    // Stats
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '16px Arial';
+    ctx.fillText('等级: ' + level + '  |  跳跃: ' + numCircles, W / 2, H / 2 + 70);
+
+    // Restart button
+    const btnY = H / 2 + 110;
+    const pulse = 0.7 + Math.sin(animTime * 3) * 0.3;
+    ctx.fillStyle = rgb(theme.circle_static, pulse);
+    ctx.font = 'bold 22px Arial';
+    ctx.fillText('点击重新开始', W / 2, btnY);
+}
+
+// ==================== UPDATE ====================
+let lastTime = 0;
+
+function update(timestamp) {
+    const delta = Math.min((timestamp - lastTime) / 1000, 0.05);
+    lastTime = timestamp;
+    animTime += delta;
+
+    if (gameState === 'playing') {
+        // Update circles
+        circles.forEach(c => c.update(delta));
+        circles = circles.filter(c => c.alive);
+
+        // Update effects
+        effects = effects.filter(e => e.update(delta));
+
+        // Update player
+        if (player && player.alive) {
+            player.update(delta);
+
+            if (!player.target) {
+                for (let c of circles) {
+                    if (!c.jumper && !c.imploding) {
+                        const colR = c.radius + 15;
+                        const colRSq = colR * colR;
+                        // 三重检测：当前位置、上一帧位置、路径最短距离
+                        const d1 = (player.x - c.x) ** 2 + (player.y - c.y) ** 2;
+                        const d2 = (player.prevX - c.x) ** 2 + (player.prevY - c.y) ** 2;
+                        const d3 = pointSegDistSq(c.x, c.y, player.prevX, player.prevY, player.x, player.y);
+                        if (d1 <= colRSq || d2 <= colRSq || d3 <= colRSq) {
+                            player.vx = 0;
+                            player.vy = 0;
+                            onJumperCaptured(c);
+                            break;
+                        }
+                    }
+                }
+                if (player.isOffScreen()) {
+                    onJumperDied();
+                }
+            }
+        }
+
+        // Smooth camera
+        camera.x += (camera.targetX - camera.x) * 5 * delta;
+        camera.y += (camera.targetY - camera.y) * 5 * delta;
+
+        if (messageTimer > 0) messageTimer -= delta;
+    } else if (gameState === 'gameover') {
+        circles.forEach(c => c.update(delta));
+        circles = circles.filter(c => c.alive);
+        effects = effects.filter(e => e.update(delta));
+    }
+
+    // Draw
+    if (gameState === 'title') {
+        drawTitle();
+    } else if (gameState === 'playing') {
+        drawGame();
+    } else if (gameState === 'gameover') {
+        drawGame();
+        drawGameOver();
+    }
+
+    requestAnimationFrame(update);
+}
+
+requestAnimationFrame(update);
+</script>
+</body>
+</html>
