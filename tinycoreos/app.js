@@ -60,6 +60,11 @@ function updateDownload(progress) {
   ui.loadingDetail.textContent = `${percent}%`;
 }
 
+function preconnectNetworkRelay() {
+  const adapter = emulator && emulator.network_adapter;
+  if (adapter && typeof adapter.connect === "function") adapter.connect();
+}
+
 function initialize() {
   ui.error.hidden = true;
   ui.loading.classList.remove("is-hidden");
@@ -96,6 +101,10 @@ function initialize() {
       autostart: true,
       disable_speaker: true,
     });
+
+    // wsproxy normally connects on the first guest packet. Connecting while
+    // the ISO downloads avoids losing TinyCore's early DHCP exchange.
+    preconnectNetworkRelay();
 
     emulator.add_listener("download-progress", updateDownload);
     emulator.add_listener("download-error", event => {
@@ -139,6 +148,7 @@ ui.runToggle.addEventListener("click", async () => {
 
 ui.restart.addEventListener("click", () => {
   if (!emulator) return;
+  preconnectNetworkRelay();
   emulator.restart();
   setStatus("loading", "正在重新启动");
   ui.screen.focus();
