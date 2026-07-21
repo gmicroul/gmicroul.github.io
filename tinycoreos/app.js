@@ -55,7 +55,6 @@ function updateDownload(progress) {
     ui.loadingDetail.textContent = "正在读取启动文件";
     return;
   }
-
   const percent = Math.min(100, Math.round(progress.loaded / progress.total * 100));
   ui.progress.style.width = `${percent}%`;
   ui.loadingDetail.textContent = `${percent}%`;
@@ -74,7 +73,6 @@ function initialize() {
     showError("当前浏览器不支持 WebAssembly，请使用较新的 Chrome、Edge、Firefox 或 Safari。");
     return;
   }
-
   if (typeof V86 !== "function") {
     showError("v86 运行时没有加载成功，请检查静态文件路径后重试。");
     return;
@@ -85,13 +83,14 @@ function initialize() {
       wasm_path: "vendor/v86/v86.wasm",
       memory_size: 128 * 1024 * 1024,
       vga_memory_size: 8 * 1024 * 1024,
-      screen: {
-        container: ui.screen,
-        use_graphical_text: true,
-      },
+      screen: { container: ui.screen, use_graphical_text: true },
       bios: { url: "vendor/v86/seabios.bin" },
       vga_bios: { url: "vendor/v86/vgabios.bin" },
       cdrom: { url: "assets/TinyCore-16.2.iso" },
+      net_device: {
+        type: "ne2k",
+        relay_url: "wss://relay.widgetry.org/",
+      },
       boot_order: 0x213,
       fastboot: true,
       autostart: true,
@@ -105,7 +104,7 @@ function initialize() {
     });
     emulator.add_listener("emulator-ready", () => {
       ui.loadingTitle.textContent = "正在启动 TinyCore 桌面";
-      ui.loadingDetail.textContent = "ISO 已就绪";
+      ui.loadingDetail.textContent = "ISO 和网络设备已就绪";
       ui.progress.style.width = "100%";
       setControlsEnabled(true);
     });
@@ -128,9 +127,8 @@ ui.runToggle.addEventListener("click", async () => {
   if (!emulator) return;
   ui.runToggle.disabled = true;
   try {
-    if (isRunning) {
-      await emulator.stop();
-    } else {
+    if (isRunning) await emulator.stop();
+    else {
       await emulator.run();
       ui.screen.focus();
     }
