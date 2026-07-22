@@ -1,0 +1,38 @@
+name: Import TinyCore ISO
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-iso:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download and verify ISO
+        env:
+          ISO_URL: https://github.com/gmicroul/gmicroul.github.io/releases/download/tinycore-browser-fixed/TinyCore-Browser-16.2.iso
+          ISO_SHA256: 9dfd1e7102c76cff2521db074f4aa6ea86d392afdfe977cee9475548207d449e
+        run: |
+          mkdir -p assets
+          curl --fail --location --retry 3 --output assets/TinyCore-Browser-16.2.iso "$ISO_URL"
+          echo "$ISO_SHA256  assets/TinyCore-Browser-16.2.iso" | sha256sum --check --strict
+          test "$(stat --format=%s assets/TinyCore-Browser-16.2.iso)" -eq 36935680
+
+      - name: Commit ISO to repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/TinyCore-Browser-16.2.iso
+          if git diff --cached --quiet; then
+            echo "ISO is already up to date."
+            exit 0
+          fi
+          git commit -m "Add TinyCore browser ISO"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
