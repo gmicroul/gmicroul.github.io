@@ -1,0 +1,32 @@
+--- STACK.INC
++++ STACK.INC
+@@ -300,15 +300,25 @@
+     mov     [rx_buff_ptr], eax
+     mov     [tx_buff_ptr], eax
+    
+-    ; Put in some defaults : slip, 0x3f8, 4, ip=192.168.1.22
+-    ; Saves me entering them each boot up when debugging
+-    mov     eax, 0x03f80401
++    ; v86 WISP network: packet driver, 192.168.86.100/24
++    mov     eax, 0x03f80403
+     mov     [stack_config], eax
+-    mov     eax, 0xc801a8c0
++    mov     eax, 0x6456a8c0
+     mov     [stack_ip], eax
++    mov     eax, 0x0156a8c0
++    mov     [gateway_ip], eax
++    mov     [dns_ip], eax
+    
+     call    queueInit
+    
++
++    ; v86 exposes an RTL8029-compatible NE2000 PCI device.
++    call    eth_probe
++    test    eax, eax
++    jz      stack_init_no_ethernet
++    mov     [ethernet_active], byte 1
++
++stack_init_no_ethernet:
+     ; The following block sets up the 1s timer 
+     mov     al,0x0   
+     out     0x70,al
