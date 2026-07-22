@@ -1,8 +1,8 @@
 "use strict";
 
 const ISO_FILENAME = "alpine-v86-260722-x86.iso";
-const RELEASE_ISO_URL =
-  "https://github.com/gmicroul/gmicroul.github.io/releases/download/tinycore-browser-fixed/" + ISO_FILENAME;
+const ISO_SIZE = 178257920;
+const ISO_PART_SIZE = 16 * 1024 * 1024;
 
 const ui = {
   screen: document.getElementById("screen-container"),
@@ -29,17 +29,26 @@ let isRunning = false;
 let isRetrying = false;
 
 function getIsoConfig() {
-  const requested = new URLSearchParams(window.location.search).get("iso");
+  const params = new URLSearchParams(window.location.search);
+  const requested = params.get("iso");
   const localIsoUrl = `dist/${ISO_FILENAME}`;
   const ranged = url => ({
     url,
     async: true,
     fixed_chunk_size: 4 * 1024 * 1024,
   });
+  const parts = url => ({
+    url,
+    size: ISO_SIZE,
+    async: true,
+    fixed_chunk_size: ISO_PART_SIZE,
+    use_parts: true,
+  });
   if (requested) return ranged(requested);
 
-  if (window.location.hostname.endsWith(".github.io")) {
-    return ranged(RELEASE_ISO_URL);
+  if (window.location.hostname.endsWith(".github.io") || params.get("parts") === "1") {
+    const partsUrl = new URL(`assets/${ISO_FILENAME}`, document.baseURI).href;
+    return parts(partsUrl);
   }
 
   if (window.location.port === "8001") {
@@ -168,7 +177,7 @@ function initialize() {
     instance.add_listener("download-error", event => {
       if (emulator !== instance) return;
       const file = event?.file_name ? `（${event.file_name}）` : "";
-      showError(`启动文件下载失败${file}。请确认 GitHub Release 中的 ISO 已上传且允许 Range 请求。`);
+      showError(`启动文件下载失败${file}。请确认 assets 中的 ISO 分片已经完整上传。`);
       void disposeEmulator();
     });
     instance.add_listener("emulator-ready", () => {
