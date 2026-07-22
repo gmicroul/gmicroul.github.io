@@ -22,6 +22,17 @@ const ui = {
 let emulator = null;
 let isRunning = false;
 
+function getNetworkRelay() {
+  const requested = new URLSearchParams(window.location.search).get("network");
+  if (requested === "fetch") return "fetch";
+  if (requested === "wsproxy") return "wss://relay.widgetry.org/";
+  if (requested === "wisp") return "wisps://wisp.mercurywork.shop/";
+
+  return window.location.hostname.endsWith(".github.io")
+    ? "wisps://wisp.mercurywork.shop/"
+    : "wss://relay.widgetry.org/";
+}
+
 function setStatus(kind, text) {
   ui.statusDot.className = `status-dot is-${kind}`;
   ui.statusText.textContent = text;
@@ -91,7 +102,11 @@ function initialize() {
       },
       bios: { url: "vendor/v86/seabios.bin" },
       vga_bios: { url: "vendor/v86/vgabios.bin" },
-      fda: { url: "assets/menuetos-0.86b.img" },
+      fda: { url: "assets/menuetos-0.86b-network.img?v=2" },
+      net_device: {
+        type: "ne2k",
+        relay_url: getNetworkRelay(),
+      },
       boot_order: 0x231,
       fastboot: true,
       autostart: true,
