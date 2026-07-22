@@ -8,7 +8,7 @@
 - Application source: https://sourceforge.net/projects/menuet/files/086/B/A086B.ZIP
 - License: GNU General Public License version 2
 
-The distributed floppy image is the unmodified `M32-086B.IMG` extracted from the official binary archive. A copy of GPLv2 is available at `licenses/GPL-2.0.txt`.
+`assets/menuetos-0.86b.img` is the unmodified `M32-086B.IMG` extracted from the official binary archive. `assets/menuetos-0.86b-network.img` contains a rebuilt kernel with the network defaults and RTL8029 initialization documented in `sources/menuetos-v86-network.patch`; all other floppy contents are unchanged. A copy of GPLv2 is available at `licenses/GPL-2.0.txt`.
 
 ## v86 0.5.424
 
@@ -22,6 +22,8 @@ The browser runtime was extracted from the official npm package. BIOS images wer
 
 ```text
 54d4dbb990c3143d2652677e6e1647552ce136d980d3d00d3e203c73c048ef05  assets/menuetos-0.86b.img
+97c65ef8422cca730c71d3b9bcf08dc51f3e5b33537a01bfe084711111780170  assets/menuetos-0.86b-network.img
+042784d9376905e4d6256ce39a578a69801067003d2a5c59a878b8f1a245024e  kernel.mnt inside assets/menuetos-0.86b-network.img
 b80fba71dacb7977e5b46800b3ba194bba7fe13e52fa3d22f80cc060ff015a4e  vendor/v86/libv86.js
 aec2c16bb0a1618aa641bb44d9c0fe14681f8c1459fa08c32e3e0562020884e8  vendor/v86/v86.wasm
 73e3f359102e3a9982c35fce98eb7cd08f18303ac7f1ba6ebfbe6cdc1c244d98  vendor/v86/seabios.bin
