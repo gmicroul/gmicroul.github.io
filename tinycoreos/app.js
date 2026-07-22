@@ -26,12 +26,13 @@ function getNetworkRelay() {
   const requested = new URLSearchParams(window.location.search).get("network");
   if (requested === "fetch") return "fetch";
   if (requested === "wsproxy") return "wss://relay.widgetry.org/";
+  if (requested === "wisp") return "wisps://wisp.mercurywork.shop/";
 
-  // Browser/system proxies used to reach GitHub Pages often close raw
-  // ethernet WebSockets. The fetch backend provides DHCP locally and sends
-  // supported guest HTTP traffic through the browser's normal network path.
+  // WISP carries guest TCP streams through an ordinary browser WebSocket,
+  // including HTTPS. Raw ethernet relay WebSockets are often blocked on
+  // GitHub Pages or by browser/system proxies.
   return window.location.hostname.endsWith(".github.io")
-    ? "fetch"
+    ? "wisps://wisp.mercurywork.shop/"
     : "wss://relay.widgetry.org/";
 }
 
