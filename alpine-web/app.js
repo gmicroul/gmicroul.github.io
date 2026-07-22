@@ -5,7 +5,7 @@ const ISO_SIZE = 178257920;
 const ISO_PART_SIZE = 16 * 1024 * 1024;
 
 const ui = {
-  screen: document.getElementById("screen-container"),
+  screen: document.getElementById("screen_container"),
   loading: document.getElementById("loading-layer"),
   loadingTitle: document.getElementById("loading-title"),
   loadingDetail: document.getElementById("loading-detail"),
@@ -98,6 +98,13 @@ function setRunning(running) {
   setStatus(running ? "running" : "paused", running ? "正在运行" : "已暂停");
 }
 
+function enableInput(instance = emulator) {
+  ui.screen.focus({ preventScroll: true });
+  if (!instance) return;
+  instance.keyboard_set_status(true);
+  instance.mouse_set_status(true);
+}
+
 function showError(message) {
   ui.loading.classList.add("is-hidden");
   ui.error.hidden = false;
@@ -156,6 +163,7 @@ function initialize() {
       wasm_path: "vendor/v86/v86.wasm",
       memory_size: memorySize,
       vga_memory_size: 16 * 1024 * 1024,
+      screen_container: ui.screen,
       screen: { container: ui.screen, use_graphical_text: true },
       bios: { url: "vendor/v86/seabios.bin" },
       vga_bios: { url: "vendor/v86/vgabios.bin" },
@@ -189,6 +197,7 @@ function initialize() {
     });
     instance.add_listener("emulator-started", () => {
       if (emulator !== instance) return;
+      enableInput(instance);
       setRunning(true);
       window.setTimeout(() => ui.loading.classList.add("is-hidden"), 350);
     });
@@ -214,7 +223,7 @@ ui.runToggle.addEventListener("click", async () => {
     if (isRunning) await emulator.stop();
     else {
       await emulator.run();
-      ui.screen.focus();
+      enableInput();
     }
   } finally {
     ui.runToggle.disabled = false;
@@ -225,13 +234,13 @@ ui.restart.addEventListener("click", () => {
   if (!emulator) return;
   emulator.restart();
   setStatus("loading", "正在重新启动");
-  ui.screen.focus();
+  enableInput();
 });
 
 ui.fullscreen.addEventListener("click", () => {
   if (!emulator) return;
   emulator.screen_go_fullscreen();
-  ui.screen.focus();
+  enableInput();
 });
 
 ui.screenshot.addEventListener("click", () => {
@@ -255,6 +264,6 @@ ui.retry.addEventListener("click", async () => {
   isRetrying = false;
 });
 
-ui.screen.addEventListener("pointerdown", () => ui.screen.focus());
+ui.screen.addEventListener("pointerdown", () => enableInput());
 
 initialize();
