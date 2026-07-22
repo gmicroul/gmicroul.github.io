@@ -99,7 +99,7 @@ function initialize() {
       screen: { container: ui.screen, use_graphical_text: true },
       bios: { url: "vendor/v86/seabios.bin" },
       vga_bios: { url: "vendor/v86/vgabios.bin" },
-      cdrom: { url: "assets/TinyCore-16.2.iso" },
+      cdrom: { url: "assets/TinyCore-Browser-16.2.iso?v=5" },
       net_device: {
         type: "ne2k",
         relay_url: getNetworkRelay(),
