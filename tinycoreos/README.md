@@ -55,7 +55,19 @@ python3 -m http.server 8000
 
 - 首次启动需要等待浏览器下载并解压 ISO，速度取决于设备 CPU 和内存。
 - 建议至少分配给浏览器 512MB 可用内存；模拟器本身使用 128MB 客体内存。
-- TinyCore 的网络功能需要额外的 v86 网络后端，本项目默认不启用网络转发。
+- GitHub Pages 默认使用 v86 内建的 `fetch` 网络后端。它在浏览器中提供 DHCP、ARP、DNS 和 ICMP ping，避免系统代理中断原始以太网 WebSocket；客体通常会获得 `192.168.86.100/24`，网关为 `192.168.86.1`。
+- localhost 默认使用功能更完整的 `wsproxy` 后端，通过 `wss://relay.widgetry.org/` 转发以太网帧。
+- 可用 `?network=fetch` 或 `?network=wsproxy` 手动选择后端。`fetch` 后端的外网访问受浏览器 CORS 限制，主要支持客体的 HTTP 请求，不等同于完整 TCP/IP 转发。
+
+启动桌面后，在终端执行以下命令测试网络：
+
+```sh
+sudo udhcpc -i eth0
+ifconfig eth0
+ping 8.8.8.8
+```
+
+使用 GitHub Pages 默认的 `fetch` 后端时，`eth0` 应显示 `192.168.86.100`。
 - 页面按钮支持暂停、继续、重启、全屏和截图；点击桌面区域后可向虚拟机发送键盘和鼠标输入。
 
 ## 许可和来源
