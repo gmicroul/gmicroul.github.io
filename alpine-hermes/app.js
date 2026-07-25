@@ -1,7 +1,7 @@
 "use strict";
 
 const ISO_FILENAME = "alpine-v86-260722-x86.iso";
-const ISO_SIZE = 178257920;
+const ISO_SIZE = 217055232;
 const ISO_PART_SIZE = 16 * 1024 * 1024;
 
 const ui = {
