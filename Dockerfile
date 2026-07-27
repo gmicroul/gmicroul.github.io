@@ -24,4 +24,9 @@ WORKDIR /opt/hermes-agent
 RUN pip install --no-cache-dir -r requirements.txt
 
 
-CMD ["python3","-m","hermes"]
+COPY run.sh /usr/local/bin/run-hermes
+
+RUN chmod +x /usr/local/bin/run-hermes
+
+
+ENTRYPOINT ["run-hermes"]
