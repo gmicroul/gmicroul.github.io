@@ -3,26 +3,31 @@ name: Hermes Jolla News
 
 on:
 
-  # 每天 UTC 01:00运行
   schedule:
+    # 每天 UTC 01:00
     - cron: "0 1 * * *"
 
-
-  # 手动运行
   workflow_dispatch:
+
+
+permissions:
+
+  contents: read
+  pages: write
+  id-token: write
 
 
 
 jobs:
 
-  hermes:
+
+  build:
 
 
     runs-on: ubuntu-latest
 
 
     timeout-minutes: 60
-
 
 
     steps:
@@ -33,7 +38,7 @@ jobs:
 
 
 
-    - name: Build Hermes image
+    - name: Build Hermes
 
       run: |
 
@@ -69,30 +74,71 @@ jobs:
           -v $PWD/output:/output \
           hermes-agent \
           "
-          搜索最近24小时Jolla Phone和Sailfish OS相关新闻。
-          整理成中文日报。
-          输出Markdown格式。
-          保存到 /output/jolla-news.md
+          搜索最近24小时 Jolla Phone 和 Sailfish OS 新闻。
+
+          生成一个完整 HTML5 中文新闻网页。
+
+          必须保存文件：
+
+          /output/index.html
+
+
+          页面要求：
+
+          - 标题：Jolla Phone 新闻日报
+          - 显示更新时间
+          - 新闻标题列表
+          - 新闻摘要
+          - 来源链接
+          - 简洁美观的HTML/CSS
           "
 
 
 
-    - name: Commit news
-
+    - name: Check output
 
       run: |
 
+        ls -la output
 
-        git config user.name "github-actions"
-
-        git config user.email "github-actions@github.com"
-
-
-        git add output/jolla-news.md
+        test -f output/index.html
 
 
-        git commit \
-          -m "Update Jolla news" || true
+
+    - name: Upload Pages Artifact
+
+      uses: actions/upload-pages-artifact@v3
+
+      with:
+
+        path: ./output
 
 
-        git push
+
+
+
+  deploy:
+
+
+    needs: build
+
+
+    runs-on: ubuntu-latest
+
+
+    environment:
+
+      name: github-pages
+
+
+      url: ${{ steps.deployment.outputs.page_url }}
+
+
+    steps:
+
+
+    - name: Deploy Pages
+
+      id: deployment
+
+      uses: actions/deploy-pages@v4
