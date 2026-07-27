@@ -4,6 +4,7 @@ name: Hermes Jolla News
 on:
 
   schedule:
+
     - cron: "0 1 * * *"
 
 
@@ -14,7 +15,9 @@ on:
 permissions:
 
   contents: read
+
   pages: write
+
   id-token: write
 
 
@@ -25,14 +28,16 @@ jobs:
   build:
 
 
+
     runs-on: ubuntu-latest
 
 
-    timeout-minutes: 60
+    timeout-minutes: 30
 
 
 
     steps:
+
 
 
       - name: Checkout
@@ -41,10 +46,13 @@ jobs:
 
 
 
-      - name: Build Hermes Docker
+
+
+      - name: Build Hermes image
 
 
         run: |
+
 
           docker build \
             --progress=plain \
@@ -52,16 +60,22 @@ jobs:
 
 
 
+
+
       - name: Run Hermes
 
 
+
         env:
+
 
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+
+          PYTHONUNBUFFERED: 1
 
 
 
@@ -77,38 +91,42 @@ jobs:
             -e OPENAI_API_KEY \
             -e OPENAI_BASE_URL \
             -e OPENAI_MODEL \
+            -e PYTHONUNBUFFERED \
             -v "$PWD/output:/output" \
             hermes-agent \
             "
-            你是 Jolla Phone 和 Sailfish OS 新闻编辑。
+            你是一个HTML网页生成器。
 
-            搜索最近24小时 Jolla Phone、
-            Sailfish OS 相关新闻。
+            创建一个中文新闻网页。
 
-
-            生成完整 HTML5 中文新闻网页。
-
-
-            必须创建：
+            文件必须保存：
 
             /output/index.html
 
 
-            HTML要求：
+            网页要求：
 
-            - UTF-8编码
-            - 标题：Jolla Phone 新闻日报
-            - 显示更新时间
-            - 新闻标题
+            标题：
+            Jolla Phone 新闻日报
+
+
+            内容：
+
+            - 当前更新时间
+            - Jolla Phone相关新闻
+            - Sailfish OS相关新闻
             - 新闻摘要
-            - 新闻来源链接
-            - 简单CSS美化
+            - 来源链接
 
 
-            不要只返回文字。
+            使用完整HTML5格式。
 
-            必须写入 /output/index.html。
+            不要只回复文本。
+
+            必须创建文件。
             "
+
+
 
 
 
@@ -117,7 +135,16 @@ jobs:
 
         run: |
 
+
+          echo "==== output ===="
+
           ls -lah output
+
+
+          echo "==== index preview ===="
+
+          head -30 output/index.html
+
 
           test -f output/index.html
 
@@ -125,7 +152,7 @@ jobs:
 
 
 
-      - name: Upload Pages Artifact
+      - name: Upload Pages artifact
 
 
         uses: actions/upload-pages-artifact@v3
@@ -133,7 +160,9 @@ jobs:
 
         with:
 
+
           path: ./output
+
 
 
 
@@ -142,7 +171,9 @@ jobs:
   deploy:
 
 
+
     needs: build
+
 
 
     runs-on: ubuntu-latest
@@ -158,12 +189,15 @@ jobs:
 
 
 
+
     steps:
 
 
-      - name: Deploy GitHub Pages
+
+      - name: Deploy Pages
 
 
         id: deployment
+
 
         uses: actions/deploy-pages@v4
