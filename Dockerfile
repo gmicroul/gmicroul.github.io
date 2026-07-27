@@ -1,28 +1,31 @@
 FROM python:3.12-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && apt install -y \
     git \
     curl \
+    build-essential \
+    python3-dev \
     nodejs \
     npm \
     ripgrep \
-    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 
 WORKDIR /opt
 
+
 RUN git clone \
-    https://github.com/NousResearch/hermes-agent.git \
-    hermes-agent
+https://github.com/NousResearch/hermes-agent.git
 
 
 WORKDIR /opt/hermes-agent
 
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel
+
+
+RUN pip install .
 
 
 COPY run.sh /usr/local/bin/run-hermes
