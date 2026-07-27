@@ -9,6 +9,7 @@ RUN apt update && apt install -y \
     git \
     curl \
     ca-certificates \
+    gettext-base \
     build-essential \
     python3-dev \
     nodejs \
@@ -17,9 +18,7 @@ RUN apt update && apt install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-
 WORKDIR /opt
-
 
 
 RUN git clone --depth=1 \
@@ -27,9 +26,7 @@ RUN git clone --depth=1 \
     hermes-agent
 
 
-
 WORKDIR /opt/hermes-agent
-
 
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -38,16 +35,16 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 
 
-
 RUN uv sync
 
+
+COPY config.yaml /tmp/config.yaml
 
 
 COPY run.sh /usr/local/bin/run-hermes
 
 
 RUN chmod +x /usr/local/bin/run-hermes
-
 
 
 ENTRYPOINT ["run-hermes"]
