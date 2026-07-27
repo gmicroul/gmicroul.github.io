@@ -3,6 +3,7 @@ FROM python:3.12-slim
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
+
 RUN apt update && apt install -y \
     git \
     curl \
@@ -19,7 +20,8 @@ WORKDIR /opt
 
 
 RUN git clone --depth=1 \
-    https://github.com/NousResearch/hermes-agent.git
+    https://github.com/NousResearch/hermes-agent.git \
+    hermes-agent
 
 
 WORKDIR /opt/hermes-agent
