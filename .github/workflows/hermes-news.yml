@@ -1,12 +1,9 @@
 name: Hermes Jolla News
 
 
-
 on:
 
-
   schedule:
-
     - cron: "0 1 * * *"
 
 
@@ -14,150 +11,129 @@ on:
 
 
 
-
 permissions:
 
   contents: read
-
   pages: write
-
   id-token: write
-
 
 
 
 jobs:
 
 
-
   build:
 
 
-
     runs-on: ubuntu-latest
-
 
 
     timeout-minutes: 60
 
 
 
-
     steps:
 
 
+      - name: Checkout
 
-    - name: Checkout
+        uses: actions/checkout@v4
 
-      uses: actions/checkout@v4
 
 
+      - name: Build Hermes Docker
 
 
+        run: |
 
-    - name: Build Hermes Docker
+          docker build \
+            --progress=plain \
+            -t hermes-agent .
 
 
-      run: |
 
+      - name: Run Hermes
 
-        docker build \
-          --progress=plain \
-          -t hermes-agent .
 
+        env:
 
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
-    - name: Run Hermes
 
 
+        run: |
 
-      env:
 
+          mkdir -p output
 
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
-        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          docker run \
+            --rm \
+            -e OPENAI_API_KEY \
+            -e OPENAI_BASE_URL \
+            -e OPENAI_MODEL \
+            -v "$PWD/output:/output" \
+            hermes-agent \
+            "
+            你是 Jolla Phone 和 Sailfish OS 新闻编辑。
 
+            搜索最近24小时 Jolla Phone、
+            Sailfish OS 相关新闻。
 
 
-      run: |
+            生成完整 HTML5 中文新闻网页。
 
 
-        mkdir -p output
+            必须创建：
 
+            /output/index.html
 
 
-        docker run \
-          --rm \
-          -e OPENAI_API_KEY \
-          -e OPENAI_BASE_URL \
-          -e OPENAI_MODEL \
-          -v $PWD/output:/output \
-          hermes-agent \
-          "
+            HTML要求：
 
-          你是一个 Jolla Phone 和 Sailfish OS 新闻编辑。
+            - UTF-8编码
+            - 标题：Jolla Phone 新闻日报
+            - 显示更新时间
+            - 新闻标题
+            - 新闻摘要
+            - 新闻来源链接
+            - 简单CSS美化
 
-          搜索最近24小时 Jolla Phone、
-          Sailfish OS 相关新闻。
 
-          生成一个完整 HTML5 中文网页。
+            不要只返回文字。
 
+            必须写入 /output/index.html。
+            "
 
-          必须创建：
 
-          /output/index.html
 
+      - name: Check output
 
-          页面要求：
 
-          - 标题：Jolla Phone 新闻日报
-          - 显示更新时间
-          - 新闻标题
-          - 新闻摘要
-          - 来源链接
-          - 简洁CSS样式
+        run: |
 
-          不要只回复文本。
-          必须写入HTML文件。
+          ls -lah output
 
-          "
+          test -f output/index.html
 
 
 
 
 
-    - name: Check output
+      - name: Upload Pages Artifact
 
 
-      run: |
+        uses: actions/upload-pages-artifact@v3
 
 
-        ls -lah output
+        with:
 
-
-        test -f output/index.html
-
-
-
-
-
-    - name: Upload Pages artifact
-
-
-      uses: actions/upload-pages-artifact@v3
-
-
-      with:
-
-
-        path: ./output
-
-
+          path: ./output
 
 
 
@@ -166,9 +142,7 @@ jobs:
   deploy:
 
 
-
     needs: build
-
 
 
     runs-on: ubuntu-latest
@@ -180,20 +154,16 @@ jobs:
 
       name: github-pages
 
-
-      url: ${{ steps.deployment.outputs.page_url }
-
+      url: ${{ steps.deployment.outputs.page_url }}
 
 
 
     steps:
 
 
-
-    - name: Deploy GitHub Pages
-
-
-      id: deployment
+      - name: Deploy GitHub Pages
 
 
-      uses: actions/deploy-pages@v4
+        id: deployment
+
+        uses: actions/deploy-pages@v4
