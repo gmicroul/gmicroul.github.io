@@ -1,7 +1,9 @@
 name: Hermes Jolla News
 
 
+
 on:
+
 
   schedule:
 
@@ -12,27 +14,37 @@ on:
 
 
 
+
 permissions:
 
   contents: read
+
   pages: write
+
   id-token: write
+
 
 
 
 jobs:
 
 
+
   build:
+
 
 
     runs-on: ubuntu-latest
 
 
+
     timeout-minutes: 60
 
 
+
+
     steps:
+
 
 
     - name: Checkout
@@ -41,9 +53,13 @@ jobs:
 
 
 
-    - name: Build Hermes image
+
+
+    - name: Build Hermes Docker
+
 
       run: |
+
 
         docker build \
           --progress=plain \
@@ -51,10 +67,14 @@ jobs:
 
 
 
+
+
     - name: Run Hermes
 
 
+
       env:
+
 
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
@@ -70,6 +90,7 @@ jobs:
         mkdir -p output
 
 
+
         docker run \
           --rm \
           -e OPENAI_API_KEY \
@@ -78,26 +99,35 @@ jobs:
           -v $PWD/output:/output \
           hermes-agent \
           "
-          你是一个 Sailfish OS 和 Jolla Phone 新闻编辑。
 
-          搜索最近24小时 Jolla Phone、Sailfish OS 相关新闻。
+          你是一个 Jolla Phone 和 Sailfish OS 新闻编辑。
 
-          生成一个完整 HTML5 网页。
+          搜索最近24小时 Jolla Phone、
+          Sailfish OS 相关新闻。
 
-          必须创建文件：
+          生成一个完整 HTML5 中文网页。
+
+
+          必须创建：
 
           /output/index.html
 
 
-          网页要求：
+          页面要求：
 
-          1. 中文内容
-          2. 标题为 Jolla Phone 新闻日报
-          3. 显示更新时间
-          4. 每条新闻包含标题、摘要、来源链接
-          5. 简洁 HTML CSS 样式
-          6. 不要只回复文字，必须写入文件
+          - 标题：Jolla Phone 新闻日报
+          - 显示更新时间
+          - 新闻标题
+          - 新闻摘要
+          - 来源链接
+          - 简洁CSS样式
+
+          不要只回复文本。
+          必须写入HTML文件。
+
           "
+
+
 
 
 
@@ -106,14 +136,17 @@ jobs:
 
       run: |
 
+
         ls -lah output
+
 
         test -f output/index.html
 
 
 
 
-    - name: Upload Pages
+
+    - name: Upload Pages artifact
 
 
       uses: actions/upload-pages-artifact@v3
@@ -121,7 +154,10 @@ jobs:
 
       with:
 
+
         path: ./output
+
+
 
 
 
@@ -130,7 +166,9 @@ jobs:
   deploy:
 
 
+
     needs: build
+
 
 
     runs-on: ubuntu-latest
@@ -139,18 +177,23 @@ jobs:
 
     environment:
 
+
       name: github-pages
 
-      url: ${{ steps.deployment.outputs.page_url }}
+
+      url: ${{ steps.deployment.outputs.page_url }
+
 
 
 
     steps:
 
 
-    - name: Deploy Pages
+
+    - name: Deploy GitHub Pages
 
 
       id: deployment
+
 
       uses: actions/deploy-pages@v4
