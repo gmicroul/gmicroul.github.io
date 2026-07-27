@@ -3,12 +3,11 @@ name: Hermes Jolla News
 
 on:
 
-  schedule:
-
-    - cron: "0 1 * * *"
-
-
   workflow_dispatch:
+
+  schedule:
+    # 每天 UTC 01:00 运行
+    - cron: "0 1 * * *"
 
 
 
@@ -28,11 +27,10 @@ jobs:
   build:
 
 
-
     runs-on: ubuntu-latest
 
 
-    timeout-minutes: 30
+    timeout-minutes: 60
 
 
 
@@ -40,19 +38,16 @@ jobs:
 
 
 
-      - name: Checkout
+      - name: Checkout repository
 
         uses: actions/checkout@v4
 
 
 
 
-
-      - name: Build Hermes image
-
+      - name: Build Hermes Docker image
 
         run: |
-
 
           docker build \
             --progress=plain \
@@ -62,21 +57,16 @@ jobs:
 
 
 
-      - name: Run Hermes
-
+      - name: Run Hermes Agent
 
 
         env:
-
 
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
-
-          PYTHONUNBUFFERED: 1
-
 
 
         run: |
@@ -91,59 +81,67 @@ jobs:
             -e OPENAI_API_KEY \
             -e OPENAI_BASE_URL \
             -e OPENAI_MODEL \
-            -e PYTHONUNBUFFERED \
             -v "$PWD/output:/output" \
             hermes-agent \
             "
-            你是一个HTML网页生成器。
 
-            创建一个中文新闻网页。
+            你是 Jolla Phone 和 Sailfish OS 新闻编辑。
 
-            文件必须保存：
+
+            任务：
+
+            搜索最近24小时 Jolla Phone、
+            Sailfish OS 相关新闻。
+
+
+            生成一个完整 HTML5 中文新闻页面。
+
+
+            必须创建文件：
 
             /output/index.html
 
 
-            网页要求：
+            页面要求：
 
-            标题：
-            Jolla Phone 新闻日报
-
-
-            内容：
-
-            - 当前更新时间
-            - Jolla Phone相关新闻
-            - Sailfish OS相关新闻
+            - UTF-8
+            - 标题：Jolla Phone 新闻日报
+            - 显示生成时间
+            - 新闻标题列表
             - 新闻摘要
-            - 来源链接
+            - 新闻来源链接
+            - 简洁CSS样式
 
 
-            使用完整HTML5格式。
+            不要只返回文字。
 
-            不要只回复文本。
+            必须写入 /output/index.html。
 
-            必须创建文件。
+
             "
 
 
 
 
 
-      - name: Check output
+      - name: Check generated files
 
 
         run: |
 
 
-          echo "==== output ===="
+          echo "===== output ====="
+
 
           ls -lah output
 
 
-          echo "==== index preview ===="
 
-          head -30 output/index.html
+          echo "===== index.html ====="
+
+
+          head -50 output/index.html
+
 
 
           test -f output/index.html
@@ -152,14 +150,14 @@ jobs:
 
 
 
-      - name: Upload Pages artifact
+
+      - name: Upload GitHub Pages artifact
 
 
         uses: actions/upload-pages-artifact@v3
 
 
         with:
-
 
           path: ./output
 
@@ -175,13 +173,11 @@ jobs:
     needs: build
 
 
-
     runs-on: ubuntu-latest
 
 
 
     environment:
-
 
       name: github-pages
 
@@ -189,12 +185,11 @@ jobs:
 
 
 
-
     steps:
 
 
 
-      - name: Deploy Pages
+      - name: Deploy to GitHub Pages
 
 
         id: deployment
