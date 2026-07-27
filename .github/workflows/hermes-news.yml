@@ -1,0 +1,98 @@
+name: Hermes Jolla News
+
+
+on:
+
+  # 每天 UTC 01:00运行
+  schedule:
+    - cron: "0 1 * * *"
+
+
+  # 手动运行
+  workflow_dispatch:
+
+
+
+jobs:
+
+  hermes:
+
+
+    runs-on: ubuntu-latest
+
+
+    timeout-minutes: 60
+
+
+
+    steps:
+
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+
+
+    - name: Build Hermes image
+
+      run: |
+
+        docker build \
+          --progress=plain \
+          -t hermes-agent .
+
+
+
+    - name: Run Hermes
+
+
+      env:
+
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+
+
+      run: |
+
+
+        mkdir -p output
+
+
+        docker run \
+          --rm \
+          -e OPENAI_API_KEY \
+          -e OPENAI_BASE_URL \
+          -e OPENAI_MODEL \
+          -v $PWD/output:/output \
+          hermes-agent \
+          "
+          搜索最近24小时Jolla Phone和Sailfish OS相关新闻。
+          整理成中文日报。
+          输出Markdown格式。
+          保存到 /output/jolla-news.md
+          "
+
+
+
+    - name: Commit news
+
+
+      run: |
+
+
+        git config user.name "github-actions"
+
+        git config user.email "github-actions@github.com"
+
+
+        git add output/jolla-news.md
+
+
+        git commit \
+          -m "Update Jolla news" || true
+
+
+        git push
