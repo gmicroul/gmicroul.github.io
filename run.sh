@@ -2,6 +2,9 @@
 set -e
 
 
+export PYTHONUNBUFFERED=1
+
+
 echo "=============================="
 echo " Hermes News Generator"
 echo "=============================="
@@ -17,7 +20,6 @@ echo "$OPENAI_BASE_URL"
 
 echo "API KEY LENGTH:"
 echo "${#OPENAI_API_KEY}"
-
 
 
 if [ -z "$OPENAI_API_KEY" ]; then
@@ -57,20 +59,19 @@ cd /opt/hermes-agent
 
 
 
-TASK="$@"
+echo "Starting Hermes CLI..."
 
 
 
-if [ -z "$TASK" ]; then
-
-TASK="
-生成一个HTML新闻页面。
-保存到 /output/index.html
-"
-
-fi
+timeout 20m uv run hermes \
+    --cli \
+    -z "$@"
 
 
 
-exec uv run hermes \
--z "$TASK"
+echo "Hermes finished"
+
+
+echo "Output files:"
+
+ls -lah /output
