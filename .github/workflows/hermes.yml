@@ -1,19 +1,19 @@
 name: Hermes Agent
 
-on:
-  workflow_dispatch:
 
-  # 如果想定时运行，取消注释
-  # schedule:
-  #   - cron: "0 */6 * * *"
+on:
+
+  workflow_dispatch:
 
 
 jobs:
+
   hermes:
 
     runs-on: ubuntu-latest
 
     timeout-minutes: 360
+
 
     steps:
 
@@ -21,15 +21,7 @@ jobs:
       uses: actions/checkout@v4
 
 
-    - name: Check system
-      run: |
-        uname -a
-        docker version
-        free -h
-        df -h
-
-
-    - name: Build Hermes image
+    - name: Build Docker image
       run: |
         docker build \
           -t hermes-agent .
@@ -38,12 +30,14 @@ jobs:
     - name: Run Hermes
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
       run: |
 
         docker run \
           --rm \
           -e OPENAI_API_KEY \
-          -e ANTHROPIC_API_KEY \
+          -e OPENAI_BASE_URL \
+          -e OPENAI_MODEL \
           hermes-agent
