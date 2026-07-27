@@ -4,10 +4,12 @@ name: Hermes Jolla News
 on:
 
   schedule:
-    # 每天 UTC 01:00
+
     - cron: "0 1 * * *"
 
+
   workflow_dispatch:
+
 
 
 permissions:
@@ -34,11 +36,12 @@ jobs:
 
 
     - name: Checkout
+
       uses: actions/checkout@v4
 
 
 
-    - name: Build Hermes
+    - name: Build Hermes image
 
       run: |
 
@@ -60,6 +63,7 @@ jobs:
         OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
 
+
       run: |
 
 
@@ -74,40 +78,46 @@ jobs:
           -v $PWD/output:/output \
           hermes-agent \
           "
-          搜索最近24小时 Jolla Phone 和 Sailfish OS 新闻。
+          你是一个 Sailfish OS 和 Jolla Phone 新闻编辑。
 
-          生成一个完整 HTML5 中文新闻网页。
+          搜索最近24小时 Jolla Phone、Sailfish OS 相关新闻。
 
-          必须保存文件：
+          生成一个完整 HTML5 网页。
+
+          必须创建文件：
 
           /output/index.html
 
 
-          页面要求：
+          网页要求：
 
-          - 标题：Jolla Phone 新闻日报
-          - 显示更新时间
-          - 新闻标题列表
-          - 新闻摘要
-          - 来源链接
-          - 简洁美观的HTML/CSS
+          1. 中文内容
+          2. 标题为 Jolla Phone 新闻日报
+          3. 显示更新时间
+          4. 每条新闻包含标题、摘要、来源链接
+          5. 简洁 HTML CSS 样式
+          6. 不要只回复文字，必须写入文件
           "
 
 
 
     - name: Check output
 
+
       run: |
 
-        ls -la output
+        ls -lah output
 
         test -f output/index.html
 
 
 
-    - name: Upload Pages Artifact
+
+    - name: Upload Pages
+
 
       uses: actions/upload-pages-artifact@v3
+
 
       with:
 
@@ -126,18 +136,20 @@ jobs:
     runs-on: ubuntu-latest
 
 
+
     environment:
 
       name: github-pages
 
-
       url: ${{ steps.deployment.outputs.page_url }}
+
 
 
     steps:
 
 
     - name: Deploy Pages
+
 
       id: deployment
 
