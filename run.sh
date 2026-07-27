@@ -7,15 +7,32 @@ echo " Hermes News Generator"
 echo "=============================="
 
 
-echo "MODEL:"
+echo "OPENAI_BASE_URL:"
+echo "$OPENAI_BASE_URL"
+
+
+echo "OPENAI_MODEL:"
 echo "$OPENAI_MODEL"
 
-echo "BASE URL:"
-echo "$OPENAI_BASE_URL"
+
+echo "OPENAI_API_KEY length:"
+echo "${#OPENAI_API_KEY}"
 
 
 if [ -z "$OPENAI_API_KEY" ]; then
     echo "ERROR: OPENAI_API_KEY missing"
+    exit 1
+fi
+
+
+if [ -z "$OPENAI_BASE_URL" ]; then
+    echo "ERROR: OPENAI_BASE_URL missing"
+    exit 1
+fi
+
+
+if [ -z "$OPENAI_MODEL" ]; then
+    echo "ERROR: OPENAI_MODEL missing"
     exit 1
 fi
 
@@ -40,4 +57,7 @@ echo "$TASK"
 echo ""
 
 
-exec uv run hermes -z "$TASK"
+exec uv run hermes \
+    -z "$TASK" \
+    -m "$OPENAI_MODEL" \
+    --provider openai
