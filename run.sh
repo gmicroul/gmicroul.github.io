@@ -2,22 +2,42 @@
 set -e
 
 
-echo "======================"
-echo " Hermes Agent Start "
-echo "======================"
+echo "=============================="
+echo " Hermes Automation Runner"
+echo "=============================="
 
 
-echo "MODEL=$OPENAI_MODEL"
-echo "BASE_URL=$OPENAI_BASE_URL"
+echo "MODEL:"
+echo "$OPENAI_MODEL"
+
+echo "BASE_URL:"
+echo "$OPENAI_BASE_URL"
 
 
 if [ -z "$OPENAI_API_KEY" ]; then
-    echo "Missing OPENAI_API_KEY"
+    echo "ERROR: OPENAI_API_KEY missing"
     exit 1
 fi
+
+
+mkdir -p /output
 
 
 cd /opt/hermes-agent
 
 
-exec uv run hermes "$@"
+TASK="$@"
+
+
+if [ -z "$TASK" ]; then
+    TASK="Generate a report."
+fi
+
+
+echo ""
+echo "Task:"
+echo "$TASK"
+echo ""
+
+
+exec uv run hermes "$TASK"
