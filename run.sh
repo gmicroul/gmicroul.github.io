@@ -1,42 +1,44 @@
 #!/bin/bash
 set -e
 
-echo "================================="
-echo " Hermes Agent Starting"
-echo "================================="
+
+echo "=============================="
+echo " Hermes Agent CI Runner"
+echo "=============================="
 
 
-# 检查 API Key
-
-if [ -z "$OPENAI_API_KEY" ] && [ -z "$ANTHROPIC_API_KEY" ]; then
-    echo "ERROR:"
-    echo "No AI API key found"
-    echo "Please set OPENAI_API_KEY or ANTHROPIC_API_KEY"
+if [ -z "$OPENAI_API_KEY" ]; then
+    echo "ERROR: OPENAI_API_KEY missing"
     exit 1
 fi
 
 
-# 创建配置目录
+if [ -z "$OPENAI_BASE_URL" ]; then
+    echo "ERROR: OPENAI_BASE_URL missing"
+    exit 1
+fi
+
+
+if [ -z "$OPENAI_MODEL" ]; then
+    echo "ERROR: OPENAI_MODEL missing"
+    exit 1
+fi
+
+
+echo "Model:"
+echo "$OPENAI_MODEL"
+
+echo "Base URL:"
+echo "$OPENAI_BASE_URL"
+
 
 mkdir -p /root/.hermes
 
 
-echo "Environment:"
-echo "Python:"
-python3 --version
-
-echo "Node:"
-node --version || true
-
-
-echo ""
-echo "Starting Hermes..."
-echo ""
-
-
-# 启动 Hermes
-
 cd /opt/hermes-agent
 
 
-exec python3 -m hermes "$@"
+echo "Starting Hermes..."
+
+
+exec hermes "$@"
