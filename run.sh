@@ -7,16 +7,17 @@ echo " Hermes News Generator"
 echo "=============================="
 
 
-echo "OPENAI_BASE_URL:"
-echo "$OPENAI_BASE_URL"
-
-
-echo "OPENAI_MODEL:"
+echo "MODEL:"
 echo "$OPENAI_MODEL"
 
 
-echo "OPENAI_API_KEY length:"
+echo "BASE URL:"
+echo "$OPENAI_BASE_URL"
+
+
+echo "API KEY LENGTH:"
 echo "${#OPENAI_API_KEY}"
+
 
 
 if [ -z "$OPENAI_API_KEY" ]; then
@@ -25,39 +26,51 @@ if [ -z "$OPENAI_API_KEY" ]; then
 fi
 
 
-if [ -z "$OPENAI_BASE_URL" ]; then
-    echo "ERROR: OPENAI_BASE_URL missing"
-    exit 1
-fi
+
+mkdir -p /root/.hermes
 
 
-if [ -z "$OPENAI_MODEL" ]; then
-    echo "ERROR: OPENAI_MODEL missing"
-    exit 1
-fi
+
+cat > /root/.hermes/config.yaml <<EOF
+model:
+  default: ${OPENAI_MODEL}
+  provider: custom
+  api_key: ${OPENAI_API_KEY}
+  base_url: ${OPENAI_BASE_URL}
+  api_mode: chat_completions
+
+providers: {}
+EOF
+
+
+
+echo "Hermes config:"
+cat /root/.hermes/config.yaml | sed 's/api_key:.*/api_key: ******/'
+
 
 
 mkdir -p /output
 
 
+
 cd /opt/hermes-agent
+
 
 
 TASK="$@"
 
 
+
 if [ -z "$TASK" ]; then
-    TASK="生成新闻页面"
+
+TASK="
+生成一个HTML新闻页面。
+保存到 /output/index.html
+"
+
 fi
 
 
-echo ""
-echo "Task:"
-echo "$TASK"
-echo ""
-
 
 exec uv run hermes \
-    -z "$TASK" \
-    -m "$OPENAI_MODEL" \
-    --provider openai
+-z "$TASK"
