@@ -34,12 +34,63 @@ grep -A6 "custom_providers" /root/.hermes/config.yaml || true
 cd /opt/hermes-agent
 
 
-uv run hermes \
+echo "Running Hermes..."
+
+
+RESULT=$(uv run hermes \
     --cli \
     -z "$@"
+)
 
 
-echo "Fix output permission"
+echo "========== Hermes Result =========="
+
+echo "$RESULT"
 
 
-chmod -R a+rX /output || true
+mkdir -p /output
+
+
+cat > /output/index.html <<EOF
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>Hermes News</title>
+
+<style>
+body {
+    font-family: sans-serif;
+    margin: 40px;
+    line-height: 1.6;
+}
+
+pre {
+    white-space: pre-wrap;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Hermes Generated Result</h1>
+
+<pre>
+$RESULT
+</pre>
+
+
+</body>
+
+</html>
+EOF
+
+
+chmod 644 /output/index.html
+
+
+echo "Created:"
+ls -l /output/index.html
