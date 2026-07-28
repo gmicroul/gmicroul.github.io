@@ -5,11 +5,14 @@ on:
 
   workflow_dispatch:
 
+  schedule:
+    - cron: "0 */6 * * *"
+
 
 
 permissions:
 
-  contents: read
+  contents: write
 
   pages: write
 
@@ -26,20 +29,24 @@ jobs:
     runs-on: ubuntu-latest
 
 
-    timeout-minutes: 20
+    timeout-minutes: 30
 
 
 
     steps:
 
 
-    - name: Checkout
+    - name: Checkout repository
 
       uses: actions/checkout@v4
 
+      with:
+
+        fetch-depth: 0
 
 
-    - name: Build Hermes image
+
+    - name: Build Hermes Docker image
 
       run: |
 
@@ -77,44 +84,118 @@ jobs:
           hermes-agent \
           "
 
-          生成一份 Jolla Phone 和 Sailfish OS 新闻日报。
+          生成 Jolla Phone 和 Sailfish OS 新闻日报。
 
 
           要求：
 
-          1. 中文输出
+          - 使用中文
 
-          2. 输出完整 HTML 内容
+          - 输出 HTML 内容
 
-          3. 不要创建文件
+          - 直接返回网页正文
 
-          4. 不要调用文件工具
-
-          5. 直接返回网页正文
+          - 不调用文件工具
 
 
           "
 
 
 
-    - name: Check output
+    - name: Check Hermes output
 
 
       run: |
 
+
         echo "===== output ====="
+
 
         ls -lah output
 
 
         echo "===== index.html ====="
 
-        cat output/index.html
+
+        head -50 output/index.html
 
 
 
 
-    - name: Upload Pages
+
+    - name: Commit Hermes output
+
+
+      run: |
+
+
+        git config user.name "github-actions[bot]"
+
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+        git add output/
+
+
+        git commit -m "Update Hermes generated page" || echo "No changes"
+
+
+        git push
+
+
+
+
+
+    #
+    # 创建 Pages 发布目录
+    #
+    # 目标:
+    #
+    # /
+    # ├── index.html
+    # └── output/
+    #     └── index.html
+    #
+
+    - name: Prepare Pages
+
+
+      run: |
+
+
+        rm -rf pages
+
+
+        mkdir -p pages/output
+
+
+
+        # 保留你的主页
+
+        cp index.html pages/index.html
+
+
+
+        # 放入 Hermes 页面
+
+        cp output/index.html pages/output/index.html
+
+
+
+        touch pages/.nojekyll
+
+
+
+        echo "===== Pages structure ====="
+
+
+        find pages -maxdepth 3 -type f
+
+
+
+
+
+    - name: Upload Pages artifact
 
 
       uses: actions/upload-pages-artifact@v3
@@ -122,7 +203,7 @@ jobs:
 
       with:
 
-        path: output
+        path: pages
 
 
 
