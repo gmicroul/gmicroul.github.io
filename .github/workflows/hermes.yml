@@ -5,39 +5,170 @@ on:
 
   workflow_dispatch:
 
+  schedule:
+    - cron: "0 */6 * * *"
+
+
+permissions:
+
+  contents: write
+
+  pages: write
+
+  id-token: write
+
+
 
 jobs:
 
-  hermes:
+
+  build:
+
 
     runs-on: ubuntu-latest
 
-    timeout-minutes: 360
+
+    timeout-minutes: 20
+
 
 
     steps:
 
+
     - name: Checkout
+
       uses: actions/checkout@v4
 
+      with:
 
-    - name: Build Docker image
+        fetch-depth: 0
+
+
+
+    - name: Build Hermes image
+
       run: |
+
         docker build \
+          --progress=plain \
           -t hermes-agent .
 
 
+
     - name: Run Hermes
+
+
       env:
+
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
         OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
         OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
+
       run: |
+
+
+        mkdir -p output
+
+
 
         docker run \
           --rm \
           -e OPENAI_API_KEY \
           -e OPENAI_BASE_URL \
           -e OPENAI_MODEL \
-          hermes-agent
+          -v "$PWD/output:/output" \
+          hermes-agent \
+          "
+
+          生成一份 Jolla Phone 和 Sailfish OS 新闻日报。
+
+          要求：
+
+          - 中文
+          - HTML格式
+          - 直接输出内容
+          - 不调用文件工具
+
+          "
+
+
+
+    - name: Check generated file
+
+
+      run: |
+
+
+        echo "===== output ====="
+
+
+        ls -lah output
+
+
+        echo "===== index.html ====="
+
+
+        head -50 output/index.html
+
+
+
+
+    - name: Commit output
+
+
+      run: |
+
+
+        git config user.name "github-actions[bot]"
+
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+        git add output/
+
+
+        git commit -m "Update Hermes generated page" || echo "No changes"
+
+
+        git push
+
+
+
+
+    - name: Upload Pages artifact
+
+
+      uses: actions/upload-pages-artifact@v3
+
+
+      with:
+
+        path: output
+
+
+
+
+  deploy:
+
+
+    needs: build
+
+
+    runs-on: ubuntu-latest
+
+
+    environment:
+
+      name: github-pages
+
+
+    steps:
+
+
+    - name: Deploy Pages
+
+
+      uses: actions/deploy-pages@v4
