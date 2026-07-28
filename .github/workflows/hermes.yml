@@ -1,51 +1,32 @@
-name: Hermes Agent
-
+name: Hermes Test
 
 on:
-
   workflow_dispatch:
-
-  schedule:
-    - cron: "0 */6 * * *"
 
 
 permissions:
-
   contents: write
-
-  pages: write
-
-  id-token: write
-
 
 
 jobs:
 
-
-  build:
-
+  test:
 
     runs-on: ubuntu-latest
 
-
-    timeout-minutes: 20
-
+    timeout-minutes: 10
 
 
     steps:
 
 
-    - name: Checkout
+    - name: Checkout repository
 
       uses: actions/checkout@v4
 
-      with:
-
-        fetch-depth: 0
 
 
-
-    - name: Build Hermes image
+    - name: Build Hermes Docker image
 
       run: |
 
@@ -55,8 +36,46 @@ jobs:
 
 
 
-    - name: Run Hermes
+    - name: Prepare output
 
+      run: |
+
+        mkdir -p output
+
+        sudo chmod 777 output
+
+
+
+    - name: Check secrets
+
+      env:
+
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+
+
+      run: |
+
+        echo "Checking environment..."
+
+        if [ -z "$OPENAI_API_KEY" ]; then
+          echo "ERROR: OPENAI_API_KEY empty"
+          exit 1
+        else
+          echo "OPENAI_API_KEY OK"
+        fi
+
+
+        echo "OPENAI_BASE_URL=$OPENAI_BASE_URL"
+
+        echo "OPENAI_MODEL=$OPENAI_MODEL"
+
+
+
+    - name: Run Hermes test
 
       env:
 
@@ -70,11 +89,14 @@ jobs:
       run: |
 
 
-        mkdir -p output
+        echo "=================="
+
+        echo "Running Hermes test..."
+
+        date
 
 
-
-        docker run \
+        timeout 5m docker run \
           --rm \
           -e OPENAI_API_KEY \
           -e OPENAI_BASE_URL \
@@ -82,93 +104,48 @@ jobs:
           -v "$PWD/output:/output" \
           hermes-agent \
           "
+          不要搜索。
 
-          生成一份 Jolla Phone 和 Sailfish OS 新闻日报。
+          直接生成一个测试 HTML 页面。
 
-          要求：
+          必须创建：
 
-          - 中文
-          - HTML格式
-          - 直接输出内容
-          - 不调用文件工具
+          /output/index.html
 
+          内容要求：
+
+          标题：
+          Hermes GitHub Actions Test
+
+          内容：
+          GitHub Actions运行成功。
           "
 
 
+        echo "Hermes finished"
 
-    - name: Check generated file
+        date
 
+
+
+    - name: Verify output
 
       run: |
 
-
         echo "===== output ====="
-
 
         ls -lah output
 
 
-        echo "===== index.html ====="
+        if [ ! -f output/index.html ]; then
+
+          echo "ERROR: index.html missing"
+
+          exit 1
+
+        fi
 
 
-        head -50 output/index.html
+        echo "SUCCESS"
 
-
-
-
-    - name: Commit output
-
-
-      run: |
-
-
-        git config user.name "github-actions[bot]"
-
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-
-        git add output/
-
-
-        git commit -m "Update Hermes generated page" || echo "No changes"
-
-
-        git push
-
-
-
-
-    - name: Upload Pages artifact
-
-
-      uses: actions/upload-pages-artifact@v3
-
-
-      with:
-
-        path: output
-
-
-
-
-  deploy:
-
-
-    needs: build
-
-
-    runs-on: ubuntu-latest
-
-
-    environment:
-
-      name: github-pages
-
-
-    steps:
-
-
-    - name: Deploy Pages
-
-
-      uses: actions/deploy-pages@v4
+        head -30 output/index.html
