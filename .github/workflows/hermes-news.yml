@@ -1,4 +1,4 @@
-name: Hermes Pages
+name: Hermes News Generator
 
 
 on:
@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
   schedule:
+
     - cron: "0 */6 * * *"
 
 
@@ -13,10 +14,6 @@ on:
 permissions:
 
   contents: write
-
-  pages: write
-
-  id-token: write
 
 
 
@@ -27,7 +24,6 @@ jobs:
 
 
     runs-on: ubuntu-latest
-
 
     timeout-minutes: 30
 
@@ -58,7 +54,6 @@ jobs:
 
     - name: Run Hermes
 
-
       env:
 
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -74,7 +69,6 @@ jobs:
         mkdir -p output
 
 
-
         docker run \
           --rm \
           -e OPENAI_API_KEY \
@@ -86,17 +80,29 @@ jobs:
 
           生成 Jolla Phone 和 Sailfish OS 新闻日报。
 
-
           要求：
 
-          - 使用中文
+          1. 使用中文。
 
-          - 输出 HTML 内容
+          2. 输出完整 HTML5 页面。
 
-          - 直接返回网页正文
+          3. 必须创建文件：
 
-          - 不调用文件工具
+             /output/index.html
 
+          4. 页面包含：
+
+             - 标题：Jolla Phone 新闻日报
+
+             - 更新时间
+
+             - 新闻标题
+
+             - 新闻摘要
+
+             - 来源链接
+
+             - 简洁 CSS 样式
 
           "
 
@@ -104,131 +110,51 @@ jobs:
 
     - name: Check Hermes output
 
-
       run: |
 
-
         echo "===== output ====="
-
 
         ls -lah output
 
 
-        echo "===== index.html ====="
+        if [ ! -f output/index.html ]; then
 
+          echo "ERROR: output/index.html missing"
+
+          exit 1
+
+        fi
+
+
+        echo "===== index.html ====="
 
         head -50 output/index.html
 
 
 
+    - name: Fix output permission
+
+      run: |
+
+        chmod -R 755 output
+
 
 
     - name: Commit Hermes output
 
-
       run: |
-
 
         git config user.name "github-actions[bot]"
 
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
 
-        git add output/
+        git add output/index.html
 
 
-        git commit -m "Update Hermes generated page" || echo "No changes"
+        git commit \
+          -m "Update Hermes generated news" \
+          || echo "No changes"
 
 
-        git push
-
-
-
-
-
-    #
-    # 创建 Pages 发布目录
-    #
-    # 目标:
-    #
-    # /
-    # ├── index.html
-    # └── output/
-    #     └── index.html
-    #
-
-    - name: Prepare Pages
-
-
-      run: |
-
-
-        rm -rf pages
-
-
-        mkdir -p pages/output
-
-
-
-        # 保留你的主页
-
-        cp index.html pages/index.html
-
-
-
-        # 放入 Hermes 页面
-
-        cp output/index.html pages/output/index.html
-
-
-
-        touch pages/.nojekyll
-
-
-
-        echo "===== Pages structure ====="
-
-
-        find pages -maxdepth 3 -type f
-
-
-
-
-
-    - name: Upload Pages artifact
-
-
-      uses: actions/upload-pages-artifact@v3
-
-
-      with:
-
-        path: pages
-
-
-
-
-
-  deploy:
-
-
-    needs: build
-
-
-    runs-on: ubuntu-latest
-
-
-
-    environment:
-
-      name: github-pages
-
-
-
-    steps:
-
-
-    - name: Deploy Pages
-
-
-      uses: actions/deploy-pages@v4
+        git push origin HEAD:${GITHUB_REF_NAME}
