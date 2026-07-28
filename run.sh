@@ -34,7 +34,7 @@ grep -A6 "custom_providers" /root/.hermes/config.yaml || true
 cd /opt/hermes-agent
 
 
-python3 -m hermes \
+uv run hermes \
     --cli \
     -z "$@"
 
@@ -42,6 +42,4 @@ python3 -m hermes \
 echo "Fix output permission"
 
 
-if [ -d /output ]; then
-    chmod -R a+rX /output
-fi
+chmod -R a+rX /output || true
