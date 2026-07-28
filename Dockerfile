@@ -8,7 +8,6 @@ RUN apt update && apt install -y \
     nodejs \
     npm \
     ripgrep \
-    gettext-base \
     build-essential \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
@@ -24,15 +23,13 @@ RUN git clone --depth=1 \
 WORKDIR /opt/hermes-agent
 
 
-RUN pip install --upgrade pip setuptools wheel
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 
-RUN pip install .
+ENV PATH="/root/.local/bin:$PATH"
 
 
-# 确认 hermes 安装位置
-RUN which hermes || true
-RUN python3 -m pip show hermes-agent || true
+RUN uv sync
 
 
 COPY config.yaml /tmp/config.yaml
