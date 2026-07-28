@@ -1,20 +1,16 @@
 FROM python:3.12-slim
 
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONUNBUFFERED=1
-
-
 RUN apt update && apt install -y \
     git \
     curl \
-    ca-certificates \
-    gettext-base \
-    build-essential \
-    python3-dev \
+    bash \
     nodejs \
     npm \
     ripgrep \
+    gettext-base \
+    build-essential \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -22,24 +18,24 @@ WORKDIR /opt
 
 
 RUN git clone --depth=1 \
-    https://github.com/NousResearch/hermes-agent.git \
-    hermes-agent
+    https://github.com/NousResearch/hermes-agent.git
 
 
 WORKDIR /opt/hermes-agent
 
 
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN pip install --upgrade pip setuptools wheel
 
 
-ENV PATH="/root/.local/bin:$PATH"
+RUN pip install .
 
 
-RUN uv sync
+# 确认 hermes 安装位置
+RUN which hermes || true
+RUN python3 -m pip show hermes-agent || true
 
 
 COPY config.yaml /tmp/config.yaml
-
 
 COPY run.sh /usr/local/bin/run-hermes
 
