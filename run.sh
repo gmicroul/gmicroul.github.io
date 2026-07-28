@@ -34,7 +34,7 @@ grep -A6 "custom_providers" /root/.hermes/config.yaml || true
 cd /opt/hermes-agent
 
 
-hermes \
+python3 -m hermes \
     --cli \
     -z "$@"
 
