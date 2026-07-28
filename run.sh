@@ -2,9 +2,6 @@
 set -e
 
 
-export PYTHONUNBUFFERED=1
-
-
 echo "=============================="
 echo " Hermes Agent"
 echo "=============================="
@@ -18,8 +15,8 @@ echo "BASE:"
 echo "$OPENAI_BASE_URL"
 
 
-echo "KEY:"
-echo "${#OPENAI_API_KEY} chars"
+echo "KEY LENGTH:"
+echo "${#OPENAI_API_KEY}"
 
 
 mkdir -p /root/.hermes
@@ -31,19 +28,20 @@ envsubst < /tmp/config.yaml > /root/.hermes/config.yaml
 echo "Hermes config installed"
 
 
-echo "Checking provider:"
-
-
-grep -A6 "custom_providers" /root/.hermes/config.yaml
-
-
-
-mkdir -p /output
+grep -A6 "custom_providers" /root/.hermes/config.yaml || true
 
 
 cd /opt/hermes-agent
 
 
-exec uv run hermes \
+hermes \
     --cli \
     -z "$@"
+
+
+echo "Fix output permission"
+
+
+if [ -d /output ]; then
+    chmod -R a+rX /output
+fi
