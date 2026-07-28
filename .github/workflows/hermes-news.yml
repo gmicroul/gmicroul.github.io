@@ -1,11 +1,14 @@
 name: Hermes News Generator
 
+
 on:
 
   workflow_dispatch:
 
   schedule:
+
     - cron: "0 */6 * * *"
+
 
 
 permissions:
@@ -13,13 +16,17 @@ permissions:
   contents: write
 
 
+
 jobs:
 
+
   build:
+
 
     runs-on: ubuntu-latest
 
     timeout-minutes: 30
+
 
 
     steps:
@@ -30,6 +37,7 @@ jobs:
       uses: actions/checkout@v4
 
       with:
+
         fetch-depth: 0
 
 
@@ -67,7 +75,15 @@ jobs:
 
       run: |
 
-        docker run \
+
+        echo "=================="
+
+        echo "Running Hermes..."
+
+        date
+
+
+        timeout 15m docker run \
           --rm \
           -e OPENAI_API_KEY \
           -e OPENAI_BASE_URL \
@@ -88,7 +104,7 @@ jobs:
              /output/index.html
 
 
-          4. 页面必须包含：
+          4. 页面包含：
 
              - 标题：Jolla Phone 新闻日报
              - 更新时间
@@ -98,23 +114,29 @@ jobs:
              - 简洁 CSS 样式
 
 
-          5. 不要修改任何其他文件。
+          5. 不要修改其他文件。
           "
 
 
+        echo "Hermes finished"
 
-    - name: Verify generated file
+        date
+
+
+
+    - name: Verify Hermes output
 
       run: |
 
-        echo "===== Hermes output ====="
+
+        echo "===== output ====="
 
         ls -lah output
 
 
         if [ ! -f output/index.html ]; then
 
-          echo "ERROR: output/index.html not found"
+          echo "ERROR: output/index.html missing"
 
           exit 1
 
@@ -123,7 +145,7 @@ jobs:
 
         if [ ! -s output/index.html ]; then
 
-          echo "ERROR: index.html is empty"
+          echo "ERROR: index.html empty"
 
           exit 1
 
@@ -140,9 +162,11 @@ jobs:
 
       run: |
 
+
         sudo chown -R $USER:$USER output
 
-        chmod -R 755 output
+
+        chmod 644 output/index.html
 
 
 
@@ -150,12 +174,16 @@ jobs:
 
       run: |
 
+
         git config user.name "github-actions[bot]"
+
 
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
 
+
         git add output/index.html
+
 
 
         if git diff --cached --quiet; then
@@ -167,8 +195,14 @@ jobs:
         fi
 
 
+
         git commit \
           -m "Update Hermes generated news"
+
+
+
+        git pull --rebase origin ${GITHUB_REF_NAME}
+
 
 
         git push origin HEAD:${GITHUB_REF_NAME}
