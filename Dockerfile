@@ -10,6 +10,7 @@ RUN apt update && apt install -y \
     ripgrep \
     build-essential \
     python3-dev \
+    gettext-base \
     && rm -rf /var/lib/apt/lists/*
 
 
