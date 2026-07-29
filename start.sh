@@ -224,7 +224,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN mkdir -p /run/sshd /workspace && \
+RUN mkdir -p /run/sshd /workspace /workspaces && \
     printf '\nPermitRootLogin yes\nPasswordAuthentication yes\n' >> /etc/ssh/sshd_config && \
     echo "startxfce4" > /root/.xsession && \
     chmod +x /root/.xsession && \
@@ -293,6 +293,7 @@ services:
       - "4200:4200"
     volumes:
       - "${UBUNTU_STORAGE_PATH}:/workspace"
+      - "/workspaces/github_vps:/workspaces"
     restart: unless-stopped
 EOF
 
