@@ -14,9 +14,7 @@ mkdir -p /root/.hermes
 
 
 if [ -f /tmp/config.yaml ]; then
-
     envsubst < /tmp/config.yaml > /root/.hermes/config.yaml
-
 fi
 
 
@@ -24,19 +22,13 @@ echo "===== Config ====="
 
 cat /root/.hermes/config.yaml || true
 
-
 echo "=================="
 
 
 cd /opt/hermes-agent
 
 
-echo "Hermes version:"
-
-uv run hermes --version || true
-
-
 echo "Starting Hermes..."
 
 
-exec uv run hermes "$@"
+exec uv run hermes -z "$@"
