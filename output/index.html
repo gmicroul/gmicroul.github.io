@@ -1,42 +1,436 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hermes Generated News</title>
-
-<style>
-body {
-    font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-    margin:40px;
-    line-height:1.7;
-}
-
-pre {
-    white-space:pre-wrap;
-    word-break:break-word;
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jolla Phone 与 Sailfish OS 真实新闻日报 - 来源于官方博客、主流媒体报道">
+    <title>Jolla Phone & Sailfish OS 中文新闻日报</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        header .meta {
+            font-size: 14px;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .news-list {
+            padding: 30px;
+        }
+        .news-item {
+            border-bottom: 1px solid #eee;
+            padding: 25px 0;
+            transition: background 0.2s;
+        }
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        .news-item:hover {
+            background: #fafafa;
+        }
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .news-source {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .news-date {
+            color: #666;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .news-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .news-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .news-title a:hover {
+            color: #1a73e8;
+        }
+        .news-summary {
+            color: #444;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .news-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #1a73e8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: gap 0.2s;
+        }
+        .news-link:hover {
+            gap: 10px;
+        }
+        .news-link::after {
+            content: '→';
+            font-size: 12px;
+        }
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .category-tag {
+            background: #f1f3f4;
+            color: #5f6368;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        .notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 0 30px 20px;
+            font-size: 14px;
+            color: #856404;
+        }
+        .notice strong {
+            color: #856404;
+        }
+        footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        footer p {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        footer a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .source-list {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+        .source-list a {
+            color: #1a73e8;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 24px; }
+            .news-title { font-size: 18px; }
+            .news-header { flex-direction: column; }
+        }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <header>
+            <h1>Jolla Phone & Sailfish OS 中文新闻日报</h1>
+            <div class="subtitle">真实来源 · 最近30天新闻聚合</div>
+            <div class="meta">
+                <span>更新日期: 2026-07-29</span>
+                <span>数据来源: 官方博客、主流媒体</span>
+            </div>
+        </header>
 
-<h1>Hermes Generated News</h1>
+        <div class="notice">
+            <strong>说明:</strong> 本页面仅收录可验证的真实新闻来源（官方博客、主流科技媒体、通讯社）。由于 Jolla/Sailfish OS 相关新闻在近30天（2026-06-29 至 2026-07-29）内的公开报道较少，以下列出最近一段时间内的重要真实报道供参考。
+        </div>
 
-<p>
-Generated by Hermes Agent + NVIDIA API "stepfun-ai/step-3.7-flash"
-</p>
+        <div class="news-list">
+            <!-- News Item 1 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">Jolla 官方博客</span>
+                    <span class="news-date">2026-07-15</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://blog.jolla.com/this-site-will-be-archived/" target="_blank" rel="noopener">
+                        Jolla 官方博客宣布归档，博客业务迁移至 Sailfish Forum
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">官方公告</span>
+                    <span class="category-tag">社区</span>
+                </div>
+                <div class="news-summary">
+                    Jolla 宣布将于 2026 年 7 月 15 日起归档官方博客 (blog.jolla.com)，未来的官方博客内容将迁移至 <a href="https://forum.sailfishos.org/c/blog/31" target="_blank" rel="noopener" style="color:#1a73e8;">Sailfish Forum 的 "The Official Jolla Blog" 分类</a>。这是 Jolla 社区沟通渠道整合的一部分，旨在将官方通讯与社区讨论集中在同一平台。
+                </div>
+                <a href="https://blog.jolla.com/this-site-will-be-archived/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
 
-<hr>
+            <!-- News Item 2 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">STT Info 芬兰通讯社</span>
+                    <span class="news-date">2026-06</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://www.sttinfo.fi/tiedote/72141458/commodore-julkistaa-puhelimen-johon-se-valitsi-jollan-eurooppalaisen-kayttojarjestelman?publisherId=69817166&lang=fi" target="_blank" rel="noopener">
+                        Commodore 发布新手机 Commodore Callback 8020，采用 Jolla Sailfish OS
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">硬件合作</span>
+                    <span class="category-tag">Sailfish OS</span>
+                </div>
+                <div class="news-summary">
+                    标志性计算机品牌 Commodore 重返手机市场，发布 Commodore Callback 8020 型号，该机型基于 Jolla 的 Sailfish OS 操作系统。这是 Sailfish OS 在商业合作方面的重要进展，展示了欧洲自主移动操作系统在第三方硬件厂商中的采用。
+                </div>
+                <a href="https://www.sttinfo.fi/tiedote/72141458/commodore-julkistaa-puhelimen-johon-se-valitsi-jollan-eurooppalaisen-kayttojarjestelman?publisherId=69817166&lang=fi" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
 
-<pre>
-HTTP 401: Missing Authentication header
-</pre>
+            <!-- News Item 3 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">MTV Uutiset (芬兰主流媒体)</span>
+                    <span class="news-date">2026-04-09</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener">
+                        芬兰前诺基亚工程师打造的 Jolla 卷土重来：国产手机能否成为摆脱美科技巨头的安全替代方案？
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">深度报道</span>
+                    <span class="category-tag">隐私安全</span>
+                    <span class="category-tag">欧洲数字主权</span>
+                </div>
+                <div class="news-summary">
+                    MTV Uutiset 深度报道 Jolla 新款手机在芬兰萨洛组装，运行完全欧洲自主的 Sailfish OS。文章探讨了欧洲对数字主权的追求，Jolla CEO Antti Saarnio 指出 Sailfish OS 是唯一在商业层面可用的欧洲移动操作系统（除 Android、iOS 和中国系统外），呼吁欧盟层面给予资源支持。视频采访展示了手机原型机及开放源码特性。
+                </div>
+                <a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
 
+            <!-- News Item 4 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">WIRED</span>
+                    <span class="news-date">2026-03-03</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener">
+                        The 'European' Jolla Phone Is an Anti-Big-Tech Smartphone
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">国际媒体</span>
+                    <span class="category-tag">MWC 2026</span>
+                    <span class="category-tag">反大科技</span>
+                </div>
+                <div class="news-summary">
+                    WIRED 报道 Jolla 在 MWC 2026 发布基于 Linux 的新款 Jolla Phone，定位为安卓/iOS 双寡头垄断的替代方案。手机运行 Sailfish OS，强调隐私保护、数据主权和开放源码。文章详细介绍了硬件规格、预售情况及 Jolla 的商业模式转型。
+                </div>
+                <a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
+
+            <!-- News Item 5 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">IltaLehti (芬兰主流媒体)</span>
+                    <span class="news-date">2026-03-03</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener">
+                        芬兰手机制造商推出期待已久的新机 —— "欧洲唯一独立智能手机" 预售火爆
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">市场动态</span>
+                    <span class="category-tag">预售数据</span>
+                </div>
+                <div class="news-summary">
+                    IltaLehti 报道 Jolla 新手机发布前已获得巨大关注。文章强调 Sailfish OS 是诺基亚工程师延续的欧洲唯一独立移动操作系统，手机最终组装在芬兰萨洛，预售表现超出预期，显示市场对欧洲自主手机替代方案的需求。
+                </div>
+                <a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
+
+            <!-- News Item 6 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">Ljud & Bild (瑞典科技媒体)</span>
+                    <span class="news-date">2026-03</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener">
+                        MWC 2026: Jolla Phone 已获得 10,000 名欧洲用户预订
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">MWC 2026</span>
+                    <span class="category-tag">预售里程碑</span>
+                </div>
+                <div class="news-summary">
+                    瑞典科技媒体 Ljud & Bild 报道，在 MWC 2026 期间，Jolla Phone 的预订量已达到 10,000 台。这一里程碑标志着欧洲消费者对隐私优先、非美国/中国生态系统的智能手机存在真实需求。
+                </div>
+                <a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
+
+            <!-- News Item 7 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">Goosed.ie (爱尔兰科技媒体)</span>
+                    <span class="news-date">2025-12-19</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://goosed.ie/news/finlands-jolla-proves-theres-demand-for-an-eu-phone-alternative/" target="_blank" rel="noopener">
+                        芬兰 Jolla 证明存在对欧盟手机替代方案的需求：一周仅花 €2,500 营销费卖出 5,000 台
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">商业模式</span>
+                    <span class="category-tag">开源硬件</span>
+                </div>
+                <div class="news-summary">
+                    Jolla 以仅 €2,500 的营销预算在一周内有机售出 5,000 台手机，验证了市场对欧洲手机替代方案的自然需求。公司承诺当预订量达到 10,000 台时，将开源其模块化硬件系统供全球制造者使用。文章分析了 Jolla 的商业策略及 Sailfish OS 的生态定位。
+                </div>
+                <a href="https://goosed.ie/news/finlands-jolla-proves-theres-demand-for-an-eu-phone-alternative/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
+
+            <!-- News Item 8 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">Jolla 官方博客</span>
+                    <span class="news-date">2025-02-24</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://blog.jolla.com/sailfish-os-5-0-tampella-is-here/" target="_blank" rel="noopener">
+                        Sailfish OS 5.0 "Tampella" 正式发布：300+ 改进、200+ 修复、Android 13 AppSupport、microG、WireGuard
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">重大版本</span>
+                    <span class="category-tag">Sailfish OS 5</span>
+                    <span class="category-tag">开发者</span>
+                </div>
+                <div class="news-summary">
+                    Sailfish OS 5.0 "Tampella" 向所有支持设备推送，包含 300 多项改进和 200 多个修复。关键更新：浏览器引擎升级至 Gecko ESR91，Android AppSupport 升级至 Android 13 (API 33)，新增 microG 0.3.6 支持、WireGuard VPN、横屏模式、来电拦截功能。首批适配 Jolla C2 社区手机和 Jolla Mind2 个人 AI 设备。
+                </div>
+                <a href="https://blog.jolla.com/sailfish-os-5-0-tampella-is-here/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
+
+            <!-- News Item 9 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">Jolla 官方博客</span>
+                    <span class="news-date">2025-02-06</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://blog.jolla.com/sailfish-community-news-fosdem-2025-recap/" target="_blank" rel="noopener">
+                        Sailfish 社区新闻：FOSDEM 2025 回顾 —— 路线图讨论、微G 合作、统一推送
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">社区活动</span>
+                    <span class="category-tag">FOSDEM</span>
+                    <span class="category-tag">开源协作</span>
+                </div>
+                <div class="news-summary">
+                    Jolla 团队在 FOSDEM 2025 与 AsteroidOS、LINMOB、Mobian 共享 Linux 移动展位，举办 BoF 讨论 Sailfish OS 5.0 后路线图（GCC/systemd 更新、Gecko ESR 102/WebRenderer、Go 编译器、nerdctl、UnifiedPush）。与 microG 维护者 Marvin Wißfeld 深度交流，计划春季将 microG 集成至 Jolla Store 并简化安装流程。
+                </div>
+                <a href="https://blog.jolla.com/sailfish-community-news-fosdem-2025-recap/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
+
+            <!-- News Item 10 -->
+            <article class="news-item">
+                <div class="news-header">
+                    <span class="news-source">Jolla 官方博客</span>
+                    <span class="news-date">2024-10-11</span>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://blog.jolla.com/sailathon-2024-a-journey-of-innovation-community-collaboration-and-meetup-in-prague/" target="_blank" rel="noopener">
+                        Sailathon 2024：布拉格黑客马拉松回顾 —— Jolla C2 原型机亮相、Whisperfish 语音通话、Chum 最佳实践
+                    </a>
+                </h2>
+                <div class="categories">
+                    <span class="category-tag">黑客马拉松</span>
+                    <span class="category-tag">应用生态</span>
+                    <span class="category-tag">社区</span>
+                </div>
+                <div class="news-summary">
+                    2024年9月27-30日在布拉格举行的 Sailathon 2024 汇聚开发者、Jolla 员工和用户。首次公开展示 Jolla C2 原型机和 Sailfish OS 5.0；Whisperfish (Signal 客户端) 实现语音通话；Tooter、Amazfish、Bugger、Taak 等核心应用获得重要改进；浏览器通知、Camera2 API 推进；社区治理与论坛管理经验分享。
+                </div>
+                <a href="https://blog.jolla.com/sailathon-2024-a-journey-of-innovation-community-collaboration-and-meetup-in-prague/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
+            </article>
+        </div>
+
+        <footer>
+            <p><strong>数据来源说明:</strong> 所有新闻均来自可公开验证的真实来源</p>
+            <div class="source-list">
+                <a href="https://blog.jolla.com/" target="_blank" rel="noopener">Jolla 官方博客</a> ·
+                <a href="https://www.mtvuutiset.fi/" target="_blank" rel="noopener">MTV Uutiset</a> ·
+                <a href="https://www.iltalehti.fi/" target="_blank" rel="noopener">IltaLehti</a> ·
+                <a href="https://www.wired.com/" target="_blank" rel="noopener">WIRED</a> ·
+                <a href="https://www.ljudochbild.se/" target="_blank" rel="noopener">Ljud & Bild</a> ·
+                <a href="https://goosed.ie/" target="_blank" rel="noopener">Goosed.ie</a> ·
+                <a href="https://www.sttinfo.fi/" target="_blank" rel="noopener">STT Info</a>
+            </div>
+            <p>页面生成时间: 2026-07-29 | 仅供参考，请以原文为准</p>
+            <p style="margin-top: 15px; font-size: 12px; color: #999;">
+                注: 近30天(2026-06-29至2026-07-29)内仅 Jolla 官方博客归档公告(7月15日)与 Commodore/STT 通讯稿(6月)为严格符合时间范围的新闻。
+                其余条目为近期重要真实报道，作为背景参考收录。
+            </p>
+        </footer>
+    </div>
 </body>
 </html>
