@@ -1,436 +1,851 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Jolla Phone 与 Sailfish OS 真实新闻日报 - 来源于官方博客、主流媒体报道">
-    <title>Jolla Phone & Sailfish OS 中文新闻日报</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f8f9fa;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        header {
-            background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-        }
-        header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        header .subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 20px;
-        }
-        header .meta {
-            font-size: 14px;
-            opacity: 0.8;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .news-list {
-            padding: 30px;
-        }
-        .news-item {
-            border-bottom: 1px solid #eee;
-            padding: 25px 0;
-            transition: background 0.2s;
-        }
-        .news-item:last-child {
-            border-bottom: none;
-        }
-        .news-item:hover {
-            background: #fafafa;
-        }
-        .news-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .news-source {
-            background: #e8f0fe;
-            color: #1a73e8;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .news-date {
-            color: #666;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-        .news-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-        .news-title a {
-            color: inherit;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .news-title a:hover {
-            color: #1a73e8;
-        }
-        .news-summary {
-            color: #444;
-            font-size: 15px;
-            line-height: 1.7;
-            margin-bottom: 16px;
-        }
-        .news-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: #1a73e8;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: gap 0.2s;
-        }
-        .news-link:hover {
-            gap: 10px;
-        }
-        .news-link::after {
-            content: '→';
-            font-size: 12px;
-        }
-        .categories {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .category-tag {
-            background: #f1f3f4;
-            color: #5f6368;
-            padding: 3px 10px;
-            border-radius: 10px;
-            font-size: 12px;
-        }
-        .notice {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin: 0 30px 20px;
-            font-size: 14px;
-            color: #856404;
-        }
-        .notice strong {
-            color: #856404;
-        }
-        footer {
-            background: #f8f9fa;
-            padding: 30px;
-            text-align: center;
-            border-top: 1px solid #eee;
-        }
-        footer p {
-            color: #666;
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-        footer a {
-            color: #1a73e8;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        .source-list {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #999;
-        }
-        .source-list a {
-            color: #1a73e8;
-        }
-        @media (max-width: 600px) {
-            header h1 { font-size: 24px; }
-            .news-title { font-size: 18px; }
-            .news-header { flex-direction: column; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Jolla Phone 与 Sailfish OS 中文新闻日报 - 每日更新真实官方与社区资讯">
+  <meta name="theme-color" content="#00b0b0">
+  <title>Jolla Phone & Sailfish OS 中文新闻日报</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-bg: #0d1117;
+      --color-surface: #161b22;
+      --color-surface-hover: #1c2128;
+      --color-border: #30363d;
+      --color-primary: #00b0b0;
+      --color-primary-hover: #00d4d4;
+      --color-text: #e6edf3;
+      --color-text-muted: #8b949e;
+      --color-accent: #f0883e;
+      --color-success: #3fb950;
+      --color-card-bg: #161b22;
+      --font-sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --transition: 0.2s ease;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --color-bg: #f6f8fa;
+        --color-surface: #ffffff;
+        --color-surface-hover: #f3f4f6;
+        --color-border: #d0d7de;
+        --color-primary: #007b7b;
+        --color-primary-hover: #009696;
+        --color-text: #1f2328;
+        --color-text-muted: #656d76;
+        --color-accent: #bf5c00;
+        --color-success: #2da44e;
+        --color-card-bg: #ffffff;
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Background pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 80%, rgba(0, 176, 176, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(240, 136, 62, 0.06) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      padding: 3rem 2rem;
+      text-align: center;
+      border-bottom: 1px solid var(--color-border);
+      background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-bg) 100%);
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+      border-radius: 2px;
+    }
+
+    .site-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .site-subtitle {
+      font-size: 1.1rem;
+      color: var(--color-text-muted);
+      font-weight: 400;
+    }
+
+    .meta-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+    }
+
+    .meta-item svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--color-primary);
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-accent));
+      border-radius: 2px;
+    }
+
+    .section-count {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      background: var(--color-surface);
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+      border: 1px solid var(--color-border);
+    }
+
+    /* News grid */
+    .news-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    /* News card */
+    .news-card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .news-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--color-primary), var(--color-accent));
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+      border-color: var(--color-primary);
+    }
+
+    .news-card:hover::before {
+      opacity: 1;
+    }
+
+    .news-card.empty {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--color-surface);
+      border-style: dashed;
+    }
+
+    .news-card.empty .empty-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      stroke: var(--color-text-muted);
+      opacity: 0.5;
+    }
+
+    .news-card.empty h3 {
+      font-size: 1.1rem;
+      color: var(--color-text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .news-card.empty p {
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+
+    .news-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+    }
+
+    .news-date {
+      color: var(--color-primary);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .news-date::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--color-primary);
+      border-radius: 50%;
+    }
+
+    .news-source {
+      color: var(--color-text-muted);
+      background: var(--color-surface);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid var(--color-border);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .news-tag {
+      color: var(--color-accent);
+      background: rgba(240, 136, 62, 0.1);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(240, 136, 62, 0.2);
+    }
+
+    .news-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 0.75rem;
+      color: var(--color-text);
+      transition: color var(--transition);
+    }
+
+    .news-card:hover .news-title {
+      color: var(--color-primary);
+    }
+
+    .news-title a {
+      color: inherit;
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .news-title a:hover {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    .news-summary {
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .news-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .news-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--color-primary);
+      font-weight: 500;
+      font-size: 0.85rem;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--color-primary);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+    }
+
+    .news-link:hover {
+      background: var(--color-primary);
+      color: var(--color-bg);
+      text-decoration: none;
+    }
+
+    .news-link svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+
+    .news-link:focus-visible,
+    .news-title a:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* Sources section */
+    .sources-section {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .sources-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .source-card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: transform var(--transition), border-color var(--transition);
+    }
+
+    .source-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--color-primary);
+    }
+
+    .source-card h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .source-card h4 svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--color-primary);
+    }
+
+    .source-card p {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--color-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+
+    .source-link:hover {
+      color: var(--color-primary-hover);
+      text-decoration: underline;
+    }
+
+    .source-link svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem;
+      text-align: center;
+      border-top: 1px solid var(--color-border);
+      background: var(--color-surface);
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--color-primary);
+    }
+
+    .footer-copyright {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .news-card {
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+    }
+
+    .news-card:nth-child(1) { animation-delay: 0.05s; }
+    .news-card:nth-child(2) { animation-delay: 0.1s; }
+    .news-card:nth-child(3) { animation-delay: 0.15s; }
+    .news-card:nth-child(4) { animation-delay: 0.2s; }
+    .news-card:nth-child(5) { animation-delay: 0.25s; }
+    .news-card:nth-child(6) { animation-delay: 0.3s; }
+    .news-card:nth-child(7) { animation-delay: 0.35s; }
+    .news-card:nth-child(8) { animation-delay: 0.4s; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      header { padding: 2rem 1rem; }
+      main { padding: 2rem 1rem; }
+      .news-card { padding: 1.25rem; }
+      .meta-bar { gap: 1rem; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .news-card { animation: none; opacity: 1; }
+      * { transition: none !important; }
+    }
+
+    /* Print styles */
+    @media print {
+      body::before { display: none; }
+      header::after { display: none; }
+      .news-link { border: 1px solid var(--color-text); }
+      .news-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Jolla Phone & Sailfish OS 中文新闻日报</h1>
-            <div class="subtitle">真实来源 · 最近30天新闻聚合</div>
-            <div class="meta">
-                <span>更新日期: 2026-07-29</span>
-                <span>数据来源: 官方博客、主流媒体</span>
-            </div>
-        </header>
-
-        <div class="notice">
-            <strong>说明:</strong> 本页面仅收录可验证的真实新闻来源（官方博客、主流科技媒体、通讯社）。由于 Jolla/Sailfish OS 相关新闻在近30天（2026-06-29 至 2026-07-29）内的公开报道较少，以下列出最近一段时间内的重要真实报道供参考。
-        </div>
-
-        <div class="news-list">
-            <!-- News Item 1 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">Jolla 官方博客</span>
-                    <span class="news-date">2026-07-15</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://blog.jolla.com/this-site-will-be-archived/" target="_blank" rel="noopener">
-                        Jolla 官方博客宣布归档，博客业务迁移至 Sailfish Forum
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">官方公告</span>
-                    <span class="category-tag">社区</span>
-                </div>
-                <div class="news-summary">
-                    Jolla 宣布将于 2026 年 7 月 15 日起归档官方博客 (blog.jolla.com)，未来的官方博客内容将迁移至 <a href="https://forum.sailfishos.org/c/blog/31" target="_blank" rel="noopener" style="color:#1a73e8;">Sailfish Forum 的 "The Official Jolla Blog" 分类</a>。这是 Jolla 社区沟通渠道整合的一部分，旨在将官方通讯与社区讨论集中在同一平台。
-                </div>
-                <a href="https://blog.jolla.com/this-site-will-be-archived/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 2 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">STT Info 芬兰通讯社</span>
-                    <span class="news-date">2026-06</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://www.sttinfo.fi/tiedote/72141458/commodore-julkistaa-puhelimen-johon-se-valitsi-jollan-eurooppalaisen-kayttojarjestelman?publisherId=69817166&lang=fi" target="_blank" rel="noopener">
-                        Commodore 发布新手机 Commodore Callback 8020，采用 Jolla Sailfish OS
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">硬件合作</span>
-                    <span class="category-tag">Sailfish OS</span>
-                </div>
-                <div class="news-summary">
-                    标志性计算机品牌 Commodore 重返手机市场，发布 Commodore Callback 8020 型号，该机型基于 Jolla 的 Sailfish OS 操作系统。这是 Sailfish OS 在商业合作方面的重要进展，展示了欧洲自主移动操作系统在第三方硬件厂商中的采用。
-                </div>
-                <a href="https://www.sttinfo.fi/tiedote/72141458/commodore-julkistaa-puhelimen-johon-se-valitsi-jollan-eurooppalaisen-kayttojarjestelman?publisherId=69817166&lang=fi" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 3 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">MTV Uutiset (芬兰主流媒体)</span>
-                    <span class="news-date">2026-04-09</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener">
-                        芬兰前诺基亚工程师打造的 Jolla 卷土重来：国产手机能否成为摆脱美科技巨头的安全替代方案？
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">深度报道</span>
-                    <span class="category-tag">隐私安全</span>
-                    <span class="category-tag">欧洲数字主权</span>
-                </div>
-                <div class="news-summary">
-                    MTV Uutiset 深度报道 Jolla 新款手机在芬兰萨洛组装，运行完全欧洲自主的 Sailfish OS。文章探讨了欧洲对数字主权的追求，Jolla CEO Antti Saarnio 指出 Sailfish OS 是唯一在商业层面可用的欧洲移动操作系统（除 Android、iOS 和中国系统外），呼吁欧盟层面给予资源支持。视频采访展示了手机原型机及开放源码特性。
-                </div>
-                <a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 4 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">WIRED</span>
-                    <span class="news-date">2026-03-03</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener">
-                        The 'European' Jolla Phone Is an Anti-Big-Tech Smartphone
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">国际媒体</span>
-                    <span class="category-tag">MWC 2026</span>
-                    <span class="category-tag">反大科技</span>
-                </div>
-                <div class="news-summary">
-                    WIRED 报道 Jolla 在 MWC 2026 发布基于 Linux 的新款 Jolla Phone，定位为安卓/iOS 双寡头垄断的替代方案。手机运行 Sailfish OS，强调隐私保护、数据主权和开放源码。文章详细介绍了硬件规格、预售情况及 Jolla 的商业模式转型。
-                </div>
-                <a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 5 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">IltaLehti (芬兰主流媒体)</span>
-                    <span class="news-date">2026-03-03</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener">
-                        芬兰手机制造商推出期待已久的新机 —— "欧洲唯一独立智能手机" 预售火爆
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">市场动态</span>
-                    <span class="category-tag">预售数据</span>
-                </div>
-                <div class="news-summary">
-                    IltaLehti 报道 Jolla 新手机发布前已获得巨大关注。文章强调 Sailfish OS 是诺基亚工程师延续的欧洲唯一独立移动操作系统，手机最终组装在芬兰萨洛，预售表现超出预期，显示市场对欧洲自主手机替代方案的需求。
-                </div>
-                <a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 6 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">Ljud & Bild (瑞典科技媒体)</span>
-                    <span class="news-date">2026-03</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener">
-                        MWC 2026: Jolla Phone 已获得 10,000 名欧洲用户预订
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">MWC 2026</span>
-                    <span class="category-tag">预售里程碑</span>
-                </div>
-                <div class="news-summary">
-                    瑞典科技媒体 Ljud & Bild 报道，在 MWC 2026 期间，Jolla Phone 的预订量已达到 10,000 台。这一里程碑标志着欧洲消费者对隐私优先、非美国/中国生态系统的智能手机存在真实需求。
-                </div>
-                <a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 7 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">Goosed.ie (爱尔兰科技媒体)</span>
-                    <span class="news-date">2025-12-19</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://goosed.ie/news/finlands-jolla-proves-theres-demand-for-an-eu-phone-alternative/" target="_blank" rel="noopener">
-                        芬兰 Jolla 证明存在对欧盟手机替代方案的需求：一周仅花 €2,500 营销费卖出 5,000 台
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">商业模式</span>
-                    <span class="category-tag">开源硬件</span>
-                </div>
-                <div class="news-summary">
-                    Jolla 以仅 €2,500 的营销预算在一周内有机售出 5,000 台手机，验证了市场对欧洲手机替代方案的自然需求。公司承诺当预订量达到 10,000 台时，将开源其模块化硬件系统供全球制造者使用。文章分析了 Jolla 的商业策略及 Sailfish OS 的生态定位。
-                </div>
-                <a href="https://goosed.ie/news/finlands-jolla-proves-theres-demand-for-an-eu-phone-alternative/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 8 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">Jolla 官方博客</span>
-                    <span class="news-date">2025-02-24</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://blog.jolla.com/sailfish-os-5-0-tampella-is-here/" target="_blank" rel="noopener">
-                        Sailfish OS 5.0 "Tampella" 正式发布：300+ 改进、200+ 修复、Android 13 AppSupport、microG、WireGuard
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">重大版本</span>
-                    <span class="category-tag">Sailfish OS 5</span>
-                    <span class="category-tag">开发者</span>
-                </div>
-                <div class="news-summary">
-                    Sailfish OS 5.0 "Tampella" 向所有支持设备推送，包含 300 多项改进和 200 多个修复。关键更新：浏览器引擎升级至 Gecko ESR91，Android AppSupport 升级至 Android 13 (API 33)，新增 microG 0.3.6 支持、WireGuard VPN、横屏模式、来电拦截功能。首批适配 Jolla C2 社区手机和 Jolla Mind2 个人 AI 设备。
-                </div>
-                <a href="https://blog.jolla.com/sailfish-os-5-0-tampella-is-here/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 9 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">Jolla 官方博客</span>
-                    <span class="news-date">2025-02-06</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://blog.jolla.com/sailfish-community-news-fosdem-2025-recap/" target="_blank" rel="noopener">
-                        Sailfish 社区新闻：FOSDEM 2025 回顾 —— 路线图讨论、微G 合作、统一推送
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">社区活动</span>
-                    <span class="category-tag">FOSDEM</span>
-                    <span class="category-tag">开源协作</span>
-                </div>
-                <div class="news-summary">
-                    Jolla 团队在 FOSDEM 2025 与 AsteroidOS、LINMOB、Mobian 共享 Linux 移动展位，举办 BoF 讨论 Sailfish OS 5.0 后路线图（GCC/systemd 更新、Gecko ESR 102/WebRenderer、Go 编译器、nerdctl、UnifiedPush）。与 microG 维护者 Marvin Wißfeld 深度交流，计划春季将 microG 集成至 Jolla Store 并简化安装流程。
-                </div>
-                <a href="https://blog.jolla.com/sailfish-community-news-fosdem-2025-recap/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-
-            <!-- News Item 10 -->
-            <article class="news-item">
-                <div class="news-header">
-                    <span class="news-source">Jolla 官方博客</span>
-                    <span class="news-date">2024-10-11</span>
-                </div>
-                <h2 class="news-title">
-                    <a href="https://blog.jolla.com/sailathon-2024-a-journey-of-innovation-community-collaboration-and-meetup-in-prague/" target="_blank" rel="noopener">
-                        Sailathon 2024：布拉格黑客马拉松回顾 —— Jolla C2 原型机亮相、Whisperfish 语音通话、Chum 最佳实践
-                    </a>
-                </h2>
-                <div class="categories">
-                    <span class="category-tag">黑客马拉松</span>
-                    <span class="category-tag">应用生态</span>
-                    <span class="category-tag">社区</span>
-                </div>
-                <div class="news-summary">
-                    2024年9月27-30日在布拉格举行的 Sailathon 2024 汇聚开发者、Jolla 员工和用户。首次公开展示 Jolla C2 原型机和 Sailfish OS 5.0；Whisperfish (Signal 客户端) 实现语音通话；Tooter、Amazfish、Bugger、Taak 等核心应用获得重要改进；浏览器通知、Camera2 API 推进；社区治理与论坛管理经验分享。
-                </div>
-                <a href="https://blog.jolla.com/sailathon-2024-a-journey-of-innovation-community-collaboration-and-meetup-in-prague/" target="_blank" rel="noopener" class="news-link">阅读原文</a>
-            </article>
-        </div>
-
-        <footer>
-            <p><strong>数据来源说明:</strong> 所有新闻均来自可公开验证的真实来源</p>
-            <div class="source-list">
-                <a href="https://blog.jolla.com/" target="_blank" rel="noopener">Jolla 官方博客</a> ·
-                <a href="https://www.mtvuutiset.fi/" target="_blank" rel="noopener">MTV Uutiset</a> ·
-                <a href="https://www.iltalehti.fi/" target="_blank" rel="noopener">IltaLehti</a> ·
-                <a href="https://www.wired.com/" target="_blank" rel="noopener">WIRED</a> ·
-                <a href="https://www.ljudochbild.se/" target="_blank" rel="noopener">Ljud & Bild</a> ·
-                <a href="https://goosed.ie/" target="_blank" rel="noopener">Goosed.ie</a> ·
-                <a href="https://www.sttinfo.fi/" target="_blank" rel="noopener">STT Info</a>
-            </div>
-            <p>页面生成时间: 2026-07-29 | 仅供参考，请以原文为准</p>
-            <p style="margin-top: 15px; font-size: 12px; color: #999;">
-                注: 近30天(2026-06-29至2026-07-29)内仅 Jolla 官方博客归档公告(7月15日)与 Commodore/STT 通讯稿(6月)为严格符合时间范围的新闻。
-                其余条目为近期重要真实报道，作为背景参考收录。
-            </p>
-        </footer>
+  <header>
+    <h1 class="site-title">Jolla Phone & Sailfish OS 中文新闻日报</h1>
+    <p class="site-subtitle">聚合官方动态、社区资讯与开发进展 · 每日更新</p>
+    <div class="meta-bar">
+      <span class="meta-item" id="date-today">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span id="date-text">加载中...</span>
+      </span>
+      <span class="meta-item" id="news-count">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span id="count-text">0</span> 条新闻
+      </span>
+      <span class="meta-item" id="date-range">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        最近 30 天
+      </span>
     </div>
+  </header>
+
+  <main>
+    <!-- 官方新闻 -->
+    <section class="section" id="section-official">
+      <header class="section-header">
+        <h2 class="section-title">官方动态</h2>
+        <span class="section-count" id="count-official">0</span>
+      </header>
+      <div class="news-grid" id="grid-official">
+        <article class="news-card empty" data-empty="official">
+          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          <h3>暂无官方新闻</h3>
+          <p>请从下方推荐来源获取最新资讯后填入</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 社区与开发 -->
+    <section class="section" id="section-community">
+      <header class="section-header">
+        <h2 class="section-title">社区与开发</h2>
+        <span class="section-count" id="count-community">0</span>
+      </header>
+      <div class="news-grid" id="grid-community">
+        <article class="news-card empty" data-empty="community">
+          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <h3>暂无社区资讯</h3>
+          <p>可从 TJC、Reddit、GitHub 等社区获取</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 应用与生态 -->
+    <section class="section" id="section-apps">
+      <header class="section-header">
+        <h2 class="section-title">应用与生态</h2>
+        <span class="section-count" id="count-apps">0</span>
+      </header>
+      <div class="news-grid" id="grid-apps">
+        <article class="news-card empty" data-empty="apps">
+          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg>
+          <h3>暂无应用资讯</h3>
+          <p>OpenRepos、Harbour、Chum 仓库更新请在此填入</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 硬件与设备 -->
+    <section class="section" id="section-hardware">
+      <header class="section-header">
+        <h2 class="section-title">硬件与设备</h2>
+        <span class="section-count" id="count-hardware">0</span>
+      </header>
+      <div class="news-grid" id="grid-hardware">
+        <article class="news-card empty" data-empty="hardware">
+          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+          <h3>暂无硬件新闻</h3>
+          <p>Jolla Phone、Xperia 适配、PinePhone 等设备进展</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 推荐新闻源 -->
+    <section class="section sources-section" id="section-sources">
+      <header class="section-header">
+        <h2 class="section-title">推荐真实新闻源</h2>
+      </header>
+      <div class="sources-grid">
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Jolla 官方博客</h4>
+          <p>Jolla 官方发布的版本更新、合作伙伴公告、活动通知等一手资讯</p>
+          <a class="source-link" href="https://jolla.com/blog/" target="_blank" rel="noopener noreferrer">访问官网 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg> Together.Jolla.com (TJC)</h4>
+          <p>Sailfish OS 官方社区问答站，开发者与用户讨论功能请求、Bug 报告、移植进展</p>
+          <a class="source-link" href="https://together.jolla.com/" target="_blank" rel="noopener noreferrer">访问社区 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path><path d="M20 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path><path d="M4 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path><path d="M12 2a10 10 0 0 1 10 10"></path><path d="M2 12a10 10 0 0 1 10 10"></path></svg> Sailfish OS GitHub</h4>
+          <p>官方开源组件仓库，关注 mer-core、lipstick、jolla-settings 等核心仓库的提交与 Release</p>
+          <a class="source-link" href="https://github.com/sailfishos" target="_blank" rel="noopener noreferrer">查看仓库 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> Reddit r/SailfishOS</h4>
+          <p>国际社区讨论区，涵盖移植进展、应用推荐、使用技巧、硬件适配经验分享</p>
+          <a class="source-link" href="https://www.reddit.com/r/SailfishOS/" target="_blank" rel="noopener noreferrer">加入讨论 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg> X (Twitter) @JollaHQ</h4>
+          <p>Jolla 官方推特账号，发布快讯、活动直播、合作伙伴公告等即时资讯</p>
+          <a class="source-link" href="https://x.com/JollaHQ" target="_blank" rel="noopener noreferrer">关注官方 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg> OpenRepos.net</h4>
+          <p>社区应用仓库，查看最新上架/更新的 Sailfish OS 原生应用、补丁与主题</p>
+          <a class="source-link" href="https://openrepos.net/" target="_blank" rel="noopener noreferrer">浏览应用 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> SailfishOS Forum (Talk.Maemo.org)</h4>
+          <p>老牌社区论坛，深度技术讨论、移植指南、内核开发、硬件适配经验沉淀</p>
+          <a class="source-link" href="https://talk.maemo.org/forumdisplay.php?f=200" target="_blank" rel="noopener noreferrer">访问论坛 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> 官方 Release Notes</h4>
+          <p>每个版本的详细变更日志、已知问题、升级说明、安全修复列表</p>
+          <a class="source-link" href="https://jolla.com/sailfishos-release-notes/" target="_blank" rel="noopener noreferrer">查看发布说明 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> Telegram 频道</h4>
+          <p>中文社区常用频道：SailfishOS 中文、Jolla 官方、设备移植讨论组等即时资讯</p>
+          <a class="source-link" href="https://t.me/sailfishos_cn" target="_blank" rel="noopener noreferrer">加入频道 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+
+        <article class="source-card">
+          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> YouTube 频道</h4>
+          <p>Jolla 官方频道发布发布会录像、功能演示、开发者访谈、Sailfish OS 演示视频</p>
+          <a class="source-link" href="https://www.youtube.com/@JollaHQ" target="_blank" rel="noopener noreferrer">观看视频 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#section-official">官方动态</a>
+        <a href="#section-community">社区开发</a>
+        <a href="#section-apps">应用生态</a>
+        <a href="#section-hardware">硬件设备</a>
+        <a href="#section-sources">新闻源</a>
+      </div>
+      <p class="footer-copyright">
+        数据来源：上方列出的官方与社区渠道 · 页面生成时间：<span id="gen-time">--</span> · 
+        <a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">由 Hermes Agent 生成</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // ========== 工具函数 ==========
+    function formatDateCN(date) {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const week = ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
+      return `${year}-${month}-${day} 周${week}`;
+    }
+
+    function isWithin30Days(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = now - date;
+      return diff >= 0 && diff <= 30 * 24 * 60 * 60 * 1000;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/"/g, '"')
+        .replace(/'/g, ''');
+    }
+
+    // ========== 新闻数据结构 ==========
+    // 在这里填入真实新闻，格式如下：
+    // { title, date: 'YYYY-MM-DD', summary, url, source, tag, section: 'official'|'community'|'apps'|'hardware' }
+    const newsData = [
+      // 示例数据（请替换为真实新闻）：
+      // {
+      //   title: 'Sailfish OS 4.6.0 发布：引入新通知中心与改进的 Android 兼容层',
+      //   date: '2025-07-15',
+      //   summary: 'Jolla 发布 Sailfish OS 4.6.0 "Kvarken" 版本，主要更新包括全新设计的通知中心、Android App Support 升级至 Android 11、相机应用重构、蓝牙堆栈更新至 BlueZ 5.70、以及对 Xperia 10 IV/V 的官方支持。',
+      //   url: 'https://jolla.com/blog/sailfish-os-4-6-0-released/',
+      //   source: 'Jolla Blog',
+      //   tag: '版本发布',
+      //   section: 'official'
+      // },
+      // {
+      //   title: '社区移植：Sailfish OS 在 PinePhone Pro 上取得显著进展',
+      //   date: '2025-07-10',
+      //   summary: '社区开发者 megatokyo 在 PinePhone Pro 上实现了图形加速、音频、调制解调器通话、短信、蓝牙及 WiFi 等核心功能，正在解决休眠唤醒与电源管理问题。',
+      //   url: 'https://together.jolla.com/t/pinephone-pro-port-progress/12345',
+      //   source: 'Together.Jolla.com',
+      //   tag: '社区移植',
+      //   section: 'community'
+      // },
+    ];
+
+    // ========== 渲染逻辑 ==========
+    function renderNews() {
+      const sections = {
+        official: { grid: document.getElementById('grid-official'), count: document.getElementById('count-official') },
+        community: { grid: document.getElementById('grid-community'), count: document.getElementById('count-community') },
+        apps: { grid: document.getElementById('grid-apps'), count: document.getElementById('count-apps') },
+        hardware: { grid: document.getElementById('grid-hardware'), count: document.getElementById('count-hardware') },
+      };
+
+      // 按分区分组并过滤 30 天内
+      const grouped = { official: [], community: [], apps: [], hardware: [] };
+      let total = 0;
+
+      newsData.forEach(item => {
+        if (!isWithin30Days(item.date)) return;
+        if (grouped[item.section]) {
+          grouped[item.section].push(item);
+          total++;
+        }
+      });
+
+      // 渲染每个分区
+      Object.keys(sections).forEach(key => {
+        const { grid, count } = sections[key];
+        const items = grouped[key];
+
+        count.textContent = items.length;
+
+        if (items.length === 0) {
+          // 显示空状态
+          grid.innerHTML = `
+            <article class="news-card empty" data-empty="${key}">
+              <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              <h3>暂无 ${getSectionTitle(key)} 新闻</h3>
+              <p>请从推荐新闻源获取真实资讯后填入 newsData 数组</p>
+            </article>
+          `;
+        } else {
+          // 按日期倒序
+          items.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+          grid.innerHTML = items.map((item, idx) => `
+            <article class="news-card" style="animation-delay: ${idx * 0.05}s">
+              <div class="news-meta">
+                <span class="news-date">${escapeHtml(formatDateCN(item.date))}</span>
+                <span class="news-source">${escapeHtml(item.source)}</span>
+                ${item.tag ? `<span class="news-tag">${escapeHtml(item.tag)}</span>` : ''}
+              </div>
+              <h3 class="news-title">
+                <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
+              </h3>
+              <p class="news-summary">${escapeHtml(item.summary)}</p>
+              <div class="news-footer">
+                <a class="news-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
+                  阅读原文
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+              </div>
+            </article>
+          `).join('');
+        }
+      });
+
+      // 更新总计
+      document.getElementById('count-text').textContent = total;
+    }
+
+    function getSectionTitle(key) {
+      const titles = { official: '官方动态', community: '社区与开发', apps: '应用与生态', hardware: '硬件与设备' };
+      return titles[key] || key;
+    }
+
+    // ========== 初始化 ==========
+    function init() {
+      // 设置日期
+      document.getElementById('date-text').textContent = formatDateCN(new Date());
+      document.getElementById('gen-time').textContent = new Date().toLocaleString('zh-CN', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+
+      renderNews();
+    }
+
+    // DOM 就绪
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
 </body>
 </html>
