@@ -1,8 +1,6 @@
 name: Hermes News Generator
 
-
 on:
-
   workflow_dispatch:
 
   schedule:
@@ -10,15 +8,12 @@ on:
 
 
 permissions:
-
   contents: write
 
 
 jobs:
 
-
   build:
-
 
     runs-on: ubuntu-latest
 
@@ -28,294 +23,233 @@ jobs:
     steps:
 
 
-    - name: Checkout repository
+      - name: Checkout repository
 
-      uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
-      with:
+        with:
+          fetch-depth: 0
 
-        fetch-depth: 0
 
 
+      - name: Clean workspace
 
-    - name: Clean workspace
+        run: |
 
-      run: |
+          rm -rf output
 
-        sudo rm -rf /root/.hermes || true
+          rm -rf hermes-home
 
-        rm -rf ~/.hermes || true
+          mkdir -p output
 
-        rm -rf hermes-home || true
+          mkdir -p hermes-home
 
-        mkdir -p hermes-home
+          chmod 777 output
 
-        chmod 777 hermes-home
+          chmod 777 hermes-home
 
 
 
-    - name: Build Hermes Docker image
+      - name: Build Hermes image
 
-      run: |
+        run: |
 
-        docker build \
-          --no-cache \
-          --progress=plain \
-          -t hermes-agent .
+          docker build \
+            --no-cache \
+            --progress=plain \
+            -t hermes-agent .
 
 
 
-    - name: Prepare output directory
+      - name: Check secrets
 
-      run: |
+        env:
 
-        mkdir -p output
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-        chmod 777 output
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
 
-    - name: Check API secrets
+        run: |
 
-      env:
+          echo "Checking API..."
 
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          if [ -z "$OPENAI_API_KEY" ]; then
 
-        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+            echo "OPENAI_API_KEY missing"
 
-        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+            exit 1
 
+          fi
 
-      run: |
 
+          echo "KEY LENGTH=${#OPENAI_API_KEY}"
 
-        echo "Checking secrets..."
+          echo "MODEL=$OPENAI_MODEL"
 
+          echo "BASE_URL=$OPENAI_BASE_URL"
 
-        if [ -z "$OPENAI_API_KEY" ]; then
 
-          echo "ERROR: OPENAI_API_KEY missing"
 
-          exit 1
 
-        fi
+      - name: Run Hermes
 
+        env:
 
-        echo "KEY length=${#OPENAI_API_KEY}"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-        echo "BASE_URL=$OPENAI_BASE_URL"
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
-        echo "MODEL=$OPENAI_MODEL"
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
 
+        run: |
 
 
-    - name: Run Hermes
+          echo "=================="
 
-      env:
+          echo "Running Hermes..."
 
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          date
 
-        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
-        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
+          timeout 25m docker run \
+            --rm \
+            --user root \
+            --env HOME=/tmp \
+            --env OPENAI_API_KEY="$OPENAI_API_KEY" \
+            --env OPENAI_BASE_URL="$OPENAI_BASE_URL" \
+            --env OPENAI_MODEL="$OPENAI_MODEL" \
+            --env NVIDIA_API_KEY="$OPENAI_API_KEY" \
+            --env OPENAI_API_TOKEN="$OPENAI_API_KEY" \
+            --env OPENAI_KEY="$OPENAI_API_KEY" \
+            -v "$PWD/output:/output" \
+            -v "$PWD/hermes-home:/tmp/hermes-home" \
+            hermes-agent \
+            "
 
-      run: |
 
+            生成一个真实的中文 Jolla Phone 和 Sailfish OS 新闻日报 HTML 页面。
 
-        echo "=================="
 
-        echo "Running Hermes..."
+            要求：
 
-        date
 
+            1. 创建：
 
+            /output/index.html
 
-        timeout 25m docker run \
 
-          --rm \
+            2. 使用最近一个月真实新闻。
 
-          --user root \
 
-          -e HOME=/tmp/hermes-home \
+            3. 每条新闻必须包含来源链接。
 
-          -e OPENAI_API_KEY \
 
-          -e OPENAI_BASE_URL \
+            4. 页面必须是完整 HTML5。
 
-          -e OPENAI_MODEL \
 
-          -v "$PWD/output:/output" \
+            5. 不要修改或删除其它文件。
 
-          -v "$PWD/hermes-home:/tmp/hermes-home" \
 
-          hermes-agent \
+            "
 
-          "
 
 
-          mkdir -p /tmp/hermes-home/.hermes
+          echo "Hermes finished"
 
+          date
 
 
-          cat > /tmp/hermes-home/.hermes/config.yaml <<EOF
 
 
-model:
+      - name: Verify output
 
-  default: \"$OPENAI_MODEL\"
+        run: |
 
-  provider: custom
 
-  api_key: \"$OPENAI_API_KEY\"
+          echo "===== output ====="
 
-  base_url: \"$OPENAI_BASE_URL\"
+          ls -lah output
 
-  api_mode: chat_completions
 
 
-EOF
+          if [ ! -f output/index.html ]; then
 
+            echo "ERROR: index.html missing"
 
+            exit 1
 
-          echo '===== Config ====='
+          fi
 
-          cat /tmp/hermes-home/.hermes/config.yaml
 
 
+          SIZE=$(wc -c < output/index.html)
 
-          echo '=================='
 
+          echo "SIZE=$SIZE"
 
 
-          直接生成一个真实的不是模拟的数据 Jolla Phone 和 Sailfish OS 新闻日报 HTML 页面。
 
+          if [ "$SIZE" -lt 1000 ]; then
 
-          要求：
+            echo "ERROR: Hermes output invalid"
 
+            cat output/index.html
 
-          1. 使用中文。
+            exit 1
 
+          fi
 
-          2. 创建：
 
-          /output/index.html
 
 
-          3. 内容必须是最近一个月内的新闻。
+      - name: Fix permission
 
+        run: |
 
-          4. 每条新闻必须带来源链接。
+          sudo chown -R $USER:$USER output
 
+          chmod 644 output/index.html
 
-          5. 不要修改或删除其它文件。
 
 
 
-          "
+      - name: Commit result
 
+        run: |
 
 
-        echo "Hermes finished"
+          git config user.name "github-actions[bot]"
 
-        date
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
 
 
+          git add output/index.html
 
 
-    - name: Verify output
 
-      run: |
+          if git diff --cached --quiet; then
 
+            echo "No changes"
 
-        echo "===== Output ====="
+            exit 0
 
-        ls -lah output
+          fi
 
 
 
-        if [ ! -f output/index.html ]; then
+          git commit \
+            -m "Update Hermes generated news"
 
-          echo "ERROR: index.html missing"
 
-          exit 1
 
-        fi
+          git pull --rebase origin ${GITHUB_REF_NAME}
 
 
 
-        SIZE=$(wc -c < output/index.html)
-
-
-        echo "SIZE=$SIZE"
-
-
-
-        if [ "$SIZE" -lt 1000 ]; then
-
-          echo "ERROR: Generated page too small"
-
-          cat output/index.html
-
-          exit 1
-
-        fi
-
-
-
-        head -50 output/index.html
-
-
-
-
-
-    - name: Fix permission
-
-      run: |
-
-
-        sudo chown -R $USER:$USER output
-
-        chmod 644 output/index.html
-
-
-
-
-
-    - name: Commit Hermes page
-
-      run: |
-
-
-        git config user.name "github-actions[bot]"
-
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-
-
-        git add output/index.html
-
-
-
-        if git diff --cached --quiet; then
-
-          echo "No changes"
-
-          exit 0
-
-        fi
-
-
-
-        git commit \
-          -m "Update Hermes generated news"
-
-
-
-        git pull --rebase origin ${GITHUB_REF_NAME}
-
-
-
-        git push origin HEAD:${GITHUB_REF_NAME}
+          git push origin HEAD:${GITHUB_REF_NAME}
