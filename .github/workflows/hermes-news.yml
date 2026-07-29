@@ -2,31 +2,23 @@ name: Hermes News Generator
 
 
 on:
-
   workflow_dispatch:
 
   schedule:
-
     - cron: "0 */6 * * *"
 
 
-
 permissions:
-
   contents: write
-
 
 
 jobs:
 
-
   build:
-
 
     runs-on: ubuntu-latest
 
     timeout-minutes: 30
-
 
 
     steps:
@@ -37,21 +29,33 @@ jobs:
       uses: actions/checkout@v4
 
       with:
-
         fetch-depth: 0
 
 
-    - name: Reset Hermes completely
+
+    - name: Clean Docker and Hermes cache
+
       run: |
-        sudo rm -rf /root/.hermes
-        sudo rm -rf ~/.hermes
-        sudo rm -rf ~/.cache/hermes
+
+        echo "Cleaning runner cache..."
+
+        sudo rm -rf /root/.hermes || true
+
+        rm -rf ~/.hermes || true
+
+        rm -rf ~/.cache/hermes || true
+
+
+        docker system prune -af || true
+
+
 
     - name: Build Hermes Docker image
 
       run: |
 
         docker build \
+          --no-cache \
           --progress=plain \
           -t hermes-agent .
 
@@ -63,7 +67,17 @@ jobs:
 
         mkdir -p output
 
-        sudo chmod 777 output
+        chmod 777 output
+
+
+
+    - name: Prepare clean Hermes runtime
+
+      run: |
+
+        mkdir -p hermes-tmp
+
+        chmod 777 hermes-tmp
 
 
 
@@ -90,30 +104,47 @@ jobs:
 
         timeout 25m docker run \
           --rm \
+          --user root \
+          -e HOME=/tmp/hermes-home \
           -e OPENAI_API_KEY \
           -e OPENAI_BASE_URL \
           -e OPENAI_MODEL \
           -v "$PWD/output:/output" \
+          -v "$PWD/hermes-tmp:/tmp/hermes-home" \
           hermes-agent \
           "
+
+          rm -rf /root/.hermes || true
+
+          rm -rf /tmp/hermes-home/.hermes || true
+
+
           直接生成一个真实的不是模拟的数据 Jolla Phone 和 Sailfish OS 新闻日报 HTML 页面。
+
 
           要求：
 
+
           1. 使用中文。
 
+
           2. 创建：
+
           /output/index.html
 
+
           3. 内容务必是最近一个月内的新闻，带来源链接核实。
-          
+
+
           不要修改或删除其它文件
+
           "
 
 
         echo "Hermes finished"
 
         date
+
 
 
 
@@ -127,6 +158,7 @@ jobs:
         ls -lah output
 
 
+
         if [ ! -f output/index.html ]; then
 
           echo "ERROR: output/index.html missing"
@@ -134,6 +166,7 @@ jobs:
           exit 1
 
         fi
+
 
 
         if [ ! -s output/index.html ]; then
@@ -145,9 +178,11 @@ jobs:
         fi
 
 
+
         echo "===== Preview ====="
 
         head -50 output/index.html
+
 
 
 
@@ -158,8 +193,8 @@ jobs:
 
         sudo chown -R $USER:$USER output
 
-
         chmod 644 output/index.html
+
 
 
 
@@ -169,7 +204,6 @@ jobs:
 
 
         git config user.name "github-actions[bot]"
-
 
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
