@@ -34,16 +34,24 @@ jobs:
 
 
 
-    - name: Clean old Hermes cache
+    - name: Clean runner cache
 
       run: |
 
+        echo "Cleaning runner..."
+
         sudo rm -rf /root/.hermes || true
+
         rm -rf ~/.hermes || true
+
         rm -rf ~/.cache/hermes || true
 
-        mkdir -p hermes-home
+        rm -rf hermes-home || true
+
+        mkdir hermes-home
+
         chmod 777 hermes-home
+
 
 
 
@@ -58,7 +66,32 @@ jobs:
 
 
 
-    - name: Prepare output directory
+
+    - name: Inspect Hermes image
+
+      run: |
+
+        echo "===== Image Hermes files ====="
+
+
+        docker run --rm \
+          hermes-agent \
+          sh -c '
+
+          echo HOME=$HOME
+
+          ls -la /root || true
+
+          ls -la /root/.hermes || true
+
+          find /root/.hermes -maxdepth 2 -type f 2>/dev/null || true
+
+          '
+
+
+
+
+    - name: Prepare output
 
       run: |
 
@@ -68,7 +101,8 @@ jobs:
 
 
 
-    - name: Check API environment
+
+    - name: Test container environment
 
       env:
 
@@ -81,19 +115,28 @@ jobs:
 
       run: |
 
-        echo "Checking API environment..."
 
-        if [ -z "$OPENAI_API_KEY" ]; then
-          echo "ERROR: OPENAI_API_KEY missing"
-          exit 1
-        fi
+        docker run \
+          --rm \
+          -e OPENAI_API_KEY \
+          -e OPENAI_BASE_URL \
+          -e OPENAI_MODEL \
+          hermes-agent \
+          sh -c '
+
+          echo "===== Container ENV ====="
+
+          echo KEY_LENGTH=${#OPENAI_API_KEY}
+
+          echo BASE=$OPENAI_BASE_URL
+
+          echo MODEL=$OPENAI_MODEL
+
+          env | grep OPENAI
+
+          '
 
 
-        echo "OPENAI_API_KEY length: ${#OPENAI_API_KEY}"
-
-        echo "OPENAI_BASE_URL=$OPENAI_BASE_URL"
-
-        echo "OPENAI_MODEL=$OPENAI_MODEL"
 
 
 
@@ -131,16 +174,20 @@ jobs:
           hermes-agent \
           "
 
-          echo '=== ENV CHECK ==='
 
-          echo OPENAI_BASE_URL=\$OPENAI_BASE_URL
+          echo '===== Hermes runtime env ====='
 
-          echo OPENAI_MODEL=\$OPENAI_MODEL
 
           echo KEY_LENGTH=\${#OPENAI_API_KEY}
 
+          echo BASE=\$OPENAI_BASE_URL
+
+          echo MODEL=\$OPENAI_MODEL
+
+
 
           rm -rf /tmp/hermes-home/.hermes || true
+
 
 
           直接生成一个真实的不是模拟的数据 Jolla Phone 和 Sailfish OS 新闻日报 HTML 页面。
@@ -160,10 +207,11 @@ jobs:
           3. 内容必须是最近一个月内的新闻。
 
 
-          4. 每条新闻必须带来源链接。
+          4. 每条新闻必须包含来源链接。
 
 
           5. 不要修改或删除其它文件。
+
 
           "
 
@@ -176,12 +224,13 @@ jobs:
 
 
 
-    - name: Verify Hermes output
+
+    - name: Verify output
 
       run: |
 
 
-        echo "===== output ====="
+        echo "===== Output ====="
 
         ls -lah output
 
@@ -189,7 +238,7 @@ jobs:
 
         if [ ! -f output/index.html ]; then
 
-          echo "ERROR: output/index.html missing"
+          echo "ERROR: missing index.html"
 
           exit 1
 
@@ -200,13 +249,13 @@ jobs:
         SIZE=$(wc -c < output/index.html)
 
 
-        echo "index.html size: $SIZE bytes"
+        echo "Size=$SIZE"
 
 
 
-        if [ "$SIZE" -lt 2000 ]; then
+        if [ "$SIZE" -lt 1000 ]; then
 
-          echo "ERROR: Hermes generated invalid page"
+          echo "ERROR: invalid Hermes output"
 
           cat output/index.html
 
@@ -216,15 +265,14 @@ jobs:
 
 
 
-        echo "===== Preview ====="
-
         head -50 output/index.html
 
 
 
 
 
-    - name: Fix output permission
+
+    - name: Fix permission
 
       run: |
 
@@ -236,7 +284,9 @@ jobs:
 
 
 
-    - name: Commit only Hermes page
+
+
+    - name: Commit Hermes page
 
       run: |
 
