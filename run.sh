@@ -30,9 +30,7 @@ cd /opt/hermes-agent
 
 echo "Running Hermes..."
 
-RESULT=$(uv run hermes \
-    -z "$@" \
-) || true
+RESULT=$(uv run python -m hermes -z "$@" ) || true
 
 echo "========== Hermes Result =========="
 echo "$RESULT"
