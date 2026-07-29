@@ -2,6 +2,7 @@ name: Hermes News Generator
 
 
 on:
+
   workflow_dispatch:
 
   schedule:
@@ -33,20 +34,16 @@ jobs:
 
 
 
-    - name: Clean Docker and Hermes cache
+    - name: Clean old Hermes cache
 
       run: |
 
-        echo "Cleaning runner cache..."
-
         sudo rm -rf /root/.hermes || true
-
         rm -rf ~/.hermes || true
-
         rm -rf ~/.cache/hermes || true
 
-
-        docker system prune -af || true
+        mkdir -p hermes-home
+        chmod 777 hermes-home
 
 
 
@@ -71,13 +68,32 @@ jobs:
 
 
 
-    - name: Prepare clean Hermes runtime
+    - name: Check API environment
+
+      env:
+
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+
 
       run: |
 
-        mkdir -p hermes-tmp
+        echo "Checking API environment..."
 
-        chmod 777 hermes-tmp
+        if [ -z "$OPENAI_API_KEY" ]; then
+          echo "ERROR: OPENAI_API_KEY missing"
+          exit 1
+        fi
+
+
+        echo "OPENAI_API_KEY length: ${#OPENAI_API_KEY}"
+
+        echo "OPENAI_BASE_URL=$OPENAI_BASE_URL"
+
+        echo "OPENAI_MODEL=$OPENAI_MODEL"
 
 
 
@@ -102,6 +118,7 @@ jobs:
         date
 
 
+
         timeout 25m docker run \
           --rm \
           --user root \
@@ -110,11 +127,18 @@ jobs:
           -e OPENAI_BASE_URL \
           -e OPENAI_MODEL \
           -v "$PWD/output:/output" \
-          -v "$PWD/hermes-tmp:/tmp/hermes-home" \
+          -v "$PWD/hermes-home:/tmp/hermes-home" \
           hermes-agent \
           "
 
-          rm -rf /root/.hermes || true
+          echo '=== ENV CHECK ==='
+
+          echo OPENAI_BASE_URL=\$OPENAI_BASE_URL
+
+          echo OPENAI_MODEL=\$OPENAI_MODEL
+
+          echo KEY_LENGTH=\${#OPENAI_API_KEY}
+
 
           rm -rf /tmp/hermes-home/.hermes || true
 
@@ -133,12 +157,16 @@ jobs:
           /output/index.html
 
 
-          3. 内容务必是最近一个月内的新闻，带来源链接核实。
+          3. 内容必须是最近一个月内的新闻。
 
 
-          不要修改或删除其它文件
+          4. 每条新闻必须带来源链接。
+
+
+          5. 不要修改或删除其它文件。
 
           "
+
 
 
         echo "Hermes finished"
@@ -169,9 +197,18 @@ jobs:
 
 
 
-        if [ ! -s output/index.html ]; then
+        SIZE=$(wc -c < output/index.html)
 
-          echo "ERROR: index.html empty"
+
+        echo "index.html size: $SIZE bytes"
+
+
+
+        if [ "$SIZE" -lt 2000 ]; then
+
+          echo "ERROR: Hermes generated invalid page"
+
+          cat output/index.html
 
           exit 1
 
@@ -182,6 +219,7 @@ jobs:
         echo "===== Preview ====="
 
         head -50 output/index.html
+
 
 
 
