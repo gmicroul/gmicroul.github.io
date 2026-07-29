@@ -1,255 +1,253 @@
 name: Hermes News Generator
 
+
 on:
+
   workflow_dispatch:
 
   schedule:
+
     - cron: "0 */6 * * *"
 
 
+
 permissions:
+
   contents: write
+
 
 
 jobs:
 
+
   build:
+
 
     runs-on: ubuntu-latest
 
     timeout-minutes: 30
 
 
+
     steps:
 
 
-      - name: Checkout repository
+    - name: Checkout repository
 
-        uses: actions/checkout@v4
+      uses: actions/checkout@v4
 
-        with:
-          fetch-depth: 0
+      with:
 
+        fetch-depth: 0
 
 
-      - name: Clean workspace
 
-        run: |
+    - name: Build Hermes Docker image
 
-          rm -rf output
+      run: |
 
-          rm -rf hermes-home
+        docker build \
+          --progress=plain \
+          -t hermes-agent .
 
-          mkdir -p output
 
-          mkdir -p hermes-home
 
-          chmod 777 output
+    - name: Prepare output directory
 
-          chmod 777 hermes-home
+      run: |
 
+        rm -rf output
 
+        mkdir -p output
 
-      - name: Build Hermes image
+        chmod 777 output
 
-        run: |
 
-          docker build \
-            --no-cache \
-            --progress=plain \
-            -t hermes-agent .
 
+    - name: Run Hermes
 
+      env:
 
-      - name: Check secrets
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-        env:
+        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
-          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+      run: |
 
 
-        run: |
+        echo "=================="
 
-          echo "Checking API..."
+        echo "Running Hermes..."
 
-          if [ -z "$OPENAI_API_KEY" ]; then
+        date
 
-            echo "OPENAI_API_KEY missing"
 
-            exit 1
 
-          fi
+        timeout 25m docker run \
+          --rm \
+          --user root \
+          -e OPENAI_API_KEY \
+          -e OPENAI_BASE_URL \
+          -e OPENAI_MODEL \
+          -v "$PWD/output:/output" \
+          hermes-agent \
+          "
 
 
-          echo "KEY LENGTH=${#OPENAI_API_KEY}"
+          不要搜索旧新闻。
 
-          echo "MODEL=$OPENAI_MODEL"
 
-          echo "BASE_URL=$OPENAI_BASE_URL"
+          生成一个真实的中文 Jolla Phone 和 Sailfish OS 新闻日报 HTML 页面。
 
 
+          要求：
 
 
-      - name: Run Hermes
+          1. 创建文件：
 
-        env:
+          /output/index.html
 
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          2. 必须是完整 HTML5。
 
-          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
+          3. 新闻必须来自真实来源。
 
-        run: |
 
+          4. 只允许最近30天内发布的新闻。
 
-          echo "=================="
 
-          echo "Running Hermes..."
+          5. 每条新闻必须包含：
 
-          date
+             - 标题
 
+             - 日期
 
+             - 中文摘要
 
-          timeout 25m docker run \
-            --rm \
-            --user root \
-            --env HOME=/tmp \
-            --env OPENAI_API_KEY="$OPENAI_API_KEY" \
-            --env OPENAI_BASE_URL="$OPENAI_BASE_URL" \
-            --env OPENAI_MODEL="$OPENAI_MODEL" \
-            --env NVIDIA_API_KEY="$OPENAI_API_KEY" \
-            --env OPENAI_API_TOKEN="$OPENAI_API_KEY" \
-            --env OPENAI_KEY="$OPENAI_API_KEY" \
-            -v "$PWD/output:/output" \
-            -v "$PWD/hermes-home:/tmp/hermes-home" \
-            hermes-agent \
-            "
+             - 原文来源链接
 
 
-            生成一个真实的中文 Jolla Phone 和 Sailfish OS 新闻日报 HTML 页面。
+          6. 不要修改或删除其它文件。
 
 
-            要求：
+          "
 
 
-            1. 创建：
 
-            /output/index.html
+        echo "Hermes finished"
 
+        date
 
-            2. 使用最近一个月真实新闻。
 
 
-            3. 每条新闻必须包含来源链接。
 
+    - name: Fix Hermes output permission
 
-            4. 页面必须是完整 HTML5。
+      run: |
 
 
-            5. 不要修改或删除其它文件。
+        echo "Fix permission..."
 
 
-            "
+        sudo chown -R $USER:$USER output
 
 
+        sudo chmod -R u+rwX,go+rX output
 
-          echo "Hermes finished"
 
-          date
+        ls -lah output
 
 
 
 
-      - name: Verify output
 
-        run: |
+    - name: Verify Hermes output
 
+      run: |
 
-          echo "===== output ====="
 
-          ls -lah output
+        echo "===== output ====="
 
 
+        ls -lah output
 
-          if [ ! -f output/index.html ]; then
 
-            echo "ERROR: index.html missing"
 
-            exit 1
+        if [ ! -f output/index.html ]; then
 
-          fi
+          echo "ERROR: output/index.html missing"
 
+          exit 1
 
+        fi
 
-          SIZE=$(wc -c < output/index.html)
 
 
-          echo "SIZE=$SIZE"
+        SIZE=$(wc -c < output/index.html)
 
 
+        echo "SIZE=$SIZE"
 
-          if [ "$SIZE" -lt 1000 ]; then
 
-            echo "ERROR: Hermes output invalid"
 
-            cat output/index.html
+        if [ "$SIZE" -lt 1000 ]; then
 
-            exit 1
+          echo "ERROR: index.html too small"
 
-          fi
+          cat output/index.html
 
+          exit 1
 
+        fi
 
 
-      - name: Fix permission
 
-        run: |
+        echo "===== Preview ====="
 
-          sudo chown -R $USER:$USER output
 
-          chmod 644 output/index.html
+        head -50 output/index.html
 
 
 
 
-      - name: Commit result
 
-        run: |
+    - name: Commit only Hermes page
 
+      run: |
 
-          git config user.name "github-actions[bot]"
 
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
 
 
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add output/index.html
 
 
+        git add output/index.html
 
-          if git diff --cached --quiet; then
 
-            echo "No changes"
 
-            exit 0
+        if git diff --cached --quiet; then
 
-          fi
+          echo "No changes"
 
+          exit 0
 
+        fi
 
-          git commit \
-            -m "Update Hermes generated news"
 
 
+        git commit \
+          -m "Update Hermes generated news"
 
-          git pull --rebase origin ${GITHUB_REF_NAME}
 
 
+        git pull --rebase origin ${GITHUB_REF_NAME}
 
-          git push origin HEAD:${GITHUB_REF_NAME}
+
+
+        git push origin HEAD:${GITHUB_REF_NAME}
