@@ -10,12 +10,15 @@ on:
 
 
 permissions:
+
   contents: write
 
 
 jobs:
 
+
   build:
+
 
     runs-on: ubuntu-latest
 
@@ -30,28 +33,24 @@ jobs:
       uses: actions/checkout@v4
 
       with:
+
         fetch-depth: 0
 
 
 
-    - name: Clean runner cache
+    - name: Clean workspace
 
       run: |
-
-        echo "Cleaning runner..."
 
         sudo rm -rf /root/.hermes || true
 
         rm -rf ~/.hermes || true
 
-        rm -rf ~/.cache/hermes || true
-
         rm -rf hermes-home || true
 
-        mkdir hermes-home
+        mkdir -p hermes-home
 
         chmod 777 hermes-home
-
 
 
 
@@ -66,32 +65,7 @@ jobs:
 
 
 
-
-    - name: Inspect Hermes image
-
-      run: |
-
-        echo "===== Image Hermes files ====="
-
-
-        docker run --rm \
-          hermes-agent \
-          sh -c '
-
-          echo HOME=$HOME
-
-          ls -la /root || true
-
-          ls -la /root/.hermes || true
-
-          find /root/.hermes -maxdepth 2 -type f 2>/dev/null || true
-
-          '
-
-
-
-
-    - name: Prepare output
+    - name: Prepare output directory
 
       run: |
 
@@ -101,8 +75,7 @@ jobs:
 
 
 
-
-    - name: Test container environment
+    - name: Check API secrets
 
       env:
 
@@ -116,26 +89,23 @@ jobs:
       run: |
 
 
-        docker run \
-          --rm \
-          -e OPENAI_API_KEY \
-          -e OPENAI_BASE_URL \
-          -e OPENAI_MODEL \
-          hermes-agent \
-          sh -c '
+        echo "Checking secrets..."
 
-          echo "===== Container ENV ====="
 
-          echo KEY_LENGTH=${#OPENAI_API_KEY}
+        if [ -z "$OPENAI_API_KEY" ]; then
 
-          echo BASE=$OPENAI_BASE_URL
+          echo "ERROR: OPENAI_API_KEY missing"
 
-          echo MODEL=$OPENAI_MODEL
+          exit 1
 
-          env | grep OPENAI
+        fi
 
-          '
 
+        echo "KEY length=${#OPENAI_API_KEY}"
+
+        echo "BASE_URL=$OPENAI_BASE_URL"
+
+        echo "MODEL=$OPENAI_MODEL"
 
 
 
@@ -163,30 +133,59 @@ jobs:
 
 
         timeout 25m docker run \
+
           --rm \
+
           --user root \
+
           -e HOME=/tmp/hermes-home \
+
           -e OPENAI_API_KEY \
+
           -e OPENAI_BASE_URL \
+
           -e OPENAI_MODEL \
+
           -v "$PWD/output:/output" \
+
           -v "$PWD/hermes-home:/tmp/hermes-home" \
+
           hermes-agent \
+
           "
 
 
-          echo '===== Hermes runtime env ====='
-
-
-          echo KEY_LENGTH=\${#OPENAI_API_KEY}
-
-          echo BASE=\$OPENAI_BASE_URL
-
-          echo MODEL=\$OPENAI_MODEL
+          mkdir -p /tmp/hermes-home/.hermes
 
 
 
-          rm -rf /tmp/hermes-home/.hermes || true
+          cat > /tmp/hermes-home/.hermes/config.yaml <<EOF
+
+
+model:
+
+  default: \"$OPENAI_MODEL\"
+
+  provider: custom
+
+  api_key: \"$OPENAI_API_KEY\"
+
+  base_url: \"$OPENAI_BASE_URL\"
+
+  api_mode: chat_completions
+
+
+EOF
+
+
+
+          echo '===== Config ====='
+
+          cat /tmp/hermes-home/.hermes/config.yaml
+
+
+
+          echo '=================='
 
 
 
@@ -207,10 +206,11 @@ jobs:
           3. 内容必须是最近一个月内的新闻。
 
 
-          4. 每条新闻必须包含来源链接。
+          4. 每条新闻必须带来源链接。
 
 
           5. 不要修改或删除其它文件。
+
 
 
           "
@@ -238,7 +238,7 @@ jobs:
 
         if [ ! -f output/index.html ]; then
 
-          echo "ERROR: missing index.html"
+          echo "ERROR: index.html missing"
 
           exit 1
 
@@ -249,13 +249,13 @@ jobs:
         SIZE=$(wc -c < output/index.html)
 
 
-        echo "Size=$SIZE"
+        echo "SIZE=$SIZE"
 
 
 
         if [ "$SIZE" -lt 1000 ]; then
 
-          echo "ERROR: invalid Hermes output"
+          echo "ERROR: Generated page too small"
 
           cat output/index.html
 
@@ -271,7 +271,6 @@ jobs:
 
 
 
-
     - name: Fix permission
 
       run: |
@@ -280,7 +279,6 @@ jobs:
         sudo chown -R $USER:$USER output
 
         chmod 644 output/index.html
-
 
 
 
