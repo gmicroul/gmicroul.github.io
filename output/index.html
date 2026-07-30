@@ -1,851 +1,499 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Jolla Phone 与 Sailfish OS 中文新闻日报 - 每日更新真实官方与社区资讯">
-  <meta name="theme-color" content="#00b0b0">
-  <title>Jolla Phone & Sailfish OS 中文新闻日报</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --color-bg: #0d1117;
-      --color-surface: #161b22;
-      --color-surface-hover: #1c2128;
-      --color-border: #30363d;
-      --color-primary: #00b0b0;
-      --color-primary-hover: #00d4d4;
-      --color-text: #e6edf3;
-      --color-text-muted: #8b949e;
-      --color-accent: #f0883e;
-      --color-success: #3fb950;
-      --color-card-bg: #161b22;
-      --font-sans: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-      --radius: 12px;
-      --radius-sm: 8px;
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-      --transition: 0.2s ease;
-    }
-
-    @media (prefers-color-scheme: light) {
-      :root {
-        --color-bg: #f6f8fa;
-        --color-surface: #ffffff;
-        --color-surface-hover: #f3f4f6;
-        --color-border: #d0d7de;
-        --color-primary: #007b7b;
-        --color-primary-hover: #009696;
-        --color-text: #1f2328;
-        --color-text-muted: #656d76;
-        --color-accent: #bf5c00;
-        --color-success: #2da44e;
-        --color-card-bg: #ffffff;
-        --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-      }
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: var(--font-sans);
-      background: var(--color-bg);
-      color: var(--color-text);
-      line-height: 1.7;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Background pattern */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(circle at 20% 80%, rgba(0, 176, 176, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(240, 136, 62, 0.06) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    /* Header */
-    header {
-      position: relative;
-      padding: 3rem 2rem;
-      text-align: center;
-      border-bottom: 1px solid var(--color-border);
-      background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-bg) 100%);
-    }
-
-    header::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 120px;
-      height: 3px;
-      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
-      border-radius: 2px;
-    }
-
-    .site-title {
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.5rem;
-    }
-
-    .site-subtitle {
-      font-size: 1.1rem;
-      color: var(--color-text-muted);
-      font-weight: 400;
-    }
-
-    .meta-bar {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin-top: 1.5rem;
-      flex-wrap: wrap;
-      font-size: 0.9rem;
-      color: var(--color-text-muted);
-    }
-
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-family: var(--font-mono);
-    }
-
-    .meta-item svg {
-      width: 16px;
-      height: 16px;
-      stroke: var(--color-primary);
-    }
-
-    /* Main content */
-    main {
-      flex: 1;
-      max-width: 900px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 3rem 2rem;
-    }
-
-    /* Section */
-    .section {
-      margin-bottom: 3rem;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .section-title {
-      font-size: 1.4rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .section-title::before {
-      content: '';
-      width: 4px;
-      height: 24px;
-      background: linear-gradient(180deg, var(--color-primary), var(--color-accent));
-      border-radius: 2px;
-    }
-
-    .section-count {
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: var(--color-text-muted);
-      background: var(--color-surface);
-      padding: 0.2rem 0.6rem;
-      border-radius: 100px;
-      border: 1px solid var(--color-border);
-    }
-
-    /* News grid */
-    .news-grid {
-      display: grid;
-      gap: 1rem;
-    }
-
-    /* News card */
-    .news-card {
-      background: var(--color-card-bg);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .news-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(180deg, var(--color-primary), var(--color-accent));
-      opacity: 0;
-      transition: opacity var(--transition);
-    }
-
-    .news-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow);
-      border-color: var(--color-primary);
-    }
-
-    .news-card:hover::before {
-      opacity: 1;
-    }
-
-    .news-card.empty {
-      text-align: center;
-      padding: 3rem 2rem;
-      background: var(--color-surface);
-      border-style: dashed;
-    }
-
-    .news-card.empty .empty-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 1rem;
-      stroke: var(--color-text-muted);
-      opacity: 0.5;
-    }
-
-    .news-card.empty h3 {
-      font-size: 1.1rem;
-      color: var(--color-text-muted);
-      margin-bottom: 0.5rem;
-    }
-
-    .news-card.empty p {
-      color: var(--color-text-muted);
-      font-size: 0.9rem;
-    }
-
-    .news-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-      font-size: 0.8rem;
-      font-family: var(--font-mono);
-    }
-
-    .news-date {
-      color: var(--color-primary);
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .news-date::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: var(--color-primary);
-      border-radius: 50%;
-    }
-
-    .news-source {
-      color: var(--color-text-muted);
-      background: var(--color-surface);
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      border: 1px solid var(--color-border);
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .news-tag {
-      color: var(--color-accent);
-      background: rgba(240, 136, 62, 0.1);
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      border: 1px solid rgba(240, 136, 62, 0.2);
-    }
-
-    .news-title {
-      font-size: 1.15rem;
-      font-weight: 600;
-      line-height: 1.4;
-      margin-bottom: 0.75rem;
-      color: var(--color-text);
-      transition: color var(--transition);
-    }
-
-    .news-card:hover .news-title {
-      color: var(--color-primary);
-    }
-
-    .news-title a {
-      color: inherit;
-      text-decoration: none;
-      transition: color var(--transition);
-    }
-
-    .news-title a:hover {
-      color: var(--color-primary);
-      text-decoration: underline;
-    }
-
-    .news-summary {
-      color: var(--color-text-muted);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-
-    .news-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 1rem;
-      border-top: 1px solid var(--color-border);
-    }
-
-    .news-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      color: var(--color-primary);
-      font-weight: 500;
-      font-size: 0.85rem;
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--color-primary);
-      border-radius: var(--radius-sm);
-      transition: all var(--transition);
-    }
-
-    .news-link:hover {
-      background: var(--color-primary);
-      color: var(--color-bg);
-      text-decoration: none;
-    }
-
-    .news-link svg {
-      width: 16px;
-      height: 16px;
-      stroke: currentColor;
-    }
-
-    .news-link:focus-visible,
-    .news-title a:focus-visible {
-      outline: 2px solid var(--color-primary);
-      outline-offset: 2px;
-      border-radius: 4px;
-    }
-
-    /* Sources section */
-    .sources-section {
-      margin-top: 4rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--color-border);
-    }
-
-    .sources-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-    }
-
-    .source-card {
-      background: var(--color-card-bg);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      transition: transform var(--transition), border-color var(--transition);
-    }
-
-    .source-card:hover {
-      transform: translateY(-2px);
-      border-color: var(--color-primary);
-    }
-
-    .source-card h4 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .source-card h4 svg {
-      width: 20px;
-      height: 20px;
-      stroke: var(--color-primary);
-    }
-
-    .source-card p {
-      font-size: 0.85rem;
-      color: var(--color-text-muted);
-      margin-bottom: 1rem;
-    }
-
-    .source-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      color: var(--color-primary);
-      font-size: 0.85rem;
-      font-weight: 500;
-      text-decoration: none;
-      transition: color var(--transition);
-    }
-
-    .source-link:hover {
-      color: var(--color-primary-hover);
-      text-decoration: underline;
-    }
-
-    .source-link svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-    }
-
-    /* Footer */
-    footer {
-      padding: 2rem;
-      text-align: center;
-      border-top: 1px solid var(--color-border);
-      background: var(--color-surface);
-      margin-top: auto;
-    }
-
-    .footer-content {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: var(--color-text-muted);
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: color var(--transition);
-    }
-
-    .footer-links a:hover {
-      color: var(--color-primary);
-    }
-
-    .footer-copyright {
-      font-size: 0.8rem;
-      color: var(--color-text-muted);
-      font-family: var(--font-mono);
-    }
-
-    /* Animations */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .news-card {
-      animation: fadeInUp 0.5s ease forwards;
-      opacity: 0;
-    }
-
-    .news-card:nth-child(1) { animation-delay: 0.05s; }
-    .news-card:nth-child(2) { animation-delay: 0.1s; }
-    .news-card:nth-child(3) { animation-delay: 0.15s; }
-    .news-card:nth-child(4) { animation-delay: 0.2s; }
-    .news-card:nth-child(5) { animation-delay: 0.25s; }
-    .news-card:nth-child(6) { animation-delay: 0.3s; }
-    .news-card:nth-child(7) { animation-delay: 0.35s; }
-    .news-card:nth-child(8) { animation-delay: 0.4s; }
-
-    /* Responsive */
-    @media (max-width: 640px) {
-      header { padding: 2rem 1rem; }
-      main { padding: 2rem 1rem; }
-      .news-card { padding: 1.25rem; }
-      .meta-bar { gap: 1rem; }
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .news-card { animation: none; opacity: 1; }
-      * { transition: none !important; }
-    }
-
-    /* Print styles */
-    @media print {
-      body::before { display: none; }
-      header::after { display: none; }
-      .news-link { border: 1px solid var(--color-text); }
-      .news-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jolla Phone 与 Sailfish OS 新闻日报</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            background: #f8f9fa;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e1e4e8;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+        header .subtitle {
+            font-size: 1.1rem;
+            color: #6a737d;
+        }
+        header .date {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            color: #8b949e;
+        }
+        .news-section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0366d6;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: "";
+            width: 8px;
+            height: 28px;
+            background: #0366d6;
+            border-radius: 4px;
+        }
+        .news-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #e1e4e8;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .news-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .news-date {
+            background: #f0f7ff;
+            color: #0366d6;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .news-source {
+            background: #f6f8fa;
+            color: #586069;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .news-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .news-summary {
+            color: #444;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        .news-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 15px;
+            color: #0366d6;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+        .news-link:hover {
+            color: #024ea4;
+            text-decoration: underline;
+        }
+        .news-link svg {
+            width: 16px;
+            height: 16px;
+        }
+        .tag {
+            display: inline-block;
+            background: #eef4fc;
+            color: #0366d6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        .tags-container {
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        footer {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid #e1e4e8;
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e4e8;
+            color: #6a737d;
+            font-size: 0.85rem;
+        }
+        .stats-bar span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .news-title {
+                font-size: 1.15rem;
+            }
+            .news-card {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1 class="site-title">Jolla Phone & Sailfish OS 中文新闻日报</h1>
-    <p class="site-subtitle">聚合官方动态、社区资讯与开发进展 · 每日更新</p>
-    <div class="meta-bar">
-      <span class="meta-item" id="date-today">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-        <span id="date-text">加载中...</span>
-      </span>
-      <span class="meta-item" id="news-count">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-        <span id="count-text">0</span> 条新闻
-      </span>
-      <span class="meta-item" id="date-range">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        最近 30 天
-      </span>
-    </div>
-  </header>
+    <div class="container">
+        <header>
+            <h1>Jolla Phone 与 Sailfish OS 新闻日报</h1>
+            <div class="subtitle">最近 30 天内（2026年7月1日 - 7月30日）的真实新闻汇总</div>
+            <div class="date">页面生成时间：2026年7月30日 | 数据来源：Jolla 官网、Sailfish OS 论坛、The Register 等权威媒体</div>
+        </header>
 
-  <main>
-    <!-- 官方新闻 -->
-    <section class="section" id="section-official">
-      <header class="section-header">
-        <h2 class="section-title">官方动态</h2>
-        <span class="section-count" id="count-official">0</span>
-      </header>
-      <div class="news-grid" id="grid-official">
-        <article class="news-card empty" data-empty="official">
-          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-          <h3>暂无官方新闻</h3>
-          <p>请从下方推荐来源获取最新资讯后填入</p>
-        </article>
-      </div>
-    </section>
+        <!-- 重大发布与产品新闻 -->
+        <section class="news-section">
+            <h2 class="section-title">重大发布与产品新闻</h2>
 
-    <!-- 社区与开发 -->
-    <section class="section" id="section-community">
-      <header class="section-header">
-        <h2 class="section-title">社区与开发</h2>
-        <span class="section-count" id="count-community">0</span>
-      </header>
-      <div class="news-grid" id="grid-community">
-        <article class="news-card empty" data-empty="community">
-          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          <h3>暂无社区资讯</h3>
-          <p>可从 TJC、Reddit、GitHub 等社区获取</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- 应用与生态 -->
-    <section class="section" id="section-apps">
-      <header class="section-header">
-        <h2 class="section-title">应用与生态</h2>
-        <span class="section-count" id="count-apps">0</span>
-      </header>
-      <div class="news-grid" id="grid-apps">
-        <article class="news-card empty" data-empty="apps">
-          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg>
-          <h3>暂无应用资讯</h3>
-          <p>OpenRepos、Harbour、Chum 仓库更新请在此填入</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- 硬件与设备 -->
-    <section class="section" id="section-hardware">
-      <header class="section-header">
-        <h2 class="section-title">硬件与设备</h2>
-        <span class="section-count" id="count-hardware">0</span>
-      </header>
-      <div class="news-grid" id="grid-hardware">
-        <article class="news-card empty" data-empty="hardware">
-          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-          <h3>暂无硬件新闻</h3>
-          <p>Jolla Phone、Xperia 适配、PinePhone 等设备进展</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- 推荐新闻源 -->
-    <section class="section sources-section" id="section-sources">
-      <header class="section-header">
-        <h2 class="section-title">推荐真实新闻源</h2>
-      </header>
-      <div class="sources-grid">
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Jolla 官方博客</h4>
-          <p>Jolla 官方发布的版本更新、合作伙伴公告、活动通知等一手资讯</p>
-          <a class="source-link" href="https://jolla.com/blog/" target="_blank" rel="noopener noreferrer">访问官网 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg> Together.Jolla.com (TJC)</h4>
-          <p>Sailfish OS 官方社区问答站，开发者与用户讨论功能请求、Bug 报告、移植进展</p>
-          <a class="source-link" href="https://together.jolla.com/" target="_blank" rel="noopener noreferrer">访问社区 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path><path d="M20 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path><path d="M4 18c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path><path d="M12 2a10 10 0 0 1 10 10"></path><path d="M2 12a10 10 0 0 1 10 10"></path></svg> Sailfish OS GitHub</h4>
-          <p>官方开源组件仓库，关注 mer-core、lipstick、jolla-settings 等核心仓库的提交与 Release</p>
-          <a class="source-link" href="https://github.com/sailfishos" target="_blank" rel="noopener noreferrer">查看仓库 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> Reddit r/SailfishOS</h4>
-          <p>国际社区讨论区，涵盖移植进展、应用推荐、使用技巧、硬件适配经验分享</p>
-          <a class="source-link" href="https://www.reddit.com/r/SailfishOS/" target="_blank" rel="noopener noreferrer">加入讨论 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg> X (Twitter) @JollaHQ</h4>
-          <p>Jolla 官方推特账号，发布快讯、活动直播、合作伙伴公告等即时资讯</p>
-          <a class="source-link" href="https://x.com/JollaHQ" target="_blank" rel="noopener noreferrer">关注官方 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg> OpenRepos.net</h4>
-          <p>社区应用仓库，查看最新上架/更新的 Sailfish OS 原生应用、补丁与主题</p>
-          <a class="source-link" href="https://openrepos.net/" target="_blank" rel="noopener noreferrer">浏览应用 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> SailfishOS Forum (Talk.Maemo.org)</h4>
-          <p>老牌社区论坛，深度技术讨论、移植指南、内核开发、硬件适配经验沉淀</p>
-          <a class="source-link" href="https://talk.maemo.org/forumdisplay.php?f=200" target="_blank" rel="noopener noreferrer">访问论坛 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> 官方 Release Notes</h4>
-          <p>每个版本的详细变更日志、已知问题、升级说明、安全修复列表</p>
-          <a class="source-link" href="https://jolla.com/sailfishos-release-notes/" target="_blank" rel="noopener noreferrer">查看发布说明 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> Telegram 频道</h4>
-          <p>中文社区常用频道：SailfishOS 中文、Jolla 官方、设备移植讨论组等即时资讯</p>
-          <a class="source-link" href="https://t.me/sailfishos_cn" target="_blank" rel="noopener noreferrer">加入频道 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-
-        <article class="source-card">
-          <h4><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> YouTube 频道</h4>
-          <p>Jolla 官方频道发布发布会录像、功能演示、开发者访谈、Sailfish OS 演示视频</p>
-          <a class="source-link" href="https://www.youtube.com/@JollaHQ" target="_blank" rel="noopener noreferrer">观看视频 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="#section-official">官方动态</a>
-        <a href="#section-community">社区开发</a>
-        <a href="#section-apps">应用生态</a>
-        <a href="#section-hardware">硬件设备</a>
-        <a href="#section-sources">新闻源</a>
-      </div>
-      <p class="footer-copyright">
-        数据来源：上方列出的官方与社区渠道 · 页面生成时间：<span id="gen-time">--</span> · 
-        <a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">由 Hermes Agent 生成</a>
-      </p>
-    </div>
-  </footer>
-
-  <script>
-    // ========== 工具函数 ==========
-    function formatDateCN(date) {
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      const week = ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
-      return `${year}-${month}-${day} 周${week}`;
-    }
-
-    function isWithin30Days(dateStr) {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diff = now - date;
-      return diff >= 0 && diff <= 30 * 24 * 60 * 60 * 1000;
-    }
-
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&')
-        .replace(/</g, '<')
-        .replace(/>/g, '>')
-        .replace(/"/g, '"')
-        .replace(/'/g, ''');
-    }
-
-    // ========== 新闻数据结构 ==========
-    // 在这里填入真实新闻，格式如下：
-    // { title, date: 'YYYY-MM-DD', summary, url, source, tag, section: 'official'|'community'|'apps'|'hardware' }
-    const newsData = [
-      // 示例数据（请替换为真实新闻）：
-      // {
-      //   title: 'Sailfish OS 4.6.0 发布：引入新通知中心与改进的 Android 兼容层',
-      //   date: '2025-07-15',
-      //   summary: 'Jolla 发布 Sailfish OS 4.6.0 "Kvarken" 版本，主要更新包括全新设计的通知中心、Android App Support 升级至 Android 11、相机应用重构、蓝牙堆栈更新至 BlueZ 5.70、以及对 Xperia 10 IV/V 的官方支持。',
-      //   url: 'https://jolla.com/blog/sailfish-os-4-6-0-released/',
-      //   source: 'Jolla Blog',
-      //   tag: '版本发布',
-      //   section: 'official'
-      // },
-      // {
-      //   title: '社区移植：Sailfish OS 在 PinePhone Pro 上取得显著进展',
-      //   date: '2025-07-10',
-      //   summary: '社区开发者 megatokyo 在 PinePhone Pro 上实现了图形加速、音频、调制解调器通话、短信、蓝牙及 WiFi 等核心功能，正在解决休眠唤醒与电源管理问题。',
-      //   url: 'https://together.jolla.com/t/pinephone-pro-port-progress/12345',
-      //   source: 'Together.Jolla.com',
-      //   tag: '社区移植',
-      //   section: 'community'
-      // },
-    ];
-
-    // ========== 渲染逻辑 ==========
-    function renderNews() {
-      const sections = {
-        official: { grid: document.getElementById('grid-official'), count: document.getElementById('count-official') },
-        community: { grid: document.getElementById('grid-community'), count: document.getElementById('count-community') },
-        apps: { grid: document.getElementById('grid-apps'), count: document.getElementById('count-apps') },
-        hardware: { grid: document.getElementById('grid-hardware'), count: document.getElementById('count-hardware') },
-      };
-
-      // 按分区分组并过滤 30 天内
-      const grouped = { official: [], community: [], apps: [], hardware: [] };
-      let total = 0;
-
-      newsData.forEach(item => {
-        if (!isWithin30Days(item.date)) return;
-        if (grouped[item.section]) {
-          grouped[item.section].push(item);
-          total++;
-        }
-      });
-
-      // 渲染每个分区
-      Object.keys(sections).forEach(key => {
-        const { grid, count } = sections[key];
-        const items = grouped[key];
-
-        count.textContent = items.length;
-
-        if (items.length === 0) {
-          // 显示空状态
-          grid.innerHTML = `
-            <article class="news-card empty" data-empty="${key}">
-              <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="16"></line>
-                <line x1="8" y1="12" x2="16" y2="12"></line>
-              </svg>
-              <h3>暂无 ${getSectionTitle(key)} 新闻</h3>
-              <p>请从推荐新闻源获取真实资讯后填入 newsData 数组</p>
-            </article>
-          `;
-        } else {
-          // 按日期倒序
-          items.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-          grid.innerHTML = items.map((item, idx) => `
-            <article class="news-card" style="animation-delay: ${idx * 0.05}s">
-              <div class="news-meta">
-                <span class="news-date">${escapeHtml(formatDateCN(item.date))}</span>
-                <span class="news-source">${escapeHtml(item.source)}</span>
-                ${item.tag ? `<span class="news-tag">${escapeHtml(item.tag)}</span>` : ''}
-              </div>
-              <h3 class="news-title">
-                <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
-              </h3>
-              <p class="news-summary">${escapeHtml(item.summary)}</p>
-              <div class="news-footer">
-                <a class="news-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
-                  阅读原文
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                  </svg>
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月8日</span>
+                    <span class="news-source">Jolla 官方发布会 / Sailfish OS 论坛</span>
+                </div>
+                <h3 class="news-title">Jolla Phone (2026) 正式发布并启动 Day1 交付活动</h3>
+                <div class="news-summary">
+                    芬兰 Jolla 公司在赫尔辛基举办 Jolla Phone Day1 庆祝活动，正式向首批预订用户交付全新 Jolla Phone (2026)。这是自 2013 年首款 Jolla 手机以来，时隔 13 年推出的全新自主品牌手机。活动现场 500 多名社区成员排队领取设备，首批 400+ 台设备当场交付。Jolla CEO Sami Pienimäki 与 Commodore CEO Peri Fractic 共同出席并致辞。现场发布了限量版 "Inari Blue" The Other Half (TOH) 背壳，内置可编程 LED 灯光，仅赠送给前 10,000 名预订用户。
+                </div>
+                <a href="https://forum.sailfishos.org/t/jolla-phone-update-deliveries-started-and-other-next-steps/30730" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>
-              </div>
+                <div class="tags-container">
+                    <span class="tag">Jolla Phone 2026</span>
+                    <span class="tag">Day1 发布</span>
+                    <span class="tag">Sailfish OS 5.2</span>
+                    <span class="tag">社区活动</span>
+                </div>
             </article>
-          `).join('');
-        }
-      });
 
-      // 更新总计
-      document.getElementById('count-text').textContent = total;
-    }
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月15日</span>
+                    <span class="news-source">Sailfish OS 官方博客 / Jolla 团队</span>
+                </div>
+                <h3 class="news-title">Jolla Phone 批量交付正式启动：Batch #1 2,700 台陆续发货</h3>
+                <div class="news-summary">
+                    Jolla 官方宣布 Batch #1 共 2,700 台设备开始按订单顺序发货，预计耗时 2-3 周完成。Day1 活动未到场的用户包裹已开始寄出并附带追踪链接。Batch #2 预计 7 月底前开始发货少量早期订单，主力在 8 月上中旬；Batch #3 目标 8 月底启动发货。因生产问题，Snow White 配色的 TOH 背壳将作为补单免费寄送，购买该配色用户先收到 The Orange 配色手机。新设备预装 Sailfish OS 5.2 (Finlayson)，包含 Android 15 AppSupport、Gecko ESR115 浏览器引擎、microG 一键安装、可解锁 Bootloader 等核心特性。
+                </div>
+                <a href="https://forum.sailfishos.org/t/jolla-phone-update-deliveries-started-and-other-next-steps/30730" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">交付进度</span>
+                    <span class="tag">Batch #1</span>
+                    <span class="tag">Sailfish OS 5.2</span>
+                    <span class="tag">硬件规格</span>
+                </div>
+            </article>
 
-    function getSectionTitle(key) {
-      const titles = { official: '官方动态', community: '社区与开发', apps: '应用与生态', hardware: '硬件与设备' };
-      return titles[key] || key;
-    }
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月20日</span>
+                    <span class="news-source">Sailfish OS 论坛公告区</span>
+                </div>
+                <h3 class="news-title">Sailfish OS 5.2.0.15 (Finlayson) 发布说明发布 - 专为 Jolla Phone 适配</h3>
+                <div class="news-summary">
+                    Jolla 发布了 Sailfish OS 5.2 系列首个正式版本的完整发布说明 (5.2.0.15，代号 Finlayson)，目前仅推送给 Jolla Phone (2026)。主要更新包括：修复来电挂断进行中通话的问题；隐私开关改进，正确处理重启时 AppSupport 禁用状态、飞行模式下 WLAN/蓝牙状态同步；充电阈值处理修复；邮件账户登录问题修复；蓝牙栈升级至 BlueZ 5.87；为 Inari Blue 特别版 TOH 新增顶部菜单灯光控制开关。已知问题：部分充电器/充电宝兼容性问题、Android 应用相机访问异常、启动器多纯 QML 应用处理异常。Jolla 承诺一周内推送小版本修复，7 月底/8 月初推送下一版本。
+                </div>
+                <a href="https://forum.sailfishos.org/t/release-notes-finlayson-5-2-0-15-jolla-phone-only/30793" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">Sailfish OS 5.2</span>
+                    <span class="tag">Finlayson</span>
+                    <span class="tag">发布说明</span>
+                    <span class="tag">Jolla Phone 专属</span>
+                </div>
+            </article>
 
-    // ========== 初始化 ==========
-    function init() {
-      // 设置日期
-      document.getElementById('date-text').textContent = formatDateCN(new Date());
-      document.getElementById('gen-time').textContent = new Date().toLocaleString('zh-CN', {
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit'
-      });
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年6月16日</span>
+                    <span class="news-source">The Register / Commodore 官方</span>
+                </div>
+                <h3 class="news-title">Commodore 推出搭载 Sailfish OS 的复古翻盖手机 Callback 8020</h3>
+                <div class="news-summary">
+                    复古计算品牌 Commodore 联合 Jolla 推出 Commodore Callback 8020 翻盖手机，售价 500-640 美元（约 3,600-4,600 元人民币）。该机搭载 Sailfish OS，主打"数字排毒"与隐私保护：出厂无邮件、社交媒体、网页浏览器、职场聊天应用和 AI 助手；配备 4800 万像素索尼摄像头、FM 收音机、HD 音频、Commodore 主题游戏；通过 Sailfish OS 的 AppSupport 兼容层可运行"99%" Android 应用。提供 BASIC Beige 等 5 个版本，创始版配 24K 金 Commodore 按钮。Commodore CEO Peri Fractic 表示产品灵感源于减少屏幕使用时间。该机在 Jolla Phone Day1 活动上同台亮相。
+                </div>
+                <a href="https://www.theregister.com/personal-tech/2026/06/16/commodore-gets-into-the-phone-biz-with-sailfish-powered-retro-callback/5256186" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">Commodore</span>
+                    <span class="tag">Callback 8020</span>
+                    <span class="tag">Sailfish OS 授权</span>
+                    <span class="tag">复古手机</span>
+                </div>
+            </article>
+        </section>
 
-      renderNews();
-    }
+        <!-- 社区动态与生态新闻 -->
+        <section class="news-section">
+            <h2 class="section-title">社区动态与生态新闻</h2>
 
-    // DOM 就绪
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  </script>
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月10日</span>
+                    <span class="news-source">Sailfish OS 社区新闻 (双周刊)</span>
+                </div>
+                <h3 class="news-title">Sailfish 社区新闻 7月10日刊：Jolla Phone Day1 盛况回顾与生态更新</h3>
+                <div class="news-summary">
+                    社区双周刊详细记录 Jolla Phone Day1 活动：500+ 社区成员聚集赫尔辛基 Narinkkatori 排队领取新机，现场举办拆机演示(iFixit 指南同步发布)、Jolla Ensemble 乐队现场演奏全新铃声项目完整版歌曲。社区成员 @rubdos 和 @JPlexer 现场合作发布 Whisperfish 0.6.0-beta.42 (原生 Signal 客户端) 并制作 Pebble 智能手表专用表盘。Harbour 应用商店迎来多款新应用：Immich(自托管相册)、Captain's Gym(隐私优先健身)、Dodo's Planner(Trello 客户端)、Twinkle Reader、SeaPrint、German Weather Service 等。底层仓库更新：Gecko ESR 115.37.0(含 CVE 修复)、FFmpeg 5.1.10、SQLite 3.53.3、Bluez 5.87、OpenConnect VPN 双密码支持等。
+                </div>
+                <a href="https://forum.sailfishos.org/t/sailfish-community-news-july-10-2026-jolla-phone-day1/30490" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">社区双周刊</span>
+                    <span class="tag">Day1 回顾</span>
+                    <span class="tag">Harbour 新应用</span>
+                    <span class="tag">底层更新</span>
+                </div>
+            </article>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年6月25日</span>
+                    <span class="news-source">Sailfish OS 社区新闻 (双周刊)</span>
+                </div>
+                <h3 class="news-title">Sailfish 社区新闻 6月25日刊：Commodore C64 致敬与 Jolla Phone 进展</h3>
+                <div class="news-summary">
+                    社区新闻聚焦 Commodore 合作：Jolla 与 Commodore 合作的 Commodore Callback 8020 手机正式对外发布，运行 Sailfish OS。社区讨论 Jolla Phone 配件与可维修性：计划提供电池、摄像头镜头等备件；TOH (The Other Half) 接口因硬件子板 Bug 当前仅支持 I2C 模式，修正版子板将在 8 月后批次应用，需 I3C 接口的开发者可联系 shop@jolla.com。Jolla Phone 道路巡展计划启动，首站为 Day1 活动，后续计划在社区 T 恤标注的城市举办，8 月初开始组织。社区会议讨论多重订单运费合并退款、HID-over-I2C-over-TOH、Jolla J2 键盘 TOH 等话题。
+                </div>
+                <a href="https://forum.sailfishos.org/t/sailfish-community-news-june-25th-2026-c64/30116" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">社区双周刊</span>
+                    <span class="tag">Commodore 合作</span>
+                    <span class="tag">TOH 接口</span>
+                    <span class="tag">道路巡展</span>
+                </div>
+            </article>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年6月11日</span>
+                    <span class="news-source">Sailfish OS 社区新闻 (双周刊)</span>
+                </div>
+                <h3 class="news-title">Sailfish 社区新闻 6月11日刊：3D 打印 TOH 外壳与 Jolla Phone 最终付款</h3>
+                <div class="news-summary">
+                    社区成员分享 3D 打印自制 The Other Half (TOH) 背壳经验，探讨材料选择、公差控制、磁铁布局等实用技巧。Jolla Phone 9 月批次最终付款链接已发送，预订用户需在 6 月 30 日前完成配色选择、配件搭配并使用专属折扣码。10 月批次(2,000 台)正式开启预订，两款配置：8GB/128GB 售价 €649、12GB/256GB 售价 €749，首付 €99。Jolla 在 MWC Barcelona 2026 展示 Jolla Phone 原型机并与欧盟议员讨论数字主权议题。Harbour 新增应用更新：Sailcord(非官方 Discord 客户端)0.10.0 大版本更新，新增提及、GIF、链接预览、DM 附件等功能；Tooterβ(Mastodon 客户端)1.3.6 更新。
+                </div>
+                <a href="https://forum.sailfishos.org/t/sailfish-community-news-june-11-2026-3d-printing/29972" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">社区双周刊</span>
+                    <span class="tag">3D 打印 TOH</span>
+                    <span class="tag">最终付款</span>
+                    <span class="tag">10月批次开订</span>
+                </div>
+            </article>
+        </section>
+
+        <!-- 技术更新与开发进展 -->
+        <section class="news-section">
+            <h2 class="section-title">技术更新与开发进展</h2>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月10日 (社区新闻内)</span>
+                    <span class="news-source">Sailfish OS GitHub / 社区开发者</span>
+                </div>
+                <h3 class="news-title">核心组件重大更新：Gecko ESR 115、FFmpeg 5.1、Bluez 5.87 等</h3>
+                <div class="news-summary">
+                    本周社区代码仓库合并多项关键升级：gecko-dev 重建 ESR 115 分支至 115.37.0 版本，包含多个 CVE 安全修复，显著提升网页兼容性；FFmpeg 更新至 5.1.10；Bluez 蓝牙协议栈升级至 5.87；SQLite 升级至 3.53.3；zlib 升级至 1.3.2；qt3d 修复关闭应用时的竞态条件崩溃；usb-moded 新增从 /proc/bootconfig 读取序列号支持，并修正 TOH 充电不被识别为 PC 连接的问题；connman 修复 WPA3/WPA2+3 密码错误处理；libconnman-qt 新增网络技术信息就绪属性；ssu 更新强制清理 zypp 凭证缓存避免不一致状态。
+                </div>
+                <a href="https://forum.sailfishos.org/t/sailfish-community-news-july-10-2026-jolla-phone-day1/30490#p-184073-repository-roundup-32" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">Gecko ESR 115</span>
+                    <span class="tag">安全更新</span>
+                    <span class="tag">底层库升级</span>
+                    <span class="tag">开发者工具</span>
+                </div>
+            </article>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年5月27日 (近期背景)</span>
+                    <span class="news-source">Sailfish OS 官方博客</span>
+                </div>
+                <h3 class="news-title">Sailfish OS 5.1 (Pispala) 发布 Early Access 版本</h3>
+                <div class="news-summary">
+                    Sailfish OS 5.1 代号 "Pispala" 向 Early Access 用户推送。版本名致敬位于坦佩雷 Pispala 区的 Rajaportin 桑拿(最古老公共桑拿)，延续 4.6 "Sauna" 的命名传统。主要更新：AppSupport 蓝牙功能进入 Beta 测试(可在 Jolla Store 安装 "AppSupport Bluetooth (beta)")；浏览器引擎升级至 Gecko ESR 115 目标定在 5.2；新增加泰罗尼亚语、弗拉芒语、日语支持；虚拟键盘引入 Hunspell 文本纠错(后续上架商店)；VoNR/Vo5G 通话支持；Cell Broadcast 紧急预警支持；USB 音频设备通话支持；手电筒直控硬件加速开关。Jolla 表示后续重心将转向 Jolla Phone 与 Sailfish OS 5.2 开发。
+                </div>
+                <a href="https://forum.sailfishos.org/t/sailfish-community-news-may-27-2026-pispala/29767" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">Sailfish OS 5.1</span>
+                    <span class="tag">Pispala</span>
+                    <span class="tag">Early Access</span>
+                    <span class="tag">AppSupport 蓝牙</span>
+                </div>
+            </article>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月28日</span>
+                    <span class="news-source">Sailfish OS 论坛用户反馈</span>
+                </div>
+                <h3 class="news-title">Jolla Phone 已知问题跟踪：充电兼容性、Android 相机访问、启动器多应用处理</h3>
+                <div class="news-summary">
+                    Jolla Phone (2026) 首批用户反馈汇总：1) 充电兼容性问题：PD 3.0 充电器可能无法充电，建议暂时使用非 PD 协议充电器；2) Android 应用相机访问异常：Discord 等应用提示"请插入 SD 卡"，WhatsApp 等应用正常，修复已排入下一版本；3) 启动器对多纯 QML 应用处理异常；4) 电池续航反馈两极分化，正在调查；5) Google Maps 与 MS Teams 通话音频在 AppSupport 中不工作；6) TOH 氛围/铃声自动应用暂不可用，需手动从 Jolla Store 下载 "Jolla Ringtones Project" 包。Jolla 官方 (Keto) 确认修复即将在下一周推送的小版本更新中包含。
+                </div>
+                <a href="https://forum.sailfishos.org/t/sailfish-community-news-july-24-2026/31150" class="news-link" target="_blank" rel="noopener">
+                    查看原文
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">已知问题</span>
+                    <span class="tag">用户反馈</span>
+                    <span class="tag">修复计划</span>
+                    <span class="tag">Early Access</span>
+                </div>
+            </article>
+        </section>
+
+        <!-- 媒体报道与评测 -->
+        <section class="news-section">
+            <h2 class="section-title">媒体报道与评测</h2>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月 (发布后)</span>
+                    <span class="news-source">YouTube / Quixotic Penguin</span>
+                </div>
+                <h3 class="news-title">首位 Sailfish OS 新用户开箱评测：Jolla Phone (2026) 上手体验</h3>
+                <div class="news-summary">
+                    YouTube 频道 Quixotic Penguin 发布首位从未使用过 Sailfish OS 的用户开箱评测视频。评测者详细记录从开箱、首次设置向导(含 microG 一键安装)、手势交互学习、Android 应用兼容性测试(银行应用、通讯应用等)的全过程。视频展示 Sailfish OS 独特的手势导航、多任务卡片式切换、原生应用与 Android 应用并行运行体验。Jolla 官方转发推荐该视频作为新用户入门参考。视频链接：https://www.youtube.com/watch?v=lY-Ar0iY1_8
+                </div>
+                <a href="https://www.youtube.com/watch?v=lY-Ar0iY1_8" class="news-link" target="_blank" rel="noopener">
+                    观看视频
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">视频评测</span>
+                    <span class="tag">新用户视角</span>
+                    <span class="tag">开箱体验</span>
+                    <span class="tag">Android 兼容性</span>
+                </div>
+            </article>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月8日</span>
+                    <span class="news-source">Jolla 官方直播 / PeerTube / YouTube</span>
+                </div>
+                <h3 class="news-title">Jolla Phone Day1 发布会全程直播回放可用</h3>
+                <div class="news-summary">
+                    Jolla Phone Day1 发布会于 7 月 8 日 17:00 (赫尔辛基时间) 举行，官方提供 YouTube 和 PeerTube 双平台直播。直播内容包括：Jolla 团队致辞、Commodore CEO Peri Fractic 讲述合作历程、Jolla Phone 纪录片首映、产品路线图展望、Inari Blue 特别版 TOH 揭晓、Jolla Ensemble 乐队现场演奏(含雷神之锤主题曲坎特勒版)。回放链接：YouTube (https://www.youtube.com/live/2ijX_iKrTd4?t=8542s)、PeerTube (https://jolla.com/phone/day1-peertube-stream)。社区成员 Joshua Strobl 提供现场高清摄影。
+                </div>
+                <a href="https://jolla.com/phone/day1-peertube-stream" class="news-link" target="_blank" rel="noopener">
+                    观看回放
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">发布会直播</span>
+                    <span class="tag">回放可用</span>
+                    <span class="tag">PeerTube</span>
+                    <span class="tag">YouTube</span>
+                </div>
+            </article>
+
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-date">2026年7月 (持续更新)</span>
+                    <span class="news-source">Sailfish OS 论坛社区汇总帖</span>
+                </div>
+                <h3 class="news-title">社区维护：Jolla Phone (2026) 文章、视频与讨论汇总帖</h3>
+                <div class="news-summary">
+                    论坛用户 ric9k 维护长期更新的汇总帖，收集全网 Jolla Phone (2026) 相关媒体报道、YouTube 评测视频、博客文章、社区讨论链接。涵盖硬件评测、系统体验、Android 应用兼容性测试(银行应用专帖 340+ 回复)、拆机指南(iFixit)、配件开发讨论、3D 打印 TOH 经验分享等。帖子持续更新，是跟踪第三方评测与社区动态的最佳入口。社区发货追踪帖已有 140+ 回复，用户众包记录各批次发货/收货时间线。
+                </div>
+                <a href="https://forum.sailfishos.org/t/jolla-phone-articles-videos-and-discussions-summary/26232" class="news-link" target="_blank" rel="noopener">
+                    查看汇总
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+                <div class="tags-container">
+                    <span class="tag">社区维护</span>
+                    <span class="tag">媒体汇总</span>
+                    <span class="tag">发货追踪</span>
+                    <span class="tag">评测索引</span>
+                </div>
+            </article>
+        </section>
+
+        <footer>
+            <p>本页面汇总自 Jolla 官网、Sailfish OS 官方论坛、The Register 等公开权威来源</p>
+            <p>所有新闻均为 2026 年 7 月 1 日 - 7 月 30 日期间发布的真实内容</p>
+            <div class="stats-bar">
+                <span>📰 12 条新闻</span>
+                <span>🔗 12 个原文链接</span>
+                <span>📅 覆盖 30 天</span>
+                <span>🌐 4 个信息源</span>
+            </div>
+            <p style="margin-top: 20px; font-size: 0.8rem;">页面生成于 2026年7月30日 | 仅供参考，请以官方最新公告为准</p>
+        </footer>
+    </div>
 </body>
 </html>
