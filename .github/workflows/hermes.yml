@@ -1,20 +1,32 @@
-name: Hermes Test
+name: Hermes News Generator
+
 
 on:
+
   workflow_dispatch:
+
+  schedule:
+
+    - cron: "0 */6 * * *"
+
 
 
 permissions:
+
   contents: write
+
 
 
 jobs:
 
-  test:
+
+  build:
+
 
     runs-on: ubuntu-latest
 
-    timeout-minutes: 10
+    timeout-minutes: 30
+
 
 
     steps:
@@ -23,6 +35,10 @@ jobs:
     - name: Checkout repository
 
       uses: actions/checkout@v4
+
+      with:
+
+        fetch-depth: 0
 
 
 
@@ -36,46 +52,19 @@ jobs:
 
 
 
-    - name: Prepare output
+    - name: Prepare output directory
 
       run: |
+
+        rm -rf output
 
         mkdir -p output
 
-        sudo chmod 777 output
+        chmod 777 output
 
 
 
-    - name: Check secrets
-
-      env:
-
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
-
-        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
-
-
-      run: |
-
-        echo "Checking environment..."
-
-        if [ -z "$OPENAI_API_KEY" ]; then
-          echo "ERROR: OPENAI_API_KEY empty"
-          exit 1
-        else
-          echo "OPENAI_API_KEY OK"
-        fi
-
-
-        echo "OPENAI_BASE_URL=$OPENAI_BASE_URL"
-
-        echo "OPENAI_MODEL=$OPENAI_MODEL"
-
-
-
-    - name: Run Hermes test
+    - name: Run Hermes
 
       env:
 
@@ -91,35 +80,65 @@ jobs:
 
         echo "=================="
 
-        echo "Running Hermes test..."
+        echo "Running Hermes..."
 
         date
 
 
-        timeout 5m docker run \
+
+        timeout 25m docker run \
           --rm \
+          --user root \
           -e OPENAI_API_KEY \
           -e OPENAI_BASE_URL \
           -e OPENAI_MODEL \
           -v "$PWD/output:/output" \
           hermes-agent \
           "
-          不要搜索。
 
-          直接生成一个测试 HTML 页面。
 
-          必须创建：
+          不要搜索大于一个月发布的产品。不要停下来问。
+
+
+          生成一个真实的中文  闲鱼个人卖家（过滤工作机，贩子，店铺，不包邮）发布的一加6t的 HTML 页面。
+
+
+          要求：
+
+
+          1. 把汇总的内容以HTML5形式写入以下文件：
 
           /output/index.html
 
-          内容要求：
 
-          标题：
-          Hermes GitHub Actions Test
+          2. 必须是完整 HTML5 页面。
 
-          内容：
-          GitHub Actions运行成功。
+
+          3. 内容必须来自真实来源。
+
+
+          4. 只允许最近30天内发布的一加6t，过滤一加ace 6t。
+
+
+          5. 每个手机必须包含：
+
+             - 分析个人卖家的信用
+
+             - 发布日期
+
+             - 中文摘要
+
+             - 原文链接
+
+
+          6. 使用中文。
+
+
+          7. 不要修改或删除其它文件。
+
+
           "
+
 
 
         echo "Hermes finished"
@@ -128,24 +147,114 @@ jobs:
 
 
 
-    - name: Verify output
+
+
+    - name: Fix Hermes output permission
 
       run: |
 
-        echo "===== output ====="
+
+        echo "Fix output permission"
+
+
+        sudo chown -R $USER:$USER output
+
+
+        sudo chmod -R u+rwX,go+rX output
+
 
         ls -lah output
 
 
+
+
+
+    - name: Verify Hermes output
+
+      run: |
+
+
+        echo "===== output ====="
+
+
+        ls -lah output
+
+
+
         if [ ! -f output/index.html ]; then
 
-          echo "ERROR: index.html missing"
+          echo "ERROR: output/index.html missing"
 
           exit 1
 
         fi
 
 
-        echo "SUCCESS"
 
-        head -30 output/index.html
+        SIZE=$(wc -c < output/index.html)
+
+
+        echo "SIZE=$SIZE"
+
+
+
+        if [ "$SIZE" -lt 1000 ]; then
+
+          echo "ERROR: index.html too small"
+
+          cat output/index.html
+
+          exit 1
+
+        fi
+
+
+
+        echo "===== Preview ====="
+
+
+        head -50 output/index.html
+
+
+
+
+
+    - name: Commit only Hermes page
+
+      run: |
+
+
+        git config user.name "github-actions[bot]"
+
+
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+
+        echo "===== Git status ====="
+
+
+        git status
+
+
+
+        git add output/index.html
+
+
+
+        if git diff --cached --quiet; then
+
+          echo "No changes"
+
+          exit 0
+
+        fi
+
+
+
+        git commit \
+          -m "Update Hermes generated news"
+
+
+
+        git push origin HEAD:${GITHUB_REF_NAME}
