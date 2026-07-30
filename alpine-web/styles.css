@@ -193,8 +193,15 @@ a:focus-visible {
   overflow: hidden;
   background: #000;
   cursor: default;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
+/* Default-hide the pre-seeded canvas so the BIOS text-mode "text-screen"
+   div is visible during POST. v86 flips the canvas to `display: block`
+   itself when the guest enters graphical mode (libv86.js set_size_graphical),
+   and the inline style wins over this rule. */
 .screen-container canvas {
   display: none;
   width: 100%;
@@ -342,3 +349,106 @@ a:focus-visible {
   .loading-layer,
   .progress-track span { transition: none; }
 }
+
+/* Clipboard buttons share the .icon-button look but get a distinct "armed"
+   state so the user knows the last copy/paste actually succeeded. */
+.icon-button.is-success {
+  border-color: #6ed094;
+  background: rgba(110, 208, 148, 0.16);
+  color: #d8f5e2;
+}
+
+.paste-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8, 10, 9, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.paste-modal[hidden] { display: none; }
+
+.paste-modal-card {
+  width: min(560px, 100%);
+  padding: 22px 22px 18px;
+  border: 1px solid #3d4641;
+  border-radius: 8px;
+  background: #161b18;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.paste-modal-card h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: #edf2ef;
+}
+
+.paste-modal-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9aa39e;
+}
+
+#paste-modal-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 110px;
+  padding: 10px 12px;
+  border: 1px solid #2f3532;
+  border-radius: 5px;
+  color: #edf2ef;
+  background: #0f1411;
+  font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+#paste-modal-input:focus-visible {
+  outline: 2px solid #75c9f2;
+  outline-offset: 2px;
+}
+
+.paste-modal-status {
+  min-height: 16px;
+  font-size: 12px;
+  color: #9da7a1;
+}
+
+.paste-modal-status.is-error { color: #f08b84; }
+.paste-modal-status.is-success { color: #6ed094; }
+
+.paste-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.paste-modal-actions button {
+  padding: 6px 14px;
+  border: 1px solid #2f3532;
+  border-radius: 4px;
+  font: inherit;
+  color: #dce4df;
+  background: #1d231f;
+  cursor: pointer;
+}
+
+.paste-modal-actions button:hover { background: #29312c; }
+
+.paste-modal-actions button.primary {
+  border-color: #67bde8;
+  background: #17303d;
+  color: #eef6fa;
+}
+
+.paste-modal-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+

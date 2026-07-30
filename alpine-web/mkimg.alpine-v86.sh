@@ -23,8 +23,9 @@ profile_alpine_v86() {
 
 	desktop_apks="
 		ca-certificates curl dbus dbus-x11 doas fastfetch font-dejavu
-		netsurf openbox pciutils setxkbmap tint2 wget xsetroot
-		xf86-input-libinput xf86-video-fbdev xf86-video-vesa
+		netsurf openbox pciutils setxkbmap tint2 udev wget xsetroot
+		xf86-input-evdev xf86-input-keyboard xf86-input-mouse
+		xf86-input-synaptics xf86-video-fbdev xf86-video-vesa
 		xinit xorg-server xrandr xterm
 	"
 	apks="alpine-base busybox dhcpcd doas openssl tzdata wget $desktop_apks"

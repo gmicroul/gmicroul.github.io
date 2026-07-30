@@ -84,15 +84,46 @@ openbox
 pciutils
 setxkbmap
 tint2
+udev
 wget
 xsetroot
-xf86-input-libinput
+xf86-input-evdev
+xf86-input-keyboard
+xf86-input-mouse
+xf86-input-synaptics
 xf86-video-fbdev
 xf86-video-vesa
 xinit
 xorg-server
 xrandr
 xterm
+EOF
+
+# Force Xorg to use the PS/2 evdev device created by the kernel's i8042 driver.
+# libinput (the previous default) walks udev for input devices and silently
+# ignores PS/2 because v86's emulated keyboard/mouse only appear as /dev/input/event*
+# via evdev. Listing evdev first in 99-evdev.conf guarantees Xorg loads it before
+# libinput, which is what unblocks the keyboard and mouse inside the desktop.
+make_file root:root 0644 etc/X11/xorg.conf.d/99-evdev.conf <<'EOF'
+Section "ServerFlags"
+    Option "AutoAddGPU" "false"
+EndSection
+
+Section "InputClass"
+    Identifier "evdev catchall"
+    MatchIsTouchscreen "off"
+    MatchIsPointer "on"
+    MatchIsKeyboard "on"
+    Driver "evdev"
+    Option "AutoServerDevices" "true"
+EndSection
+EOF
+
+make_file root:root 0644 etc/X11/xorg.conf.d/10-vesa.conf <<'EOF'
+Section "Device"
+    Identifier "Bochs VBE"
+    Driver "vesa"
+EndSection
 EOF
 
 make_file root:root 0644 etc/passwd <<'EOF'

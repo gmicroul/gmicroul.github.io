@@ -20,8 +20,15 @@ const ui = {
   runIcon: document.getElementById("run-icon"),
   restart: document.getElementById("restart"),
   screenshot: document.getElementById("screenshot"),
+  copyScreen: document.getElementById("copy-screen"),
+  pasteText: document.getElementById("paste-text"),
   fullscreen: document.getElementById("fullscreen"),
   retry: document.getElementById("retry"),
+  pasteModal: document.getElementById("paste-modal"),
+  pasteInput: document.getElementById("paste-modal-input"),
+  pasteStatus: document.getElementById("paste-modal-status"),
+  pasteSubmit: document.getElementById("paste-modal-submit"),
+  pasteCancel: document.getElementById("paste-modal-cancel"),
 };
 
 let emulator = null;
@@ -87,6 +94,8 @@ function setControlsEnabled(enabled) {
   ui.runToggle.disabled = !enabled;
   ui.restart.disabled = !enabled;
   ui.screenshot.disabled = !enabled;
+  ui.copyScreen.disabled = !enabled;
+  ui.pasteText.disabled = !enabled;
   ui.fullscreen.disabled = !enabled;
 }
 
@@ -99,10 +108,145 @@ function setRunning(running) {
 }
 
 function enableInput(instance = emulator) {
-  ui.screen.focus({ preventScroll: true });
   if (!instance) return;
+  ui.screen.focus({ preventScroll: true });
   instance.keyboard_set_status(true);
   instance.mouse_set_status(true);
+}
+
+function attachInputGuards(instance) {
+  // Re-arm the mouse adapter whenever the guest re-enables the PS/2 aux port
+  // (e.g. kernel finishes probing i8042, or Xorg reattaches the input driver).
+  // Without this, events captured on `window` are silently dropped by the
+  // adapter's "enabled" gate until the page is reloaded.
+  instance.add_listener("mouse-enable", enabled => {
+    if (enabled) instance.mouse_set_status(true);
+  });
+
+  // The PS/2 aux port is enabled later than `emulator-started`: the BIOS POST
+  // finishes, the kernel boots, then udev/evdev attaches the mouse. Re-focus
+  // the screen and re-assert input status a few times so the click that wakes
+  // up the desktop also reaches the guest, not just the page.
+  for (const delay of [250, 1500, 5000, 15000]) {
+    window.setTimeout(() => {
+      if (emulator === instance) enableInput(instance);
+    }, delay);
+  }
+}
+
+// --- Clipboard: paste (host -> guest) --------------------------------------
+
+const PASTE_DEFAULT_DELAY = 4; // ms between keystrokes; small enough to feel
+                                // instant, large enough that busy xterms can
+                                // keep up with the PS/2 keyboard buffer.
+
+function openPasteModal() {
+  if (!emulator) return;
+  ui.pasteStatus.className = "paste-modal-status";
+  ui.pasteStatus.textContent = "";
+  ui.pasteInput.value = "";
+  ui.pasteSubmit.disabled = false;
+  ui.pasteSubmit.textContent = "粘贴";
+  ui.pasteModal.hidden = false;
+  // Defer focus so the modal's CSS transition (if any) finishes first and the
+  // v86 keyboard adapter doesn't briefly see the textarea as a stray target.
+  window.setTimeout(() => ui.pasteInput.focus(), 0);
+}
+
+function closePasteModal() {
+  ui.pasteModal.hidden = true;
+  ui.pasteInput.blur();
+  // Return focus to the screen so subsequent keyboard events reach v86.
+  if (emulator) ui.screen.focus({ preventScroll: true });
+}
+
+function setPasteStatus(kind, text) {
+  ui.pasteStatus.className = `paste-modal-status${kind ? ` is-${kind}` : ""}`;
+  ui.pasteStatus.textContent = text;
+}
+
+async function submitPaste() {
+  if (!emulator) {
+    setPasteStatus("error", "虚拟机尚未启动");
+    return;
+  }
+  const text = ui.pasteInput.value;
+  if (!text) {
+    setPasteStatus("error", "没有可粘贴的文本");
+    return;
+  }
+
+  if (typeof emulator.keyboard_send_text !== "function") {
+    setPasteStatus("error", "当前 v86 版本不支持文本粘贴");
+    return;
+  }
+
+  // Close the modal first so the textarea blur doesn't capture subsequent
+  // keyboard events before they reach the guest.
+  ui.pasteSubmit.disabled = true;
+  setPasteStatus("", `正在输入 ${text.length} 个字符...`);
+  closePasteModal();
+
+  try {
+    await emulator.keyboard_send_text(text, PASTE_DEFAULT_DELAY);
+    flashButton(ui.pasteText, "已粘贴");
+  } catch (error) {
+    console.error(error);
+    setPasteStatus("error", `粘贴失败: ${error.message || error}`);
+    ui.pasteSubmit.disabled = false;
+    ui.pasteModal.hidden = false;
+  }
+}
+
+// --- Clipboard: copy (guest -> host) ---------------------------------------
+
+async function copyScreenToClipboard() {
+  if (!emulator || typeof emulator.screen_make_screenshot !== "function") return;
+
+  const image = emulator.screen_make_screenshot();
+  await new Promise(resolve => image.addEventListener("load", resolve, { once: true }));
+
+  // Clipboard API image-write is only available in Chromium-based browsers
+  // (Firefox doesn't yet expose `ClipboardItem` for image/png). Fall back to
+  // a download when the API isn't available or the write is rejected.
+  const canWriteImage = typeof window.ClipboardItem === "function"
+    && !!navigator.clipboard?.write;
+
+  if (!canWriteImage) {
+    downloadScreenshot(image.src);
+    flashButton(ui.copyScreen, "已保存为图片");
+    return;
+  }
+
+  try {
+    const blob = await fetch(image.src).then(r => r.blob());
+    await navigator.clipboard.write([
+      new ClipboardItem({ "image/png": blob }),
+    ]);
+    flashButton(ui.copyScreen, "已复制到剪贴板");
+  } catch (error) {
+    console.warn("Clipboard image write failed, falling back to download", error);
+    downloadScreenshot(image.src);
+    flashButton(ui.copyScreen, "剪贴板不可用，已保存");
+  }
+}
+
+function downloadScreenshot(dataUrl) {
+  const link = document.createElement("a");
+  link.download = `alpine-v86-${new Date().toISOString().replace(/[:.]/g, "-")}.png`;
+  link.href = dataUrl;
+  link.click();
+}
+
+function flashButton(button, label) {
+  if (!button) return;
+  const previousTitle = button.title;
+  button.classList.add("is-success");
+  button.title = label;
+  window.setTimeout(() => {
+    button.classList.remove("is-success");
+    button.title = previousTitle;
+  }, 1500);
 }
 
 function showError(message) {
@@ -197,6 +341,7 @@ function initialize() {
     });
     instance.add_listener("emulator-started", () => {
       if (emulator !== instance) return;
+      attachInputGuards(instance);
       enableInput(instance);
       setRunning(true);
       window.setTimeout(() => ui.loading.classList.add("is-hidden"), 350);
@@ -265,5 +410,35 @@ ui.retry.addEventListener("click", async () => {
 });
 
 ui.screen.addEventListener("pointerdown", () => enableInput());
+
+// Clipboard wiring
+ui.copyScreen.addEventListener("click", () => {
+  if (!emulator) return;
+  void copyScreenToClipboard();
+});
+
+ui.pasteText.addEventListener("click", () => {
+  if (!emulator) return;
+  openPasteModal();
+});
+
+ui.pasteCancel.addEventListener("click", () => closePasteModal());
+ui.pasteSubmit.addEventListener("click", () => {
+  void submitPaste();
+});
+
+ui.pasteInput.addEventListener("keydown", event => {
+  if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+    event.preventDefault();
+    void submitPaste();
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    closePasteModal();
+  }
+});
+
+ui.pasteModal.addEventListener("click", event => {
+  if (event.target === ui.pasteModal) closePasteModal();
+});
 
 initialize();
