@@ -293,7 +293,7 @@ services:
       - "4200:4200"
     volumes:
       - "${UBUNTU_STORAGE_PATH}:/workspace"
-      - "/workspaces/gmicroul.github.io/output:/workspaces"
+      - "/workspaces/gmicroul.github.io/alpine-web:/workspaces"
     restart: unless-stopped
 EOF
 
