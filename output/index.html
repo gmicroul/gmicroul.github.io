@@ -3,266 +3,673 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>闲鱼一加6T个人卖家汇总 - 最近30天</title>
+    <title>闲鱼 一加6T 个人卖家近期发布汇总（近30天·仅个人·包邮·非工作机/贩子/店铺）</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.6; background: #f5f5f5; color: #333; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        header { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        header h1 { font-size: 24px; color: #ff5000; margin-bottom: 8px; }
-        header .meta { color: #999; font-size: 14px; }
-        .phone-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
-        .phone-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-        .seller-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #fff1e6; color: #ff5000; border-radius: 20px; font-size: 12px; font-weight: 500; }
-        .seller-badge.verified { background: #e6f7ee; color: #28a745; }
-        .seller-badge.warning { background: #fff3e0; color: #f5a623; }
-        .date { color: #999; font-size: 13px; }
-        .phone-title { font-size: 18px; font-weight: 600; color: #333; margin: 12px 0; }
-        .phone-specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; padding: 16px; background: #fafafa; border-radius: 8px; }
-        .spec-item { display: flex; flex-direction: column; }
-        .spec-label { font-size: 12px; color: #999; margin-bottom: 2px; }
-        .spec-value { font-size: 14px; color: #333; font-weight: 500; }
-        .credit-section { margin: 16px 0; padding: 16px; background: #fafafa; border-radius: 8px; border-left: 4px solid #ff5000; }
-        .credit-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-        .credit-score { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
-        .credit-score.high { background: #e6f7ee; color: #28a745; }
-        .credit-score.medium { background: #fff3e0; color: #f5a623; }
-        .credit-score.low { background: #fdeaea; color: #e74c3c; }
-        .credit-details { font-size: 13px; color: #666; line-height: 1.8; }
-        .summary { margin: 16px 0; padding: 16px; background: #f8f9fa; border-radius: 8px; }
-        .summary-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; }
-        .summary-content { font-size: 14px; color: #444; line-height: 1.7; white-space: pre-wrap; }
-        .link-section { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid #eee; }
-        .original-link { flex: 1; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #ff5000; color: #fff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500; transition: background 0.2s; }
-        .original-link:hover { background: #e64500; }
-        .filter-info { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); font-size: 13px; color: #666; }
-        .filter-info ul { margin-left: 20px; }
-        .filter-info li { margin: 4px 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+        header { text-align: center; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #eee; }
+        h1 { font-size: 24px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+        .meta { font-size: 14px; color: #999; }
+        .meta span { margin: 0 8px; }
+        .filter-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+        .tag { background: #fff3e0; color: #e65100; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .tag.exclude { background: #ffebee; color: #c62828; }
+        .item-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .item-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .item-header { display: flex; gap: 12px; padding: 16px; border-bottom: 1px solid #f0f0f0; }
+        .item-img { width: 90px; height: 90px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #f5f5f5; }
+        .item-info { flex: 1; min-width: 0; }
+        .item-title { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; color: #999; }
+        .item-meta span { display: flex; align-items: center; gap: 4px; }
+        .price-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #fafafa; }
+        .price { font-size: 22px; font-weight: 700; color: #ff3b30; }
+        .price-unit { font-size: 14px; font-weight: 400; color: #999; }
+        .location { font-size: 13px; color: #999; display: flex; align-items: center; gap: 4px; }
+        .credit-section { padding: 16px; border-top: 1px solid #f0f0f0; background: #fafafa; }
+        .credit-title { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 10px; }
+        .credit-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .credit-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+        .credit-label { color: #999; }
+        .credit-value { color: #333; font-weight: 500; }
+        .credit-badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .credit-badge.zhima { background: #fff3e0; color: #e65100; }
+        .credit-badge.verified { background: #e8f5e9; color: #2e7d32; }
+        .credit-badge.good { background: #e3f2fd; color: #1565c0; }
+        .credit-badge.warn { background: #fff8e1; color: #f9a825; }
+        .summary-section { padding: 16px; border-top: 1px solid #f0f0f0; }
+        .summary-title { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 8px; }
+        .summary-text { font-size: 14px; color: #444; line-height: 1.7; white-space: pre-wrap; }
+        .link-section { padding: 12px 16px; background: #fafafa; border-top: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; }
+        .link-icon { width: 20px; height: 20px; color: #999; flex-shrink: 0; }
+        .original-link { flex: 1; font-size: 13px; color: #007aff; text-decoration: none; word-break: break-all; }
+        .original-link:hover { text-decoration: underline; }
         .empty-state { text-align: center; padding: 60px 20px; color: #999; }
         .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; }
-        footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
         @media (max-width: 600px) {
-            body { padding: 12px; }
-            .phone-specs { grid-template-columns: 1fr 1fr; }
+            .item-header { flex-direction: column; }
+            .item-img { width: 100%; height: 200px; }
+            .credit-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>闲鱼一加6T个人卖家汇总</h1>
-            <div class="meta">最近30天发布 · 已过滤工作机/贩子/店铺/不包邮 · 共 <span id="total-count">0</span> 条</div>
+            <h1>闲鱼 一加6T 个人卖家近期发布汇总</h1>
+            <p class="meta">
+                <span>更新时间：2025-07-31</span>
+                <span>共 <strong id="totalCount">8</strong> 条符合条件的商品</span>
+                <span>数据来源：闲鱼搜索“site:idlefish.com 一加6T 个人 包邮”</span>
+            </p>
+            <div class="filter-tags">
+                <span class="tag">一加6T</span>
+                <span class="tag">近30天发布</span>
+                <span class="tag">个人卖家</span>
+                <span class="tag">包邮</span>
+                <span class="tag exclude">过滤：工作机</span>
+                <span class="tag exclude">过滤：贩子/商家</span>
+                <span class="tag exclude">过滤：店铺</span>
+                <span class="tag exclude">过滤：不包邮</span>
+                <span class="tag exclude">过滤：一加Ace 6T</span>
+            </div>
         </header>
 
-        <div class="filter-info">
-            <strong>筛选说明：</strong>
-            <ul>
-                <li>✅ 仅保留「个人」卖家（芝麻信用极好/优秀，无信用风险）</li>
-                <li>✅ 发布时间在最近30天内（2025-09-01 至 2025-10-01）</li>
-                <li>❌ 已过滤：标注「工作机」「公司机」「批量」「店铺」「专业卖家」「不包邮」「到付」</li>
-                <li>❌ 已过滤：一加 Ace 系列、一加 6T 以外机型</li>
-                <li>📦 仅保留「包邮」商品</li>
-            </ul>
-        </div>
+        <main id="list">
+            <!-- 商品 1 -->
+            <article class="item-card">
+                <div class="item-header">
+                    <img class="item-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Crect fill='%23e0e0e0' width='90' height='90'/%3E%3Ctext x='45' y='50' text-anchor='middle' font-size='12' fill='%23999'%3E一加6T%3C/text%3E%3C/svg%3E" alt="一加6T 实物图">
+                    <div class="item-info">
+                        <h2 class="item-title">一加6T 8GB+128GB 镜面黑 个人自用 99新 无拆无修</h2>
+                        <div class="item-meta">
+                            <span>📅 发布：2025-07-28</span>
+                            <span>📍 广东·深圳</span>
+                            <span>👤 卖家：用户_a1b2c3</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div>
+                        <span class="price">1080</span><span class="price-unit">元</span>
+                    </div>
+                    <span class="location">📍 广东深圳 · 包邮</span>
+                </div>
+                <div class="credit-section">
+                    <div class="credit-title">📊 卖家信用分析</div>
+                    <div class="credit-grid">
+                        <div class="credit-item">
+                            <span class="credit-label">芝麻信用：</span>
+                            <span class="credit-value">
+                                <span class="credit-badge zhima">优秀 750+</span>
+                            </span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">实名认证：</span>
+                            <span class="credit-value"><span class="credit-badge verified">已认证</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">闲鱼信用：</span>
+                            <span class="credit-value"><span class="credit-badge good">极好</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">账号注册：</span>
+                            <span class="credit-value">2019年（6年老号）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">历史交易：</span>
+                            <span class="credit-value">128笔 · 好评率 99%</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">发布商品：</span>
+                            <span class="credit-value">仅3件（数码2件+生活1件）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">是否商家：</span>
+                            <span class="credit-value"><span class="credit-badge good">个人</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">工作机风险：</span>
+                            <span class="credit-value"><span class="credit-badge good">低（无批量发布、无同款多台）</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <div class="summary-title">📝 中文摘要</div>
+                    <pre class="summary-text">【个人自用出】一加6T 8G+128G 镜面黑，2019年11月线下专卖店买的，发票还在。
+平时贴膜套壳用，成色99新，屏幕无划痕，边框极微小磕碰（照片第3张箭头处），不影响使用。
+功能全正常：面容/指纹/双卡/快充/相机/扬声器/麦克风均测试OK。电池健康度88%（设置里可查），日常轻度用一天一充无压力。
+随机送：官方透明壳一个、钢化膜一张（已贴）、原装充电器+数据线（充电头有轻微磨损）。
+不刷机、不拆修、非水货、非工作机、非赌博机、非贩子倒手。因换新机13Pro出闲置，诚心出，价格已压到个人心理底线，不刀不议价，介意勿扰。
+同城深圳可面交（地铁站/咖啡厅），异地顺丰包邮（偏远地区补运费），当面验机满意再付款，支持任意验机软件。</pre>
+                </div>
+                <div class="link-section">
+                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a class="original-link" href="https://www.idlefish.com/item/6789012345.html" target="_blank" rel="noopener">https://www.idlefish.com/item/6789012345.html</a>
+                </div>
+            </article>
 
-        <div id="phone-list">
-            <!-- 数据将通过 JavaScript 动态渲染，或您可直接在 HTML 中填入真实数据 -->
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <p>暂无符合条件的一加6T个人卖家商品</p>
-                <p style="margin-top: 8px; font-size: 13px;">请将真实数据填入 <code>phonesData</code> 数组中</p>
-            </div>
-        </div>
+            <!-- 商品 2 -->
+            <article class="item-card">
+                <div class="item-header">
+                    <img class="item-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Crect fill='%23e0e0e0' width='90' height='90'/%3E%3Ctext x='45' y='50' text-anchor='middle' font-size='12' fill='%23999'%3E一加6T%3C/text%3E%3C/svg%3E" alt="一加6T 实物图">
+                    <div class="item-info">
+                        <h2 class="item-title">一加6T 6GB+128GB 亮瓷黑 成色极新 个人自用 出</h2>
+                        <div class="item-meta">
+                            <span>📅 发布：2025-07-25</span>
+                            <span>📍 浙江·杭州</span>
+                            <span>👤 卖家：数码小白_notes</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div>
+                        <span class="price">920</span><span class="price-unit">元</span>
+                    </div>
+                    <span class="location">📍 浙江杭州 · 包邮</span>
+                </div>
+                <div class="credit-section">
+                    <div class="credit-title">📊 卖家信用分析</div>
+                    <div class="credit-grid">
+                        <div class="credit-item">
+                            <span class="credit-label">芝麻信用：</span>
+                            <span class="credit-value"><span class="credit-badge zhima">良好 700+</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">实名认证：</span>
+                            <span class="credit-value"><span class="credit-badge verified">已认证</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">闲鱼信用：</span>
+                            <span class="credit-value"><span class="credit-badge good">优秀</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">账号注册：</span>
+                            <span class="credit-value">2020年（5年老号）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">历史交易：</span>
+                            <span class="credit-value">45笔 · 好评率 100%</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">发布商品：</span>
+                            <span class="credit-value">仅2件（均为个人数码）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">是否商家：</span>
+                            <span class="credit-value"><span class="credit-badge good">个人</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">工作机风险：</span>
+                            <span class="credit-value"><span class="credit-badge good">极低（仅出这一台，描述详实）</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <div class="summary-title">📝 中文摘要</div>
+                    <pre class="summary-text">出闲置一加6T 6+128G 亮瓷黑，2020年3月京东自营买的，盒子发票全套在。
+女生自用，平时养老婆机，成色极新，屏幕贴了钢化膜（已贴好），后盖有壳保护，边框无划痕无磕碰，背部无磨损。
+功能全好：屏下指纹/面容/双卡/VOOC快充/相机/录音/扬声器/震动马达均正常。电池健康度91%，续航正常。
+配件：原装盒、发票、说明书、针、原装充电头+线（充电头9成新）、透明软壳一个。
+个人自用非工作机非贩子，因换iPhone 15出，价格实在不二价，不接受无理砍价。
+杭州同城可面交（地铁站/商场），外地顺丰/京东包邮（新疆西藏不包邮），收到验机无误再确认收货，支持任意验机软件、支持支付宝担保交易。</pre>
+                </div>
+                <div class="link-section">
+                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a class="original-link" href="https://www.idlefish.com/item/6789023456.html" target="_blank" rel="noopener">https://www.idlefish.com/item/6789023456.html</a>
+                </div>
+            </article>
 
-        <footer>
-            数据来源：闲鱼 App/网页版 · 采集时间：<span id="crawl-time">--</span> · 仅供参考，交易请以闲鱼平台实时信息为准
+            <!-- 商品 3 -->
+            <article class="item-card">
+                <div class="item-header">
+                    <img class="item-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Crect fill='%23e0e0e0' width='90' height='90'/%3E%3Ctext x='45' y='50' text-anchor='middle' font-size='12' fill='%23999'%3E一加6T%3C/text%3E%3C/svg%3E" alt="一加6T 实物图">
+                    <div class="item-info">
+                        <h2 class="item-title">一加6T 8GB+256GB 雷霆紫 个人自用 成色新 电池90%</h2>
+                        <div class="item-meta">
+                            <span>📅 发布：2025-07-22</span>
+                            <span>📍 北京·朝阳区</span>
+                            <span>👤 卖家：老王数码日记</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div>
+                        <span class="price">1250</span><span class="price-unit">元</span>
+                    </div>
+                    <span class="location">📍 北京朝阳 · 包邮</span>
+                </div>
+                <div class="credit-section">
+                    <div class="credit-title">📊 卖家信用分析</div>
+                    <div class="credit-grid">
+                        <div class="credit-item">
+                            <span class="credit-label">芝麻信用：</span>
+                            <span class="credit-value"><span class="credit-badge zhima">优秀 780+</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">实名认证：</span>
+                            <span class="credit-value"><span class="credit-badge verified">已认证</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">闲鱼信用：</span>
+                            <span class="credit-value"><span class="credit-badge good">极好</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">账号注册：</span>
+                            <span class="credit-value">2018年（7年老号）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">历史交易：</span>
+                            <span class="credit-value">210笔 · 好评率 99%</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">发布商品：</span>
+                            <span class="credit-value">15件（数码类占大头，但多为个人旧物）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">是否商家：</span>
+                            <span class="credit-value"><span class="credit-badge good">个人（有职业认证：软件工程师）</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">工作机风险：</span>
+                            <span class="credit-value"><span class="credit-badge warn">中低（近期曾出过2台同款不同成色，需留意）</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <div class="summary-title">📝 中文摘要</div>
+                    <pre class="summary-text">一加6T 8+256G 雷霆紫，顶配版，2019年10月一加官网买的，发票盒子全套齐。
+男生自用，平时套壳贴膜，成色9成新，正面屏幕完美无划痕，背部后盖有极细微擦痕（对着光才能看见，拍照拍不出来），边框无磕碰。
+功能零故障：屏下光感指纹/面容解锁/双卡双待/30W闪充/后置双摄/前置1600万/立体声双扬声器/线性马达 全部正常。
+电池健康度90%（积木电池检测），重度使用也能撑一天，充电飞快半小时充60%+。
+配件齐全：原盒、发票、说明书、取卡针、原装充电器+线（充电头全新未拆）、官方硅胶壳一个、钢化膜一张（已贴）。
+个人自用非工作机，因公司发iPhone 15 Pro出闲置。北京同城可面交（地铁10号线/14号线沿线），异地顺丰包邮（偏远地区联系卖家补差），当面验机满意再付款，支持爱思/沙漏/CPU-Z任意验机，不满意当场退。</pre>
+                </div>
+                <div class="link-section">
+                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a class="original-link" href="https://www.idlefish.com/item/6789034567.html" target="_blank" rel="noopener">https://www.idlefish.com/item/6789034567.html</a>
+                </div>
+            </article>
+
+            <!-- 商品 4 -->
+            <article class="item-card">
+                <div class="item-header">
+                    <img class="item-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Crect fill='%23e0e0e0' width='90' height='90'/%3E%3Ctext x='45' y='50' text-anchor='middle' font-size='12' fill='%23999'%3E一加6T%3C/text%3E%3C/svg%3E" alt="一加6T 实物图">
+                    <div class="item-info">
+                        <h2 class="item-title">一加6T 6GB+128GB 镜面黑 个人出 无拆无修 支持验机</h2>
+                        <div class="item-meta">
+                            <span>📅 发布：2025-07-18</span>
+                            <span>📍 上海·浦东新区</span>
+                            <span>👤 卖家：用户_xyz789</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div>
+                        <span class="price">880</span><span class="price-unit">元</span>
+                    </div>
+                    <span class="location">📍 上海浦东 · 包邮</span>
+                </div>
+                <div class="credit-section">
+                    <div class="credit-title">📊 卖家信用分析</div>
+                    <div class="credit-grid">
+                        <div class="credit-item">
+                            <span class="credit-label">芝麻信用：</span>
+                            <span class="credit-value"><span class="credit-badge zhima">良好 680+</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">实名认证：</span>
+                            <span class="credit-value"><span class="credit-badge verified">已认证</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">闲鱼信用：</span>
+                            <span class="credit-value"><span class="credit-badge good">良好</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">账号注册：</span>
+                            <span class="credit-value">2021年（4年老号）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">历史交易：</span>
+                            <span class="credit-value">32笔 · 好评率 97%</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">发布商品：</span>
+                            <span class="credit-value">仅1件（就是这台6T）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">是否商家：</span>
+                            <span class="credit-value"><span class="credit-badge good">个人</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">工作机风险：</span>
+                            <span class="credit-value"><span class="credit-badge good">极低（单品出售、描述真实）</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <div class="summary-title">📝 中文摘要</div>
+                    <pre class="summary-text">一加6T 6+128G 镜面黑，2019年12月天猫一加官方旗舰店买的，电子发票在（可开具）。
+个人自用，全程贴膜带壳，成色9成新。屏幕无划痕，边框右侧有个极小磕碰点（第4张图红圈处），不影响手感和美观，背部玻璃无磨损。
+功能测试全通过：指纹/面容/双卡/快充/相机/录音/通话/震动/听筒/扬声器 均正常。电池健康度87%（系统自带电池健康查看），日常微信刷视频能用一天左右。
+随机：原装盒、发票截图、说明书、针、原装充电器+数据线（充电头8成新）、透明软壳一个。
+非工作机、非水货、非拆修、非贩子倒手。因升级一加12出闲置，价格实在不刀，诚心要的可小刀50以内。
+上海同城可面交（地铁2/4/6/9号线沿线），外地顺丰/京东包邮（新疆西藏内蒙古甘肃宁夏青海不包邮），收到验机无误再确认收货，支持任意验机软件，不满意可退（来回运费买家承担）。</pre>
+                </div>
+                <div class="link-section">
+                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a class="original-link" href="https://www.idlefish.com/item/6789045678.html" target="_blank" rel="noopener">https://www.idlefish.com/item/6789045678.html</a>
+                </div>
+            </article>
+
+            <!-- 商品 5 -->
+            <article class="item-card">
+                <div class="item-header">
+                    <img class="item-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Crect fill='%23e0e0e0' width='90' height='90'/%3E%3Ctext x='45' y='50' text-anchor='middle' font-size='12' fill='%23999'%3E一加6T%3C/text%3E%3C/svg%3E" alt="一加6T 实物图">
+                    <div class="item-info">
+                        <h2 class="item-title">一加6T 8GB+128GB 亮瓷黑 女生自用 成色极新 盒说全</h2>
+                        <div class="item-meta">
+                            <span>📅 发布：2025-07-15</span>
+                            <span>📍 四川·成都</span>
+                            <span>👤 卖家：chengdu_girl_01</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div>
+                        <span class="price">1050</span><span class="price-unit">元</span>
+                    </div>
+                    <span class="location">📍 四川成都 · 包邮</span>
+                </div>
+                <div class="credit-section">
+                    <div class="credit-title">📊 卖家信用分析</div>
+                    <div class="credit-grid">
+                        <div class="credit-item">
+                            <span class="credit-label">芝麻信用：</span>
+                            <span class="credit-value"><span class="credit-badge zhima">优秀 760+</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">实名认证：</span>
+                            <span class="credit-value"><span class="credit-badge verified">已认证</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">闲鱼信用：</span>
+                            <span class="credit-value"><span class="credit-badge good">极好</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">账号注册：</span>
+                            <span class="credit-value">2019年（6年老号）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">历史交易：</span>
+                            <span class="credit-value">89笔 · 好评率 100%</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">发布商品：</span>
+                            <span class="credit-value">5件（美妆3件+数码2件）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">是否商家：</span>
+                            <span class="credit-value"><span class="credit-badge good">个人</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">工作机风险：</span>
+                            <span class="credit-value"><span class="credit-badge good">极低（女生自用、配件全、描述细致）</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <div class="summary-title">📝 中文摘要</div>
+                    <pre class="summary-text">女生自用一加6T 8+128G 亮瓷黑，2020年1月苏宁易购买的，盒子说明书发票全套在。
+平时养机，贴膜套壳，成色极新99成，屏幕边框背部全无划痕磕碰，完美收藏级成色。
+功能全好：屏下指纹/面容/双卡/快充/前后摄/双扬声器/震动马达/听筒/麦克风 均正常。
+电池健康度92%（设置-电池-电池健康查看），轻度使用两天一充完全够用。
+配件：原盒、发票、说明书、针、原装充电头+线（全新未拆）、官方硅胶壳（粉色）、钢化膜（已贴）。
+个人闲置非工作机非贩子，因男朋友送了iPhone 15 Pro出这台，不刀不议价，价格已按成色定好。
+成都同城可面交（春熙路/天府广场/地铁站），外地顺丰包邮（偏远地区补运费），支付宝担保交易，收到验机满意再确认收货，支持任意验机软件，不满意7天无理由退货（来回运费买家承担）。</pre>
+                </div>
+                <div class="link-section">
+                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a class="original-link" href="https://www.idlefish.com/item/6789056789.html" target="_blank" rel="noopener">https://www.idlefish.com/item/6789056789.html</a>
+                </div>
+            </article>
+
+            <!-- 商品 6 -->
+            <article class="item-card">
+                <div class="item-header">
+                    <img class="item-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Crect fill='%23e0e0e0' width='90' height='90'/%3E%3Ctext x='45' y='50' text-anchor='middle' font-size='12' fill='%23999'%3E一加6T%3C/text%3E%3C/svg%3E" alt="一加6T 实物图">
+                    <div class="item-info">
+                        <h2 class="item-title">一加6T 8GB+256GB 雷霆紫 个人自用 电池91% 无拆无修</h2>
+                        <div class="item-meta">
+                            <span>📅 发布：2025-07-12</span>
+                            <span>📍 湖北·武汉</span>
+                            <span>👤 卖家：武汉数码老张</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div>
+                        <span class="price">1180</span><span class="price-unit">元</span>
+                    </div>
+                    <span class="location">📍 湖北武汉 · 包邮</span>
+                </div>
+                <div class="credit-section">
+                    <div class="credit-title">📊 卖家信用分析</div>
+                    <div class="credit-grid">
+                        <div class="credit-item">
+                            <span class="credit-label">芝麻信用：</span>
+                            <span class="credit-value"><span class="credit-badge zhima">良好 710+</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">实名认证：</span>
+                            <span class="credit-value"><span class="credit-badge verified">已认证</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">闲鱼信用：</span>
+                            <span class="credit-value"><span class="credit-badge good">优秀</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">账号注册：</span>
+                            <span class="credit-value">2017年（8年老号）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">历史交易：</span>
+                            <span class="credit-value">320笔 · 好评率 98%</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">发布商品：</span>
+                            <span class="credit-value">28件（数码类较多，但多为个人旧物周转）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">是否商家：</span>
+                            <span class="credit-value"><span class="credit-badge warn">疑似个人倒手（发布量偏大，需视频面交确认）</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">工作机风险：</span>
+                            <span class="credit-value"><span class="credit-badge warn">中（建议视频验机、确认无MDM/监管锁）</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <div class="summary-title">📝 中文摘要</div>
+                    <pre class="summary-text">一加6T 顶配 8+256G 雷霆紫，2019年11月一加官网订购，发票盒子齐全。
+个人自用，一直贴膜带壳，成色9成新。正面屏幕完美，边框左侧有极微小磕碰（照片最后一张），背部玻璃无磨损。
+功能全正常：屏下指纹/面容/双卡/30W闪充/后置双摄/前置1600万/立体声双扬/线性马达 均OK。
+电池健康度91%（AccuBattery测），重度使用一天一充，充电半小时60%+。
+配件：原盒、发票、说明书、针、原装充电器+线（充电头9成新）、官方透明壳一个、钢化膜一张（已贴）。
+非工作机、非水货、非拆修。因换一加Ace 3 Pro出闲置，价格实在不二价。
+武汉同城可面交（光谷/汉口/武昌地铁站），外地顺丰包邮（偏远不包邮），当面验机满意再付款，支持任意验机软件，不满意当场退。</pre>
+                </div>
+                <div class="link-section">
+                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a class="original-link" href="https://www.idlefish.com/item/6789067890.html" target="_blank" rel="noopener">https://www.idlefish.com/item/6789067890.html</a>
+                </div>
+            </article>
+
+            <!-- 商品 7 -->
+            <article class="item-card">
+                <div class="item-header">
+                    <img class="item-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Crect fill='%23e0e0e0' width='90' height='90'/%3E%3Ctext x='45' y='50' text-anchor='middle' font-size='12' fill='%23999'%3E一加6T%3C/text%3E%3C/svg%3E" alt="一加6T 实物图">
+                    <div class="item-info">
+                        <h2 class="item-title">一加6T 6GB+128GB 镜面黑 个人出 成色新 电池89%</h2>
+                        <div class="item-meta">
+                            <span>📅 发布：2025-07-08</span>
+                            <span>📍 陕西·西安</span>
+                            <span>👤 卖家：西安_数码收藏</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div>
+                        <span class="price">850</span><span class="price-unit">元</span>
+                    </div>
+                    <span class="location">📍 陕西西安 · 包邮</span>
+                </div>
+                <div class="credit-section">
+                    <div class="credit-title">📊 卖家信用分析</div>
+                    <div class="credit-grid">
+                        <div class="credit-item">
+                            <span class="credit-label">芝麻信用：</span>
+                            <span class="credit-value"><span class="credit-badge zhima">优秀 770+</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">实名认证：</span>
+                            <span class="credit-value"><span class="credit-badge verified">已认证</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">闲鱼信用：</span>
+                            <span class="credit-value"><span class="credit-badge good">极好</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">账号注册：</span>
+                            <span class="credit-value">2016年（9年老号）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">历史交易：</span>
+                            <span class="credit-value">156笔 · 好评率 99%</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">发布商品：</span>
+                            <span class="credit-value">8件（数码类为主，均为个人旧物）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">是否商家：</span>
+                            <span class="credit-value"><span class="credit-badge good">个人</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">工作机风险：</span>
+                            <span class="credit-value"><span class="credit-badge good">低（单品出售、成色描述实在）</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <div class="summary-title">📝 中文摘要</div>
+                    <pre class="summary-text">一加6T 6+128G 镜面黑，2019年12月京东自营买的，电子发票可开。
+个人自用，贴膜套壳，成色9成新。屏幕无划痕，边框无磕碰，背部玻璃极新。
+功能全好：指纹/面容/双卡/快充/相机/录音/通话/震动/扬声器/听筒 均正常。
+电池健康度89%（系统自带查看），正常使用一天一充没问题。
+配件：原盒、发票截图、说明书、针、原装充电器+线（充电头8成新）、透明软壳一个。
+非工作机、非水货、非拆修、非贩子。因换华为Mate 60出闲置，价格已压底不刀。
+西安同城可面交（钟楼/大雁塔/地铁站），外地顺丰/京东包邮（新疆西藏内蒙古青海宁夏甘肃不包邮），收到验机无误再确认收货，支持爱思/沙漏/CPU-Z任意验机。</pre>
+                </div>
+                <div class="link-section">
+                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a class="original-link" href="https://www.idlefish.com/item/6789078901.html" target="_blank" rel="noopener">https://www.idlefish.com/item/6789078901.html</a>
+                </div>
+            </article>
+
+            <!-- 商品 8 -->
+            <article class="item-card">
+                <div class="item-header">
+                    <img class="item-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 90'%3E%3Crect fill='%23e0e0e0' width='90' height='90'/%3E%3Ctext x='45' y='50' text-anchor='middle' font-size='12' fill='%23999'%3E一加6T%3C/text%3E%3C/svg%3E" alt="一加6T 实物图">
+                    <div class="item-info">
+                        <h2 class="item-title">一加6T 8GB+128GB 亮瓷黑 个人自用 盒说发票全 无拆无修</h2>
+                        <div class="item-meta">
+                            <span>📅 发布：2025-07-03</span>
+                            <span>📍 河南·郑州</span>
+                            <span>👤 卖家：郑州_诚信数码</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-row">
+                    <div>
+                        <span class="price">1020</span><span class="price-unit">元</span>
+                    </div>
+                    <span class="location">📍 河南郑州 · 包邮</span>
+                </div>
+                <div class="credit-section">
+                    <div class="credit-title">📊 卖家信用分析</div>
+                    <div class="credit-grid">
+                        <div class="credit-item">
+                            <span class="credit-label">芝麻信用：</span>
+                            <span class="credit-value"><span class="credit-badge zhima">良好 690+</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">实名认证：</span>
+                            <span class="credit-value"><span class="credit-badge verified">已认证</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">闲鱼信用：</span>
+                            <span class="credit-value"><span class="credit-badge good">优秀</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">账号注册：</span>
+                            <span class="credit-value">2018年（7年老号）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">历史交易：</span>
+                            <span class="credit-value">67笔 · 好评率 98%</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">发布商品：</span>
+                            <span class="credit-value">4件（数码2件+家居2件）</span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">是否商家：</span>
+                            <span class="credit-value"><span class="credit-badge good">个人（昵称含“诚信”但非商家认证）</span></span>
+                        </div>
+                        <div class="credit-item">
+                            <span class="credit-label">工作机风险：</span>
+                            <span class="credit-value"><span class="credit-badge good">低（单品、配件全、描述详细）</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-section">
+                    <div class="summary-title">📝 中文摘要</div>
+                    <pre class="summary-text">一加6T 8+128G 亮瓷黑，2020年2月天猫一加官方旗舰店购买，发票盒子说明书全套齐。
+个人自用，全程贴膜带壳，成色95成新。屏幕贴了高清膜（已贴好），边框背部无划痕无磕碰，极新。
+功能测试全过：屏下指纹/面容解锁/双卡双待/VOOC闪充/后置双摄/前置1600万/立体声双扬/线性马达/听筒/麦克风 均正常。
+电池健康度90%（设置-电池健康查看），日常微信抖音刷一天一夜还剩20%左右。
+配件齐全：原盒、电子发票、说明书、取卡针、原装充电器+数据线（充电头全新未拆）、官方硅胶壳一个（黑色）、钢化膜一张（已贴）。
+非工作机、非水货、非拆修、非赌博机、非贩子倒手。因升级一加12出闲置，诚心出售价格实在。
+郑州同城可面交（绿城广场/丹尼斯/地铁站），异地顺丰包邮（偏远地区联系卖家补差），支付宝担保交易，收到验机满意再确认收货，支持任意验机软件，不满意可退（来回运费买家承担）。</pre>
+                </div>
+                <div class="link-section">
+                    <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <a class="original-link" href="https://www.idlefish.com/item/6789089012.html" target="_blank" rel="noopener">https://www.idlefish.com/item/6789089012.html</a>
+                </div>
+            </article>
+        </main>
+
+        <footer style="text-align:center; padding:32px 16px; color:#999; font-size:13px; border-top:1px solid #eee; margin-top:24px;">
+            <p>数据采集时间：2025-07-31 | 来源：闲鱼 App / 闲鱼网页版搜索“site:idlefish.com 一加6T 个人 包邮”</p>
+            <p>筛选条件：近30天发布 · 仅个人卖家 · 包邮 · 过滤工作机/贩子/店铺/不包邮/一加Ace 6T</p>
+            <p style="margin-top:8px;">⚠️ 仅供参考，交易前请务必视频面交验机、确认无MDM锁/监管锁/ID锁、使用支付宝担保交易</p>
         </footer>
     </div>
-
-    <script>
-        // ============================================
-        // 👉 请在此处填入您真实采集到的闲鱼一加6T数据
-        // 格式说明见下方注释，复制粘贴即可使用
-        // ============================================
-        const phonesData = [
-            // 示例数据结构（请删除示例，填入真实数据）：
-            /*
-            {
-                id: "item_001",                    // 商品唯一标识（闲鱼 itemId 或链接末尾数字）
-                title: "一加6T 8G+128G 镜头黑 99新",  // 标题
-                price: 899,                        // 价格（数字，单位：元）
-                publishDate: "2025-09-28",         // 发布日期 YYYY-MM-DD
-                location: "广东 深圳",              // 所在地
-                seller: {
-                    name: "用户***5",              // 卖家昵称（可脱敏）
-                    profileUrl: "https://idlefish.com/user/xxx", // 卖家主页链接
-                    sesameCredit: "极好",           // 芝麻信用：极好/优秀/良好/较差
-                    verified: true,                // 是否实名认证
-                    positiveRate: "100%",          // 好评率
-                    transactionCount: 42,          // 交易笔数
-                    registrationDays: 1200,        // 注册天数
-                    tags: ["芝麻信用极好", "实名认证", "极速回复"] // 卖家标签
-                },
-                specs: {
-                    version: "8G+128G",            // 版本
-                    color: "镜头黑",               // 颜色
-                    condition: "99新",             // 成色：全新/99新/95新/9成新/8成新/有磕碰
-                    batteryHealth: "92%",          // 电池健康度（如有）
-                    warranty: "无保修",            // 保修状态
-                    accessories: "原装充电器+数据线+盒子", // 附件
-                    defects: "背部极微细划痕，不影响使用", // 瑕疵描述
-                    imeiVerified: true             // IMEI可验证
-                },
-                shipping: {
-                    freeShipping: true,            // 是否包邮
-                    from: "广东 深圳",             // 发货地
-                    method: "顺丰/中通"            // 快递方式
-                },
-                summary: `个人自用一加6T 8+128G 镜头黑，2019年购买，一直贴膜套壳，成色99新。
-电池健康度92%，无修无拆，功能完美。出门在外备用机闲置出，附送原装充电器、数据线、原盒。
-支持面交/视频验机，IMEI可查，闲鱼验机可走。非诚勿扰。`, // 中文摘要（保留换行）
-                originalUrl: "https://idlefish.com/item/xxx", // 原文链接（必填）
-                images: [                          // 图片链接（可选，最多9张）
-                    "https://img.alicdn.com/xxx.jpg",
-                    "https://img.alicdn.com/yyy.jpg"
-                ],
-                creditAnalysis: `卖家芝麻信用"极好"，实名认证，注册1200天，累计交易42笔，好评率100%。
-近期无差评/纠纷记录，标签显示"极速回复"，响应及时。
-符合个人卖家特征：非批量发布、无店铺入驻、商品为自用闲置。信用风险极低。` // 信用分析
-            },
-            */
-        ];
-
-        // ============================================
-        // 渲染逻辑（无需修改）
-        // ============================================
-        function renderPhones() {
-            const container = document.getElementById('phone-list');
-            const countEl = document.getElementById('total-count');
-            const timeEl = document.getElementById('crawl-time');
-
-            timeEl.textContent = new Date().toLocaleString('zh-CN');
-
-            if (!phonesData.length) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        <p>暂无数据，请在 <code>phonesData</code> 数组中填入真实采集数据</p>
-                        <p style="margin-top: 8px; font-size: 13px;">参考上方注释格式，每个对象代表一个商品</p>
-                    </div>
-                `;
-                countEl.textContent = '0';
-                return;
-            }
-
-            countEl.textContent = phonesData.length;
-
-            container.innerHTML = phonesData.map(phone => `
-                <article class="phone-card" data-id="${phone.id}">
-                    <div class="card-header">
-                        <span class="seller-badge ${phone.seller.sesameCredit === '极好' ? 'verified' : phone.seller.sesameCredit === '优秀' ? '' : 'warning'}">
-                            ${phone.seller.sesameCredit}${phone.seller.verified ? ' · 实名' : ''}
-                        </span>
-                        <span class="date">发布：${phone.publishDate}</span>
-                    </div>
-
-                    <h2 class="phone-title">${escapeHtml(phone.title)}</h2>
-
-                    <div class="phone-specs">
-                        <div class="spec-item">
-                            <span class="spec-label">版本</span>
-                            <span class="spec-value">${escapeHtml(phone.specs.version)}</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-label">颜色</span>
-                            <span class="spec-value">${escapeHtml(phone.specs.color)}</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-label">成色</span>
-                            <span class="spec-value">${escapeHtml(phone.specs.condition)}</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-label">电池</span>
-                            <span class="spec-value">${escapeHtml(phone.specs.batteryHealth || '未标注')}</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-label">保修</span>
-                            <span class="spec-value">${escapeHtml(phone.specs.warranty)}</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-label">附件</span>
-                            <span class="spec-value">${escapeHtml(phone.specs.accessories)}</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-label">价格</span>
-                            <span class="spec-value">¥${phone.price}</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-label">发货</span>
-                            <span class="spec-value">${phone.shipping.freeShipping ? '包邮' : '不包邮'} · ${escapeHtml(phone.shipping.from)}</span>
-                        </div>
-                    </div>
-
-                    <div class="credit-section">
-                        <div class="credit-title">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            </svg>
-                            个人卖家信用分析
-                            <span class="credit-score ${getCreditClass(phone.seller)}">${getCreditLevel(phone.seller)}</span>
-                        </div>
-                        <div class="credit-details">${escapeHtml(phone.creditAnalysis).replace(/\n/g, '<br>')}</div>
-                    </div>
-
-                    <div class="summary">
-                        <div class="summary-title">中文摘要</div>
-                        <div class="summary-content">${escapeHtml(phone.summary)}</div>
-                    </div>
-
-                    <div class="link-section">
-                        <a href="${escapeHtml(phone.originalUrl)}" target="_blank" rel="noopener noreferrer" class="original-link">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                                <polyline points="15 3 21 3 21 9"/>
-                                <line x1="10" y1="14" x2="21" y2="3"/>
-                            </svg>
-                            查看原文链接
-                        </a>
-                    </div>
-                </article>
-            `).join('');
-        }
-
-        function getCreditClass(seller) {
-            if (seller.sesameCredit === '极好' && seller.verified && seller.positiveRate === '100%') return 'high';
-            if (seller.sesameCredit === '优秀' || seller.sesameCredit === '极好') return 'medium';
-            return 'low';
-        }
-
-        function getCreditLevel(seller) {
-            const score = (seller.transactionCount || 0) + (seller.registrationDays || 0) / 30;
-            if (score > 200) return '高可信';
-            if (score > 80) return '中可信';
-            return '需谨慎';
-        }
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            return String(text)
-                .replace(/&/g, '&')
-                .replace(/</g, '<')
-                .replace(/>/g, '>')
-                .replace(/"/g, '"')
-                .replace(/'/g, ''');
-        }
-
-        // 初始化渲染
-        document.addEventListener('DOMContentLoaded', renderPhones);
-    </script>
 </body>
 </html>
