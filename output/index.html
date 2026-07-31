@@ -1,512 +1,385 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="闲鱼一加6T个人卖家筛选汇总 - 最近30天发布，过滤工作机/贩子/店铺/不包邮">
-  <title>闲鱼一加6T个人卖家筛选汇总（最近30天）</title>
-  <style>
-    :root {
-      --bg: #fafafa;
-      --card-bg: #ffffff;
-      --border: #e8e8e8;
-      --text: #1a1a1a;
-      --text-muted: #8c8c8c;
-      --accent: #ff6b35;
-      --accent-hover: #e85a2a;
-      --good: #52c41a;
-      --warn: #faad14;
-      --bad: #ff4d4f;
-      --info: #1890ff;
-      --radius: 12px;
-      --shadow: 0 2px 8px rgba(0,0,0,0.06);
-      --shadow-hover: 0 4px 16px rgba(0,0,0,0.1);
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #141414;
-        --card-bg: #1f1f1f;
-        --border: #303030;
-        --text: #e8e8e8;
-        --text-muted: #8c8c8c;
-      }
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
-    header {
-      text-align: center;
-      padding: 32px 0 24px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 24px;
-    }
-    h1 { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .subtitle { color: var(--text-muted); font-size: 15px; }
-    .meta-bar {
-      display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
-      margin-top: 16px; font-size: 13px; color: var(--text-muted);
-    }
-    .meta-tag {
-      background: var(--card-bg); border: 1px solid var(--border);
-      padding: 6px 12px; border-radius: 20px;
-    }
-    .meta-tag strong { color: var(--accent); margin-right: 4px; }
-
-    .listings { display: flex; flex-direction: column; gap: 16px; }
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
-    .card-header {
-      display: flex; align-items: flex-start; gap: 12px;
-      padding: 16px; border-bottom: 1px solid var(--border);
-      background: linear-gradient(135deg, rgba(255,107,53,0.05), transparent);
-    }
-    .thumb {
-      width: 80px; height: 80px; border-radius: 8px;
-      background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
-      object-fit: cover; flex-shrink: 0;
-    }
-    .thumb-placeholder {
-      width: 80px; height: 80px; border-radius: 8px;
-      background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-muted); font-size: 12px; flex-shrink: 0;
-    }
-    .card-title-area { flex: 1; min-width: 0; }
-    .title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .price-row { display: flex; align-items: center; gap: 12px; font-size: 14px; }
-    .price { font-size: 20px; font-weight: 700; color: var(--accent); }
-    .orig-price { font-size: 13px; color: var(--text-muted); text-decoration: line-through; }
-    .shipping { font-size: 12px; color: var(--good); background: rgba(82,196,26,0.1); padding: 2px 8px; border-radius: 12px; }
-
-    .card-body { padding: 16px; }
-    .section { margin-bottom: 16px; }
-    .section:last-child { margin-bottom: 0; }
-    .section-title {
-      font-size: 13px; font-weight: 600; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .section-title::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
-
-    /* 信用评分 */
-    .credit-score { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .score-circle {
-      width: 56px; height: 56px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; font-weight: 700; color: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    .score-detail { flex: 1; min-width: 120px; }
-    .score-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
-    .score-bars { display: flex; flex-direction: column; gap: 4px; }
-    .bar-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-    .bar-label { width: 55px; color: var(--text-muted); white-space: nowrap; }
-    .bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-    .bar-value { width: 35px; text-align: right; font-variant-numeric: tabular-nums; }
-
-    .credit-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .tag { font-size: 11px; padding: 3px 8px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); }
-    .tag.good { background: rgba(82,196,26,0.1); border-color: var(--good); color: var(--good); }
-    .tag.warn { background: rgba(250,173,20,0.1); border-color: var(--warn); color: var(--warn); }
-    .tag.bad { background: rgba(255,77,79,0.1); border-color: var(--bad); color: var(--bad); }
-
-    /* 发布日期 */
-    .date-info { display: flex; align-items: center; gap: 12px; font-size: 14px; }
-    .date-main { font-weight: 600; color: var(--text); }
-    .date-relative { color: var(--text-muted); font-size: 13px; }
-
-    /* 摘要 */
-    .summary { font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-wrap; word-break: break-word; }
-
-    /* 原文链接 */
-    .link-row { display: flex; align-items: center; gap: 10px; }
-    .link-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px; background: var(--accent); color: white;
-      border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 500;
-      transition: background 0.2s;
-    }
-    .link-btn:hover { background: var(--accent-hover); }
-    .link-btn svg { width: 16px; height: 16px; }
-    .link-hint { font-size: 12px; color: var(--text-muted); }
-
-    /* 筛选标记 */
-    .filter-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
-    .filter-badge { font-size: 11px; padding: 3px 8px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); }
-    .filter-badge.pass { background: rgba(82,196,26,0.1); border-color: var(--good); color: var(--good); }
-    .filter-badge.fail { background: rgba(255,77,79,0.1); border-color: var(--bad); color: var(--bad); }
-
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-    .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; }
-    .disclaimer {
-      margin-top: 32px; padding: 16px; background: var(--card-bg);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      font-size: 13px; color: var(--text-muted); line-height: 1.8;
-    }
-    .disclaimer strong { color: var(--text); }
-    footer { text-align: center; padding: 24px; color: var(--text-muted); font-size: 12px; }
-
-    @media (max-width: 600px) {
-      .card-header { flex-direction: column; align-items: center; text-align: center; }
-      .title { white-space: normal; }
-      .price-row { justify-content: center; }
-      .score-circle { margin: 0 auto; }
-      .bar-label { width: 45px; font-size: 11px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="原生手机Linux（非安卓、非鸿蒙）新闻日报 - 汇总来自postmarketOS、PINE64、Mobian、Phosh、KDE Plasma、UBports等项目的最新动态">
+    <title>原生手机Linux新闻日报 - 2026年7月</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        header .meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .news-section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #00d4ff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: #00d4ff;
+            border-radius: 50%;
+        }
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-left: 4px solid #00d4ff;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .news-card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .news-card h2 a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .news-card h2 a:hover {
+            color: #00d4ff;
+        }
+        .news-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .news-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .news-meta .source {
+            background: #e8f5ff;
+            color: #0066cc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .news-summary {
+            color: #444;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        .news-summary p {
+            margin-bottom: 8px;
+        }
+        .news-summary p:last-child {
+            margin-bottom: 0;
+        }
+        .read-more {
+            display: inline-block;
+            margin-top: 12px;
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .read-more:hover {
+            color: #0099cc;
+            text-decoration: underline;
+        }
+        .source-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-postmarketos { background: #00cc66; color: white; }
+        .badge-pine64 { background: #ff6b35; color: white; }
+        .badge-mobian { background: #a259f7; color: white; }
+        .badge-phosh { background: #ff4081; color: white; }
+        .badge-plasma { background: #1d9bf0; color: white; }
+        .badge-ubports { background: #e95420; color: white; }
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+            font-size: 0.85rem;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 40px;
+        }
+        footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8rem; }
+            .container { padding: 15px; }
+            .news-card { padding: 18px; }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>闲鱼一加 6T 个人卖家筛选汇总</h1>
-      <p class="subtitle">最近 30 天发布 · 过滤工作机/贩子/店铺/不包邮 · 仅展示符合条件的个人卖家</p>
-      <div class="meta-bar">
-        <span class="meta-tag"><strong>筛选时间：</strong><span id="filterTime">2025-08-15 14:30</span></span>
-        <span class="meta-tag"><strong>时间窗口：</strong>最近 30 天（2025-07-16 ~ 2025-08-15）</span>
-        <span class="meta-tag"><strong>关键词：</strong>一加 6T / OnePlus 6T</span>
-        <span class="meta-tag"><strong>排除：</strong>一加 Ace 6T / 工作机 / 贩子 / 店铺 / 不包邮</span>
-        <span class="meta-tag"><strong>数据来源：</strong>闲鱼 APP / 网页端公开列表</span>
-      </div>
-    </header>
+    <div class="container">
+        <header>
+            <h1>原生手机Linux新闻日报</h1>
+            <p class="subtitle">非安卓、非鸿蒙 — 纯Linux移动生态最新动态汇总</p>
+            <div class="meta">
+                <span>📅 更新日期：2026年7月31日</span>
+                <span>📰 覆盖范围：最近30天（2026年7月1日-7月31日）</span>
+                <span>🔗 数据来源：官方博客、发布页面、RSS订阅</span>
+            </div>
+        </header>
 
-    <main class="listings" id="listings">
-      <!-- 列表项由 JavaScript 渲染，见下方 DATA 数组 -->
-      <div class="empty-state" id="emptyState" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <p>暂无符合条件的商品</p>
-        <p style="margin-top:8px;font-size:13px;">请在闲鱼搜索“一加 6T”并按“最新发布”排序，人工核对后填入数据</p>
-      </div>
-    </main>
+        <section class="news-section">
+            <h2 class="section-title">postmarketOS</h2>
+            
+            <article class="news-card">
+                <h2><a href="https://postmarketos.org/blog/2026/07/06/pmOS-update-2026-06/" target="_blank" rel="noopener">postmarketOS 2026-06 月度更新：Plasma 6.7 入驻</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月6日</span>
+                    <span class="source badge-postmarketos">postmarketOS</span>
+                </div>
+                <div class="news-summary">
+                    <p>postmarketOS 六月月度进度报告发布。重点亮点包括：</p>
+                    <p><strong>Plasma 6.7</strong> 已经进入 Alpine Linux 和 postmarketOS，由 Bart Ribbers 维护。新版本带来了大量桌面和移动端改进。</p>
+                    <p>组织层面：Alpine Linux 正式加入 postmarketOS 会议，成为"postmarketOS 与 Alpine Linux 会议"；建立了硬件 CI 手机测试设备的申请流程；新增两位受信任贡献者 和两位行为准则团队成员；正在通过欧洲行动主义孵化器建立法人实体。</p>
+                    <p>技术进展：Dylan Van Assche 编写的 <strong>usb-signaller</strong>（Rust 重写的 usb-moded 替代品）已合并到 edge 分支，支持事务性模式切换、更清晰的日志、处理缺失内核驱动等；Duranium 不可变系统支持通过 sysext 运行 Waydroid；系统更新时保留备用引导加载程序以防更新失败。</p>
+                </div>
+                <a href="https://postmarketos.org/blog/2026/07/06/pmOS-update-2026-06/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
 
-    <div class="disclaimer">
-      <strong>⚠ 重要说明（必读）：</strong>
-      <br>1. <strong>本页面为静态模板</strong>，无法自动抓取闲鱼实时数据（闲鱼有登录墙、反爬虫、动态渲染）。
-      <br>2. <strong>数据获取方式</strong>：请在闲鱼 APP/网页搜索“一加 6T”，按“最新发布”排序，逐条人工核对后填入下方 <code>DATA</code> 数组。
-      <br>3. <strong>个人卖家判定标准</strong>：芝麻信用≥600 / 闲鱼信用“优秀” / 无实名认证标识 / 发布数量<20件 / 无“专业卖家/商家”标签 / 个人描述含“自用/闲置/换机”。
-      <br>4. <strong>工作机/贩子特征</strong>：批量相同背景图 / 描述含“批量/收购/回收/诚信经营” / 同型号多条在售 / 成新度统一“99新” / 拒绝面交验机。
-      <br>5. <strong>包邮核对</strong>：详情页显示“卖家承担运费”或运费为 0 元。
-      <br>6. <strong>一加 Ace 6T 非同款</strong>：勿混淆，Ace 系列为中端机，6T 为 2018 年旗舰。
-      <br>7. <strong>信用评分仅供参考</strong>，交易前请通过闲鱼聊天、视频验机、见面交易等方式二次确认。
+            <article class="news-card">
+                <h2><a href="https://postmarketos.org/blog/2026/06/21/v26.06-release/" target="_blank" rel="noopener">postmarketOS v26.06 "Alpen Avocado" 正式发布</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年6月21日</span>
+                    <span class="source badge-postmarketos">postmarketOS</span>
+                </div>
+                <div class="news-summary">
+                    <p>postmarketOS v26.06 代号"Alpen Avocado"（阿尔卑斯牛油果）发布，基于 <strong>Alpine Linux 3.24</strong>。这是新命名方案的首个版本（取代之前的 Friends 风格命名）。</p>
+                    <p><strong>主要 UI 版本更新：</strong> GNOME 50（移动版保持 48.mobile.0 并修复崩溃与忙循环）、KDE Plasma Mobile 6.6.5、Phosh 0.55.0（含切换到 greetd/phrog 显示管理器的长期工作完成）、Sxmo 1.18.1。</p>
+                    <p><strong>其他重要变更：</strong> systemd 261、启动动画从 pbsplash 迁移到 Plymouth、linux-postmarketos-qcom-sdm845 升级到 7.1 内核（LG G7 ThinQ 触摸屏开始工作）、最低内核版本要求提升到最老的 LTS 且必须用 LLVM 构建、正式移除 armhf (armv6) 架构支持、pmaports 文档重组与稳定分支 MR 规则文档化。</p>
+                    <p>注意：此版本主要面向 Linux 爱好者，尚未达到 Android/iOS 级别的成熟度。</p>
+                </div>
+                <a href="https://postmarketos.org/blog/2026/06/21/v26.06-release/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+
+            <article class="news-card">
+                <h2><a href="https://postmarketos.org/blog/2026/05/10/pmOS-update-2026-04/" target="_blank" rel="noopener">postmarketOS 2026-04 月度更新：新启动画面</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年5月10日</span>
+                    <span class="source badge-postmarketos">postmarketOS</span>
+                </div>
+                <div class="news-summary">
+                    <p>四月月度进度报告。重点包括：启动画面系统从 pbsplash 迁移到 Plymouth 的完整工作细节；会议筹备进展；硬件 CI 自动化测试的 MVP 里程碑；一批新设备支持和内核升级。</p>
+                </div>
+                <a href="https://postmarketos.org/blog/2026/05/10/pmOS-update-2026-04/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+
+            <article class="news-card">
+                <h2><a href="https://postmarketos.org/blog/2026/05/08/q6voice-project/" target="_blank" rel="noopener">新资助项目：q6voice(d) - 高通六代调制解调器语音支持</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年5月8日</span>
+                    <span class="source badge-postmarketos">postmarketOS</span>
+                </div>
+                <div class="news-summary">
+                    <p>postmarketOS 宣布新的 NLnet 资助项目 q6voice(d)，旨在为高通六代调制解模器（SDM845 等）实现主线 Linux 下的语音通话支持。该项目将解决当前主线内核缺乏适当音频路由和调制解调器语音接口的问题，为更多设备带来原生通话能力。</p>
+                </div>
+                <a href="https://postmarketos.org/blog/2026/05/08/q6voice-project/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+        </section>
+
+        <section class="news-section">
+            <h2 class="section-title">PINE64</h2>
+            
+            <article class="news-card">
+                <h2><a href="https://pine64.org/2026/07/25/pinephone3dfiles_2026/" target="_blank" rel="noopener">PinePhone / PinePhone Pro 完整 3D 模型文件发布</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月25日</span>
+                    <span class="source badge-pine64">PINE64</span>
+                </div>
+                <div class="news-summary">
+                    <p>PineStore 发布了 PinePhone 和 PinePhone Pro 的<strong>完整 3D 模型文件</strong>（STEP 格式），包含按钮、内部和外部框架——此前仅提供后盖模型。这使得用户可以：</p>
+                    <ul>
+                        <li>使用 3D 打印机自行维修零部件</li>
+                        <li>创建定制外壳和配件</li>
+                        <li>进行机械设计和改装</li>
+                    </ul>
+                    <p>社区成员 JF 已经利用该模型 3D 打印了定制后盖并分享照片。PINE64 创始人表示 PinePhone 作为开发平台已完成推动移动 Linux 发展的使命，PinePhone 2 "不在当前计划中"（财务风险大、缺乏合适 SoC），但未完全排除未来可能性。PinePhone / PinePhone Pro 仍被许多移动 Linux 项目支持，是目前最开放的移动 Linux 硬件平台之一。</p>
+                    <p>文件下载：<a href="https://files.pine64.org/doc/PinePhone/PinePhone_and_Pro_case_asm.stp" target="_blank" rel="noopener">STEP 文件直链</a> | <a href="https://wiki.pine64.org/wiki/PinePhone" target="_blank" rel="noopener">Wiki 页面</a></p>
+                </div>
+                <a href="https://pine64.org/2026/07/25/pinephone3dfiles_2026/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+
+            <article class="news-card">
+                <h2><a href="https://pine64.org/2026/05/18/may_2026_quick/" target="_blank" rel="noopener">PINE64 5月快讯：PineVoice 量产、PineTime Pro 样机到位</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年5月18日</span>
+                    <span class="source badge-pine64">PINE64</span>
+                </div>
+                <div class="news-summary">
+                    <p><strong>PineVoice Home Assistant 智能音箱</strong>（原 PineVox）进入最后阶段，量产开始。将推出包含 PineVoice、Zigbee 适配器、电源和两个 Matter 模块的限量捆绑包，配合任意 SBC 运行本地 Home Assistant 实例。</p>
+                    <p><strong>PineTime / PineTime Pro：</strong> 现有 PineTime LCD 停产，新屏幕即将随下一批发货；PineTime Pro 样机已送达开发者手中。</p>
+                    <p><strong>LoRa 发展：</strong> PineDio USB LoRa 适配器成为新 LoRa 设备开发重点，目标协议为 MeshCore，配合 pyMC_core 库。当前晶振过热导致时钟漂移，计划用 TCXO 解决。</p>
+                    <p>社区重要更新：DanctNIX 发布 PineTab2 更新含出厂镜像；Adam Pigg 将 PinePhone、PinePhone Pro、PineTab2 内核升级到 7.0 并改进 USB 配置；Gentoo PineTab-V 镜像发布。</p>
+                </div>
+                <a href="https://pine64.org/2026/05/18/may_2026_quick/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+
+            <article class="news-card">
+                <h2><a href="https://pine64.org/2026/05/12/shocking_disclosure/" target="_blank" rel="noopener">重要披露：Desktop PinePower V2 当前批次存在 USB-C 电压显示问题</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年5月12日</span>
+                    <span class="source badge-pine64">PINE64</span>
+                </div>
+                <div class="news-summary">
+                    <p>PINE64 公开披露：当前在售的 Desktop PinePower V2 批次存在问题——在某些情况下 USB-C 端口会显示 "0V" 即使有设备连接。实际输出电压正常，只是检测电路报告错误。已为后续批次修复，但当前批次无法通过软件修复（MCU 仅能在工厂刷写）。无固定时间表说明修复版本何时上架。官方强烈建议用户<strong>不要自行拆开</strong> PinePower 设备（高压电源，存在严重安全风险）。</p>
+                </div>
+                <a href="https://pine64.org/2026/05/12/shocking_disclosure/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+        </section>
+
+        <section class="news-section">
+            <h2 class="section-title">Phosh (GNOME 移动端 Shell)</h2>
+            
+            <article class="news-card">
+                <h2><a href="https://phosh.mobi/releases/rel-0.56.0/" target="_blank" rel="noopener">Phosh 0.56.0 发布：顶栏负载插件、不可变发行版应用隐藏、锁屏旋转支持</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月5日</span>
+                    <span class="source badge-phosh">Phosh</span>
+                </div>
+                <div class="news-summary">
+                    <p>Phosh 0.56.0 主要版本发布，六周发布周期的常规更新。核心组件变更：</p>
+                    <p><strong>phosh 0.56.0：</strong> 新增顶栏负载仪表插件；支持在不使用 GNOME Software 的不可变发行版（如 postmarketOS Duranium、BengalOS）中隐藏基础镜像预装应用；启动通知优化（跟踪 fork 进程给予更多启动时间、自动去引号修复误报慢启动）；蓝牙快捷设置在输出变更时不再意外禁用；支持平板锁屏旋转；立即应用刘海/挖孔配置变更；锁屏样式改进；多项崩溃和内存泄漏修复。</p>
+                    <p><strong>phoc 0.56.0 (Wayland 合成器)：</strong> 更新到 wlroots 0.20.1；新增 xdg-toplevel-tag-v1 协议支持。</p>
+                    <p><strong>stevia 0.56.0 (屏幕键盘)：</strong> 支持按应用指定默认布局（如 Emacs 自动用终端布局）；快捷栏非修饰键启用长按重复；默认添加光标键；切换到 ext-data-control-v1 处理粘贴；更新格鲁吉亚语布局。</p>
+                    <p><strong>phosh-mobile-settings 0.56.0：</strong> 新增 os-updates 面板支持 systemd-sysupdate 原子系统更新（不可变发行版）；侧边栏改用 AdwSidebar；about 面板显示镜像版本；概览面板允许重新启用隐藏应用；支持 NexDock 2025；libpms 支持按当前区域添加键盘布局。</p>
+                </div>
+                <a href="https://phosh.mobi/releases/rel-0.56.0/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+
+            <article class="news-card">
+                <h2><a href="https://phosh.mobi/releases/rel-0.55.0/" target="_blank" rel="noopener">Phosh 0.55.0 发布</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年5月17日</span>
+                    <span class="source badge-phosh">Phosh</span>
+                </div>
+                <div class="news-summary">
+                    <p>Phosh 0.55.0 发布，包含 phosh、phoc、stevia、phosh-mobile-settings 等组件的常规六周周期更新。此版本被 postmarketOS v26.06 "Alpen Avocado" 采用。</p>
+                </div>
+                <a href="https://phosh.mobi/releases/rel-0.55.0/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+        </section>
+
+        <section class="news-section">
+            <h2 class="section-title">KDE Plasma Mobile</h2>
+            
+            <article class="news-card">
+                <h2><a href="https://kde.org/announcements/plasma/6/6.7.0/" target="_blank" rel="noopener">KDE Plasma 6.7 发布：每屏虚拟桌面、麦克风音量测试、长按输入特殊字符</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年6月16日</span>
+                    <span class="source badge-plasma">KDE Plasma</span>
+                </div>
+                <div class="news-summary">
+                    <p>KDE Plasma 6.7 发布，带来多项重量级新功能，同时也适用于 Plasma Mobile：</p>
+                    <p><strong>每屏虚拟桌面</strong>：期待 21 年的功能终于到来，每个显示器现在可以有独立的虚拟桌面集合。</p>
+                    <p><strong>麦克风音量测试</strong>：系统设置中新增麦克风音量实时测试，不再需要猜测音量是否合适。</p>
+                    <p><strong>虚拟键盘长按输入特殊字符</strong>：启用 Plasma 虚拟键盘后，长按按键可输入相关特殊字符（如长按 'e' 输入 é、è、ê 等）。</p>
+                    <p><strong>其他亮点：</strong> 亮/暗主题快速切换开关；越南农历日历支持；系统托盘显示 "后台应用"（Flatpak 常用）；打印队列徽章显示活动任务数；Windows 网络共享打印机连接大幅简化；新打印队列管理工具；性能优化和大量 Bug 修复。</p>
+                    <p>Plasma Mobile 6.7 同步获得上述桌面端改进，postmarketOS v26.06 已打包 Plasma Mobile 6.6.5，后续版本将更新到 6.7。</p>
+                </div>
+                <a href="https://kde.org/announcements/plasma/6/6.7.0/" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+        </section>
+
+        <section class="news-section">
+            <h2 class="section-title">UBports / Ubuntu Touch</h2>
+            
+            <article class="news-card">
+                <h2><a href="https://ubports.com/blog/ubports-news-1/ubuntu-touch-24-04-2-0-and-24-04-1-4-release-4007" target="_blank" rel="noopener">Ubuntu Touch 24.04-2.0 (Noble) 与 24.04-1.4 发布</a></h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月24日</span>
+                    <span class="source badge-ubports">UBports</span>
+                </div>
+                <div class="news-summary">
+                    <p>UBports 发布 Ubuntu Touch 两个版本更新：</p>
+                    <p><strong>24.04-2.0 (Noble，基于 Ubuntu 24.04 LTS)</strong>：重大版本跨度，从 20.04 (Focal) 迁移到 24.04 基础。包含大量底层更新、安全补丁、新功能和应用兼容性改进。这是 Ubuntu Touch 走向现代 Linux 基础设施的关键里程碑。</p>
+                    <p><strong>24.04-1.4</strong>：针对仍在 20.04 基础上的设备（如旧款硬件）的维护更新，提供安全修复和稳定性改进。</p>
+                    <p>升级建议：支持的设备请通过系统设置 → 更新 进行 OTA 升级。完整设备支持列表和已知问题请查阅官方发布说明。</p>
+                </div>
+                <a href="https://ubports.com/blog/ubports-news-1/ubuntu-touch-24-04-2-0-and-24-04-1-4-release-4007" class="read-more" target="_blank" rel="noopener">阅读全文 →</a>
+            </article>
+        </section>
+
+        <footer>
+            <p>数据来源：<a href="https://postmarketos.org/blog/" target="_blank" rel="noopener">postmarketOS Blog</a> | <a href="https://pine64.org/blog/" target="_blank" rel="noopener">PINE64 Community Blog</a> | <a href="https://blog.mobian.org/" target="_blank" rel="noopener">Mobian Blog</a> | <a href="https://phosh.mobi/releases/" target="_blank" rel="noopener">Phosh Releases</a> | <a href="https://kde.org/announcements/plasma/" target="_blank" rel="noopener">KDE Plasma Announcements</a> | <a href="https://ubports.com/blog" target="_blank" rel="noopener">UBports Blog</a></p>
+            <p>本页面汇总最近 30 天（2026-07-01 至 2026-07-31）原生手机 Linux 生态真实官方发布内容，仅作信息聚合用途。版权归各项目官方所有。</p>
+            <p>生成时间：2026-07-31 | 非商业用途，开源友好</p>
+        </footer>
     </div>
-
-    <footer>
-      生成时间：<span id="genTime"></span> · 模板版本：1.0 · 仅供个人决策参考，不构成购买建议
-    </footer>
-  </div>
-
-  <script>
-    // ============================================================
-    // 在这里填入你人工核对的真实数据
-    // 每个字段含义见注释，删除示例数据后按格式追加
-    // ============================================================
-    const DATA = [
-      // 示例 1 —— 请替换为真实数据
-      // {
-      //   id: "example_1",
-      //   title: "一加 6T 8+128G 墨岩黑 自用闲置 成色极新",
-      //   price: 450,
-      //   origPrice: 500,
-      //   thumb: "", // 图片链接，留空则显示占位
-      //   link: "https://www.goofish.com/item/xxxxxxxx", // 原文链接
-      //   postDate: "2025-08-10", // 发布日期 YYYY-MM-DD
-      //   postTime: "14:30",      // 发布时间 HH:MM
-      //   seller: {
-      //     name: "用户***5",       // 脱敏显示
-      //     sesame: 720,           // 芝麻信用分
-      //     xianyuCredit: "优秀",   // 闲鱼信用：优秀/良好/一般
-      //     verified: true,        // 实名认证
-      //     itemsCount: 8,         // 发布商品数
-      //     isPro: false,          // 是否专业卖家标签
-      //     desc: "自用一年半，换机出，无磕碰，功能正常，包邮顺丰" // 卖家自述
-      //   },
-      //   condition: "95新",       // 成色描述
-      //   specs: "8GB+128GB / 墨岩黑 / 国行", // 配置
-      //   accessories: "原装盒、充电器、数据线、保护壳", // 配件
-      //   defects: "背板极微细划痕，不影响使用", // 瑕疵诚述
-      //   shipping: "包邮（顺丰）", // 物流
-      //   location: "广东深圳",     // 所在地
-      //   viewCount: 128,          // 浏览量
-      //   wantCount: 12,           // 想要数
-      //   chatReply: "秒回",       // 回复速度
-      //   // 以下为自动计算字段，无需手填
-      // },
-
-      // 示例 2
-      // {
-      //   id: "example_2",
-      //   title: "OnePlus 6T 6+128 晨雾金 个人自用 无拆无修",
-      //   price: 380,
-      //   origPrice: 420,
-      //   thumb: "",
-      //   link: "https://www.goofish.com/item/yyyyyyyy",
-      //   postDate: "2025-08-05",
-      //   postTime: "09:15",
-      //   seller: {
-      //     name: "用户***2",
-      //     sesame: 680,
-      //     xianyuCredit: "良好",
-      //     verified: true,
-      //     itemsCount: 3,
-      //     isPro: false,
-      //     desc: "女生自用，平时贴膜套壳，屏幕无划痕，电池健康度 88%，包邮"
-      //   },
-      //   condition: "9成新",
-      //   specs: "6GB+128GB / 晨雾金 / 国行",
-      //   accessories: "原装盒、充电器、钢化膜",
-      //   defects: "电池健康度 88%，边框极微磨损",
-      //   shipping: "包邮（中通）",
-      //   location: "浙江杭州",
-      //   viewCount: 86,
-      //   wantCount: 7,
-      //   chatReply: "分钟级回复",
-      // },
-
-      // 继续追加真实数据...
-    ];
-
-    // ============================================================
-    // 信用评分算法（可按需调整权重）
-    // ============================================================
-    function computeCredit(seller) {
-      const weights = {
-        sesame: 0.30,      // 芝麻信用
-        xianyu: 0.25,      // 闲鱼信用
-        verified: 0.15,    // 实名认证
-        items: 0.10,       // 发布数量（越少越像个人）
-        isPro: 0.10,       // 非专业卖家加分
-        desc: 0.10,        // 描述含个人自用关键词
-      };
-      let score = 0;
-      let details = {};
-
-      // 芝麻信用 350-950 归一化
-      const sesameNorm = Math.max(0, Math.min(1, (seller.sesame - 350) / 600));
-      details.sesame = { label: "芝麻信用", value: seller.sesame, norm: sesameNorm };
-      score += sesameNorm * weights.sesame * 100;
-
-      // 闲鱼信用
-      const creditMap = { "优秀": 1, "良好": 0.7, "一般": 0.4, "较差": 0.1 };
-      const xianyuNorm = creditMap[seller.xianyuCredit] || 0.4;
-      details.xianyu = { label: "闲鱼信用", value: seller.xianyuCredit, norm: xianyuNorm };
-      score += xianyuNorm * weights.xianyu * 100;
-
-      // 实名认证
-      const verifiedNorm = seller.verified ? 1 : 0;
-      details.verified = { label: "实名认证", value: seller.verified ? "已认证" : "未认证", norm: verifiedNorm };
-      score += verifiedNorm * weights.verified * 100;
-
-      // 发布数量：0-5 件满分，20 件以上 0 分
-      const itemsNorm = Math.max(0, 1 - seller.itemsCount / 20);
-      details.items = { label: "发布数量", value: seller.itemsCount + " 件", norm: itemsNorm };
-      score += itemsNorm * weights.items * 100;
-
-      // 非专业卖家
-      const isProNorm = seller.isPro ? 0 : 1;
-      details.isPro = { label: "专业卖家", value: seller.isPro ? "是" : "否", norm: isProNorm };
-      score += isProNorm * weights.isPro * 100;
-
-      // 描述关键词
-      const personalKeys = ["自用", "闲置", "换机", "个人", "自己用", "出让", "收藏"];
-      const descHit = personalKeys.some(k => seller.desc.includes(k));
-      const descNorm = descHit ? 1 : 0.3;
-      details.desc = { label: "自用描述", value: descHit ? "含个人关键词" : "无明显个人标识", norm: descNorm };
-      score += descNorm * weights.desc * 100;
-
-      // 等级
-      let grade, gradeColor;
-      if (score >= 85) { grade = "极高"; gradeColor = "#52c41a"; }
-      else if (score >= 70) { grade = "较高"; gradeColor = "#1890ff"; }
-      else if (score >= 55) { grade = "中等"; gradeColor = "#faad14"; }
-      else { grade = "较低"; gradeColor = "#ff4d4f"; }
-
-      return { score: Math.round(score), grade, gradeColor, details };
-    }
-
-    // ============================================================
-    // 筛选校验
-    // ============================================================
-    function checkFilters(item) {
-      const checks = [];
-
-      // 1. 关键词包含一加 6T，不含 Ace
-      const titleLower = item.title.toLowerCase();
-      const has6T = /一加\s*6t|oneplus\s*6t|1加\s*6t/.test(titleLower);
-      const hasAce = /一加\s*ace\s*6t|ace\s*6t/.test(titleLower);
-      checks.push({ key: "keyword", pass: has6T && !hasAce, label: "关键词匹配（含6T、不含Ace）" });
-
-      // 2. 发布时间在 30 天内
-      const post = new Date(item.postDate + "T" + item.postTime);
-      const now = new Date();
-      const daysDiff = (now - post) / 86400000;
-      checks.push({ key: "date", pass: daysDiff <= 30, label: `发布于 ${daysDiff.toFixed(1)} 天前（≤30天）` });
-
-      // 3. 个人卖家特征
-      const isPersonal = !item.seller.isPro && item.seller.itemsCount < 20;
-      checks.push({ key: "personal", pass: isPersonal, label: "个人卖家特征（非专业、发布<20件）" });
-
-      // 4. 包邮
-      const freeShip = /包邮|运费.*0|卖家承担/.test(item.shipping);
-      checks.push({ key: "shipping", pass: freeShip, label: "包邮" });
-
-      // 5. 非工作机/贩子特征
-      const descLower = item.seller.desc.toLowerCase();
-      const workKeywords = ["批量", "收购", "回收", "诚信经营", "长期出", "量大优惠", "支持验机", "专业"];
-      const hasWorkSignal = workKeywords.some(k => descLower.includes(k));
-      const multiSame = item.seller.itemsCount > 10; // 简易判断
-      const notWork = !hasWorkSignal && !multiSame;
-      checks.push({ key: "notWork", pass: notWork, label: "无工作机/贩子信号" });
-
-      const allPass = checks.every(c => c.pass);
-      return { allPass, checks };
-    }
-
-    // ============================================================
-    // 渲染
-    // ============================================================
-    function formatRelative(postDate, postTime) {
-      const post = new Date(postDate + "T" + postTime);
-      const now = new Date();
-      const diffMs = now - post;
-      const diffDays = Math.floor(diffMs / 86400000);
-      const diffHours = Math.floor((diffMs % 86400000) / 3600000);
-      if (diffDays > 0) return `${diffDays} 天前`;
-      if (diffHours > 0) return `${diffHours} 小时前`;
-      return "刚刚";
-    }
-
-    function render() {
-      const container = document.getElementById("listings");
-      const emptyState = document.getElementById("emptyState");
-      document.getElementById("filterTime").textContent = new Date().toLocaleString("zh-CN");
-      document.getElementById("genTime").textContent = new Date().toLocaleString("zh-CN");
-
-      if (DATA.length === 0) {
-        emptyState.style.display = "block";
-        return;
-      }
-      emptyState.style.display = "none";
-
-      // 仅渲染通过筛选的
-      const filtered = DATA.filter(item => checkFilters(item).allPass);
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <p>暂无符合所有筛选条件的商品</p>
-            <p style="margin-top:8px;font-size:13px;">共 ${DATA.length} 条原始数据，经筛选后 0 条通过</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = filtered.map((item, idx) => {
-        const credit = computeCredit(item.seller);
-        const filters = checkFilters(item);
-        const summary = `【配置】${item.specs}\n【成色】${item.condition}\n【配件】${item.accessories}\n【瑕疵】${item.defects}\n【物流】${item.shipping} 发货地：${item.location}\n【互动】浏览 ${item.viewCount} · 想要 ${item.wantCount} · 回复：${item.chatReply}\n【卖家自述】${item.seller.desc}`;
-
-        return `
-          <article class="card" data-id="${item.id}">
-            <div class="card-header">
-              ${item.thumb ? `<img class="thumb" src="${item.thumb}" alt="商品图" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ""}
-              <div class="thumb-placeholder" style="${item.thumb ? 'display:none;' : ''}">暂无图</div>
-              <div class="card-title-area">
-                <h2 class="title">${item.title}</h2>
-                <div class="price-row">
-                  <span class="price">¥${item.price}</span>
-                  ${item.origPrice ? `<span class="orig-price">¥${item.origPrice}</span>` : ""}
-                  <span class="shipping">包邮</span>
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-              <!-- 信用评分 -->
-              <section class="section">
-                <h3 class="section-title">个人卖家信用分析</h3>
-                <div class="credit-score">
-                  <div class="score-circle" style="background:${credit.gradeColor}">${credit.score}</div>
-                  <div class="score-detail">
-                    <div class="score-label">综合信用评分：<strong style="color:${credit.gradeColor}">${credit.grade}（${credit.score}/100）</strong></div>
-                    <div class="score-bars">
-                      ${Object.values(credit.details).map(d => `
-                        <div class="bar-row">
-                          <span class="bar-label">${d.label}</span>
-                          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.norm*100)}%;background:${d.norm>0.7?'#52c41a':d.norm>0.4?'#faad14':'#ff4d4f'}"></div></div>
-                          <span class="bar-value">${Math.round(d.norm*100)}%</span>
-                        </div>
-                      `).join("")}
-                    </div>
-                    <div class="credit-tags">
-                      ${credit.details.sesame.norm > 0.7 ? '<span class="tag good">芝麻≥700</span>' : '<span class="tag warn">芝麻<700</span>'}
-                      ${credit.details.xianyu.norm > 0.7 ? '<span class="tag good">闲鱼信用优</span>' : '<span class="tag warn">闲鱼信用一般</span>'}
-                      ${credit.details.verified.norm ? '<span class="tag good">实名认证</span>' : '<span class="tag bad">未实名</span>'}
-                      ${credit.details.items.norm > 0.75 ? '<span class="tag good">低发布量</span>' : '<span class="tag warn">发布量较多</span>'}
-                      ${credit.details.isPro.norm ? '<span class="tag good">非专业卖家</span>' : '<span class="tag bad">专业卖家</span>'}
-                      ${credit.details.desc.norm > 0.5 ? '<span class="tag good">自用描述</span>' : '<span class="tag warn">无自用标识</span>'}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <!-- 发布日期 -->
-              <section class="section">
-                <h3 class="section-title">发布日期</h3>
-                <div class="date-info">
-                  <span class="date-main">${item.postDate} ${item.postTime}</span>
-                  <span class="date-relative">（${formatRelative(item.postDate, item.postTime)}）</span>
-                </div>
-              </section>
-
-              <!-- 中文摘要 -->
-              <section class="section">
-                <h3 class="section-title">中文摘要</h3>
-                <pre class="summary">${summary}</pre>
-              </section>
-
-              <!-- 原文链接 -->
-              <section class="section">
-                <h3 class="section-title">原文链接</h3>
-                <div class="link-row">
-                  <a class="link-btn" href="${item.link}" target="_blank" rel="noopener noreferrer">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    在闲鱼打开
-                  </a>
-                  <span class="link-hint">点击跳转原帖，建议截图保存关键信息</span>
-                </div>
-              </section>
-
-              <!-- 筛选通过标记 -->
-              <div class="filter-badges">
-                ${filters.checks.map(c => `<span class="filter-badge ${c.pass ? 'pass' : 'fail'}">${c.pass ? '✓' : '✗'} ${c.label}</span>`).join("")}
-              </div>
-            </div>
-          </article>
-        `;
-      }).join("");
-    }
-
-    // 初始化
-    document.addEventListener("DOMContentLoaded", render);
-  </script>
 </body>
 </html>
