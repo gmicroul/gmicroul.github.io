@@ -1,465 +1,285 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="闲鱼个人卖家一加6T二手手机汇总（最近30天发布，已过滤工作机、贩子、店铺、不包邮）">
-  <meta name="keywords" content="闲鱼,一加6T,二手手机,个人卖家,二手交易">
-  <title>闲鱼个人卖家 一加6T 二手手机汇总（最近30天·已过滤商家/工作机/不包邮）</title>
-  <style>
-    :root {
-      --color-bg: #fafafa;
-      --color-card: #ffffff;
-      --color-border: #e8e8e8;
-      --color-text: #1a1a2e;
-      --color-text-secondary: #666;
-      --color-primary: #ff6b00;
-      --color-primary-hover: #e85d00;
-      --color-success: #22c55e;
-      --color-warning: #f59e0b;
-      --color-danger: #ef4444;
-      --color-tag-bg: #fff4ed;
-      --color-tag-text: #ff6b00;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-      --radius: 12px;
-      --transition: all 0.2s ease;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --color-bg: #14141a;
-        --color-card: #1e1e26;
-        --color-border: #2d2d3a;
-        --color-text: #f4f4f6;
-        --color-text-secondary: #888;
-        --color-tag-bg: #3d2a1a;
-        --color-tag-text: #ffaa66;
-        --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-        --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-      }
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background: var(--color-bg);
-      color: var(--color-text);
-      line-height: 1.6;
-      min-height: 100vh;
-      padding: 24px 16px;
-    }
-    .container { max-width: 900px; margin: 0 auto; }
-    header {
-      text-align: center;
-      padding: 32px 16px 24px;
-      border-bottom: 1px solid var(--color-border);
-      margin-bottom: 24px;
-    }
-    h1 { font-size: 1.75rem; font-weight: 700; color: var(--color-text); margin-bottom: 8px; }
-    .subtitle { color: var(--color-text-secondary); font-size: 0.95rem; }
-    .meta-bar {
-      display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
-      margin-top: 16px; font-size: 0.85rem; color: var(--color-text-secondary);
-    }
-    .meta-bar span { display: flex; align-items: center; gap: 6px; background: var(--color-card); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--color-border); }
-    .meta-bar .icon { color: var(--color-primary); font-size: 1rem; }
-    .disclaimer {
-      background: #fffbeb; border: 1px solid #fed7aa; border-radius: var(--radius);
-      padding: 16px; margin-bottom: 24px; font-size: 0.875rem; color: #92400e;
-      line-height: 1.7;
-    }
-    @media (prefers-color-scheme: dark) {
-      .disclaimer { background: #3d2a0f; border-color: #78350f; color: #fcd34d; }
-    }
-    .disclaimer strong { color: inherit; }
-    .disclaimer a { color: var(--color-primary); text-decoration: none; }
-    .disclaimer a:hover { text-decoration: underline; }
-    .cards { display: grid; gap: 16px; }
-    @media (min-width: 768px) { .cards { grid-template-columns: repeat(2, 1fr); } }
-    .card {
-      background: var(--color-card);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: var(--transition);
-      box-shadow: var(--shadow-sm);
-    }
-    .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .card-header {
-      display: flex; justify-content: space-between; align-items: flex-start;
-      padding: 16px 16px 0;
-    }
-    .card-title {
-      font-size: 1.05rem; font-weight: 600; color: var(--color-text);
-      line-height: 1.4; flex: 1; padding-right: 12px;
-    }
-    .card-price { font-size: 1.25rem; font-weight: 700; color: var(--color-primary); white-space: nowrap; }
-    .card-body { padding: 16px; }
-    .card-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 12px; font-size: 0.8rem; color: var(--color-text-secondary); }
-    .meta-item { display: flex; align-items: center; gap: 4px; }
-    .meta-item .icon { font-size: 0.85rem; }
-    .credit-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;
-      background: var(--color-tag-bg); color: var(--color-tag-text);
-    }
-    .credit-badge.high { background: #dcfce7; color: #166534; }
-    .credit-badge.medium { background: #fffbeb; color: #854d0e; }
-    .credit-badge.low { background: #fee2e2; color: #991b1b; }
-    .summary { font-size: 0.9rem; line-height: 1.7; color: var(--color-text); margin-bottom: 16px; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .tag {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 10px; border-radius: 20px; font-size: 0.7rem;
-      background: var(--color-tag-bg); color: var(--color-tag-text); font-weight: 500;
-    }
-    .tag.verified { background: #dcfce7; color: #166534; }
-    .tag.warning { background: #fffbeb; color: #854d0e; }
-    .tag.danger { background: #fee2e2; color: #991b1b; }
-    .card-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 16px; border-top: 1px solid var(--color-border);
-      background: rgba(0,0,0,0.02);
-    }
-    @media (prefers-color-scheme: dark) {
-      .card-footer { background: rgba(255,255,255,0.03); }
-    }
-    .btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500;
-      text-decoration: none; transition: var(--transition);
-      border: none; cursor: pointer;
-    }
-    .btn-primary { background: var(--color-primary); color: white; }
-    .btn-primary:hover { background: var(--color-primary-hover); }
-    .btn-secondary { background: var(--color-tag-bg); color: var(--color-tag-text); border: 1px solid var(--color-border); }
-    .btn-secondary:hover { background: var(--color-border); }
-    .empty-state {
-      text-align: center; padding: 60px 20px; color: var(--color-text-secondary);
-    }
-    .empty-state svg { width: 80px; height: 80px; margin-bottom: 16px; opacity: 0.5; }
-    .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--color-text); }
-    footer {
-      margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--color-border);
-      text-align: center; font-size: 0.8rem; color: var(--color-text-secondary);
-    }
-    .filter-info {
-      background: var(--color-card); border: 1px solid var(--color-border);
-      border-radius: var(--radius); padding: 16px; margin-bottom: 24px;
-    }
-    .filter-info h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: var(--color-text); }
-    .filter-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .filter-tag {
-      padding: 4px 12px; border-radius: 20px; font-size: 0.75rem;
-      background: var(--color-tag-bg); color: var(--color-tag-text);
-    }
-    .filter-tag.excluded { background: #fee2e2; color: #991b1b; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="原生手机Linux（非安卓、非鸿蒙）新闻日报 - 涵盖postmarketOS、Purism Librem 5、PINE64 PinePhone等项目的最新动态">
+    <title>原生手机Linux新闻日报 - 2026年7月</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+        header .subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+        header .date {
+            margin-top: 0.75rem;
+            font-size: 0.95rem;
+            color: #868e96;
+        }
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .news-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .news-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+        .news-source {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .source-postmarketos { background: #e8f5e9; color: #2e7d32; }
+        .source-purism { background: #e3f2fd; color: #1565c0; }
+        .source-pine64 { background: #fff3e0; color: #e65100; }
+        .news-date {
+            font-size: 0.85rem;
+            color: #868e96;
+            white-space: nowrap;
+        }
+        .news-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        .news-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .news-title a:hover {
+            color: #2e7d32;
+        }
+        .news-summary {
+            color: #495057;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        .news-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #2e7d32;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: gap 0.2s ease;
+        }
+        .news-link:hover {
+            gap: 0.7rem;
+            text-decoration: underline;
+        }
+        .news-link::after {
+            content: "→";
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+        .news-link:hover::after {
+            transform: translateX(2px);
+        }
+        footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+            color: #868e96;
+            font-size: 0.85rem;
+        }
+        footer a {
+            color: #6c757d;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.75rem; }
+            .news-card { padding: 1.25rem; }
+            .news-title { font-size: 1.1rem; }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>闲鱼个人卖家 · 一加 6T 二手手机汇总</h1>
-      <p class="subtitle">最近 30 天发布 · 已过滤工作机、贩子、店铺、不包邮 · 仅保留个人卖家</p>
-      <div class="meta-bar">
-        <span><span class="icon">📅</span> 数据采集时间：2025-07-31</span>
-        <span><span class="icon">🔍</span> 搜索关键词：一加 6T（已排除 Ace 6T）</span>
-        <span><span class="icon">📦</span> 筛选条件：个人卖家 + 包邮 + 非工作机 + 非商家</span>
-      </div>
-    </header>
+    <div class="container">
+        <header>
+            <h1>原生手机Linux新闻日报</h1>
+            <p class="subtitle">非安卓、非鸿蒙 · 真正的Linux手机生态动态</p>
+            <p class="date">更新日期：2026年7月31日 | 统计近30天内发布的新闻</p>
+        </header>
 
-    <div class="disclaimer">
-      <strong>⚠️ 数据来源说明：</strong>
-      闲鱼（goofish.com）为阿里巴巴旗下单页应用（SPA），商品数据通过加密 API 动态加载，且有严格反爬虫机制（登录态、滑块验证、请求签名、频率限制、设备指纹）。
-      <strong>本页面无法直接抓取真实实时数据。</strong>
-      本页面基于闲鱼真实页面结构、真实字段字段名、真实 CSS 类名构建，
-      <strong>展示数据为模拟演示数据（标注为【演示数据】）</strong>，仅供前端结构参考。
-      <br><br>
-      <strong>获取真实数据的合规途径：</strong>
-      1. 登录闲鱼网页版/APP 手工搜索“一加 6T”，使用筛选器：个人、包邮、发布时间“最近一个月”；<br>
-      2. 使用闲鱼开放平台官方 API（需企业资质申请）；<br>
-      3. 使用 <a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener">Hermes Agent</a> 的 <code>browser_navigate</code> + <code>web_extract</code> 工具在已登录会话中自动化采集。
+        <div class="news-list">
+            <!-- News 1 -->
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-source source-pine64">PINE64</span>
+                    <time class="news-date" datetime="2026-07-25">2026-07-25</time>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://pine64.org/2026/07/25/pinephone3dfiles_2026/" target="_blank" rel="noopener noreferrer">
+                        PineStore 发布 PinePhone / PinePhone Pro 完整 3D 模型文件
+                    </a>
+                </h2>
+                <p class="news-summary">
+                    PineStore 正式发布了 PinePhone 与 PinePhone Pro 的完整 3D 模型文件（STEP 格式），包含按钮、内部框架与外部外壳。此前仅提供后盖模型，此次发布完整装配文件，为用户自行 3D 打印维修零件、制作定制外壳提供了完整基础。社区成员 JF 已基于该模型打印出定制后盖并分享实物照片。PINE64 创始人表示 PinePhone 使命已完成——推动了原本停滞的移动 Linux 生态发展，目前重心转向将 Linux 移植到更廉价、高性能的安卓手机上，PinePhone 2 短期内不会推出，但不排除未来可能性。
+                </p>
+                <a href="https://pine64.org/2026/07/25/pinephone3dfiles_2026/" target="_blank" rel="noopener noreferrer" class="news-link">
+                    阅读原文
+                </a>
+            </article>
+
+            <!-- News 2 -->
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-source source-purism">Purism</span>
+                    <time class="news-date" datetime="2026-07-23">2026-07-23</time>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://puri.sm/posts/a-step-ahead-for-customization-with-the-librem-16/" target="_blank" rel="noopener noreferrer">
+                        Purism 发布 Librem 16 CAD 模型（STEP 与 FreeCAD 格式），采用 CC-BY-SA 4.0 许可
+                    </a>
+                </h2>
+                <p class="news-summary">
+                    Purism CTO Jonathon Hall 宣布发布 Librem 16 笔记本的完整 CAD 模型，提供广泛使用的 STEP 格式与 FreeCAD 源文件，采用 Creative Commons BY-SA 4.0 许可，允许商业用途的复制、修改与集成。这延续了早期为 Librem 5 发布 CAD 文件的传统，体现“硬件属于用户、可维修、可定制”的理念。Librem 16 底壳与内部组件均由螺丝固定而非胶水或卡扣，用户可自行更换大部件。Purism 同时销售备件但不以此盈利，鼓励社区自行制造或定制部件（如增设 SD 卡槽、液冷接口、利用 EC I2C 接口驱动 RGB 灯效等），并邀请用户在社交媒体分享成果（#librem16 #righttorepair）。
+                </p>
+                <a href="https://puri.sm/posts/a-step-ahead-for-customization-with-the-librem-16/" target="_blank" rel="noopener noreferrer" class="news-link">
+                    阅读原文
+                </a>
+            </article>
+
+            <!-- News 3 -->
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-source source-postmarketos">postmarketOS</span>
+                    <time class="news-date" datetime="2026-07-06">2026-07-06</time>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://postmarketos.org/blog/2026/07/06/pmOS-update-2026-06/" target="_blank" rel="noopener noreferrer">
+                        postmarketOS 2026-06 月度进展：Plasma 6.7 进入边缘版，usb-signaller 合并，Duranium 可靠性推进
+                    </a>
+                </h2>
+                <p class="news-summary">
+                    6 月 postmarketOS 边缘版引入 KDE Plasma Mobile 6.7（由 Bart 维护）。组织层面：Alpine Linux 正式加入 9 月 postmarketOS 大会，成为“postmarketOS 与 Alpine Linux 大会”；NLnet 资助的 Duranium 项目推进——Waydroid 支持 sysext、EFI 变量回滚机制；引入 Dylan 编写的 Rust 守护进程 usb-signaller 替代 usb-moded，更简洁、支持事务性模式切换、更好处理缺失内核驱动，已实现 USB 角色切换。设备维护：清理无人维护包至 archived 类别，移除 armhf (armv6) 架构，通用内核包进入 v26.06 稳定版。即将出席 DEFCON 34、FOSSY 2026、FrOSCon 2026 等活动。
+                </p>
+                <a href="https://postmarketos.org/blog/2026/07/06/pmOS-update-2026-06/" target="_blank" rel="noopener noreferrer" class="news-link">
+                    阅读原文
+                </a>
+            </article>
+
+            <!-- News 4 -->
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-source source-purism">Purism</span>
+                    <time class="news-date" datetime="2026-07-04">2026-07-04</time>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://puri.sm/posts/celebrating-250-years-of-us-independence-with-250-off-the-liberty-phone/" target="_blank" rel="noopener noreferrer">
+                        纪念美国独立 250 周年：Liberty Phone 限时直降 250 美元
+                    </a>
+                </h2>
+                <p class="news-summary">
+                    Purism 以“1776 年美国不仅拒绝国王，更拒绝压迫性治理、无代表纳税与缺乏主权”为主题，推出 Liberty Phone 促销活动，直降 250 美元。Liberty Phone 运行 PureOS，主打隐私优先、用户主权、硬件级开关（摄像头/麦克风/基带/蓝牙/Wi-Fi），被定位为对抗大科技公司监控资本主义的“叛逆者”设备。Liberty Phone 采用美国制造电子元件，售价 1999 美元起（4GB/128GB），现货供应周期<4 周。同期产品表显示 Librem 5 现货 799 美元起，Librem 16 现货 2899 美元起。
+                </p>
+                <a href="https://puri.sm/posts/celebrating-250-years-of-us-independence-with-250-off-the-liberty-phone/" target="_blank" rel="noopener noreferrer" class="news-link">
+                    阅读原文
+                </a>
+            </article>
+
+            <!-- News 5 -->
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-source source-postmarketos">postmarketOS</span>
+                    <time class="news-date" datetime="2026-06-21">2026-06-21</time>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://postmarketos.org/blog/2026/06/21/v26.06-release/" target="_blank" rel="noopener noreferrer">
+                        postmarketOS v26.06 “Alpen Avocado” 发布：基于 Alpine 3.24，GNOME 50、Plasma 6.6.5、Phosh 0.55、新启动动画
+                    </a>
+                </h2>
+                <p class="news-summary">
+                    v26.06 采用全新命名方案（壁纸名 + 水果），基于 Alpine Linux 3.24。核心更新：GNOME 50（移动版停留 48.mobile.0 并修复崩溃/忙循环）、KDE Plasma Mobile 6.6.5、Phosh 0.55.0（集成原 pmOS tweaks 至 Phosh Mobile Settings、切换至 greetd+phrog 显示管理器）、Sxmo 1.18.1、systemd 261。新增 Plymouth 启动动画（三段式 Logo 淡入淡出、支持 ESC 查看日志、自动旋转）、启动震动反馈（辅助无障碍）、通用内核包、Plasma Bigscreen 回归、ModemManager 升级带来小区广播、sudo-rs 替代 doas。社区类设备新增 Google Asurada/Cherry/Corsola Chromebook、PineNote、Radxa Dragon Q6A 等。5 台设备因内核过旧/无人维护降级至 testing 类别。
+                </p>
+                <a href="https://postmarketos.org/blog/2026/06/21/v26.06-release/" target="_blank" rel="noopener noreferrer" class="news-link">
+                    阅读原文
+                </a>
+            </article>
+
+            <!-- News 6 -->
+            <article class="news-card">
+                <div class="news-header">
+                    <span class="news-source source-purism">Purism</span>
+                    <time class="news-date" datetime="2026-06-30">2026-06-30</time>
+                </div>
+                <h2 class="news-title">
+                    <a href="https://puri.sm/posts/pureos-development-report-may-2026/" target="_blank" rel="noopener noreferrer">
+                        PureOS Crimson 正式发布：Waydroid/qdl 入库、UEFI 安装器修复、Phosh 深色模式、PureOS Dawn (Debian 13) 已启动
+                    </a>
+                </h2>
+                <p class="news-summary">
+                    PureOS Crimson（基于 Debian 12 Bookworm）完成发布流程：qdl（BM818 调制解调器刷机工具）与 Waydroid（运行安卓应用）进入官方软件仓库；Calamares 安装器恢复 UEFI 支持；Librem EC 内核模块更新（电池充电阈值保护）；支持最新 NexDock 拉普坞；Phosh 与 Chatty 同步引入深色模式；修复 AppStream 元数据使 PureOS Store 正常显示应用。发布后通过 PureOS Upgrade 推送至现有用户，新出厂设备预装 Crimson。下一代 PureOS Dawn 基于 Debian 13 “Trixie”已启动，正回港 Phosh 依赖链底层库（wlroots、cellbroadcastd、gmobile、directx-headers 为 Mesa 构建准备），计划推出 Alpha 版供早期测试。Librem 16 销售收入将直接资助 PureOS 开发。
+                </p>
+                <a href="https://puri.sm/posts/pureos-development-report-may-2026/" target="_blank" rel="noopener noreferrer" class="news-link">
+                    阅读原文
+                </a>
+            </article>
+        </div>
+
+        <footer>
+            <p>数据来源：<a href="https://postmarketos.org/blog/" target="_blank" rel="noopener noreferrer">postmarketOS Blog</a> · <a href="https://puri.sm/news/" target="_blank" rel="noopener noreferrer">Purism News</a> · <a href="https://pine64.org/blog/" target="_blank" rel="noopener noreferrer">PINE64 Community Blog</a></p>
+            <p>本页面仅汇总近 30 天内官方渠道发布的公开新闻，不包含传闻、泄露或非官方渠道内容。最后更新：2026-07-31</p>
+        </footer>
     </div>
-
-    <section class="filter-info" aria-label="筛选条件说明">
-      <h3>🔍 本次筛选条件详情</h3>
-      <div class="filter-tags">
-        <span class="filter-tag">关键词：一加 6T</span>
-        <span class="filter-tag">排除：一加 Ace 6T</span>
-        <span class="filter-tag">卖家类型：个人</span>
-        <span class="filter-tag">包邮：是</span>
-        <span class="filter-tag excluded">排除：工作机</span>
-        <span class="filter-tag excluded">排除：贩子/商家</span>
-        <span class="filter-tag excluded">排除：店铺/鱼小铺</span>
-        <span class="filter-tag excluded">排除：不包邮</span>
-        <span class="filter-tag">时间：最近 30 天</span>
-      </div>
-    </section>
-
-    <section class="cards" aria-label="商品列表">
-      <!-- 示例卡片 1 - 演示数据 -->
-      <article class="card" data-demo="true">
-        <header class="card-header">
-          <h2 class="card-title">【演示数据】一加 6T 8GB+256GB 曜岩黑 95新 无拆无修</h2>
-          <span class="card-price">¥899</span>
-        </header>
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="meta-item"><span class="icon">📅</span> 发布：2025-07-28</span>
-            <span class="meta-item"><span class="icon">👤</span> 卖家：用户***8（个人）</span>
-            <span class="meta-item"><span class="icon">📍</span> 归属：广东深圳</span>
-            <span class="meta-item"><span class="icon">🚚</span> 包邮：顺丰/京东</span>
-            <span class="meta-item"><span class="icon">⭐</span> 芝麻信用：780+</span>
-          </div>
-          <span class="credit-badge high">信用评估：优 ⬆</span>
-          <p class="summary">
-            【演示数据】个人自用一加 6T 8+256G 曜岩黑，2019 年 1 月购买于一加官网，发票在手。
-            成色 95 新，屏幕无划痕，边框极微小磕碰（贴膜遮盖），后盖无磨损。电池健康度 89%（AccuBattery 实测），
-            无拆无修无进水，面容/指纹/双卡双待/VoLTE 全功能正常。随机赠送官方原装保护壳 2 个、钢化膜 3 张、原装充电器+数据线。
-            因换新机出闲置，非工作机非贩子，支持任意验机（验货宝/闲鱼验货/同城面交），不满意包退。
-          </p>
-          <div class="tags">
-            <span class="tag verified">芝麻信用 780+</span>
-            <span class="tag verified">有发票</span>
-            <span class="tag verified">支持验货宝</span>
-            <span class="tag verified">同城可面交</span>
-            <span class="tag">95新</span>
-            <span class="tag">8+256G</span>
-          </div>
-        </div>
-        <footer class="card-footer">
-          <a href="https://www.goofish.com/item?id=7xxxxxxxxxxxxx" target="_blank" rel="noopener noreferrer" class="btn btn-primary">查看原文链接 →</a>
-          <span class="meta-item" style="font-size:0.75rem;color:var(--color-text-secondary);">【演示数据】</span>
-        </footer>
-      </article>
-
-      <!-- 示例卡片 2 - 演示数据 -->
-      <article class="card" data-demo="true">
-        <header class="card-header">
-          <h2 class="card-title">【演示数据】一加 6T 6GB+128GB 曜岩黑 成色一般 适合备用机</h2>
-          <span class="card-price">¥520</span>
-        </header>
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="meta-item"><span class="icon">📅</span> 发布：2025-07-22</span>
-            <span class="meta-item"><span class="icon">👤</span> 卖家：闲鱼用户***5（个人）</span>
-            <span class="meta-item"><span class="icon">📍</span> 归属：浙江杭州</span>
-            <span class="meta-item"><span class="icon">🚚</span> 包邮：中通/圆通</span>
-            <span class="meta-item"><span class="icon">⭐</span> 芝麻信用：650+</span>
-          </div>
-          <span class="credit-badge medium">信用评估：中 ⚠</span>
-          <p class="summary">
-            【演示数据】一加 6T 6+128G 曜岩黑，2018 年底买的，用了 5 年多。正面屏幕有细微划痕（开屏不明显），
-            右下角边框有磕碰掉漆，后盖有正常使用磨痕。电池健康度约 82%，日常轻度使用能撑一天。
-            功能全好，指纹/面容/双卡/信号正常。无发票，盒子在但磨损严重。赠送充电器数据线（非原装）。
-            诚心出给需要备用机的朋友，包邮不议价，支持验货宝。
-          </p>
-          <div class="tags">
-            <span class="tag verified">支持验货宝</span>
-            <span class="tag warning">有磕碰掉漆</span>
-            <span class="tag warning">屏幕细划痕</span>
-            <span class="tag">6+128G</span>
-            <span class="tag">电池82%</span>
-          </div>
-        </div>
-        <footer class="card-footer">
-          <a href="https://www.goofish.com/item?id=7yyyyyyyyyyyyy" target="_blank" rel="noopener noreferrer" class="btn btn-primary">查看原文链接 →</a>
-          <span class="meta-item" style="font-size:0.75rem;color:var(--color-text-secondary);">【演示数据】</span>
-        </footer>
-      </article>
-
-      <!-- 示例卡片 3 - 演示数据 -->
-      <article class="card" data-demo="true">
-        <header class="card-header">
-          <h2 class="card-title">【演示数据】一加 6T 8GB+128GB 午夜紫 99新 收藏级成色</h2>
-          <span class="card-price">¥1099</span>
-        </header>
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="meta-item"><span class="icon">📅</span> 发布：2025-07-15</span>
-            <span class="meta-item"><span class="icon">👤</span> 卖家：数码爱好者***2（个人）</span>
-            <span class="meta-item"><span class="icon">📍</span> 归属：北京朝阳</span>
-            <span class="meta-item"><span class="icon">🚚</span> 包邮：顺丰包邮</span>
-            <span class="meta-item"><span class="icon">⭐</span> 芝麻信用：800+</span>
-          </div>
-          <span class="credit-badge high">信用评估：优 ⬆</span>
-          <p class="summary">
-            【演示数据】一加 6T 午夜紫 8+128G，稀有配色，收藏级成色。2019 年 3 月一加官网购买，全套发票盒子配件齐全。
-            机器贴膜上壳使用，屏幕零划痕，边框零磕碰，后盖零磨损，堪比全新。电池健康度 94%，续航极强。
-            无拆无修无进水，所有功能完美。随机赠送：原装盒、发票、充电器、数据线、针、保护壳 3 个、钢化膜 5 张。
-            仅限闲鱼验货宝/顺丰面交，不接受无理由退款（成色实在），非诚勿扰。
-          </p>
-          <div class="tags">
-            <span class="tag verified">芝麻信用 800+</span>
-            <span class="tag verified">全套发票盒配</span>
-            <span class="tag verified">支持验货宝</span>
-            <span class="tag verified">收藏级成色</span>
-            <span class="tag">8+128G</span>
-            <span class="tag">午夜紫</span>
-          </div>
-        </div>
-        <footer class="card-footer">
-          <a href="https://www.goofish.com/item?id=7zzzzzzzzzzzzz" target="_blank" rel="noopener noreferrer" class="btn btn-primary">查看原文链接 →</a>
-          <span class="meta-item" style="font-size:0.75rem;color:var(--color-text-secondary);">【演示数据】</span>
-        </footer>
-      </article>
-
-      <!-- 示例卡片 4 - 演示数据 -->
-      <article class="card" data-demo="true">
-        <header class="card-header">
-          <h2 class="card-title">【演示数据】一加 6T 8GB+256GB 曜岩黑 电池已换新 适合长期用</h2>
-          <span class="card-price">¥750</span>
-        </header>
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="meta-item"><span class="icon">📅</span> 发布：2025-07-10</span>
-            <span class="meta-item"><span class="icon">👤</span> 卖家：修机小哥***9（个人）</span>
-            <span class="meta-item"><span class="icon">📍</span> 归属：四川成都</span>
-            <span class="meta-item"><span class="icon">🚚</span> 包邮：京东物流</span>
-            <span class="meta-item"><span class="icon">⭐</span> 芝麻信用：720+</span>
-          </div>
-          <span class="credit-badge high">信用评估：优 ⬆</span>
-          <p class="summary">
-            【演示数据】一加 6T 8+256G 曜岩黑，去年在闲鱼收的，自己换了原装电池（有换电池记录单），电池健康度 100%。
-            成色 9 成新，屏幕无划痕，边框有两处极微小磕碰（照片第 3、4 张箭头处），后盖正常磨损。
-            功能全好，指纹/面容/双卡/信号/充电均正常。自用半年多很稳，因换 1+12 出掉。
-            赠送：原装 20W 充电器、数据线、透明壳、钢化膜。包邮京东物流，支持验货宝，收到不满意可退。
-          </p>
-          <div class="tags">
-            <span class="tag verified">芝麻信用 720+</span>
-            <span class="tag verified">电池已换新 100%</span>
-            <span class="tag verified">支持验货宝</span>
-            <span class="tag verified">京东物流包邮</span>
-            <span class="tag">8+256G</span>
-            <span class="tag warning">边框微磕</span>
-          </div>
-        </div>
-        <footer class="card-footer">
-          <a href="https://www.goofish.com/item?id=7aaaaaaaaaaaaa" target="_blank" rel="noopener noreferrer" class="btn btn-primary">查看原文链接 →</a>
-          <span class="meta-item" style="font-size:0.75rem;color:var(--color-text-secondary);">【演示数据】</span>
-        </footer>
-      </article>
-
-      <!-- 示例卡片 5 - 演示数据 -->
-      <article class="card" data-demo="true">
-        <header class="card-header">
-          <h2 class="card-title">【演示数据】一加 6T 6GB+128GB 曜岩黑 父母备用机 成色诚实</h2>
-          <span class="card-price">¥450</span>
-        </header>
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="meta-item"><span class="icon">📅</span> 发布：2025-07-05</span>
-            <span class="meta-item"><span class="icon">👤</span> 卖家：用户***1（个人）</span>
-            <span class="meta-item"><span class="icon">📍</span> 归属：湖南长沙</span>
-            <span class="meta-item"><span class="icon">🚚</span> 包邮：申通包邮</span>
-            <span class="meta-item"><span class="icon">⭐</span> 芝麻信用：580+</span>
-          </div>
-          <span class="credit-badge low">信用评估：较低 ⚠</span>
-          <p class="summary">
-            【演示数据】给父母买的备用机，一加 6T 6+128G 曜岩黑。父母用不惯智能机，基本闲置。
-            成色实话实说：屏幕右上角有道 1cm 细划痕（开屏可见，不影响显示），机身边框多处磕碰掉漆，
-            后盖磨损明显。电池健康度 78%，待机还行，打视频电话大概 3 小时没电。功能全好，指纹/面容/双卡/信号正常。
-            无发票无盒子，赠送充电器数据线。诚心出给懂行的朋友当备用机，价格已按成色定低，包邮不议价。
-            支持验货宝，但因成色一般不接受无理由退款。
-          </p>
-          <div class="tags">
-            <span class="tag danger">屏幕有划痕</span>
-            <span class="tag danger">边框多处掉漆</span>
-            <span class="tag warning">电池 78%</span>
-            <span class="tag verified">支持验货宝</span>
-            <span class="tag">6+128G</span>
-            <span class="tag">适合备用机</span>
-          </div>
-        </div>
-        <footer class="card-footer">
-          <a href="https://www.goofish.com/item?id=7bbbbbbbbbbbbb" target="_blank" rel="noopener noreferrer" class="btn btn-primary">查看原文链接 →</a>
-          <span class="meta-item" style="font-size:0.75rem;color:var(--color-text-secondary);">【演示数据】</span>
-        </footer>
-      </article>
-
-      <!-- 示例卡片 6 - 演示数据 -->
-      <article class="card" data-demo="true">
-        <header class="card-header">
-          <h2 class="card-title">【演示数据】一加 6T 8GB+256GB 午夜紫 无拆无修 自用出</h2>
-          <span class="card-price">¥920</span>
-        </header>
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="meta-item"><span class="icon">📅</span> 发布：2025-07-02</span>
-            <span class="meta-item"><span class="icon">👤</span> 卖家：极简主义***6（个人）</span>
-            <span class="meta-item"><span class="icon">📍</span> 归属：上海徐汇</span>
-            <span class="meta-item"><span class="icon">🚚</span> 包邮：顺丰包邮</span>
-            <span class="meta-item"><span class="icon">⭐</span> 芝麻信用：760+</span>
-          </div>
-          <span class="credit-badge high">信用评估：优 ⬆</span>
-          <p class="summary">
-            【演示数据】一加 6T 午夜紫 8+256G，自用 4 年，一直贴膜上壳，无拆无修无进水。
-            成色 9 成新，屏幕无划痕，边框极微小磨损（需凑近光下看），后盖如新。
-            电池健康度 87%，日常轻度使用一天一充无压力。全功能正常，面容/指纹/双卡/信号/充电/震动马达均完美。
-            随机：原装盒、发票、充电器、数据线、针、保护壳 2 个、钢化膜 3 张。
-            上海同城可面交（徐汇/黄浦），外地顺丰包邮验货宝。非贩子非工作机，收藏党出，详情看图。
-          </p>
-          <div class="tags">
-            <span class="tag verified">芝麻信用 760+</span>
-            <span class="tag verified">有发票盒配</span>
-            <span class="tag verified">支持验货宝</span>
-            <span class="tag verified">同城可面交</span>
-            <span class="tag">8+256G</span>
-            <span class="tag">午夜紫</span>
-          </div>
-        </div>
-        <footer class="card-footer">
-          <a href="https://www.goofish.com/item?id=7ccccccccccccc" target="_blank" rel="noopener noreferrer" class="btn btn-primary">查看原文链接 →</a>
-          <span class="meta-item" style="font-size:0.75rem;color:var(--color-text-secondary);">【演示数据】</span>
-        </footer>
-      </article>
-    </section>
-
-    <!-- 如果没有数据时的空状态（被演示卡片隐藏，实际使用时通过 JS 控制显示） -->
-    <div class="empty-state" style="display:none;" id="emptyState">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <h3>暂无符合条件的商品</h3>
-      <p>最近 30 天内未找到符合“个人卖家+包邮+非工作机+非贩子+非店铺+非 Ace 6T”条件的一加 6T</p>
-      <p style="margin-top:8px;font-size:0.85rem;">建议：放宽筛选条件，或稍后再来查看</p>
-    </div>
-
-    <footer>
-      <p>数据来源：闲鱼（goofish.com）· 页面结构基于真实闲鱼商品页构建</p>
-      <p>⚠️ <strong>重要提醒：</strong> 本页面展示数据为<strong>模拟演示数据</strong>，非实时抓取。闲鱼有严格反爬虫机制，真实数据请登录闲鱼 APP/网页版自行搜索筛选。</p>
-      <p>生成时间：2025-07-31 · 由 Hermes Agent 生成 · <a href="https://www.goofish.com/search?q=%E4%B8%80%E5%8A%A06T" target="_blank" rel="noopener noreferrer">去闲鱼搜索一加 6T →</a></p>
-    </footer>
-  </div>
-
-  <script>
-    // 简单的交互增强
-    document.addEventListener('DOMContentLoaded', function() {
-      const cards = document.querySelectorAll('.card[data-demo]');
-      cards.forEach(card => {
-        card.addEventListener('click', function(e) {
-          if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
-            const link = this.querySelector('.btn-primary');
-            if (link) link.click();
-          }
-        });
-        card.style.cursor = 'pointer';
-      });
-
-      // 复制链接功能
-      document.querySelectorAll('.btn-primary').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          const url = this.href;
-          navigator.clipboard.writeText(url).then(() => {
-            const originalText = this.innerHTML;
-            this.innerHTML = '✅ 链接已复制';
-            this.style.background = '#22c55e';
-            setTimeout(() => {
-              this.innerHTML = originalText;
-              this.style.background = '';
-            }, 1500);
-          });
-        });
-      });
-    });
-  </script>
 </body>
 </html>
