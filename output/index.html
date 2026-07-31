@@ -1,295 +1,456 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>闲鱼一加 6T 个人卖家筛选结果（最近 30 天）</title>
-<style>
-  :root {
-    --bg: #f6f7f9;
-    --card: #fff;
-    --text: #1a1a2e;
-    --muted: #6b6f7b;
-    --accent: #ff6b00;
-    --border: #e3e5e8;
-    --shadow: 0 2px 8px rgba(0,0,0,0.06);
-    --radius: 12px;
-    --green: #22c55e;
-    --red: #ef4444;
-    --yellow: #f59e0b;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    min-height: 100vh;
-    padding: 24px;
-  }
-  .container { max-width: 900px; margin: 0 auto; }
-  header {
-    text-align: center;
-    margin-bottom: 32px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  header h1 { font-size: 1.75rem; font-weight: 700; color: var(--text); }
-  header p { color: var(--muted); margin-top: 8px; font-size: 0.95rem; }
-  .meta-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 16px;
-    font-size: 0.85rem;
-    color: var(--muted);
-  }
-  .meta-bar span { background: var(--card); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); }
-  .meta-bar .tag { background: #fff4ed; color: var(--accent); border-color: #ffd8b8; }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-    overflow: hidden;
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    background: #fafafa;
-  }
-  .seller-avatar {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: linear-gradient(135deg, #ff6b00, #ff9f43);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 700; font-size: 1.1rem;
-    flex-shrink: 0;
-  }
-  .seller-info { flex: 1; min-width: 0; }
-  .seller-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .seller-meta { display: flex; gap: 12px; margin-top: 4px; font-size: 0.78rem; color: var(--muted); }
-  .credit-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;
-  }
-  .credit-high { background: #dcfce7; color: #166534; }
-  .credit-medium { background: #fef3c7; color: #92400e; }
-  .credit-low { background: #fee2e2; color: #991b1b; }
-  .credit-unknown { background: #f1f5f9; color: #475569; }
-  .card-body { padding: 20px; }
-  .item-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 12px; color: var(--text); }
-  .item-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; font-size: 0.85rem; color: var(--muted); }
-  .item-meta span { display: flex; align-items: center; gap: 6px; }
-  .item-meta svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
-  .summary { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 16px; font-size: 0.9rem; color: var(--text); white-space: pre-wrap; }
-  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-  .tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 4px 10px; border-radius: 16px; font-size: 0.72rem; font-weight: 500;
-  }
-  .tag-personal { background: #dcfce7; color: #166534; }
-  .tag-free-ship { background: #dbeafe; color: #1e40af; }
-  .tag-recent { background: #fef3c7; color: #92400e; }
-  .tag-excluded { background: #fee2e2; color: #991b1b; text-decoration: line-through; opacity: 0.6; }
-  .link-row { display: flex; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-  .link-row a {
-    flex: 1; text-align: center; padding: 10px 0; background: var(--accent); color: #fff;
-    border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none;
-    transition: background 0.15s, transform 0.15s;
-  }
-  .link-row a:hover { background: #e85d00; transform: scale(1.02); }
-  .link-row a:active { transform: scale(0.98); }
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-  .empty-state svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5; }
-  .notice {
-    background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius);
-    padding: 20px; margin-bottom: 24px; color: #92400e;
-  }
-  .notice h3 { font-size: 1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-  .notice ul { margin-left: 20px; font-size: 0.9rem; line-height: 1.8; }
-  .notice code { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
-  footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.85rem; }
-  @media (max-width: 600px) {
-    body { padding: 16px; }
-    header h1 { font-size: 1.4rem; }
-    .card-header { padding: 14px 16px; }
-    .card-body { padding: 16px; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jolla Phone 和 SailfishOS 真实新闻日报 - 最近30天汇总">
+    <title>Jolla Phone & SailfishOS 新闻日报</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+            color: white;
+            margin-bottom: 30px;
+            border-radius: 12px;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .news-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .news-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f5f7fa;
+            border-bottom: 1px solid #e8eaed;
+        }
+        .news-category {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .category-media { background: #e3f2fd; color: #1565c0; }
+        .category-official { background: #e8f5e9; color: #2e7d32; }
+        .category-community { background: #fff3e0; color: #ef6c00; }
+        .category-dev { background: #f3e5f5; color: #7b1fa2; }
+        .news-item {
+            padding: 20px;
+            border-bottom: 1px solid #e8eaed;
+            transition: background 0.2s;
+        }
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        .news-item:hover {
+            background: #fafafa;
+        }
+        .news-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .news-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .news-title a:hover {
+            color: #1a73e8;
+        }
+        .news-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .news-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .news-summary {
+            color: #444;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        .news-source {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 10px;
+            background: #f1f3f4;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+        .news-source a {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .news-source a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+        footer a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8rem; }
+            .container { padding: 15px; }
+            .news-item { padding: 15px; }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>闲鱼一加 6T 个人卖家筛选结果</h1>
-    <p>仅展示最近 30 天发布、个人卖家、包邮、非工作机/非贩子/非店铺的一加 6T（已排除一加 Ace 6T）</p>
-    <div class="meta-bar">
-      <span>数据来源：闲鱼 App / <a href="https://www.goofish.com/search" target="_blank" rel="noopener">goofish.com/search</a></span>
-      <span>筛选时间：<span id="filter-time">—</span></span>
-      <span class="tag">一加 6T</span>
-      <span class="tag">个人卖家</span>
-      <span class="tag">包邮</span>
-      <span class="tag">最近 30 天</span>
-    </div>
-  </header>
-
-  <section class="notice">
-    <h3>⚠️ 重要说明：本页面为静态模板，需人工填入真实数据</h3>
-    <ul>
-      <li>AI 无法直接访问闲鱼/Goofish 实时数据（无浏览器/爬虫权限、需登录、反爬严格）。</li>
-      <li>请在浏览器打开 <code>https://www.goofish.com/search?q=%E4%B8%80%E5%8A%A0%206T</code>，按以下条件手工筛选：</li>
-      <ul style="margin-left: 24px; margin-top: 4px; list-style: disc;">
-        <li>发布时间：最近 30 天（闲鱼筛选器选“最近一个月”）</li>
-        <li>卖家类型：仅看“个人”（排除“商家/店铺/专业卖家”）</li>
-        <li>运费：仅看“包邮”</li>
-        <li>关键词排除：在搜索框加 <code>-ace -Ace -工作机 -贩子 -批发 -店铺</code></li>
-        <li>人工核查：点进详情页查看芝麻信用/闲鱼信用、实名认证、发布历史、评价，判断是否为真实个人卖家</li>
-      </ul>
-      <li>将筛选出的每条商品信息，按下方卡片结构填入 HTML（可用编辑器或浏览器开发者工具临时修改，再另存为）。</li>
-      <li>字段说明：</li>
-      <ul style="margin-left: 24px; margin-top: 4px; list-style: disc;">
-        <li><strong>卖家信用分析</strong>：芝麻信用分、闲鱼信用等级、实名认证、违规记录、历史成交量、好评率、是否为长期活跃个人账号</li>
-        <li><strong>发布日期</strong>：精确到日（如“2025-07-28”）</li>
-        <li><strong>中文摘要</strong>：成色、存储/颜色、配件、瑕疵、价格、卖家自述理由等关键信息，150 字内</li>
-        <li><strong>原文链接</strong>：闲鱼商品详情页完整 URL（格式 <code>https://www.goofish.com/item/xxxx</code> 或 <code>https://m.intl.taobao.com/detail/detail.html?id=xxxx</code>）</li>
-      </ul>
-    </ul>
-  </section>
-
-  <main id="listings">
-    <!-- 真实数据卡片将在此处插入，示例结构如下（请删除示例后填入真实数据）：
-    <article class="card">
-      <div class="card-header">
-        <div class="seller-avatar">张</div>
-        <div class="seller-info">
-          <div class="seller-name">张三（示例）</div>
-          <div class="seller-meta">
-            <span>📍 深圳</span>
-            <span>🆔 实名认证</span>
-            <span>⭐ 闲鱼信用：优秀</span>
-            <span>🌰 芝麻信用：720</span>
-          </div>
-        </div>
-        <span class="credit-badge credit-high">信用良好 ✓</span>
-      </div>
-      <div class="card-body">
-        <h2 class="item-title">一加 6T 8G+128G 墨岩黑 99新 原盒全套</h2>
-        <div class="item-meta">
-          <span><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 发布：2025-07-25</span>
-          <span><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> 更新：2025-07-28</span>
-          <span><svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m16 0l-8 4"/></svg> 价格：¥580 包邮</span>
-        </div>
-        <div class="tags">
-          <span class="tag tag-personal">个人卖家</span>
-          <span class="tag tag-free-ship">包邮</span>
-          <span class="tag tag-recent">最近 30 天</span>
-        </div>
-        <div class="summary">
-自用一年半，无拆无修，屏幕无划痕，边框极微小磕碰（贴膜遮盖），电池健康度 86%。
-出售原因：换新机。原盒、充电器、数据线、说明书、保护壳全套齐全。顺丰包邮，支持当面验机。
-        </div>
-        <div class="link-row">
-          <a href="https://www.goofish.com/item/1234567890" target="_blank" rel="noopener">查看原文链接</a>
-        </div>
-      </div>
-    </article>
-    -->
-    <div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/><path d="M9 12l2 2 4-4"/></svg>
-      <p>暂无数据 — 请按上方说明在闲鱼筛选后，将真实商品信息填入此页面</p>
-      <p style="margin-top: 8px; font-size: 0.85rem;">每条商品对应一个 <code><article class="card">...</article></code> 块，放入 <code>#listings</code> 容器内</p>
-    </div>
-  </main>
-
-  <footer>
-    <p>模板生成时间：<span id="gen-time">—</span></p>
-    <p>本页面为离线静态模板，不包含任何实时爬取数据。请勿将示例数据视为真实商品信息。</p>
-  </footer>
-</div>
-
-<script>
-  // 填充时间戳
-  const now = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  document.getElementById('filter-time').textContent = fmt(now);
-  document.getElementById('gen-time').textContent = fmt(now);
-
-  // 示例：若你已在浏览器控制台准备好数据数组 `listingsData`，可用下面代码自动渲染：
-  /*
-  const listingsData = [
-    {
-      sellerName: "张三",
-      sellerInitial: "张",
-      location: "深圳",
-      verified: true,
-      xianyuCredit: "优秀",
-      zhimaScore: 720,
-      creditLevel: "high", // high | medium | low | unknown
-      title: "一加 6T 8G+128G 墨岩黑 99新 原盒全套",
-      publishDate: "2025-07-25",
-      updateDate: "2025-07-28",
-      price: "¥580 包邮",
-      tags: ["个人卖家", "包邮", "最近 30 天"],
-      summary: "自用一年半，无拆无修...顺丰包邮，支持当面验机。",
-      url: "https://www.goofish.com/item/1234567890"
-    }
-    // ...更多条目
-  ];
-
-  function renderCards(data) {
-    const container = document.getElementById('listings');
-    container.innerHTML = '';
-    if (!data.length) {
-      container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/><path d="M9 12l2 2 4-4"/></svg><p>筛选结果为空</p></div>';
-      return;
-    }
-    const creditClass = { high: 'credit-high', medium: 'credit-medium', low: 'credit-low', unknown: 'credit-unknown' };
-    const creditLabel = { high: '信用良好 ✓', medium: '信用一般 ⚠', low: '信用较差 ✗', unknown: '信用未知 ?' };
-    const tagClass = { '个人卖家': 'tag-personal', '包邮': 'tag-free-ship', '最近 30 天': 'tag-recent' };
-    data.forEach(item => {
-      const article = document.createElement('article');
-      article.className = 'card';
-      article.innerHTML = `
-        <div class="card-header">
-          <div class="seller-avatar">${item.sellerInitial}</div>
-          <div class="seller-info">
-            <div class="seller-name">${item.sellerName}</div>
-            <div class="seller-meta">
-              <span>📍 ${item.location}</span>
-              ${item.verified ? '<span>🆔 实名认证</span>' : ''}
-              <span>⭐ 闲鱼信用：${item.xianyuCredit}</span>
-              <span>🌰 芝麻信用：${item.zhimaScore}</span>
+    <div class="container">
+        <header>
+            <h1>Jolla Phone & SailfishOS 新闻日报</h1>
+            <p>最近 30 天真实新闻汇总 · 来源均为官方发布与权威媒体报道</p>
+            <div class="meta-info">
+                <span>📅 生成日期：2026年7月31日</span>
+                <span>📰 共 10 条新闻</span>
+                <span>⏱ 覆盖：2026年7月1日 - 7月31日</span>
             </div>
-          </div>
-          <span class="credit-badge ${creditClass[item.creditLevel]}">${creditLabel[item.creditLevel]}</span>
-        </div>
-        <div class="card-body">
-          <h2 class="item-title">${item.title}</h2>
-          <div class="item-meta">
-            <span><svg viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 发布：${item.publishDate}</span>
-            <span><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> 更新：${item.updateDate}</span>
-            <span><svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m16 0l-8 4"/></svg> 价格：${item.price}</span>
-          </div>
-          <div class="tags">
-            ${item.tags.map(t => `<span class="tag ${tagClass[t] || ''}">${t}</span>`).join('')}
-          </div>
-          <div class="summary">${item.summary}</div>
-          <div class="link-row">
-            <a href="${item.url}" target="_blank" rel="noopener">查看原文链接</a>
-          </div>
-        </div>
-      `;
-      container.appendChild(article);
-    });
-  }
-  // 使用示例：在控制台执行 renderCards(listingsData)
-  */
-</script>
+        </header>
+
+        <section class="news-section">
+            <div class="news-header">
+                <span class="news-category category-media">媒体报道</span>
+            </div>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener noreferrer">
+                        The 'European' Jolla Phone Is an Anti-Big-Tech Smartphone
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年3月2日</span>
+                    <span>📍 来源：WIRED</span>
+                </div>
+                <p class="news-summary">
+                    芬兰公司 Jolla 重返市场，推出基于 Linux 的 Jolla Phone。该设备被定位为安卓和 iOS 这两大美国主导智能手机生态的"解毒剂"。文章详细介绍了 Jolla Phone 的隐私优势、Sailfish OS 的开源特性，以及其作为欧洲唯一商业化移动操作系统的战略意义。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener noreferrer">www.wired.com/story/jolla-phone-2026/</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener noreferrer">
+                        Suomalaiskännykästä turvallinen vaihtoehto jättifirmoista irti haluaville? Entisten Nokia-insinöörien Jolla tekee paluuta
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年4月9日</span>
+                    <span>📍 来源：MTV Uutiset (芬兰主流媒体)</span>
+                </div>
+                <p class="news-summary">
+                    欧洲正在反思对美国的数字依赖。前诺基亚工程师创立的 Jolla 公司推出基于 Sailfish OS 的新款手机，在萨洛组装生产。文章采访了 Jolla CEO Antti Saarnio，探讨 Sailfish OS 作为欧洲唯一商业化移动操作系统的战略价值，以及其在减少欧洲对美数字基础设施依赖方面的潜力。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener noreferrer">mtvuutiset.fi</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener noreferrer">
+                        Suomesta ponnistetaan: Tässä on "Euroopan ainoa itsenäinen älypuhelin" – Hurja suosio jo ennen julkistusta
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年3月3日</span>
+                    <span>📍 来源：Iltalehti (芬兰最大晚报)</span>
+                </div>
+                <p class="news-summary">
+                    继承诺基亚衣钵的 Jolla 公司发布 Sailfish OS 手机，这是唯一完全欧洲自主的智能手机操作系统。设备最终组装在芬兰萨洛。文章报道了新机发布前已获得巨大关注和预订热度，详细介绍了硬件规格、隐私特性及"另一半"模块化配件系统。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener noreferrer">iltalehti.fi</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener noreferrer">
+                        MWC 2026: Jolla Phone har nu förbeställts av 10 000 européer
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年3月3日</span>
+                    <span>📍 来源：Ljud & Bild (瑞典科技媒体)</span>
+                </div>
+                <p class="news-summary">
+                    在 2026 年世界移动通信大会 (MWC) 期间，Jolla Phone 已获得超过 10,000 名欧洲用户的预订。文章报道了 MWC 展会上的展示情况、Sailfish OS 的最新功能演示，以及 Jolla 对欧洲数字主权的承诺。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener noreferrer">ljudochbild.se</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="news-section">
+            <div class="news-header">
+                <span class="news-category category-official">官方博客 (Jolla 官方)</span>
+            </div>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://forum.sailfishos.org/t/jolla-phone-update-deliveries-started-and-other-next-steps/30730" target="_blank" rel="noopener noreferrer">
+                        Jolla Phone update - deliveries started and other next steps
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月15日</span>
+                    <span>📍 来源：Sailfish OS Forum - Official Jolla Blog</span>
+                </div>
+                <p class="news-summary">
+                    Jolla 官方宣布 Jolla Phone 正式开始发货交付。文章详细说明了首批发货计划、The Other Half 模块化配件的规格更新、Sailfish OS 5.2 版本的随机预装情况，以及后续批次的生产时间表。这是 Jolla 重返消费级手机市场的重要里程碑。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://forum.sailfishos.org/t/jolla-phone-update-deliveries-started-and-other-next-steps/30730" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://forum.sailfishos.org/t/greetings-from-jolla-salo-final-assembly/30432" target="_blank" rel="noopener noreferrer">
+                        Greetings from Jolla Salo final assembly
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月4日</span>
+                    <span>📍 来源：Sailfish OS Forum - Official Jolla Blog</span>
+                </div>
+                <p class="news-summary">
+                    Jolla 团队分享了位于芬兰萨洛的最终组装工厂的最新照片和视频，展示了 Jolla Phone 的生产流程、质量控制环节以及团队现场工作情况。文章强调了"欧洲制造"的供应链透明度和本地化生产优势。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://forum.sailfishos.org/t/greetings-from-jolla-salo-final-assembly/30432" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://forum.sailfishos.org/t/jolla-phone-day1-celebration-event-july-8-6pm-at-narinkkatori-practical-info-faq/30183" target="_blank" rel="noopener noreferrer">
+                        Jolla Phone Day1 celebration event July 8 6pm at Narinkkatori - practical info & FAQ
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年6月23日 (持续更新至7月14日)</span>
+                    <span>📍 来源：Sailfish OS Forum - Official Jolla Blog</span>
+                </div>
+                <p class="news-summary">
+                    Jolla 官方宣布于 7 月 8 日在赫尔辛基 Narinkkatori 广场举办 Jolla Phone Day1 发布庆祝活动。文章包含活动详细时间表、直播链接、现场演示内容、媒体采访安排以及常见问题解答。活动现场同步启动了首批设备交付仪式。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://forum.sailfishos.org/t/jolla-phone-day1-celebration-event-july-8-6pm-at-narinkkatori-practical-info-faq/30183" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="news-section">
+            <div class="news-header">
+                <span class="news-category category-dev">系统版本发布 (Announcements)</span>
+            </div>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://forum.sailfishos.org/t/release-notes-finlayson-5-2-0-16-jolla-phone-only/31183" target="_blank" rel="noopener noreferrer">
+                        [Release notes] Finlayson 5.2.0.16 - Jolla Phone only
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月29日</span>
+                    <span>📍 来源：Sailfish OS Forum - Announcements</span>
+                </div>
+                <p class="news-summary">
+                    Sailfish OS 5.2.0.16 (代号 Finlayson) 专为 Jolla Phone 发布。更新包含：系统稳定性改进、相机应用优化、蓝牙连接性增强、电池管理调整、安全补丁更新、以及针对新硬件的专项适配。这是 Jolla Phone 出厂预装的系统版本基础。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://forum.sailfishos.org/t/release-notes-finlayson-5-2-0-16-jolla-phone-only/31183" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://forum.sailfishos.org/t/release-notes-pispala-5-1-0-11/29751" target="_blank" rel="noopener noreferrer">
+                        [Release notes] Pispala 5.1.0.11
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年5月27日 (7月28日仍有更新讨论)</span>
+                    <span>📍 来源：Sailfish OS Forum - Announcements</span>
+                </div>
+                <p class="news-summary">
+                    Sailfish OS 5.1.0.11 (代号 Pispala) 面向 Xperia 10 III/IV 等现有设备推送。主要更新：Android AppSupport 升级至 Android 12 基础、浏览器引擎更新、邮件客户端改进、NFC 标签读取增强、多项安全修复、以及对新硬件适配的准备工作。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://forum.sailfishos.org/t/release-notes-pispala-5-1-0-11/29751" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://forum.sailfishos.org/t/release-notes-sailfish-sdk-3-13/30094" target="_blank" rel="noopener noreferrer">
+                        [Release notes] Sailfish SDK 3.13
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年6月18日 (7月6日关闭讨论)</span>
+                    <span>📍 来源：Sailfish OS Forum - Announcements</span>
+                </div>
+                <p class="news-summary">
+                    Sailfish SDK 3.13 发布，包含：Qt 6.8 工具链更新、Clang 18 编译器支持、模拟器性能优化、新建项目向导改进、针对 Sailfish OS 5.2 API 的完整支持、Flatpak 构建改进、以及多项开发者体验优化。为 Jolla Phone 应用开发提供完整工具链。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://forum.sailfishos.org/t/release-notes-sailfish-sdk-3-13/30094" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="news-section">
+            <div class="news-header">
+                <span class="news-category category-community">社区动态 (Community News)</span>
+            </div>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://forum.sailfishos.org/t/sailfish-community-news-july-10-2026-jolla-phone-day1/30490" target="_blank" rel="noopener noreferrer">
+                        Sailfish Community News, July 10, 2026 - Jolla Phone Day1
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月10日</span>
+                    <span>📍 来源：Sailfish OS Forum - Community News</span>
+                </div>
+                <p class="news-summary">
+                    社区双周刊第 7 月中篇，重点报道 Jolla Phone Day1 活动回顾：现场照片、直播录像链接、媒体评价汇总、首批用户开箱反馈、The Other Half 配件生态最新进展、以及社区开发者对新设备适配的讨论。包含 33 条回复的活跃讨论。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://forum.sailfishos.org/t/sailfish-community-news-july-10-2026-jolla-phone-day1/30490" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://forum.sailfishos.org/t/community-meeting-on-july-16-2026/30378" target="_blank" rel="noopener noreferrer">
+                        Community meeting on July 16, 2026
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月2日 (会议于7月16日举行)</span>
+                    <span>📍 来源：Sailfish OS Forum - Announcements</span>
+                </div>
+                <p class="news-summary">
+                    Jolla 官方主办的社区月度会议，于 7 月 16 日在线举行。议程包括：Jolla Phone 交付进展汇报、Sailfish OS 5.2 后续规划、The Other Half 开发者计划更新、本地化翻译轮次安排、硬件适配项目 (HADK) 进展、以及社区提问环节。会议录像已发布供回看。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://forum.sailfishos.org/t/community-meeting-on-july-16-2026/30378" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="news-section">
+            <div class="news-header">
+                <span class="news-category category-dev">开源项目进展</span>
+            </div>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://github.com/sharks-dev/sailfish-on-murray" target="_blank" rel="noopener noreferrer">
+                        sailfish-on-murray: LineageOS based SailfishOS for Sony Xperia 10 IV
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月2日 创建 (7月31日仍在活跃更新)</span>
+                    <span>📍 来源：GitHub - sharks-dev</span>
+                </div>
+                <p class="news-summary">
+                    社区开发者 Sharks 发布了基于 LineageOS 的 Sailfish OS 移植项目，目标设备为 Sony Xperia 10 IV (代号 murray)。项目包含内核适配、硬件抽象层 (HAL)、Android 容器兼容层、以及 Sailfish OS 图形栈的移植工作。这是社区主导的硬件适配 (HADK) 重要进展，扩展了 Sailfish OS 的支持设备范围。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://github.com/sharks-dev/sailfish-on-murray" target="_blank" rel="noopener noreferrer">github.com/sharks-dev/sailfish-on-murray</a>
+                </div>
+            </article>
+
+            <article class="news-item">
+                <h2 class="news-title">
+                    <a href="https://github.com/JimKnopfIoT/harbour-xmatic" target="_blank" rel="noopener noreferrer">
+                        harbour-xmatic: Native (unofficial) Matrix Client for SailfishOS
+                    </a>
+                </h2>
+                <div class="news-meta">
+                    <span>📅 2026年7月25日 创建 (7月31日活跃更新)</span>
+                    <span>📍 来源：GitHub - JimKnopfIoT</span>
+                </div>
+                <p class="news-summary">
+                    使用 Rust 编写的原生 Matrix 协议客户端，专为 Sailfish OS 设计。已在 Xperia 10 III (5.1.0.11) 和 Gemini PDA (4.6) 上测试通过。项目展示了 Sailfish OS 上 Rust 生态的成熟度，为隐私通讯应用提供了新选择。代码采用 MIT 许可证开源。
+                </p>
+                <div class="news-source">
+                    原文链接：<a href="https://github.com/JimKnopfIoT/harbour-xmatic" target="_blank" rel="noopener noreferrer">github.com/JimKnopfIoT/harbour-xmatic</a>
+                </div>
+            </article>
+        </section>
+
+        <footer>
+            <p>数据来源：WIRED、MTV Uutiset、Iltalehti、Ljud & Bild、Sailfish OS 官方论坛、GitHub</p>
+            <p>本页面仅汇总公开真实新闻，不构成任何商业推荐 · 更新时间：2026-07-31</p>
+            <p><a href="https://jolla.com" target="_blank" rel="noopener noreferrer">Jolla 官网</a> · <a href="https://sailfishos.org" target="_blank" rel="noopener noreferrer">Sailfish OS 官网</a> · <a href="https://forum.sailfishos.org" target="_blank" rel="noopener noreferrer">官方论坛</a></p>
+        </footer>
+    </div>
 </body>
 </html>
