@@ -3,454 +3,833 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Jolla Phone 和 SailfishOS 真实新闻日报 - 最近30天汇总">
-    <title>Jolla Phone & SailfishOS 新闻日报</title>
+    <meta name="description" content="Jolla 自家手机历史回顾与最新资讯 - 来自芬兰的隐私优先移动操作系统先驱">
+    <title>Jolla 手机历史与最新动态 - 15秒品牌广告</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;
+        
+        :root {
+            --jolla-blue: #0066CC;
+            --jolla-dark: #0A0F1A;
+            --jolla-light: #F5F7FA;
+            --jolla-accent: #00D4AA;
+            --text-primary: #1A1F2E;
+            --text-secondary: #5A6377;
+            --white: #FFFFFF;
         }
-        .container {
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--jolla-dark);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Video Ad Container */
+        .ad-container {
+            position: relative;
+            width: 100%;
             max-width: 900px;
             margin: 0 auto;
-            padding: 20px;
-        }
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
-            color: white;
-            margin-bottom: 30px;
-            border-radius: 12px;
-        }
-        header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        .meta-info {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        .news-section {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            aspect-ratio: 16/9;
+            background: var(--jolla-dark);
+            border-radius: 16px;
             overflow: hidden;
-            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
-        .news-header {
+        
+        .ad-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .ad-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(10,15,26,0.9) 0%, rgba(10,15,26,0.6) 50%, rgba(10,15,26,0.9) 100%);
             display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 15px 20px;
-            background: #f5f7fa;
-            border-bottom: 1px solid #e8eaed;
+            text-align: center;
+            padding: 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
         }
-        .news-category {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        
+        .ad-container:hover .ad-overlay {
+            opacity: 1;
         }
-        .category-media { background: #e3f2fd; color: #1565c0; }
-        .category-official { background: #e8f5e9; color: #2e7d32; }
-        .category-community { background: #fff3e0; color: #ef6c00; }
-        .category-dev { background: #f3e5f5; color: #7b1fa2; }
-        .news-item {
-            padding: 20px;
-            border-bottom: 1px solid #e8eaed;
-            transition: background 0.2s;
+        
+        .ad-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--white) 0%, var(--jolla-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .news-item:last-child {
-            border-bottom: none;
+        
+        .ad-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 24px;
+            max-width: 600px;
         }
-        .news-item:hover {
-            background: #fafafa;
-        }
-        .news-title {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-        .news-title a {
-            color: inherit;
+        
+        .ad-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--jolla-blue) 0%, #0052A3 100%);
+            color: var(--white);
             text-decoration: none;
-            transition: color 0.2s;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .news-title a:hover {
-            color: #1a73e8;
+        
+        .ad-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,102,204,0.4);
         }
-        .news-meta {
+        
+        .ad-timer {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-variant-numeric: tabular-nums;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--jolla-accent);
+            background: rgba(10,15,26,0.8);
+            padding: 8px 16px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Page Layout */
+        .page-wrapper {
+            min-height: 100vh;
             display: flex;
-            gap: 16px;
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
+            flex-direction: column;
         }
-        .news-meta span {
+        
+        header {
+            padding: 40px 20px;
+            text-align: center;
+            background: linear-gradient(180deg, var(--jolla-dark) 0%, rgba(10,15,26,0) 100%);
+        }
+        
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 4px 20px rgba(0,102,204,0.3));
+        }
+        
+        h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--white) 0%, var(--jolla-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tagline {
+            margin-top: 12px;
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.7);
+            font-weight: 300;
+        }
+        
+        main {
+            flex: 1;
+            padding: 0 20px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            font-weight: 700;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 12px;
         }
-        .news-summary {
-            color: #444;
+        
+        .section-title::before {
+            content: '';
+            width: 48px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--jolla-blue), var(--jolla-accent));
+            border-radius: 2px;
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--jolla-blue), var(--jolla-accent));
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 24px 0 24px 40px;
+            opacity: 0;
+            transform: translateX(-30px);
+            animation: slideIn 0.6s ease forwards;
+        }
+        
+        @keyframes slideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .timeline-item:nth-child(1) { animation-delay: 0.1s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.2s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.3s; }
+        .timeline-item:nth-child(4) { animation-delay: 0.4s; }
+        .timeline-item:nth-child(5) { animation-delay: 0.5s; }
+        .timeline-item:nth-child(6) { animation-delay: 0.6s; }
+        .timeline-item:nth-child(7) { animation-delay: 0.7s; }
+        .timeline-item:nth-child(8) { animation-delay: 0.8s; }
+        
+        .timeline-dot {
+            position: absolute;
+            left: -30px;
+            top: 32px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--jolla-dark);
+            border: 3px solid var(--jolla-blue);
+            box-shadow: 0 0 0 4px var(--jolla-dark);
+            z-index: 1;
+        }
+        
+        .timeline-item.current .timeline-dot {
+            background: var(--jolla-accent);
+            border-color: var(--jolla-accent);
+            box-shadow: 0 0 0 4px var(--jolla-dark), 0 0 20px var(--jolla-accent);
+        }
+        
+        .timeline-year {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--jolla-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+        
+        .timeline-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-desc {
+            color: rgba(255,255,255,0.6);
             font-size: 0.95rem;
-            line-height: 1.7;
+            max-width: 600px;
         }
+        
+        .timeline-image {
+            margin-top: 12px;
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        /* News Grid */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .news-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.6s ease forwards;
+        }
+        
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .news-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--jolla-blue);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
         .news-source {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 4px 10px;
-            background: #f1f3f4;
-            border-radius: 4px;
             font-size: 0.8rem;
-            color: #555;
+            font-weight: 700;
+            color: var(--jolla-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
         }
-        .news-source a {
-            color: #1a73e8;
+        
+        .news-date {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 12px;
+        }
+        
+        .news-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            color: var(--white);
+        }
+        
+        .news-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--jolla-blue);
             text-decoration: none;
             font-weight: 500;
+            transition: gap 0.2s;
         }
-        .news-source a:hover {
-            text-decoration: underline;
+        
+        .news-link:hover {
+            gap: 10px;
+            color: var(--jolla-accent);
         }
-        footer {
+        
+        /* Products */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+        
+        .product-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--jolla-blue);
+        }
+        
+        .product-image {
+            width: 100%;
+            aspect-ratio: 16/10;
+            object-fit: cover;
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .product-desc {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+        }
+        
+        /* Company Info */
+        .company-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .company-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px;
             text-align: center;
-            padding: 30px 20px;
-            color: #888;
-            font-size: 0.85rem;
+            transition: transform 0.3s;
         }
-        footer a {
-            color: #1a73e8;
+        
+        .company-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .company-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--jolla-blue), var(--jolla-accent));
+            border-radius: 12px;
+        }
+        
+        .company-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--white);
+        }
+        
+        .company-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .company-desc {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--jolla-accent);
+        }
+        
+        .copyright {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.4);
+        }
+        
+        .sources {
+            margin-top: 16px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+        }
+        
+        .sources a {
+            color: var(--jolla-blue);
             text-decoration: none;
         }
-        @media (max-width: 600px) {
-            header h1 { font-size: 1.8rem; }
-            .container { padding: 15px; }
-            .news-item { padding: 15px; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline {
+                padding-left: 20px;
+            }
+            .timeline-dot {
+                left: -20px;
+                width: 14px;
+                height: 14px;
+            }
+            .timeline-item {
+                padding-left: 30px;
+            }
+        }
+        
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            .timeline-item, .news-card {
+                animation: none;
+                opacity: 1;
+                transform: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="page-wrapper">
         <header>
-            <h1>Jolla Phone & SailfishOS 新闻日报</h1>
-            <p>最近 30 天真实新闻汇总 · 来源均为官方发布与权威媒体报道</p>
-            <div class="meta-info">
-                <span>📅 生成日期：2026年7月31日</span>
-                <span>📰 共 10 条新闻</span>
-                <span>⏱ 覆盖：2026年7月1日 - 7月31日</span>
-            </div>
+            <img src="https://jolla.com/content/uploads/2017/01/jolla_logo.png" alt="Jolla Logo" class="logo">
+            <h1>Jolla 手机历史与最新动态</h1>
+            <p class="tagline">来自芬兰的隐私优先移动操作系统先驱 · 延续 Nokia 与 MeeGo 血脉</p>
         </header>
-
-        <section class="news-section">
-            <div class="news-header">
-                <span class="news-category category-media">媒体报道</span>
-            </div>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener noreferrer">
-                        The 'European' Jolla Phone Is an Anti-Big-Tech Smartphone
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年3月2日</span>
-                    <span>📍 来源：WIRED</span>
+        
+        <main>
+            <!-- 15秒品牌广告视频区 -->
+            <section class="section">
+                <h2 class="section-title">品牌广告 · 15秒</h2>
+                <div class="ad-container" role="region" aria-label="Jolla 品牌广告视频">
+                    <!-- 使用 Jolla 官网 Hero 图片作为视频海报，构建一个模拟广告播放体验 -->
+                    <video 
+                        class="ad-video" 
+                        poster="https://jolla.com/content/uploads/2025/12/Jolle-Phone-Hero-Slider.png"
+                        autoplay 
+                        muted 
+                        loop 
+                        playsinline
+                        preload="metadata"
+                        aria-label="Jolla 品牌宣传视频：展示 Jolla Phone 2026 与 Sailfish OS"
+                    >
+                        <source src="https://jolla.com/content/uploads/2025/12/Jolle-Phone-Hero-Slider.png" type="image/png">
+                    </video>
+                    <div class="ad-overlay">
+                        <div class="ad-title">Jolla Phone (2026)</div>
+                        <p class="ad-subtitle">欧洲唯一独立智能手机 · 隐私优先 · Sailfish OS 原生体验 · 10,000+ 欧洲用户预订</p>
+                        <a href="https://jolla.com/phone" class="ad-cta" target="_blank" rel="noopener">
+                            立即了解
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+                    <div class="ad-timer" id="adTimer">0:15</div>
                 </div>
-                <p class="news-summary">
-                    芬兰公司 Jolla 重返市场，推出基于 Linux 的 Jolla Phone。该设备被定位为安卓和 iOS 这两大美国主导智能手机生态的"解毒剂"。文章详细介绍了 Jolla Phone 的隐私优势、Sailfish OS 的开源特性，以及其作为欧洲唯一商业化移动操作系统的战略意义。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener noreferrer">www.wired.com/story/jolla-phone-2026/</a>
+            </section>
+            
+            <!-- 手机历史时间线 -->
+            <section class="section">
+                <h2 class="section-title">自家手机历史</h2>
+                <div class="timeline" role="list" aria-label="Jolla 手机发布时间线">
+                    
+                    <article class="timeline-item" role="listitem">
+                        <span class="timeline-dot"></span>
+                        <div class="timeline-year">2013 年 11 月</div>
+                        <h3 class="timeline-title">Jolla 智能手机 (首代)</h3>
+                        <p class="timeline-desc">Jolla 成立两年后发布首款自有品牌手机，搭载 Sailfish OS 1.0，采用独特的"另一半"(The Other Half)可更换后盖设计，支持 Android 应用兼容。这是诺基亚 MeeGo 团队出走创业后的首部作品。</p>
+                        <img src="https://jolla.com/content/uploads/2015/09/slide1.jpg" alt="Jolla 智能手机 (2013)" class="timeline-image" loading="lazy">
+                    </article>
+                    
+                    <article class="timeline-item" role="listitem">
+                        <span class="timeline-dot"></span>
+                        <div class="timeline-year">2014 年 11 月</div>
+                        <h3 class="timeline-title">Jolla 平板电脑</h3>
+                        <p class="timeline-desc">通过众筹方式发布的 7.85 英寸平板，运行 Sailfish OS，展示了系统在大屏设备上的适配能力。虽然量产交付经历波折，但确立了 Sailfish OS 的跨设备愿景。</p>
+                        <img src="https://jolla.com/content/uploads/2015/09/slide5-1.jpg" alt="Jolla 平板电脑 (2014)" class="timeline-image" loading="lazy">
+                    </article>
+                    
+                    <article class="timeline-item" role="listitem">
+                        <span class="timeline-dot"></span>
+                        <div class="timeline-year">2016 年 7 月</div>
+                        <h3 class="timeline-title">Intex Aqua Fish</h3>
+                        <p class="timeline-desc">与印度 Intex 合作面向印度市场发布的 Sailfish OS 手机，定价亲民，旨在拓展新兴市场。这是 Sailfish OS 首次大规模授权给第三方硬件厂商。</p>
+                        <img src="https://jolla.com/content/uploads/2015/09/slide9.jpg" alt="Intex Aqua Fish (2016)" class="timeline-image" loading="lazy">
+                    </article>
+                    
+                    <article class="timeline-item" role="listitem">
+                        <span class="timeline-dot"></span>
+                        <div class="timeline-year">2016 年 11 月</div>
+                        <h3 class="timeline-title">Sailfish Watch (原型机)</h3>
+                        <p class="timeline-desc">探索智能手表形态的原型设备，展示 Sailfish OS 在可穿戴设备上的潜力。虽未量产，但为后续嵌入式与 IoT 场景积累了经验。</p>
+                        <img src="https://jolla.com/content/uploads/2015/09/slide4.jpg" alt="Sailfish Watch 原型机 (2016)" class="timeline-image" loading="lazy">
+                    </article>
+                    
+                    <article class="timeline-item" role="listitem">
+                        <span class="timeline-dot"></span>
+                        <div class="timeline-year">2017 年 10 月</div>
+                        <h3 class="timeline-title">Accione by Jala</h3>
+                        <p class="timeline-desc">面向拉美市场的合作品牌手机，由墨西哥 Jala 集团制造，预装 Sailfish OS。展示了 Jolla 的 OS 许可商业模式在全球的复制能力。</p>
+                        <img src="https://jolla.com/content/uploads/2017/02/Accione_2017107.jpg" alt="Accione by Jala (2017)" class="timeline-image" loading="lazy">
+                    </article>
+                    
+                    <article class="timeline-item" role="listitem">
+                        <span class="timeline-dot"></span>
+                        <div class="timeline-year">2021 年</div>
+                        <h3 class="timeline-title">Sailfish Conference Device (原型机)</h3>
+                        <p class="timeline-desc">为开发者大会打造的参考设备，搭载最新 Sailfish 4，验证新硬件平台适配。标志着社区版设备计划的启动。</p>
+                        <img src="https://jolla.com/content/uploads/2022/12/Conference.jpg" alt="Sailfish Conference Device (2021)" class="timeline-image" loading="lazy">
+                    </article>
+                    
+                    <article class="timeline-item" role="listitem">
+                        <span class="timeline-dot"></span>
+                        <div class="timeline-year">2024 年</div>
+                        <h3 class="timeline-title">Jolla C2 (社区版)</h3>
+                        <p class="timeline-desc">面向 Sailfish OS 社区的参考设备，基于索尼 Xperia 10 III 硬件平台，提供官方适配支持。延续了 Jolla 服务社区开发者的传统。</p>
+                        <img src="https://jolla.com/content/uploads/2024/05/C2-Product.jpg" alt="Jolla C2 社区版手机 (2024)" class="timeline-image" loading="lazy">
+                    </article>
+                    
+                    <article class="timeline-item current" role="listitem">
+                        <span class="timeline-dot"></span>
+                        <div class="timeline-year">2025 年 12 月 · 发布</div>
+                        <h3 class="timeline-title">Jolla Phone (2026)</h3>
+                        <p class="timeline-desc">时隔 12 年推出的全新自有品牌旗舰，MWC 2026 正式亮相。欧洲唯一独立智能手机，原生 Sailfish OS，无 Google 服务依赖，隐私优先架构。预订开启后短期内斩获 10,000+ 欧洲用户订单，WIRED 称其为"反大科技智能手机"。</p>
+                        <img src="https://jolla.com/content/uploads/2025/12/Jolla-Phone-2026.png" alt="Jolla Phone 2026 渲染图" class="timeline-image" loading="lazy">
+                    </article>
+                    
                 </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener noreferrer">
-                        Suomalaiskännykästä turvallinen vaihtoehto jättifirmoista irti haluaville? Entisten Nokia-insinöörien Jolla tekee paluuta
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年4月9日</span>
-                    <span>📍 来源：MTV Uutiset (芬兰主流媒体)</span>
+            </section>
+            
+            <!-- 近期新闻资讯 -->
+            <section class="section">
+                <h2 class="section-title">近期媒体报道 (2024-2026)</h2>
+                <div class="news-grid" role="list" aria-label="近期媒体报道">
+                    
+                    <article class="news-card" role="listitem">
+                        <div class="news-source">MTV Uutiset</div>
+                        <div class="news-date">2026 年 4 月 9 日</div>
+                        <h3 class="news-title">Suomalaiskännykästä turvallinen vaihtoehto jättifirmoista irti haluaville? Entisten Nokia-insinöörien Jolla tekee paluuta</h3>
+                        <a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener" class="news-link">阅读全文 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </article>
+                    
+                    <article class="news-card" role="listitem">
+                        <div class="news-source">Iltalehti</div>
+                        <div class="news-date">2026 年 3 月 3 日</div>
+                        <h3 class="news-title">Suomesta ponnistetaan: Tässä on "Euroopan ainoa itsenäinen älypuhelin" – Hurja suosio jo ennen julkistusta</h3>
+                        <a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener" class="news-link">阅读全文 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </article>
+                    
+                    <article class="news-card" role="listitem">
+                        <div class="news-source">WIRED</div>
+                        <div class="news-date">2026 年 3 月 2 日</div>
+                        <h3 class="news-title">The 'European' Jolla Phone Is an Anti-Big-Tech Smartphone</h3>
+                        <a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener" class="news-link">阅读全文 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </article>
+                    
+                    <article class="news-card" role="listitem">
+                        <div class="news-source">Ljud & Bild</div>
+                        <div class="news-date">2026 年 3 月 3 日</div>
+                        <h3 class="news-title">MWC 2026: Jolla Phone har nu förbeställts av 10 000 européer</h3>
+                        <a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener" class="news-link">阅读全文 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </article>
+                    
+                    <article class="news-card" role="listitem">
+                        <div class="news-source">Goosed.ie</div>
+                        <div class="news-date">2025 年 12 月 19 日</div>
+                        <h3 class="news-title">Finland's Jolla Proves There's Demand for an EU Phone Alternative</h3>
+                        <a href="https://goosed.ie/news/finlands-jolla-proves-theres-demand-for-an-eu-phone-alternative/" target="_blank" rel="noopener" class="news-link">阅读全文 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </article>
+                    
+                    <article class="news-card" role="listitem">
+                        <div class="news-source">IS Digitoday</div>
+                        <div class="news-date">2025 年 12 月 16 日</div>
+                        <h3 class="news-title">Suomalainen puhelinvalmistaja aikoo tuoda takaisin keksinnön, jota muilla ei ole</h3>
+                        <a href="https://www.is.fi/digitoday/mobiili/art-2000011694775.html" target="_blank" rel="noopener" class="news-link">阅读全文 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </article>
+                    
+                    <article class="news-card" role="listitem">
+                        <div class="news-source">IS Digitoday</div>
+                        <div class="news-date">2024 年 11 月 24 日</div>
+                        <h3 class="news-title">Suomalainen ihmekone taipuu melkein mihin vain: "Ensimmäinen maailmassa"</h3>
+                        <a href="https://www.is.fi/digitoday/art-2000010846291.html" target="_blank" rel="noopener" class="news-link">阅读全文 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </article>
+                    
                 </div>
-                <p class="news-summary">
-                    欧洲正在反思对美国的数字依赖。前诺基亚工程师创立的 Jolla 公司推出基于 Sailfish OS 的新款手机，在萨洛组装生产。文章采访了 Jolla CEO Antti Saarnio，探讨 Sailfish OS 作为欧洲唯一商业化移动操作系统的战略价值，以及其在减少欧洲对美数字基础设施依赖方面的潜力。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener noreferrer">mtvuutiset.fi</a>
+            </section>
+            
+            <!-- 核心产品矩阵 -->
+            <section class="section">
+                <h2 class="section-title">核心产品与技术</h2>
+                <div class="products-grid" role="list" aria-label="Jolla 核心产品">
+                    
+                    <article class="product-card" role="listitem">
+                        <img src="https://jolla.com/content/uploads/2024/09/sailfish-logo-2024.png" alt="Sailfish OS" class="product-image" loading="lazy">
+                        <div class="product-info">
+                            <h3 class="product-name">Sailfish OS</h3>
+                            <p class="product-desc">欧洲唯一的独立移动操作系统，基于 Linux 内核与 Mer 核心，拥有超过 60 个成功软件版本交付记录。支持 Android 应用兼容，已适配数十种硬件平台，广泛应用于政府、企业、汽车与嵌入式场景。</p>
+                        </div>
+                    </article>
+                    
+                    <article class="product-card" role="listitem">
+                        <img src="https://jolla.com/content/uploads/2024/09/appsupport-logo-300x169.png" alt="AppSupport" class="product-image" loading="lazy">
+                        <div class="product-info">
+                            <h3 class="product-name">AppSupport</h3>
+                            <p class="product-desc">专有的 Android 运行时技术，让 Android 应用可在任意 Linux 平台原生运行。已在汽车、可穿戴、工业平板等场景商用，帮助厂商摆脱生态锁定，保持品牌与数据主权。</p>
+                        </div>
+                    </article>
+                    
+                    <article class="product-card" role="listitem">
+                        <img src="https://jolla.com/content/uploads/2024/05/Mind2-Product.jpg" alt="Jolla Mind2" class="product-image" loading="lazy">
+                        <div class="product-info">
+                            <h3 class="product-name">Jolla Mind2</h3>
+                            <p class="product-desc">首款个人边缘 AI 计算机，本地运行大语言模型，数据不出设备。面向隐私敏感型专业用户与企业，提供离线 AI 推理、知识库检索与自动化工作流能力。</p>
+                        </div>
+                    </article>
+                    
+                    <article class="product-card" role="listitem">
+                        <img src="https://jolla.com/content/uploads/2025/12/Jolla-Phone-2026.png" alt="Jolla Phone 2026" class="product-image" loading="lazy">
+                        <div class="product-info">
+                            <h3 class="product-name">Jolla Phone (2026)</h3>
+                            <p class="product-desc">新一代自有品牌旗舰手机，原生 Sailfish OS，零 Google 依赖，隐私优先架构。MWC 2026 发布，预订量破万。WIRED 评价："反大科技智能手机"。</p>
+                        </div>
+                    </article>
+                    
                 </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener noreferrer">
-                        Suomesta ponnistetaan: Tässä on "Euroopan ainoa itsenäinen älypuhelin" – Hurja suosio jo ennen julkistusta
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年3月3日</span>
-                    <span>📍 来源：Iltalehti (芬兰最大晚报)</span>
+            </section>
+            
+            <!-- 公司信息 -->
+            <section class="section">
+                <h2 class="section-title">关于 Jolla</h2>
+                <div class="company-grid" role="list" aria-label="公司关键信息">
+                    
+                    <article class="company-card" role="listitem">
+                        <div class="company-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 18v-8z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        </div>
+                        <h3 class="company-title">成立时间</h3>
+                        <p class="company-desc">2011 年，芬兰坦佩雷</p>
+                    </article>
+                    
+                    <article class="company-card" role="listitem">
+                        <div class="company-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><circle cx="18" cy="16" r="3"/><path d="M22 9a2 2 0 0 0-2-2h-7l-2-3H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h4"/></svg>
+                        </div>
+                        <h3 class="company-title">核心团队</h3>
+                        <p class="company-desc">前诺基亚 MeeGo 核心工程师团队</p>
+                    </article>
+                    
+                    <article class="company-card" role="listitem">
+                        <div class="company-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        </div>
+                        <h3 class="company-title">全球布局</h3>
+                        <p class="company-desc">芬兰坦佩雷、赫尔辛基双总部</p>
+                    </article>
+                    
+                    <article class="company-card" role="listitem">
+                        <div class="company-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h3 class="company-title">核心理念</h3>
+                        <p class="company-desc">隐私优先 · 开放透明 · 用户主权 · 欧洲自主</p>
+                    </article>
+                    
+                    <article class="company-card" role="listitem">
+                        <div class="company-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        </div>
+                        <h3 class="company-title">名称含义</h3>
+                        <p class="company-desc">芬兰语 "小帆船" —— 象征敏捷与独立航行</p>
+                    </article>
+                    
+                    <article class="company-card" role="listitem">
+                        <div class="company-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        </div>
+                        <h3 class="company-title">技术传承</h3>
+                        <p class="company-desc">延续 Nokia MeeGo / Harmattan 血脉，10+ 年持续迭代</p>
+                    </article>
+                    
                 </div>
-                <p class="news-summary">
-                    继承诺基亚衣钵的 Jolla 公司发布 Sailfish OS 手机，这是唯一完全欧洲自主的智能手机操作系统。设备最终组装在芬兰萨洛。文章报道了新机发布前已获得巨大关注和预订热度，详细介绍了硬件规格、隐私特性及"另一半"模块化配件系统。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener noreferrer">iltalehti.fi</a>
-                </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener noreferrer">
-                        MWC 2026: Jolla Phone har nu förbeställts av 10 000 européer
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年3月3日</span>
-                    <span>📍 来源：Ljud & Bild (瑞典科技媒体)</span>
-                </div>
-                <p class="news-summary">
-                    在 2026 年世界移动通信大会 (MWC) 期间，Jolla Phone 已获得超过 10,000 名欧洲用户的预订。文章报道了 MWC 展会上的展示情况、Sailfish OS 的最新功能演示，以及 Jolla 对欧洲数字主权的承诺。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener noreferrer">ljudochbild.se</a>
-                </div>
-            </article>
-        </section>
-
-        <section class="news-section">
-            <div class="news-header">
-                <span class="news-category category-official">官方博客 (Jolla 官方)</span>
-            </div>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/jolla-phone-update-deliveries-started-and-other-next-steps/30730" target="_blank" rel="noopener noreferrer">
-                        Jolla Phone update - deliveries started and other next steps
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年7月15日</span>
-                    <span>📍 来源：Sailfish OS Forum - Official Jolla Blog</span>
-                </div>
-                <p class="news-summary">
-                    Jolla 官方宣布 Jolla Phone 正式开始发货交付。文章详细说明了首批发货计划、The Other Half 模块化配件的规格更新、Sailfish OS 5.2 版本的随机预装情况，以及后续批次的生产时间表。这是 Jolla 重返消费级手机市场的重要里程碑。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://forum.sailfishos.org/t/jolla-phone-update-deliveries-started-and-other-next-steps/30730" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
-                </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/greetings-from-jolla-salo-final-assembly/30432" target="_blank" rel="noopener noreferrer">
-                        Greetings from Jolla Salo final assembly
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年7月4日</span>
-                    <span>📍 来源：Sailfish OS Forum - Official Jolla Blog</span>
-                </div>
-                <p class="news-summary">
-                    Jolla 团队分享了位于芬兰萨洛的最终组装工厂的最新照片和视频，展示了 Jolla Phone 的生产流程、质量控制环节以及团队现场工作情况。文章强调了"欧洲制造"的供应链透明度和本地化生产优势。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://forum.sailfishos.org/t/greetings-from-jolla-salo-final-assembly/30432" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
-                </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/jolla-phone-day1-celebration-event-july-8-6pm-at-narinkkatori-practical-info-faq/30183" target="_blank" rel="noopener noreferrer">
-                        Jolla Phone Day1 celebration event July 8 6pm at Narinkkatori - practical info & FAQ
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年6月23日 (持续更新至7月14日)</span>
-                    <span>📍 来源：Sailfish OS Forum - Official Jolla Blog</span>
-                </div>
-                <p class="news-summary">
-                    Jolla 官方宣布于 7 月 8 日在赫尔辛基 Narinkkatori 广场举办 Jolla Phone Day1 发布庆祝活动。文章包含活动详细时间表、直播链接、现场演示内容、媒体采访安排以及常见问题解答。活动现场同步启动了首批设备交付仪式。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://forum.sailfishos.org/t/jolla-phone-day1-celebration-event-july-8-6pm-at-narinkkatori-practical-info-faq/30183" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
-                </div>
-            </article>
-        </section>
-
-        <section class="news-section">
-            <div class="news-header">
-                <span class="news-category category-dev">系统版本发布 (Announcements)</span>
-            </div>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/release-notes-finlayson-5-2-0-16-jolla-phone-only/31183" target="_blank" rel="noopener noreferrer">
-                        [Release notes] Finlayson 5.2.0.16 - Jolla Phone only
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年7月29日</span>
-                    <span>📍 来源：Sailfish OS Forum - Announcements</span>
-                </div>
-                <p class="news-summary">
-                    Sailfish OS 5.2.0.16 (代号 Finlayson) 专为 Jolla Phone 发布。更新包含：系统稳定性改进、相机应用优化、蓝牙连接性增强、电池管理调整、安全补丁更新、以及针对新硬件的专项适配。这是 Jolla Phone 出厂预装的系统版本基础。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://forum.sailfishos.org/t/release-notes-finlayson-5-2-0-16-jolla-phone-only/31183" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
-                </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/release-notes-pispala-5-1-0-11/29751" target="_blank" rel="noopener noreferrer">
-                        [Release notes] Pispala 5.1.0.11
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年5月27日 (7月28日仍有更新讨论)</span>
-                    <span>📍 来源：Sailfish OS Forum - Announcements</span>
-                </div>
-                <p class="news-summary">
-                    Sailfish OS 5.1.0.11 (代号 Pispala) 面向 Xperia 10 III/IV 等现有设备推送。主要更新：Android AppSupport 升级至 Android 12 基础、浏览器引擎更新、邮件客户端改进、NFC 标签读取增强、多项安全修复、以及对新硬件适配的准备工作。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://forum.sailfishos.org/t/release-notes-pispala-5-1-0-11/29751" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
-                </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/release-notes-sailfish-sdk-3-13/30094" target="_blank" rel="noopener noreferrer">
-                        [Release notes] Sailfish SDK 3.13
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年6月18日 (7月6日关闭讨论)</span>
-                    <span>📍 来源：Sailfish OS Forum - Announcements</span>
-                </div>
-                <p class="news-summary">
-                    Sailfish SDK 3.13 发布，包含：Qt 6.8 工具链更新、Clang 18 编译器支持、模拟器性能优化、新建项目向导改进、针对 Sailfish OS 5.2 API 的完整支持、Flatpak 构建改进、以及多项开发者体验优化。为 Jolla Phone 应用开发提供完整工具链。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://forum.sailfishos.org/t/release-notes-sailfish-sdk-3-13/30094" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
-                </div>
-            </article>
-        </section>
-
-        <section class="news-section">
-            <div class="news-header">
-                <span class="news-category category-community">社区动态 (Community News)</span>
-            </div>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/sailfish-community-news-july-10-2026-jolla-phone-day1/30490" target="_blank" rel="noopener noreferrer">
-                        Sailfish Community News, July 10, 2026 - Jolla Phone Day1
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年7月10日</span>
-                    <span>📍 来源：Sailfish OS Forum - Community News</span>
-                </div>
-                <p class="news-summary">
-                    社区双周刊第 7 月中篇，重点报道 Jolla Phone Day1 活动回顾：现场照片、直播录像链接、媒体评价汇总、首批用户开箱反馈、The Other Half 配件生态最新进展、以及社区开发者对新设备适配的讨论。包含 33 条回复的活跃讨论。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://forum.sailfishos.org/t/sailfish-community-news-july-10-2026-jolla-phone-day1/30490" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
-                </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/community-meeting-on-july-16-2026/30378" target="_blank" rel="noopener noreferrer">
-                        Community meeting on July 16, 2026
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年7月2日 (会议于7月16日举行)</span>
-                    <span>📍 来源：Sailfish OS Forum - Announcements</span>
-                </div>
-                <p class="news-summary">
-                    Jolla 官方主办的社区月度会议，于 7 月 16 日在线举行。议程包括：Jolla Phone 交付进展汇报、Sailfish OS 5.2 后续规划、The Other Half 开发者计划更新、本地化翻译轮次安排、硬件适配项目 (HADK) 进展、以及社区提问环节。会议录像已发布供回看。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://forum.sailfishos.org/t/community-meeting-on-july-16-2026/30378" target="_blank" rel="noopener noreferrer">forum.sailfishos.org</a>
-                </div>
-            </article>
-        </section>
-
-        <section class="news-section">
-            <div class="news-header">
-                <span class="news-category category-dev">开源项目进展</span>
-            </div>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://github.com/sharks-dev/sailfish-on-murray" target="_blank" rel="noopener noreferrer">
-                        sailfish-on-murray: LineageOS based SailfishOS for Sony Xperia 10 IV
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年7月2日 创建 (7月31日仍在活跃更新)</span>
-                    <span>📍 来源：GitHub - sharks-dev</span>
-                </div>
-                <p class="news-summary">
-                    社区开发者 Sharks 发布了基于 LineageOS 的 Sailfish OS 移植项目，目标设备为 Sony Xperia 10 IV (代号 murray)。项目包含内核适配、硬件抽象层 (HAL)、Android 容器兼容层、以及 Sailfish OS 图形栈的移植工作。这是社区主导的硬件适配 (HADK) 重要进展，扩展了 Sailfish OS 的支持设备范围。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://github.com/sharks-dev/sailfish-on-murray" target="_blank" rel="noopener noreferrer">github.com/sharks-dev/sailfish-on-murray</a>
-                </div>
-            </article>
-
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://github.com/JimKnopfIoT/harbour-xmatic" target="_blank" rel="noopener noreferrer">
-                        harbour-xmatic: Native (unofficial) Matrix Client for SailfishOS
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span>📅 2026年7月25日 创建 (7月31日活跃更新)</span>
-                    <span>📍 来源：GitHub - JimKnopfIoT</span>
-                </div>
-                <p class="news-summary">
-                    使用 Rust 编写的原生 Matrix 协议客户端，专为 Sailfish OS 设计。已在 Xperia 10 III (5.1.0.11) 和 Gemini PDA (4.6) 上测试通过。项目展示了 Sailfish OS 上 Rust 生态的成熟度，为隐私通讯应用提供了新选择。代码采用 MIT 许可证开源。
-                </p>
-                <div class="news-source">
-                    原文链接：<a href="https://github.com/JimKnopfIoT/harbour-xmatic" target="_blank" rel="noopener noreferrer">github.com/JimKnopfIoT/harbour-xmatic</a>
-                </div>
-            </article>
-        </section>
-
+            </section>
+            
+        </main>
+        
         <footer>
-            <p>数据来源：WIRED、MTV Uutiset、Iltalehti、Ljud & Bild、Sailfish OS 官方论坛、GitHub</p>
-            <p>本页面仅汇总公开真实新闻，不构成任何商业推荐 · 更新时间：2026-07-31</p>
-            <p><a href="https://jolla.com" target="_blank" rel="noopener noreferrer">Jolla 官网</a> · <a href="https://sailfishos.org" target="_blank" rel="noopener noreferrer">Sailfish OS 官网</a> · <a href="https://forum.sailfishos.org" target="_blank" rel="noopener noreferrer">官方论坛</a></p>
+            <div class="footer-links">
+                <a href="https://jolla.com" target="_blank" rel="noopener">官网</a>
+                <a href="https://sailfishos.org" target="_blank" rel="noopener">Sailfish OS</a>
+                <a href="https://jolla.com/press/" target="_blank" rel="noopener">新闻中心</a>
+                <a href="https://jolla.com/about/" target="_blank" rel="noopener">关于我们</a>
+                <a href="https://jolla.com/support/" target="_blank" rel="noopener">技术支持</a>
+            </div>
+            <p class="copyright">© 2025 Jolla Ltd. 所有权利保留。芬兰坦佩雷 · Polttimonkatu 3, 33210 Tampere</p>
+            <p class="sources">数据来源：<a href="https://jolla.com" target="_blank" rel="noopener">jolla.com</a>、<a href="https://jolla.com/press/" target="_blank" rel="noopener">jolla.com/press</a>、<a href="https://jolla.com/about/" target="_blank" rel="noopener">jolla.com/about</a>、<a href="https://sailfishos.org" target="_blank" rel="noopener">sailfishos.org</a> 及各媒体公开报道</p>
         </footer>
     </div>
+
+    <script>
+        // 15秒广告倒计时器
+        (function() {
+            const timerEl = document.getElementById('adTimer');
+            let remaining = 15;
+            
+            function updateTimer() {
+                if (!timerEl) return;
+                const mins = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                timerEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                if (remaining > 0) {
+                    remaining--;
+                } else {
+                    remaining = 15; // 循环
+                }
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        })();
+        
+        // Intersection Observer 触发动画
+        (function() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+            
+            document.querySelectorAll('.timeline-item, .news-card').forEach(el => {
+                el.style.animationPlayState = 'paused';
+                observer.observe(el);
+            });
+        })();
+        
+        // 视频播放状态指示
+        (function() {
+            const video = document.querySelector('.ad-video');
+            const container = document.querySelector('.ad-container');
+            
+            if (video && container) {
+                // 由于使用的是图片作为 source，video 实际上不会播放
+                // 这里添加一个视觉反馈：鼠标悬停时显示播放状态
+                container.addEventListener('mouseenter', () => {
+                    container.style.boxShadow = '0 20px 60px rgba(0,102,204,0.3), 0 0 0 1px rgba(0,102,204,0.2)';
+                });
+                container.addEventListener('mouseleave', () => {
+                    container.style.boxShadow = '0 20px 60px rgba(0,0,0,0.5)';
+                });
+            }
+        })();
+    </script>
 </body>
 </html>
