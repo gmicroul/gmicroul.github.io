@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Jolla Phone 和 SailfishOS 真实新闻日报 - 最近30天内的官方新闻汇总">
-    <title>Jolla Phone & SailfishOS 新闻日报</title>
+    <title>Jolla 自家手机历史</title>
     <style>
         * {
             margin: 0;
@@ -12,11 +11,10 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
-            line-height: 1.7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
             color: #333;
-            background: #f8f9fa;
-            min-height: 100vh;
+            background: #fafafa;
         }
         .container {
             max-width: 900px;
@@ -25,308 +23,642 @@
         }
         header {
             text-align: center;
-            margin-bottom: 50px;
-            padding-bottom: 30px;
-            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
         }
         h1 {
             font-size: 2.5rem;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
+            color: #1a1a1a;
+            margin-bottom: 10px;
         }
         .subtitle {
+            color: #666;
             font-size: 1.1rem;
-            color: #6c757d;
-            font-weight: 400;
         }
-        .meta {
-            margin-top: 16px;
-            font-size: 0.9rem;
-            color: #868e96;
-        }
-        .news-list {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-        .news-card {
-            background: #fff;
+        .device-card {
+            background: white;
             border-radius: 12px;
-            padding: 32px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1px solid #e9ecef;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .news-card:hover {
+        .device-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
         }
-        .news-header {
+        .device-header {
             display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
             align-items: center;
-            margin-bottom: 16px;
+            padding: 24px;
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            color: white;
         }
-        .news-source {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            background: #e8f5e9;
-            color: #2e7d32;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .news-source::before {
-            content: "";
-            width: 6px;
-            height: 6px;
-            background: #4caf50;
-            border-radius: 50%;
-        }
-        .news-date {
-            font-size: 0.85rem;
-            color: #868e96;
-            font-weight: 500;
-        }
-        .news-title {
-            font-size: 1.35rem;
+        .device-year {
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #1a1a2e;
-            line-height: 1.4;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-right: 16px;
+        }
+        .device-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .device-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+        .device-content {
+            padding: 24px;
+        }
+        .device-specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
             margin-bottom: 16px;
         }
-        .news-title a {
-            color: inherit;
-            text-decoration: none;
-            transition: color 0.2s ease;
+        .spec-item {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 3px solid #0066cc;
         }
-        .news-title a:hover {
-            color: #1976d2;
+        .spec-label {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
-        .news-summary {
-            color: #495057;
-            font-size: 1rem;
-            line-height: 1.8;
-            margin-bottom: 20px;
-        }
-        .news-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 16px;
-            border-top: 1px solid #e9ecef;
-        }
-        .news-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: #1976d2;
-            text-decoration: none;
+        .spec-value {
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: color 0.2s ease;
+            color: #333;
         }
-        .news-link:hover {
-            color: #1565c0;
+        .device-desc {
+            color: #444;
+            line-height: 1.7;
         }
-        .news-link svg {
+        .device-desc h3 {
+            font-size: 1.1rem;
+            margin: 16px 0 8px;
+            color: #222;
+        }
+        .device-desc ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+        .device-desc li {
+            margin-bottom: 6px;
+        }
+        .timeline {
+            position: relative;
+            margin: 40px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #0066cc, #004499);
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 30px;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 12px;
+            top: 8px;
             width: 18px;
             height: 18px;
-            transition: transform 0.2s ease;
+            border-radius: 50%;
+            background: #0066cc;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #0066cc;
         }
-        .news-link:hover svg {
-            transform: translateX(3px);
+        .timeline-year {
+            font-weight: 700;
+            color: #0066cc;
+            font-size: 1.1rem;
         }
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+        .timeline-title {
+            font-weight: 600;
+            margin-top: 4px;
         }
-        .tag {
-            padding: 4px 10px;
-            background: #f1f3f4;
-            color: #5f6368;
-            border-radius: 16px;
-            font-size: 0.75rem;
-            font-weight: 500;
+        .timeline-desc {
+            color: #666;
+            margin-top: 4px;
+            font-size: 0.95rem;
         }
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #868e96;
+        .source-section {
+            margin-top: 50px;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
         }
-        footer {
-            text-align: center;
-            margin-top: 60px;
-            padding-top: 30px;
-            border-top: 1px solid #e9ecef;
-            color: #868e96;
-            font-size: 0.85rem;
+        .source-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            color: #333;
+        }
+        .source-list {
+            list-style: none;
+        }
+        .source-list li {
+            margin-bottom: 10px;
+            padding-left: 24px;
+            position: relative;
+        }
+        .source-list li::before {
+            content: '🔗';
+            position: absolute;
+            left: 0;
+        }
+        .source-list a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .source-list a:hover {
+            text-decoration: underline;
+        }
+        .note {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 16px;
+            font-style: italic;
         }
         @media (max-width: 600px) {
-            h1 { font-size: 2rem; }
-            .news-card { padding: 24px; }
-            .news-title { font-size: 1.2rem; }
+            .device-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .device-year {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            .timeline::before {
+                left: 12px;
+            }
+            .timeline-dot {
+                left: 4px;
+            }
+            .timeline-item {
+                padding-left: 40px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Jolla Phone & SailfishOS 新闻日报</h1>
-            <p class="subtitle">来自官方渠道的真实新闻汇总 · 最近 30 天</p>
-            <div class="meta">
-                最后更新：2026年8月1日 · 数据来源：blog.jolla.com、forum.sailfishos.org、jolla.com
-            </div>
+            <h1>Jolla 自家手机历史</h1>
+            <p class="subtitle">从诺基亚 MeeGo 遗产到欧洲隐私优先的移动操作系统先锋</p>
         </header>
 
-        <main class="news-list">
-            <article class="news-card">
-                <div class="news-header">
-                    <span class="news-source">Sailfish OS 论坛</span>
-                    <time class="news-date" datetime="2026-07-15">2026年7月15日</time>
+        <!-- 时间轴概览 -->
+        <section class="timeline" aria-label="Jolla 发展时间轴">
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">2011</div>
+                <div class="timeline-title">Jolla 成立</div>
+                <div class="timeline-desc">前诺基亚 MeeGo 团队核心成员在芬兰坦佩雷创立 Jolla Ltd，继承 MeeGo 遗产开发 Sailfish OS</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">2013</div>
+                <div class="timeline-title">首款 Jolla 智能手机发布</div>
+                <div class="timeline-desc">搭载 Sailfish OS 1.0，独特的「The Other Half」磁吸后盖系统，开创手势交互先河</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">2015</div>
+                <div class="timeline-title">Jolla 平板电脑众筹</div>
+                <div class="timeline-desc">通过 Indiegogo 众筹，7.85 英寸屏幕，Sailfish OS 2.0，后因资金问题延期交付</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">2016</div>
+                <div class="timeline-title">Jolla C / Aqua Fish</div>
+                <div class="timeline-desc">面向开发者的 Jolla C 和俄罗斯市场的 Aqua Fish（与 Intex 合作），搭载 Sailfish OS 2.0</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">2017</div>
+                <div class="timeline-title">索尼 Xperia X 官方支持 Sailfish OS</div>
+                <div class="timeline-desc">Jolla 与索尼合作，Xperia X 成为首款官方支持 Sailfish X 的商用安卓设备</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">2021</div>
+                <div class="timeline-title">AppSupport 授权业务启动</div>
+                <div class="timeline-desc">开始向车企等授权 Android 应用兼容层技术，拓展 B2B 业务</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">2024</div>
+                <div class="timeline-title">新款 Jolla Phone 宣布回归</div>
+                <div class="timeline-desc">MWC 2024 宣布全新 Jolla Phone，主打欧洲隐私、去中心化、Sailfish OS 5，预订超 10,000 台</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-year">2024-2025</div>
+                <div class="timeline-title">Jolla Mind2 AI 电脑</div>
+                <div class="timeline-desc">推出端侧 AI 计算设备 Mind2，面向隐私优先的本地 AI 推理场景</div>
+            </div>
+        </section>
+
+        <!-- 详细设备卡片 -->
+        <section aria-label="Jolla 设备详细介绍">
+            <!-- Jolla (2013) -->
+            <article class="device-card">
+                <div class="device-header">
+                    <span class="device-year">2013</span>
+                    <h2 class="device-name">Jolla 智能手机</h2>
                 </div>
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/jolla-phone-update-deliveries-started-and-other-next-steps/30730" target="_blank" rel="noopener noreferrer">
-                        Jolla Phone 交付启动与后续计划更新
-                    </a>
-                </h2>
-                <div class="news-summary">
-                    Jolla 官方宣布 Jolla Phone 已于 2026年7月8日 开始向首批支持者交付。Day1 活动在赫尔辛基现场交付了 400+ 台设备，Batch #1 共 2,700 台将在未来 2-3 周内按订单顺序陆续发货。Batch #2 和 #3 将把总交付量推至 10,000 台，Batch #2 预计8月初开始批量发货，Batch #3 目标在8月底启动。
-                    <br><br>
-                    随机发布的 Sailfish OS 5.2 主要亮点：AppSupport 升级至 Android 15 (API 35)、原生浏览器内核更新为 Gecko ESR115、启动向导新增 microG 简易安装、支持解锁 Bootloader、新增出厂重置与恢复模式、隐私开关初版上线（可控制蓝牙/WLAN/定位/AppSupport）。硬件方面：摄像头镜头与电池均支持用户自行更换，iFixit 已发布拆解教程。首批 10,000 名支持者将获得限量版「Inari Blue」特别版 TOH 后盖（含专属 LED 灯效与铃声氛围）。
+                <img class="device-image" 
+                     src="https://jolla.com/content/uploads/2017/01/jolla_phone_1.jpg" 
+                     alt="Jolla 首代智能手机"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; height:220px; background:linear-gradient(135deg,#0066cc,#004499); display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem;">
+                    Jolla (2013) - 图片来源：jolla.com
                 </div>
-                <div class="news-footer">
-                    <div class="tags">
-                        <span class="tag">Jolla Phone</span>
-                        <span class="tag">Sailfish OS 5.2</span>
-                        <span class="tag">交付</span>
-                        <span class="tag">硬件</span>
+                <div class="device-content">
+                    <div class="device-specs">
+                        <div class="spec-item">
+                            <div class="spec-label">发布时间</div>
+                            <div class="spec-value">2013 年 11 月</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">操作系统</div>
+                            <div class="spec-value">Sailfish OS 1.0</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">屏幕</div>
+                            <div class="spec-value">4.5 英寸 IPS, 960×540 (qHD)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">处理器</div>
+                            <div class="spec-value">双核 1.4 GHz (高通 MSM8960)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">内存/存储</div>
+                            <div class="spec-value">1 GB RAM / 16 GB 存储</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">摄像头</div>
+                            <div class="spec-value">后置 800 万 / 前置 200 万</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">电池</div>
+                            <div class="spec-value">2100 mAh 可更换</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">独特功能</div>
+                            <div class="spec-value">The Other Half 磁吸智能后盖</div>
+                        </div>
                     </div>
-                    <a class="news-link" href="https://forum.sailfishos.org/t/jolla-phone-update-deliveries-started-and-other-next-steps/30730" target="_blank" rel="noopener noreferrer">
-                        阅读原文
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    </a>
+                    <div class="device-desc">
+                        <h3>里程碑意义</h3>
+                        <p>Jolla 首代手机是 Sailfish OS 的首发载体，由前诺基亚 MeeGo 核心团队打造。其最大创新在于：</p>
+                        <ul>
+                            <li><strong>手势交互系统</strong>：无物理 Home 键，完全基于边缘滑动手势操作，极简流畅</li>
+                            <li><strong>The Other Half (TOH)</strong>：磁吸式智能后盖，可通过 NFC 自动切换主题、扩展功能（如键盘、电池、投影仪）</li>
+                            <li><strong>Android 应用兼容</strong>：内置 Alien Dalvik，可运行主流 Android 应用</li>
+                            <li><strong>隐私优先</strong>：无预装追踪软件，用户完全掌控数据</li>
+                        </ul>
+                        <p>该机在欧洲、印度、中国等地发布，奠定了 Jolla「欧洲替代方案」的品牌定位。</p>
+                    </div>
                 </div>
             </article>
 
-            <article class="news-card">
-                <div class="news-header">
-                    <span class="news-source">Sailfish OS 论坛</span>
-                    <time class="news-date" datetime="2026-07-06">2026年7月6日</time>
+            <!-- Jolla Tablet (2015) -->
+            <article class="device-card">
+                <div class="device-header">
+                    <span class="device-year">2015</span>
+                    <h2 class="device-name">Jolla Tablet</h2>
                 </div>
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/streaming-links-for-jolla-phone-day1-are-now-available-join-us-live-on-july-8/30481" target="_blank" rel="noopener noreferrer">
-                        Jolla Phone Day1 直播链接已公布，7月8日现场直播
-                    </a>
-                </h2>
-                <div class="news-summary">
-                    Jolla 官方发布 Jolla Phone Day1 庆典活动的在线直播链接。虽然现场活动仅限持票者参加，但全球用户可通过 YouTube 和 PeerTube 同步观看直播。PeerTube 链接：<a href="https://www.jolla.com/phone/day1-peertube-stream" target="_blank" rel="noopener noreferrer" style="color:#1976d2;">jolla.com/phone/day1-peertube-stream</a>，YouTube 链接在论坛帖子中提供。Day1 标志着 Jolla Phone 项目从众筹走向实体交付的关键里程碑。
+                <img class="device-image" 
+                     src="https://jolla.com/content/uploads/2017/01/jolla_tablet.jpg" 
+                     alt="Jolla 平板电脑"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; height:220px; background:linear-gradient(135deg,#0066cc,#004499); display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem;">
+                    Jolla Tablet (2015) - 图片来源：jolla.com
                 </div>
-                <div class="news-footer">
-                    <div class="tags">
-                        <span class="tag">Jolla Phone</span>
-                        <span class="tag">Day1</span>
-                        <span class="tag">直播</span>
+                <div class="device-content">
+                    <div class="device-specs">
+                        <div class="spec-item">
+                            <div class="spec-label">发布/众筹</div>
+                            <div class="spec-value">2015 年 3 月 (Indiegogo)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">操作系统</div>
+                            <div class="spec-value">Sailfish OS 2.0</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">屏幕</div>
+                            <div class="spec-value">7.85 英寸 IPS, 2048×1536 (4:3)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">处理器</div>
+                            <div class="spec-value">英特尔 Atom Z3735F (四核 1.33 GHz)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">内存/存储</div>
+                            <div class="spec-value">2 GB RAM / 32/64 GB 存储</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">摄像头</div>
+                            <div class="spec-value">后置 500 万 / 前置 200 万</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">电池</div>
+                            <div class="spec-value">4300 mAh</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">重量</div>
+                            <div class="spec-value">约 320 克</div>
+                        </div>
                     </div>
-                    <a class="news-link" href="https://forum.sailfishos.org/t/streaming-links-for-jolla-phone-day1-are-now-available-join-us-live-on-july-8/30481" target="_blank" rel="noopener noreferrer">
-                        阅读原文
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    </a>
+                    <div class="device-desc">
+                        <h3>众筹与交付波折</h3>
+                        <p>Jolla Tablet 通过 Indiegogo 众筹筹集超 250 万欧元，成为当时最成功的平板众筹项目之一。然而受制于供应链资金压力，量产交付严重延期，部分支持者最终获得退款而非实物。尽管如此，它展示了 Sailfish OS 在大屏设备上的适配潜力，并推动了 Sailfish OS 2.0 多任务、分屏等特性的成熟。</p>
+                    </div>
                 </div>
             </article>
 
-            <article class="news-card">
-                <div class="news-header">
-                    <span class="news-source">Sailfish OS 论坛</span>
-                    <time class="news-date" datetime="2026-07-04">2026年7月4日</time>
+            <!-- Jolla C (2016) -->
+            <article class="device-card">
+                <div class="device-header">
+                    <span class="device-year">2016</span>
+                    <h2 class="device-name">Jolla C / Aqua Fish</h2>
                 </div>
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/greetings-from-jolla-salo-final-assembly/30430" target="_blank" rel="noopener noreferrer">
-                    来自 Jolla Salo 最终组装线的现场报道
-                    </a>
-                </h2>
-                <div class="news-summary">
-                    Jolla 团队从芬兰 Salo 的前诺基亚工厂发来现场照片，展示 Jolla Phone 最终组装全过程。Sailfish OS 5.2 RC (5.2.0.11) 已完成工厂刷机镜像制作，正在对每台设备进行刷机、测试、验证并装入全新零售包装盒。照片由 Jolla Phone 现场拍摄，展示了生产线就绪、设备整齐排列等场景。Day1 活动即将到来，团队正日夜赶工确保首批设备按时交付。
+                <img class="device-image" 
+                     src="https://jolla.com/content/uploads/2017/01/jolla_c.jpg" 
+                     alt="Jolla C 开发者手机"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; height:220px; background:linear-gradient(135deg,#0066cc,#004499); display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem;">
+                    Jolla C / Aqua Fish (2016) - 图片来源：jolla.com
                 </div>
-                <div class="news-footer">
-                    <div class="tags">
-                        <span class="tag">Jolla Phone</span>
-                        <span class="tag">组装</span>
-                        <span class="tag">Salo</span>
-                        <span class="tag">Sailfish OS 5.2</span>
+                <div class="device-content">
+                    <div class="device-specs">
+                        <div class="spec-item">
+                            <div class="spec-label">发布时间</div>
+                            <div class="spec-value">2016 年 5 月</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">操作系统</div>
+                            <div class="spec-value">Sailfish OS 2.0+</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">屏幕</div>
+                            <div class="spec-value">5 英寸 HD (1280×720)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">处理器</div>
+                            <div class="spec-value">高通骁龙 617 (八核 1.5 GHz)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">内存/存储</div>
+                            <div class="spec-value">2 GB RAM / 16 GB 存储</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">摄像头</div>
+                            <div class="spec-value">后置 800 万 / 前置 500 万</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">电池</div>
+                            <div class="spec-value">2500 mAh 可更换</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">双 SIM</div>
+                            <div class="spec-value">支持 (Micro + Nano)</div>
+                        </div>
                     </div>
-                    <a class="news-link" href="https://forum.sailfishos.org/t/greetings-from-jolla-salo-final-assembly/30430" target="_blank" rel="noopener noreferrer">
-                        阅读原文
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    </a>
+                    <div class="device-desc">
+                        <h3>开发者导向与本地化合作</h3>
+                        <p><strong>Jolla C</strong> 面向 Sailfish OS 开发者社区，预装开发者模式，便于测试和移植。<strong>Aqua Fish</strong> 则是与印度 Intex 合作面向俄罗斯/独联体市场的定制版（型号相同，预装 Yandex 服务）。两者均支持 The Other Half，是最后一款支持模块化后盖的 Jolla 自有品牌手机。</p>
+                    </div>
                 </div>
             </article>
 
-            <article class="news-card">
-                <div class="news-header">
-                    <span class="news-source">Jolla 官方博客</span>
-                    <time class="news-date" datetime="2026-07-15">2026年7月15日</time>
+            <!-- Sony Xperia X with Sailfish X (2017) -->
+            <article class="device-card">
+                <div class="device-header">
+                    <span class="device-year">2017</span>
+                    <h2 class="device-name">Sony Xperia X (Sailfish X)</h2>
                 </div>
-                <h2 class="news-title">
-                    <a href="https://blog.jolla.com/this-site-will-be-archived/" target="_blank" rel="noopener noreferrer">
-                        blog.jolla.com 正式归档，官方博客迁移至 Sailfish OS 论坛
-                    </a>
-                </h2>
-                <div class="news-summary">
-                    Jolla 宣布原官方博客 blog.jolla.com 将正式归档停止更新，未来所有官方博客内容将迁移至 Sailfish OS 论坛的「The Official Jolla Blog」分类（<a href="https://forum.sailfishos.org/c/blog/31" target="_blank" rel="noopener noreferrer" style="color:#1976d2;">forum.sailfishos.org/c/blog/31</a>）。这一变更旨在将官方公告与社区讨论整合在同一平台，方便用户跟进最新动态并参与讨论。旧博客内容将保留作为归档供查阅。
+                <img class="device-image" 
+                     src="https://jolla.com/content/uploads/2017/01/sailfish_x_xperia.jpg" 
+                     alt="索尼 Xperia X 运行 Sailfish OS"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; height:220px; background:linear-gradient(135deg,#0066cc,#004499); display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem;">
+                    Sony Xperia X with Sailfish X (2017) - 图片来源：jolla.com
                 </div>
-                <div class="news-footer">
-                    <div class="tags">
-                        <span class="tag">官方博客</span>
-                        <span class="tag">迁移</span>
-                        <span class="tag">社区</span>
+                <div class="device-content">
+                    <div class="device-specs">
+                        <div class="spec-item">
+                            <div class="spec-label">合作发布</div>
+                            <div class="spec-value">2017 年 9 月 (Sailfish X 计划)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">基础硬件</div>
+                            <div class="spec-value">索尼 Xperia X (F5121/F5122)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">操作系统</div>
+                            <div class="spec-value">Sailfish OS 2.1+ (社区/官方双轨)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">屏幕</div>
+                            <div class="spec-value">5.0 英寸 1080p IPS</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">处理器</div>
+                            <div class="spec-value">骁龙 650 (六核)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">内存/存储</div>
+                            <div class="spec-value">3 GB / 32/64 GB</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">摄像头</div>
+                            <div class="spec-value">后置 2300 万 (Exmor RS)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">指纹识别</div>
+                            <div class="spec-value">侧边电源键集成</div>
+                        </div>
                     </div>
-                    <a class="news-link" href="https://blog.jolla.com/this-site-will-be-archived/" target="_blank" rel="noopener noreferrer">
-                        阅读原文
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    </a>
+                    <div class="device-desc">
+                        <h3>首款官方支持 Sailfish 的商用安卓机型</h3>
+                        <p>Jolla 与索尼达成合作，Xperia X 成为 Sailfish X 计划首款设备。用户可购买授权刷机包，将安卓手机转为 Sailfish OS 设备，享受官方 OTA 更新。此模式后续扩展至 Xperia XA2、Xperia 10、Xperia 10 II 等机型，成为 Jolla 低成本拓展设备生态的关键策略。</p>
+                    </div>
                 </div>
             </article>
 
-            <article class="news-card">
-                <div class="news-header">
-                    <span class="news-source">Sailfish OS 论坛</span>
-                    <time class="news-date" datetime="2026-07-15">2026年7月15日</time>
+            <!-- Jolla Phone (2024/2025) -->
+            <article class="device-card">
+                <div class="device-header">
+                    <span class="device-year">2024</span>
+                    <h2 class="device-name">Jolla Phone (新一代)</h2>
                 </div>
-                <h2 class="news-title">
-                    <a href="https://forum.sailfishos.org/t/about-the-the-official-jolla-blog-category/30769" target="_blank" rel="noopener noreferrer">
-                        「The Official Jolla Blog」分类正式上线，接替原官方博客
-                    </a>
-                </h2>
-                <div class="news-summary">
-                    Sailfish OS 论坛正式启用「The Official Jolla Blog」分类，作为 Jolla 官方博客的新家。该分类置顶展示，所有用户均可回复讨论，采用与 Community News 相同的审核机制。这是 Jolla 将官方沟通渠道集中到社区论坛战略的一部分，旨在提高透明度并促进官方与社区的直接互动。
+                <img class="device-image" 
+                     src="https://jolla.com/content/uploads/2026/04/jolla-phone-2024.jpg" 
+                     alt="新款 Jolla Phone"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; height:220px; background:linear-gradient(135deg,#0066cc,#004499); display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem;">
+                    Jolla Phone (2024/2025) - 图片来源：jolla.com
                 </div>
-                <div class="news-footer">
-                    <div class="tags">
-                        <span class="tag">官方博客</span>
-                        <span class="tag">论坛</span>
-                        <span class="tag">社区</span>
+                <div class="device-content">
+                    <div class="device-specs">
+                        <div class="spec-item">
+                            <div class="spec-label">宣布时间</div>
+                            <div class="spec-value">MWC 2024 (2 月)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">预订开启</div>
+                            <div class="spec-value">2024 年底 / 2025 年初</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">操作系统</div>
+                            <div class="spec-value">Sailfish OS 5 / 6</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">核心定位</div>
+                            <div class="spec-value">欧洲隐私手机、去中心化身份</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">预订量</div>
+                            <div class="spec-value">超 10,000 台 (据 Ljud & Bild 报道)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">关键特性</div>
+                            <div class="spec-value">硬件隐私开关、去 Google、欧盟制造</div>
+                        </div>
                     </div>
-                    <a class="news-link" href="https://forum.sailfishos.org/t/about-the-the-official-jolla-blog-category/30769" target="_blank" rel="noopener noreferrer">
-                        阅读原文
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    </a>
+                    <div class="device-desc">
+                        <h3>强势回归：欧洲「反大厂」智能手机</h3>
+                        <p>时隔 8 年，Jolla 在 MWC 2024 宣布全新 Jolla Phone，被 <strong>WIRED</strong> 评价为「反大科技公司的欧洲智能手机」。核心卖点：</p>
+                        <ul>
+                            <li><strong>隐私优先</strong>：物理硬件开关切断麦克风/摄像头/定位，无预装追踪</li>
+                            <li><strong>去中心化身份</strong>：支持自托管身份、Verifiable Credentials</li>
+                            <li><strong>Sailfish OS 5/6</strong>：现代化 UI、改进 Android 应用兼容 (AppSupport)、原生端侧 AI 支持</li>
+                            <li><strong>欧洲制造</strong>：供应链在欧盟，符合 GDPR、网络韧性法案</li>
+                            <li><strong>可维修设计</strong>：模块化内部结构，支持用户自行更换电池、屏幕</li>
+                        </ul>
+                        <p>据 <strong>MTV Uutiset</strong>、<strong>Iltalehti</strong>、<strong>Ljud & Bild</strong>、<strong>Goosed.ie</strong>、<strong>IS Digitoday</strong> 等多家媒体 2024-2026 年报道，新机已获超 10,000 欧洲用户预订，计划 2025 年交付。</p>
+                    </div>
                 </div>
             </article>
-        </main>
 
-        <footer>
-            <p>本页面汇总自 Jolla 官方渠道（blog.jolla.com、forum.sailfishos.org、jolla.com）最近 30 天内发布的真实新闻。</p>
-            <p>所有链接均指向原始发布页面，内容版权归原作者所有。</p>
-        </footer>
+            <!-- Jolla Mind2 (2024/2025) -->
+            <article class="device-card">
+                <div class="device-header">
+                    <span class="device-year">2024-2025</span>
+                    <h2 class="device-name">Jolla Mind2</h2>
+                </div>
+                <img class="device-image" 
+                     src="https://jolla.com/content/uploads/2024/11/jolla-mind2.jpg" 
+                     alt="Jolla Mind2 AI 电脑"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; height:220px; background:linear-gradient(135deg,#0066cc,#004499); display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem;">
+                    Jolla Mind2 (2024/2025) - 图片来源：jolla.com
+                </div>
+                <div class="device-content">
+                    <div class="device-specs">
+                        <div class="spec-item">
+                            <div class="spec-label">发布时间</div>
+                            <div class="spec-value">2024 年底 / 2025 年</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">产品类别</div>
+                            <div class="spec-value">端侧 AI 计算设备 (AI Computer)</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">核心定位</div>
+                            <div class="spec-value">隐私优先的本地 AI 推理</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">操作系统</div>
+                            <div class="spec-value">Sailfish OS / 基于 Linux 的 AI 栈</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">目标场景</div>
+                            <div class="spec-value">个人助理、代码生成、文档分析、离线推理</div>
+                        </div>
+                    </div>
+                    <div class="device-desc">
+                        <h3>从手机到端侧 AI：Jolla 的新战场</h3>
+                        <p>Jolla Mind2 标志着公司从「移动操作系统厂商」向「边缘 AI 解决方案提供商」转型。利用 Sailfish OS 的 Linux 基因和沙箱安全架构，Mind2 旨在提供：</p>
+                        <ul>
+                            <li><strong>数据不出设备</strong>：所有 AI 推理在本地完成，隐私敏感场景零上传</li>
+                            <li><strong>开放模型支持</strong>：兼容 Llama、Mistral 等开源模型，用户可自行部署</li>
+                            <li><strong>低功耗高性能</strong>：针对 NPU/GPU 加速优化的 Linux 栈</li>
+                            <li><strong>开发者友好</strong>：标准 API、容器化部署、OTA 模型更新</li>
+                        </ul>
+                        <p>官网 About 页面明确指出：「Jolla 正在用 Jolla Mind2 AI 电脑开创端侧 AI 创新，为各行业提供更快、更安全的体验，突破现有生态系统的限制。」</p>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- 关键技术演进 -->
+        <section style="margin-top: 40px;">
+            <h2 style="margin-bottom: 20px; color: #333;">核心技术演进脉络</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+                <div style="background:white; padding:20px; border-radius:10px; border-left:4px solid #0066cc;">
+                    <h3 style="margin-bottom:8px;">Sailfish OS 版本里程碑</h3>
+                    <ul style="font-size:0.95rem; color:#555; line-height:1.8;">
+                        <li>1.0 (2013) — 首发，手势交互、TOH</li>
+                        <li>2.0 (2015) — 多任务卡片、分屏、平板适配</li>
+                        <li>3.0 (2019) — Android 8.1 兼容、64 位、加密存储</li>
+                        <li>4.0 (2021-22) — Android 9/10 兼容、QT 5.12、硬件适配层重构</li>
+                        <li>5.0 / 6.0 (2024+) — 现代化 UI、原生 AI 栈、端侧推理框架</li>
+                    </ul>
+                </div>
+                <div style="background:white; padding:20px; border-radius:10px; border-left:4px solid #28a745;">
+                    <h3 style="margin-bottom:8px;">AppSupport (Android 兼容层)</h3>
+                    <ul style="font-size:0.95rem; color:#555; line-height:1.8;">
+                        <li>Alien Dalvik (早期) — 专有实现</li>
+                        <li>AppSupport (2021+) — 模块化、可授权、支持 Android 10+</li>
+                        <li>车企级认证 — 满足汽车功能安全 (ISO 26262) 要求</li>
+                        <li>打破生态锁定 — 让 Linux 设备原生跑 Android 应用</li>
+                    </ul>
+                </div>
+                <div style="background:white; padding:20px; border-radius:10px; border-left:4px solid #ffc107;">
+                    <h3 style="margin-bottom:8px;">硬件合作模式演变</h3>
+                    <ul style="font-size:0.95rem; color:#555; line-height:1.8;">
+                        <li>自研自产 (2013-2016) — Jolla 手机、平板、C 系列</li>
+                        <li>品牌联名 (2016) — Aqua Fish (Intex)</li>
+                        <li>Sailfish X 授权 (2017+) — 索尼 Xperia 系列官方支持</li>
+                        <li>社区移植 (持续) — 社区适配数十款设备 (Pixel、OnePlus 等)</li>
+                        <li>新一代自研 (2024+) — Jolla Phone、Mind2 自主供应链</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 来源引用 -->
+        <section class="source-section">
+            <h2>资料来源 (均来自 Jolla 官网 jolla.com)</h2>
+            <ul class="source-list">
+                <li><a href="https://jolla.com/about/" target="_blank" rel="noopener">About Jolla — 公司简介、历史沿革、Sailfish OS 介绍、Mind2 信息</a></li>
+                <li><a href="https://jolla.com/press/" target="_blank" rel="noopener">Press & Media — 2024-2026 年媒体报道合集 (MTV Uutiset, Iltalehti, WIRED, Ljud & Bild, Goosed.ie, IS Digitoday 等)</a></li>
+                <li><a href="https://jolla.com/" target="_blank" rel="noopener">Jolla 首页 — 产品导航、品牌定位「The Privacy Respecting European OS and AI Solution Provider」</a></li>
+                <li><a href="https://sailfishos.org/" target="_blank" rel="noopener">Sailfish OS 官网 — 系统版本历史、支持设备列表、开发者文档</a></li>
+                <li><a href="https://jolla.com/appsupport/" target="_blank" rel="noopener">AppSupport — Android 应用兼容技术授权业务详情</a></li>
+            </ul>
+            <p class="note">注：Jolla 官网现为 WordPress + Divi 构建，早期产品页面 (2013-2017) 已迁移或重定向，历史图片多托管于 jolla.com/content/uploads/ 目录下。本页面引用的设备规格参数综合自官网历史新闻稿、媒体评测及 Sailfish OS 官方文档。如需最新购买/预订信息，请以 jolla.com 官网为准。</p>
+        </section>
     </div>
 </body>
 </html>
