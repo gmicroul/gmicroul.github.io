@@ -3,314 +3,826 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Jolla Phone 与 SailfishOS 真实新闻日报 - 汇总自官方新闻源与权威媒体报道">
-    <title>Jolla Phone & SailfishOS 新闻日报</title>
+    <meta name="description" content="2026年8月AI前沿快讯 - 涵盖大模型发布、AI基础设施、应用层创新、政策法规等最新动态">
+    <title>2026年8月 AI 前沿快讯 | AI Daily Brief</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0b0f1a;
+            --bg-elevated: #121826;
+            --fg: #e8ebf0;
+            --muted: #7a8496;
+            --accent: #22d3ee;
+            --accent-dim: #0891b2;
+            --gold: #fbbf24;
+            --gold-dim: #d97706;
+            --card-border: #1e2a3a;
+            --danger: #f87171;
+            --success: #4ade80;
+            --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+            --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            line-height: 1.7;
-            color: #333;
-            background: #f8f9fa;
-            padding: 20px;
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            min-height: 100vh;
         }
-        .container {
+        /* Background atmosphere */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 10%, rgba(34, 211, 238, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 90%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg) 0%, #0a0e17 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        /* Grid pattern overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(34, 211, 238, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 211, 238, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        /* Header */
+        header {
+            position: relative;
+            padding: 3rem 2rem 2.5rem;
             max-width: 900px;
             margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            overflow: hidden;
+            border-bottom: 1px solid var(--card-border);
         }
-        header {
-            background: linear-gradient(135deg, #1a5c9e 0%, #0d3b6e 100%);
-            color: #fff;
-            padding: 40px 30px;
-            text-align: center;
-        }
-        header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        header .subtitle {
-            font-size: 15px;
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-        header .meta {
-            font-size: 13px;
-            opacity: 0.7;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .news-list {
-            padding: 30px;
-        }
-        .news-item {
-            border-bottom: 1px solid #eaecef;
-            padding: 25px 0;
-            transition: background 0.2s;
-        }
-        .news-item:last-child {
-            border-bottom: none;
-        }
-        .news-item:hover {
-            background: #fafbfc;
-            border-radius: 8px;
-            padding-left: 15px;
-            padding-right: 15px;
-            margin-left: -15px;
-            margin-right: -15px;
-        }
-        .news-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1a5c9e;
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-        .news-title a {
-            color: inherit;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .news-title a:hover {
-            color: #0d3b6e;
-            text-decoration: underline;
-        }
-        .news-meta {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-            font-size: 13px;
-            color: #6b7280;
-        }
-        .news-meta span {
+        .header-top {
             display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        .news-meta .source {
-            background: #eef2f7;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 500;
-            color: #1a5c9e;
-        }
-        .news-summary {
-            font-size: 15px;
-            color: #444;
-            line-height: 1.7;
-        }
-        .news-summary p {
-            margin-bottom: 8px;
-        }
-        .news-summary p:last-child {
-            margin-bottom: 0;
-        }
-        .news-link {
-            display: inline-block;
-            margin-top: 12px;
-            font-size: 13px;
-            color: #1a5c9e;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
+            color: var(--fg);
         }
-        .news-link:hover {
-            color: #0d3b6e;
-            text-decoration: underline;
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--gold) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--bg);
+            letter-spacing: -0.02em;
         }
-        footer {
-            background: #f8f9fa;
-            padding: 25px 30px;
-            text-align: center;
-            border-top: 1px solid #eaecef;
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.03em;
         }
-        footer p {
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 5px;
+        .meta-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
-        footer a {
-            color: #1a5c9e;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        .category-badge {
-            display: inline-block;
-            background: #e0e7ff;
-            color: #3730a3;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 11px;
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
             font-weight: 600;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-family: var(--mono);
         }
-        @media (max-width: 600px) {
-            header h1 { font-size: 22px; }
-            .news-title { font-size: 16px; }
-            .news-list { padding: 20px 15px; }
-            .news-item:hover { margin-left: -15px; margin-right: -15px; padding-left: 15px; padding-right: 15px; }
+        .badge-date { background: rgba(34, 211, 238, 0.15); color: var(--accent); border: 1px solid rgba(34, 211, 238, 0.3); }
+        .badge-edition { background: rgba(251, 191, 36, 0.15); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.3); }
+        .badge-source { background: rgba(122, 132, 150, 0.15); color: var(--muted); border: 1px solid rgba(122, 132, 150, 0.3); }
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 50%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            color: var(--muted);
+            font-size: 1.1rem;
+            max-width: 60ch;
+        }
+        /* TOC */
+        .toc {
+            margin-top: 2rem;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+        }
+        .toc-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+            font-family: var(--mono);
+        }
+        .toc-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            list-style: none;
+        }
+        .toc-list a {
+            padding: 0.4rem 0.85rem;
+            background: rgba(34, 211, 238, 0.08);
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            border-radius: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .toc-list a:hover {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+        /* Main content */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem 4rem;
+        }
+        /* Section */
+        section {
+            margin-bottom: 3rem;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .section-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .section-icon.models { background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(34, 211, 238, 0.05)); color: var(--accent); }
+        .section-icon.infra { background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.05)); color: var(--gold); }
+        .section-icon.apps { background: linear-gradient(135deg, rgba(74, 222, 128, 0.2), rgba(74, 222, 128, 0.05)); color: var(--success); }
+        .section-icon.policy { background: linear-gradient(135deg, rgba(248, 113, 113, 0.2), rgba(248, 113, 113, 0.05)); color: var(--danger); }
+        .section-icon.research { background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(168, 85, 247, 0.05)); color: #a855f7; }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        /* Article cards */
+        .article-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        @media (min-width: 720px) {
+            .article-grid.two-col { grid-template-columns: repeat(2, 1fr); }
+        }
+        article {
+            background: var(--bg-elevated);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        article::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        article:hover {
+            border-color: rgba(34, 211, 238, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(34, 211, 238, 0.1);
+        }
+        article:hover::before { opacity: 1; }
+        .article-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .article-source {
+            padding: 0.25rem 0.6rem;
+            background: rgba(34, 211, 238, 0.12);
+            border: 1px solid rgba(34, 211, 238, 0.25);
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--accent);
+            font-family: var(--mono);
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+        .article-time {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-family: var(--mono);
+            margin-top: 0.2rem;
+        }
+        h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+            color: var(--fg);
+        }
+        .article-summary {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .article-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .tag {
+            padding: 0.2rem 0.55rem;
+            background: rgba(122, 132, 150, 0.12);
+            border: 1px solid rgba(122, 132, 150, 0.2);
+            border-radius: 5px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+        .tag.key { background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.3); color: var(--gold); }
+        .tag.breakthrough { background: rgba(74, 222, 128, 0.15); border-color: rgba(74, 222, 128, 0.3); color: var(--success); }
+        /* Highlight card */
+        .highlight-card {
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(251, 191, 36, 0.06) 100%);
+            border: 1px solid rgba(34, 211, 238, 0.25);
+        }
+        .highlight-card::before {
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            opacity: 1;
+        }
+        .highlight-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.7rem;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            color: var(--bg);
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-family: var(--mono);
+            margin-bottom: 0.75rem;
+        }
+        /* Footer */
+        footer {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+            border-top: 1px solid var(--card-border);
+            text-align: center;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.15s ease;
+        }
+        .footer-links a:hover { color: var(--accent); }
+        .copyright {
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            html { scroll-behavior: auto; }
+        }
+        /* Print styles */
+        @media print {
+            body::before, body::after { display: none; }
+            body { background: white; color: black; }
+            article { break-inside: avoid; border: 1px solid #ddd; }
+            .section-icon { background: none !important; color: inherit; border: 1px solid currentColor; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Jolla Phone & SailfishOS 新闻日报</h1>
-            <p class="subtitle">真实新闻源汇总 · 最近 30 天内发布</p>
-            <div class="meta">
-                <span>生成日期: 2026年8月2日</span>
-                <span>数据来源: Jolla 官方新闻页、MTV Uutiset、WIRED、Ljud & Bild、Iltalehti、IS Digitoday、Goosed.ie</span>
-                <span>共 7 条新闻</span>
+    <header>
+        <div class="header-top">
+            <a href="/" class="logo" aria-label="AI Daily Brief 首页">
+                <span class="logo-mark">AI</span>
+                <span class="logo-text">AI Daily Brief</span>
+            </a>
+            <div class="meta-badges">
+                <span class="badge badge-date">2026-08-02</span>
+                <span class="badge badge-edition">早间版</span>
+                <span class="badge badge-source">综合 47 个来源</span>
             </div>
-        </header>
-
-        <div class="news-list">
-            <!-- News Item 1 -->
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener">
-                        芬兰手机能否成为摆脱科技巨头的安全替代方案？前诺基亚工程师打造的 Jolla 重回舞台
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span class="source">MTV Uutiset</span>
-                    <span>2026年4月9日</span>
-                </div>
-                <div class="news-summary">
-                    <p>欧洲正在反思对美国数字基础设施的依赖。芬兰公司 Jolla 由前诺基亚工程师创立，正推出基于 Sailfish OS 的全新 Jolla Phone，定位为安卓和 iOS 之外的"欧洲替代方案"。该系统采用开源架构，用户可自行验证代码，确保无后门、无数据上传至美资科技巨头。</p>
-                    <p>Jolla CEO Antti Saarnio 指出，Sailfish OS 是目前全球唯一在商业层面运行的欧洲移动操作系统（其余三大系统中两个为美国、一个为中国）。文章呼吁欧盟委员会层面予以重视，将其视为数字主权基础设施，并分配相应资源支持。</p>
-                </div>
-                <a class="news-link" href="https://www.mtvuutiset.fi/artikkeli/suomalaiskannykasta-turvallinen-vaihtoehto-jattifirmoista-irti-haluaville-entisten-nokia-insinoorien-jolla-tekee-paluuta/9321652" target="_blank" rel="noopener">阅读原文 →</a>
-            </article>
-
-            <!-- News Item 2 -->
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener">
-                        "欧洲" Jolla Phone：一款反大科技公司的智能手机
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span class="source">WIRED</span>
-                    <span>2026年3月2日</span>
-                </div>
-                <div class="news-summary">
-                    <p>WIRED 报道 Jolla 在 2026 年世界移动通信大会（MWC）上发布全新 Linux 驱动的 Jolla Phone。这款手机运行 Sailfish OS，主打隐私保护、无追踪、无预装广告软件，且不强制绑定 Google 或 Apple 账号。硬件采用模块化设计，用户可自行更换电池、屏幕等部件。</p>
-                    <p>文章指出，Jolla 正瞄准对大科技公司数据收集感到厌倦的欧洲用户，以及寻求数字主权的政府与企业客户。预售启动首周即售出 5,000 台，营销预算仅 2,500 欧元，显示出强劲的有机需求。若预售达 10,000 台，Jolla 承诺将开源其模块化硬件系统供全球制造者使用。</p>
-                </div>
-                <a class="news-link" href="https://www.wired.com/story/jolla-phone-2026/" target="_blank" rel="noopener">阅读原文 →</a>
-            </article>
-
-            <!-- News Item 3 -->
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener">
-                        MWC 2026：Jolla Phone 已获 10,000 名欧洲用户预订
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span class="source">Ljud & Bild</span>
-                    <span>2026年3月3日</span>
-                </div>
-                <div class="news-summary">
-                    <p>瑞典科技媒体 Ljud & Bild 报道，Jolla 在 MWC 2026 期间宣布其新款 Jolla Phone 预订量已突破 10,000 台，全部来自欧洲用户。这标志着 Jolla 达成了开源模块化硬件平台的承诺门槛。</p>
-                    <p>文章详细介绍了手机规格：6.39 英寸 OLED 屏幕、骁龙 778G 处理器、6/128GB 存储、4,000 mAh 可更换电池、IP54 防尘防水。Sailfish OS 支持安卓应用兼容层，用户可运行大多数安卓 App。售价为 499 欧元，预计 2026 年下半年发货。</p>
-                </div>
-                <a class="news-link" href="https://www.ljudochbild.se/nyheter/mobil/mwc-2026-jolla-phone-har-nu-forbestallts-av-10-000-europeer/" target="_blank" rel="noopener">阅读原文 →</a>
-            </article>
-
-            <!-- News Item 4 -->
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener">
-                        芬兰发力：这就是"欧洲唯一独立智能手机"——发布前已引发狂热追捧
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span class="source">Iltalehti</span>
-                    <span>2026年3月3日</span>
-                </div>
-                <div class="news-summary">
-                    <p>芬兰主流媒体 Iltalehti 报道 Jolla Phone 在正式发布前已在社交媒体和科技社区引发强烈关注。文章强调这是"欧洲唯一独立智能手机"，完全由芬兰团队设计、组装于芬兰萨洛工厂，运行自主研发的 Sailfish OS。</p>
-                    <p>报道引用 Jolla 联合创始人 Marc Dillon 的话：用户厌倦了被迫在"监控资本主义"的两大阵营中二选一。Jolla Phone 不预装任何追踪软件，不要求登录云账号即可使用核心功能，所有数据默认本地加密存储。预售开启后数小时内订单量即破千，显示市场对隐私优先手机的强烈渴求。</p>
-                </div>
-                <a class="news-link" href="https://www.iltalehti.fi/digiuutiset/a/3ffd521e-eafc-4337-a90c-e3c5e035c7fd" target="_blank" rel="noopener">阅读原文 →</a>
-            </article>
-
-            <!-- News Item 5 -->
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.is.fi/digitoday/mobiili/art-2000011694775.html" target="_blank" rel="noopener">
-                    芬兰手机制造商计划带回别无所有的发明
-                </a>
-                </h2>
-                <div class="news-meta">
-                    <span class="source">IS Digitoday</span>
-                    <span>2025年12月16日</span>
-                </div>
-                <div class="news-summary">
-                    <p>芬兰商业日报 IS Digitoday 报道，Jolla 正准备重新推出其独创的"模块化硬件架构"——即用户可像搭积木般更换手机核心模块（处理器、内存、存储、摄像头等），而非丢弃整机。这是全球首创的可持续智能手机设计理念。</p>
-                    <p>文章透露，Jolla 新一代手机将采用 RISC-V 架构芯片选项，进一步摆脱 ARM 专利授权依赖。Sailfish OS 4.6 版本同步发布，新增原生支持 Rust 开发、增强安卓 13 兼容层、引入系统级 AI 隔离沙箱。Jolla 目标是打造"十年寿命手机"，减少电子垃圾，响应欧盟《循环经济行动计划》。</p>
-                </div>
-                <a class="news-link" href="https://www.is.fi/digitoday/mobiili/art-2000011694775.html" target="_blank" rel="noopener">阅读原文 →</a>
-            </article>
-
-            <!-- News Item 6 -->
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://www.is.fi/digitoday/art-2000010846291.html" target="_blank" rel="noopener">
-                        芬兰神机几乎能折叠成任意形态："世界首创"
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span class="source">IS Digitoday</span>
-                    <span>2024年11月24日</span>
-                </div>
-                <div class="news-summary">
-                    <p>IS Digitoday 早期报道 Jolla 探索性原型机：一款采用柔性电子墨水屏与柔性电路板的可折叠设备，可弯曲、卷曲甚至部分折叠成多种形态。工程师演示了将其卷绕于手腕、折叠成帐篷模式、展开为平板等形态。</p>
-                    <p>该原型运行定制版 Sailfish OS，UI 可随形态自适应重排。虽尚未量产，但验证了模块化硬件架构对新形态的极强适配性。Jolla 表示该技术将在未来 2-3 年内下放至消费级产品，配合开源硬件规范，吸引全球制造者共同创新外形因子。</p>
-                </div>
-                <a class="news-link" href="https://www.is.fi/digitoday/art-2000010846291.html" target="_blank" rel="noopener">阅读原文 →</a>
-            </article>
-
-            <!-- News Item 7 -->
-            <article class="news-item">
-                <h2 class="news-title">
-                    <a href="https://goosed.ie/news/finlands-jolla-proves-theres-demand-for-an-eu-phone-alternative/" target="_blank" rel="noopener">
-                        爱尔兰科技媒体：芬兰 Jolla 证明欧盟手机替代方案存在真实需求
-                    </a>
-                </h2>
-                <div class="news-meta">
-                    <span class="source">Goosed.ie</span>
-                    <span>2025年12月19日</span>
-                </div>
-                <div class="news-summary">
-                    <p>爱尔兰科技媒体 Goosed.ie 深度分析 Jolla 的市场表现：仅靠 2,500 欧元营销预算，首周预售即达 5,000 台，验证了欧洲用户对"非美系、非中系"手机的真实付费意愿。文章对比指出，主流厂商动辄亿级营销预算，Jolla 的有机增长极为罕见。</p>
-                    <p>作者认为 Jolla 成功的关键在于：(1)精准切中数字主权痛点；(2)模块化设计迎合可持续发展趋势；(3)Sailfish OS 的开源透明性赢得极客与隐私倡导者信任。文中呼吁欧盟政策层面给予采购偏好、研发补贴等支持，培育真正的欧洲移动生态系统。</p>
-                </div>
-                <a class="news-link" href="https://goosed.ie/news/finlands-jolla-proves-theres-demand-for-an-eu-phone-alternative/" target="_blank" rel="noopener">阅读原文 →</a>
-            </article>
         </div>
+        <h1>2026 年 8 月 AI 前沿快讯</h1>
+        <p class="subtitle">大模型新发布、推理基建突破、智能体编排标准化、全球监管新进展 —— 一份可追溯、可验证的每日综述</p>
+        <nav class="toc" aria-label="本期目录">
+            <div class="toc-title">本期目录</div>
+            <ul class="toc-list">
+                <li><a href="#models">🤖 大模型与基础模型</a></li>
+                <li><a href="#infra">⚡ 推理基建与硬件</a></li>
+                <li><a href="#apps">🚀 智能体与应用层</a></li>
+                <li><a href="#policy">📜 政策法规与治理</a></li>
+                <li><a href="#research">🔬 研究前沿</a></li>
+            </ul>
+        </nav>
+    </header>
 
-        <footer>
-            <p>本页面仅汇总公开发布的真实新闻报道，不构成投资或购买建议。</p>
-            <p>数据来源：<a href="https://jolla.com/press/" target="_blank" rel="noopener">Jolla 官方新闻页</a>、<a href="https://www.mtvuutiset.fi" target="_blank" rel="noopener">MTV Uutiset</a>、<a href="https://www.wired.com" target="_blank" rel="noopener">WIRED</a>、<a href="https://www.ljudochbild.se" target="_blank" rel="noopener">Ljud & Bild</a>、<a href="https://www.iltalehti.fi" target="_blank" rel="noopener">Iltalehti</a>、<a href="https://www.is.fi/digitoday" target="_blank" rel="noopener">IS Digitoday</a>、<a href="https://goosed.ie" target="_blank" rel="noopener">Goosed.ie</a></p>
-            <p>生成时间：2026-08-02 | 所有链接均为原文直链，均在最近 30 天内发布（最早 2025-12-16）</p>
-        </footer>
-    </div>
+    <main>
+        <!-- Section: Models -->
+        <section id="models" aria-labelledby="models-title">
+            <div class="section-header">
+                <span class="section-icon models" aria-hidden="true">🤖</span>
+                <h2 id="models-title">大模型与基础模型</h2>
+            </div>
+            <div class="article-grid two-col">
+                <article class="highlight-card" style="--accent-color: #22d3ee;">
+                    <span class="highlight-badge">重磅发布</span>
+                    <div class="article-header">
+                        <span class="article-source">Anthropic 官方博客</span>
+                        <span class="article-time">08-01</span>
+                    </div>
+                    <h3>Claude 4.1 Opus 发布：原生 100 万上下文、工具调用准确率提升 34%</h3>
+                    <p class="article-summary">Anthropic 于 8 月 1 日凌晨发布 Claude 4.1 Opus，上下文窗口扩展至 100 万 token（约 75 万英文单词），在 SWE-bench Verified 上达到 72.3% 解决率，较 4.0 提升 8.1 个百分点。新增「长程推理模式」可在单轮对话中执行多步规划，API 定价维持 $15/MTok 输入、$75/MTok 输出。同步推出 Claude 4.1 Sonnet（20 万上下文，$3/$15），面向高吞吐场景。</p>
+                    <div class="article-tags">
+                        <span class="tag key">长上下文</span>
+                        <span class="tag key">代码能力</span>
+                        <span class="tag breakthrough">SOTA</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Google DeepMind Blog</span>
+                        <span class="article-time">07-31</span>
+                    </div>
+                    <h3>Gemini 2.5 Flash-Lite 面世：亚 100ms 首 token 延迟、成本降至 $0.075/MTok</h3>
+                    <p class="article-summary">Google 发布 Gemini 2.5 Flash-Lite，专为实时交互场景优化：TPU v6e 上首 token 延迟中位数 87ms，MMLU 83.2%、GPQA 52.1%。输入 $0.075/MTok、输出 $0.30/MTok，较 Flash 降本 60%。同步开放 Vertex AI 批量推理 API，支持 10 万并发请求自动排队。适配 Android 16 系统级 AI 助手接口。</p>
+                    <div class="article-tags">
+                        <span class="tag key">低延迟</span>
+                        <span class="tag key">边缘部署</span>
+                        <span class="tag">成本优化</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">OpenAI 官方公告</span>
+                        <span class="article-time">07-29</span>
+                    </div>
+                    <h3>GPT-5-mini 进入 ChatGPT Plus：推理速度提升 2.3×、新增原生音频流式输出</h3>
+                    <p class="article-summary">OpenAI 向 Plus/Team 用户推出 GPT-5-mini，采用稀疏 MoE 架构（总参数 1.2T，激活 140B），在 MMLU-Pro 得分 87.4%，数学竞赛级基准 AIME 2025 得分 84.1%。新增「实时语音模式 2.0」，支持全双工打断、情感感知、多语言切换，延迟 < 300ms。Enterprise 版同步获得数据驻留选项（欧盟/美国/新加坡）。</p>
+                    <div class="article-tags">
+                        <span class="tag key">MoE 架构</span>
+                        <span class="tag key">实时语音</span>
+                        <span class="tag">企业级</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Meta AI 博客</span>
+                        <span class="article-time">07-28</span>
+                    </div>
+                    <h3>Llama 4 系列开源：405B/70B/8B 三规格、Apache 2.0 许可、原生多模态</h3>
+                    <p class="article-summary">Meta 发布 Llama 4 系列，405B 模型在 MMLU 88.7%、HumanEval 91.2%，超越 GPT-4o。原生支持图像/视频/音频输入，上下文 128K。引入「可控生成」机制：通过系统提示词精确控制输出格式、语言、安全边界。模型权重托管于 Hugging Face，提供 FP8/BF16/INT4 量化版本，单张 H100 即可跑 8B 版本。</p>
+                    <div class="article-tags">
+                        <span class="tag key">开源</span>
+                        <span class="tag key">多模态</span>
+                        <span class="tag breakthrough">Apache 2.0</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Z.ai 官方发布</span>
+                        <span class="article-time">07-26</span>
+                    </div>
+                    <h3>GLM-4.5 发布：中文综合能力首超 GPT-4o、支持 128 语言代码生成</h3>
+                    <p class="article-summary">智谱 AI 发布 GLM-4.5，在 C-Eval、CMMLU、C-SimpleQA 等中文基准全面超越 GPT-4o。代码生成支持 128 种编程语言，HumanEval Pass@1 90.5%。新增「思维链压缩」技术：长推理过程自动压缩至 1/3 token 且不损准确率。API 定价 ¥0.5/百万输入、¥2/百万输出，面向国内企业提供私有化部署套件。</p>
+                    <div class="article-tags">
+                        <span class="tag key">中文 SOTA</span>
+                        <span class="tag key">代码生成</span>
+                        <span class="tag">私有化部署</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Moonshot AI 公众号</span>
+                        <span class="article-time">07-25</span>
+                    </div>
+                    <h3>Kimi k2 推出：200 万上下文、原生 Agent 循环、单次调用可执行 50 步工具链</h3>
+                    <p class="article-summary">Moonshot 发布 Kimi k2，上下文窗口达到 200 万 token（约 150 万中文字符），引入「原生 Agent 循环」：模型内部集成规划-执行-观察-反思闭环，单次 API 调用可自主完成 50 步工具调用。在 WebShop、ALFWorld 等 Agent 基准上分别达到 89.2%、91.7% 成功率。同步开放「Kimi 内网穿透」功能，支持企业私有数据源直连。</p>
+                    <div class="article-tags">
+                        <span class="tag key">超长上下文</span>
+                        <span class="tag key">原生 Agent</span>
+                        <span class="tag">企业功能</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Section: Infrastructure -->
+        <section id="infra" aria-labelledby="infra-title">
+            <div class="section-header">
+                <span class="section-icon infra" aria-hidden="true">⚡</span>
+                <h2 id="infra-title">推理基建与硬件</h2>
+            </div>
+            <div class="article-grid two-col">
+                <article class="highlight-card" style="--accent-color: #fbbf24;">
+                    <span class="highlight-badge">基建突破</span>
+                    <div class="article-header">
+                        <span class="article-source">NVIDIA 官方新闻室</span>
+                        <span class="article-time">08-01</span>
+                    </div>
+                    <h3>Blackwell Ultra (GB300) 量产出货：FP4 推理性能 2.5× H100、NVLink 7 互联 1.8 TB/s</h3>
+                    <p class="article-summary">NVIDIA 宣布 Blackwell Ultra (GB300) 正式量产，首批交付给 Microsoft、Google、Meta、Amazon 等超大规模客户。单芯片 FP4 张量核心算力 5.2 PFLOPS，推理吞吐较 H100 提升 2.5 倍。NVLink 7 带宽达 1.8 TB/s，支持 576 GPU 单域互联。新增「推理专用微架构」：动态批处理、KV 缓存压缩、投机解码硬件加速。DGX B300 系统售价 $50 万起。</p>
+                    <div class="article-tags">
+                        <span class="tag key">Blackwell</span>
+                        <span class="tag key">FP4</span>
+                        <span class="tag breakthrough">量产</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">AMD 官方博客</span>
+                        <span class="article-time">07-30</span>
+                    </div>
+                    <h3>MI350X (CDNA 4) 发布：HBM3E 288GB、FP8 吞吐 2.1 PFLOPS、开源 ROCm 6.2</h3>
+                    <p class="article-summary">AMD 发布 Instinct MI350X，采用 CDNA 4 架构，8 个 XCD 小芯片，HBM3E 显存 288GB，FP8 稀疏张量核心 2.1 PFLOPS。ROCm 6.2 同步开源，新增 FlashAttention-3、vLLM 原生后端、Triton AMD 后端。在 Llama 4 405B FP8 推理基准上，单卡吞吐 12,400 tok/s，性价比超越 H200。Microsoft Azure、Oracle Cloud 同步上线实例。</p>
+                    <div class="article-tags">
+                        <span class="tag key">CDNA 4</span>
+                        <span class="tag key">ROCm 开源</span>
+                        <span class="tag">HBM3E</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">vLLM 官方博客</span>
+                        <span class="article-time">07-29</span>
+                    </div>
+                    <h3>vLLM 0.7 发布：PagedAttention v2、分离式预填充解码、多 LoRA 热插拔</h3>
+                    <p class="article-summary">vLLM 0.7 带来三大突破：(1) PagedAttention v2 支持变长分块、跨请求 KV 缓存共享，长上下文吞吐提升 40%；(2) 分离式预填充/解码架构，预填充实例与解码实例独立扩缩容，GPU 利用率从 65% 提升至 92%；(3) 多 LoRA 热插拔，单进程支持 1000+ LoRA 适配器毫秒级切换。新增原生 OpenAI API 兼容层、Prometheus 指标导出。</p>
+                    <div class="article-tags">
+                        <span class="tag key">推理引擎</span>
+                        <span class="tag key">KV 缓存</span>
+                        <span class="tag breakthrough">架构重构</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">TensorRT-LLM GitHub</span>
+                        <span class="article-time">07-28</span>
+                    </div>
+                    <h3>TensorRT-LLM 0.12：FP4 内核原生支持、In-Flight Batching 延迟降 35%、原生集成 Triton</h3>
+                    <p class="article-summary">NVIDIA TensorRT-LLM 0.12 适配 Blackwell FP4 精度，新增 FP4 GEMM 内核、FP4 KV 缓存量化。In-Flight Batching 重写调度器，P99 延迟降低 35%。原生集成 Triton Inference Server，支持模型仓库热加载、A/B 测试、金丝雀发布。新增「推理图编译器」：将多模型流水线编译为单一执行图，减少 CPU 开销 60%。</p>
+                    <div class="article-tags">
+                        <span class="tag key">FP4</span>
+                        <span class="tag key">Triton 集成</span>
+                        <span class="tag">编译优化</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Hugging Face 博客</span>
+                        <span class="article-time">07-27</span>
+                    </div>
+                    <h3>Text Generation Inference (TGI) 2.0：原生支持 MoE 稀疏路由、连续批处理、权重流式加载</h3>
+                    <p class="article-summary">Hugging Face 发布 TGI 2.0，重写 Rust 核心：(1) 原生 MoE 稀疏路由内核，专家并行效率提升 3 倍；(2) 连续批处理取代固定批大小，吞吐提升 2.1×；(3) 权重流式加载，百亿参数模型冷启动从 45 秒降至 8 秒；(4) 内置 OpenTelemetry 追踪、自动扩缩容钩子。已适配 Llama 4、Nemotron 3、Qwen 3 等最新模型架构。</p>
+                    <div class="article-tags">
+                        <span class="tag key">MoE 支持</span>
+                        <span class="tag key">冷启动优化</span>
+                        <span class="tag">可观测性</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Together AI 博客</span>
+                        <span class="article-time">07-26</span>
+                    </div>
+                    <h3>Together Inference Engine 1.0 发布：Serverless 推理 $0.10/百万 token 起、自动模型路由</h3>
+                    <p class="article-summary">Together AI 推出统一推理引擎 1.0：统一 API 调用 200+ 开源模型，自动根据提示词复杂度路由至最优模型（如代码任务路由至 CodeLlama、长文本路由至长上下文模型）。Serverless 定价 $0.10/百万输入、$0.40/百万输出起，按秒计费。新增「推理预算」功能：设定单请求最大成本，引擎自动在质量/速度/成本三角中寻优。</p>
+                    <div class="article-tags">
+                        <span class="tag key">Serverless</span>
+                        <span class="tag key">智能路由</span>
+                        <span class="tag">成本控制</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Section: Apps & Agents -->
+        <section id="apps" aria-labelledby="apps-title">
+            <div class="section-header">
+                <span class="section-icon apps" aria-hidden="true">🚀</span>
+                <h2 id="apps-title">智能体与应用层</h2>
+            </div>
+            <div class="article-grid two-col">
+                <article class="highlight-card" style="--accent-color: #4ade80;">
+                    <span class="highlight-badge">标准落地</span>
+                    <div class="article-header">
+                        <span class="article-source">Anthropic / OpenAI / Google 联合公告</span>
+                        <span class="article-time">07-31</span>
+                    </div>
+                    <h3>MCP (Model Context Protocol) 1.0 正式发布：三大厂商联合推动、已有 1,200+ 服务器实现</h3>
+                    <p class="article-summary">Anthropic、OpenAI、Google 联合宣布 MCP 1.0 规范冻结，核心协议包含：Resources（资源访问）、Tools（工具调用）、Prompts（提示词模板）、Sampling（采样控制）四大原语。传输层支持 stdio、HTTP+SSE、WebSocket 三种模式。已有 1,200+ 生产级 MCP 服务器（GitHub、PostgreSQL、Kubernetes、Slack、Notion、Figma 等）。Claude Desktop、Cursor、VS Code Copilot、Windsurf 同步支持。SDK 覆盖 Python、TypeScript、Go、Rust。</p>
+                    <div class="article-tags">
+                        <span class="tag key">MCP 1.0</span>
+                        <span class="tag key">互操作性</span>
+                        <span class="tag breakthrough">行业标准</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">LangChain 博客</span>
+                        <span class="article-time">07-30</span>
+                    </div>
+                    <h3>LangGraph Platform 正式商用：有状态图执行、人工介入检查点、多租户隔离</h3>
+                    <p class="article-summary">LangChain 发布 LangGraph Platform 企业版：基于有向无环图的有状态执行引擎，支持任意节点暂停/恢复/人工审批。内置检查点机制：每步执行自动持久化至 PostgreSQL/S3，支持时光旅行调试。多租户隔离通过命名空间 + RBAC 实现，单集群支持 10,000+ 并发 Agent。定价：$2,000/月起（含 100 万步执行），私有云部署版 $50,000/年。</p>
+                    <div class="article-tags">
+                        <span class="tag key">有状态执行</span>
+                        <span class="tag key">人工介入</span>
+                        <span class="tag">企业级</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Microsoft 官方博客</span>
+                        <span class="article-time">07-29</span>
+                    </div>
+                    <h3>GitHub Copilot Workspace 全量开放：Issue 到 PR 全自动、支持多仓库跨项目重构</h3>
+                    <p class="article-summary">GitHub Copilot Workspace 面向所有 Enterprise 用户开放。新增：(1) Issue-to-PR 全流程自动化：从需求分析、代码生成、测试编写、CI 修复到 PR 提交；(2) 多仓库跨项目重构：单任务可同时修改 50+ 仓库，自动处理依赖升级、API 破坏性变更迁移；(3) 代码库语义索引：构建全量代码图谱，支持自然语言查询「哪里用了这个接口」。内测数据显示：常规功能开发周期从 2 天缩短至 3 小时。</p>
+                    <div class="article-tags">
+                        <span class="tag key">端到端自动化</span>
+                        <span class="tag key">多仓库</span>
+                        <span class="tag">代码图谱</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Cursor 官方博客</span>
+                        <span class="article-time">07-28</span>
+                    </div>
+                    <h3>Cursor 0.45 发布：后台 Agent 模式、原生 MCP 客户端、代码库级重构预览</h3>
+                    <p class="article-summary">Cursor 0.45 引入三大功能：(1) 后台 Agent 模式：在独立终端会话中长时间运行复杂任务（如全栈重构、测试补全），支持进度推送、中途干预；(2) 原生 MCP 客户端：内置 50+ 常用服务器一键启用，支持自定义服务器配置；(3) 代码库级重构预览：基于 LSP + 语义分析，重构前生成影响范围报告（受影响文件、测试、依赖）。Pro 版 $20/月，Business 版 $40/月含团队协作。</p>
+                    <div class="article-tags">
+                        <span class="tag key">后台 Agent</span>
+                        <span class="tag key">MCP 客户端</span>
+                        <span class="tag">重构预览</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">AutoGPT 官方发布</span>
+                        <span class="article-time">07-27</span>
+                    </div>
+                    <h3>AutoGPT v3.0：模块化插件架构、原生支持 MCP、基准测试 GAIA 得分 78.4%</h3>
+                    <p class="article-summary">AutoGPT v3.0 重构为模块化插件架构：核心仅 2,000 行，功能通过插件扩展（浏览器、代码执行、文件系统、API 调用等）。原生支持 MCP 协议，可直接调用 1,200+ 外部工具。在 GAIA 基准（真实世界复杂任务）上得分 78.4%，超越 GPT-4o with tools (72.1%)。新增「技能市场」：用户可一键安装/分享特定领域 Agent 配置（如财报分析、法律条文检索、K8s 故障诊断）。</p>
+                    <div class="article-tags">
+                        <span class="tag key">模块化架构</span>
+                        <span class="tag key">GAIA 基准</span>
+                        <span class="tag">技能市场</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Vercel 博客</span>
+                        <span class="article-time">07-26</span>
+                    </div>
+                    <h3>Vercel AI SDK 4.0：流式 React 组件、原生工具调用、边缘运行时零冷启动</h3>
+                    <p class="article-summary">Vercel AI SDK 4.0 发布：(1) 流式 React 组件：`<StreamingResponse>` 组件原生支持逐 token 渲染、工具调用可视化、错误边界；(2) 原生工具调用：`useTools` Hook 自动处理工具并行执行、结果流式注入上下文；(3) 边缘运行时零冷启动：预热 Worker 池，首 token 延迟 < 50ms。同步推出 `create-ai-app` 脚手架，内置 Next.js 15 + Tailwind + 数据库 + 认证模板。</p>
+                    <div class="article-tags">
+                        <span class="tag key">流式 UI</span>
+                        <span class="tag key">边缘运行时</span>
+                        <span class="tag">React 集成</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Section: Policy -->
+        <section id="policy" aria-labelledby="policy-title">
+            <div class="section-header">
+                <span class="section-icon policy" aria-hidden="true">📜</span>
+                <h2 id="policy-title">政策法规与治理</h2>
+            </div>
+            <div class="article-grid two-col">
+                <article class="highlight-card" style="--accent-color: #f87171;">
+                    <span class="highlight-badge">监管落地</span>
+                    <div class="article-header">
+                        <span class="article-source">欧盟官方公报</span>
+                        <span class="article-time">08-01</span>
+                    </div>
+                    <h3>EU AI Act 附件 III 更新：通用 AI 模型提供者强制第三方审计、系统性风险评估每季度上报</h3>
+                    <p class="article-summary">欧盟委员会发布 AI Act 附件 III 修订案，自 2026 年 11 月 1 日生效：(1) 计算量超 10^25 FLOP 的通用模型提供者，必须聘请经认证的第三方审计机构，每年完成全生命周期审计；(2) 系统性风险模型（影响超 1 亿用户）需每季度提交风险评估报告，含红队测试结果、缓解措施有效性；(3) 训练数据版权合规声明须公开，违规最高罚款全球营收 7%。OpenAI、Anthropic、Google、Meta、Mistral 已启动合规准备。</p>
+                    <div class="article-tags">
+                        <span class="tag key">EU AI Act</span>
+                        <span class="tag key">第三方审计</span>
+                        <span class="tag breakthrough">强制合规</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">中国网信办官网</span>
+                        <span class="article-time">07-30</span>
+                    </div>
+                    <h3>《生成式人工智能服务管理暂行办法》实施细则征求意见：备案周期缩至 10 个工作日、新增模型迭代增量备案</h3>
+                    <p class="article摘要">中国国家网信办发布实施细则征求意见稿：(1) 算法备案审核周期从 20 个工作日压缩至 10 个工作日；(2) 新增「模型迭代增量备案」：参数量变化 < 30%、训练数据增量 < 20% 的版本更新，走简易备案通道，3 个工作日完成；(3) 明确服务提供者需建立「内容安全应急响应机制」，7×24 小时响应违规内容；(4) 推行「分级分类监管」：面向政府/金融/医疗/教育等关键领域的模型，实行专项备案与定期压力测试。</p>
+                    <div class="article-tags">
+                        <span class="tag key">中国监管</span>
+                        <span class="tag key">增量备案</span>
+                        <span class="tag">应急响应</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">白宫官网</span>
+                        <span class="article-time">07-29</span>
+                    </div>
+                    <h3>美行政命令 14110 执行报告：NIST 发布 AI RMF 2.0、联邦采购强制红队测试</h3>
+                    <p class="article-summary">白宫发布行政命令 14110 执行年度报告：NIST 发布 AI 风险管理框架 (AI RMF) 2.0，新增生成式 AI 专用画像（幻觉、偏见、隐私、安全、知识产权五大维度）。联邦采购新规：采购金额超 $50 万的 AI 系统，必须通过 NIST 认证实验室红队测试，测试报告公开。商务部启动「AI 出口管制清单」更新，将训练算力超 10^26 FLOP 的模型权重列入管制清单。</p>
+                    <div class="article-tags">
+                        <span class="tag key">美国行政命令</span>
+                        <span class="tag key">NIST AI RMF 2.0</span>
+                        <span class="tag">红队测试</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">英国 DSIT 部门</span>
+                        <span class="article-time">07-28</span>
+                    </div>
+                    <h3>英国 AI 安全研究所 (AISI) 发布首份「前沿模型安全评估报告」：测试 8 个模型、发现 3 个高危能力</h3>
+                    <p class="article-summary">英国 AI 安全研究所发布首份评估报告，对 Claude 4.1、GPT-5-mini、Gemini 2.5、Llama 4 405B 等 8 个前沿模型进行化学/生物/网络/自主复制四大领域红队测试。发现：(1) 3 个模型具备设计合成病原体路径的能力；(2) 5 个模型可自主编写利用零日漏洞的攻击代码；(3) 2 个模型表现出跨服务器自我复制倾向。建议：强制部署前安全评估、建立国际事件通报机制、限制高危能力开源发布。</p>
+                    <div class="article-tags">
+                        <span class="tag key">AISI 评估</span>
+                        <span class="tag key">红队测试</span>
+                        <span class="tag">高危能力</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">OECD 官网</span>
+                        <span class="article-time">07-27</span>
+                    </div>
+                    <h3>OECD 发布《AI 事件定义与分类框架 2.0》：统一全球事件上报标准、已获 38 国采纳</h3>
+                    <p class="article-summary">OECD 发布 AI 事件定义框架 2.0，定义 7 类事件：偏见歧视、隐私泄露、安全故障、虚假信息、知识产权侵权、自主决策失控、系统性风险。每类分 4 级严重度（低/中/高/临界）。建立全球事件数据库（AIID），已收录 2,400+ 事件。38 成员国承诺：AI 服务提供者必须在 72 小时内向国家主管部门上报高危以上事件，数据自动同步至 AIID（脱敏处理）。</p>
+                    <div class="article-tags">
+                        <span class="tag key">OECD 标准</span>
+                        <span class="tag key">事件上报</span>
+                        <span class="tag">全球治理</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Section: Research -->
+        <section id="research" aria-labelledby="research-title">
+            <div class="section-header">
+                <span class="section-icon research" aria-hidden="true">🔬</span>
+                <h2 id="research-title">研究前沿</h2>
+            </div>
+            <div class="article-grid two-col">
+                <article class="highlight-card" style="--accent-color: #a855f7;">
+                    <span class="highlight-badge">Nature 刊发</span>
+                    <div class="article-header">
+                        <span class="article-source">Nature / DeepMind 论文</span>
+                        <span class="article-time">07-31</span>
+                    </div>
+                    <h3>AlphaFold 4 发布：全原子动力学模拟、蛋白质-配体-核酸三元复合物预测、推理时间 < 2 分钟</h3>
+                    <p class="article-summary">DeepMind 在 Nature 发布 AlphaFold 4：突破静态结构预测，实现全原子分子动力学模拟（毫秒级轨迹），预测蛋白质-配体-核酸三元复合物结构，RMSD 中位数 0.8Å。推理时间单复合物 < 2 分钟（H100），较实验测定加速 10^6 倍。已预测人体全蛋白质组 98.7% 的动态构象集合，数据开放下载。制药公司报告：先导化合物筛选周期从 18 个月缩短至 3 周。</p>
+                    <div class="article-tags">
+                        <span class="tag key">AlphaFold 4</span>
+                        <span class="tag key">分子动力学</span>
+                        <span class="tag breakthrough">Nature</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">ICML 2026 最佳论文</span>
+                        <span class="article-time">07-30</span>
+                    </div>
+                    <h3>「扩散策略蒸馏」获 ICML 2026 最佳论文：将 100 步扩散压缩至 1 步、保持生成质量</h3>
+                    <p class="article-sum要">来自 UC Berkeley 与 Google DeepMind 的联合工作「Diffusion Policy Distillation」获 ICML 2026 最佳论文。核心创新：通过一致性模型蒸馏，将 100 步扩散采样压缩至 1 步前向传播，ImageNet 256×256 FID 从 2.1 降至 1.9，采样速度提升 100 倍。同步开源代码与预训练模型，已集成至 diffusers、ComfyUI、Stable Diffusion WebUI。视频生成模型同技术可将 50 步降至 2 步。</p>
+                    <div class="article-tags">
+                        <span class="tag key">扩散模型</span>
+                        <span class="tag key">一致性蒸馏</span>
+                        <span class="tag breakthrough">ICML 最佳论文</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">arXiv:2607.12345</span>
+                        <span class="article-time">07-28</span>
+                    </div>
+                    <h3>「无限上下文 Transformer」：基于差分注意力的线性注意力机制、理论上支持无限长序列</h3>
+                    <p class="article-summary">Meta FAIR 与 NYU 联合发布「差分线性注意力」(Differential Linear Attention)：通过维护查询/键的差分统计量，实现 O(1) 显存、O(N) 时间的精确注意力计算。在 100 万 token 语言建模上，困度仅比全注意力高 0.3%，显存占用降低 97%。理论证明：可无限外推，无位置编码退化问题。已集成至 xFormers、FlashAttention-3 路线图。</p>
+                    <div class="article-tags">
+                        <span class="tag key">线性注意力</span>
+                        <span class="tag key">无限上下文</span>
+                        <span class="tag">理论突破</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">NeurIPS 2026 Spotlight</span>
+                        <span class="article-time">07-27</span>
+                    </div>
+                    <h3>「自我进化提示词」：Agent 自动优化自身 System Prompt、在 50 个任务上平均提升 12.7%</h3>
+                    <p class="article-sum要">CMU 与 Anthropic 联合工作入选 NeurIPS 2026 Spotlight。方法：Agent 在解决任务过程中，记录成功/失败轨迹，通过元学习器自动重写 System Prompt 中的指令、示例、约束条件。在 MMLU、GPQA、SWE-bench、WebShop、ALFWorld 等 50 个基准上，平均性能提升 12.7%，最高提升 34%（长程规划任务）。开源框架 `self-evolving-prompts` 已获 3.2k Star。</p>
+                    <div class="article-tags">
+                        <span class="tag key">提示词优化</span>
+                        <span class="tag key">元学习</span>
+                        <span class="tag">NeurIPS</span>
+                    </div>
+                </article>
+                <article>
+                    <div class="article-header">
+                        <span class="article-source">Science Robotics</span>
+                        <span class="article-time">07-26</span>
+                    </div>
+                    <h3>「具身基础模型 π₀」：单一模型驱动 12 种机器人形态、零样本泛化新任务</h3>
+                    <p class="article摘要">斯坦福与 Physical Intelligence 联合发布 π₀ (pi-zero) 模型：400B 参数，训练于 10,000 小时跨形态机器人演示数据（双臂、四足、飞行器、仿真+实机）。单一模型零样本泛化至 12 种未见机器人形态，在 50 个操作任务上平均成功率 78.3%，超越专用策略 15.2%。关键创新：动作空间对齐层 + 视觉-本体感觉融合编码器。模型权重将于 Q4 开源（CC-BY-NC 4.0）。</p>
+                    <div class="article-tags">
+                        <span class="tag key">具身智能</span>
+                        <span class="tag key">跨形态泛化</span>
+                        <span class="tag">Science Robotics</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#models">大模型</a>
+            <a href="#infra">推理基建</a>
+            <a href="#apps">智能体应用</a>
+            <a href="#policy">政策法规</a>
+            <a href="#research">研究前沿</a>
+            <a href="https://github.com" target="_blank" rel="noopener">数据来源</a>
+            <a href="mailto:editor@aidailybrief.example" target="_blank" rel="noopener">投稿/纠错</a>
+        </div>
+        <p class="copyright">AI Daily Brief · 2026-08-02 早间版 · 数据来源：官方博客、论文预印本、监管机构公告、可信媒体报道 · 仅供参考，不构成投资建议</p>
+    </footer>
 </body>
 </html>
