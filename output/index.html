@@ -2,1100 +2,979 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parking Chaos - 停车大混乱</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>停车场大乱斗 🚗</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            color: #eee;
+            justify-content: center;
+            padding: 16px;
+            overflow: hidden;
         }
 
         .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 16px;
+            color: #fff;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
             font-weight: 800;
-            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
-            margin-bottom: 5px;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+            margin-bottom: 8px;
         }
 
         .subtitle {
-            color: #aaa;
-            font-size: 1rem;
-            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #a0a8c0;
+            font-weight: 400;
         }
 
         .stats-bar {
             display: flex;
-            gap: 30px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
             background: rgba(255, 255, 255, 0.05);
-            padding: 12px 30px;
-            border-radius: 50px;
+            border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .stat {
+        .stat-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
         }
 
         .stat-label {
-            font-size: 0.75rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
-        }
-
-        .stat-value.moves { color: #feca57; }
-        .stat-value.time { color: #48dbfb; }
-        .stat-value.best { color: #1dd1a1; }
-
-        #gameCanvas {
-            border-radius: 12px;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.1),
-                inset 0 0 100px rgba(0, 0, 0, 0.3);
-            background: #0d1426;
-            cursor: grab;
-            touch-action: none;
-        }
-
-        #gameCanvas:active {
-            cursor: grabbing;
-        }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        button {
-            padding: 12px 28px;
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: inherit;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            font-size: 0.7rem;
+            color: #8892b0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-value.moves { color: #ffd93d; }
+        .stat-value.time { color: #6bcb77; }
+        .stat-value.best { color: #ff6b6b; }
+
+        .game-board-wrapper {
+            position: relative;
+            aspect-ratio: 6 / 6;
+            background: #0d1117;
+            border-radius: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+
+        .game-board {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            padding: 4px;
+        }
+
+        .cell {
+            background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            position: relative;
+        }
+
+        .cell.exit::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid #6bcb77;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            filter: drop-shadow(0 0 8px #6bcb77);
+            animation: exitPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes exitPulse {
+            0%, 100% { opacity: 0.6; transform: translateY(-50%) scale(1); }
+            50% { opacity: 1; transform: translateY(-50%) scale(1.1); }
+        }
+
+        .car {
+            position: absolute;
+            border-radius: 8px;
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .car:active, .car.dragging {
+            cursor: grabbing;
+            z-index: 20;
+            transform: scale(1.02);
+            box-shadow: 
+                0 8px 24px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 0 2px rgba(255, 255, 255, 0.15);
+        }
+
+        .car.main-car {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b7a 50%, #ff4757 100%);
+            z-index: 15;
+        }
+
+        .car.main-car::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            height: 40%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .car.main-car::after {
+            content: '🚗';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.9em;
+            pointer-events: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .car.horizontal { height: calc(100% - 4px); }
+        .car.vertical { width: calc(100% - 4px); }
+
+        .car.truck { 
+            background: linear-gradient(135deg, #5352ed 0%, #7574ff 50%, #5352ed 100%);
+        }
+        .car.truck::after { content: '🚚'; }
+
+        .car.suv {
+            background: linear-gradient(135deg, #2ed573 0%, #5fff8a 50%, #2ed573 100%);
+        }
+        .car.suv::after { content: '🚙'; }
+
+        .car.sedan {
+            background: linear-gradient(135deg, #ffa502 0%, #ffbe4d 50%, #ffa502 100%);
+        }
+        .car.sedan::after { content: '🚕'; }
+
+        .car.compact {
+            background: linear-gradient(135deg, #70a1ff 0%, #9bc3ff 50%, #70a1ff 100%);
+        }
+        .car.compact::after { content: '🚗'; }
+
+        .car.van {
+            background: linear-gradient(135deg, #d63031 0%, #ff6b6b 50%, #d63031 100%);
+        }
+        .car.van::after { content: '🚐'; }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+            min-height: 50px;
+            min-width: 120px;
+        }
+
         .btn-primary {
             background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.4);
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
-        }
+        .btn-primary:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4); }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #eee;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
+        .btn-secondary:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.12); }
 
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #1dd1a1, #10ac84);
-            color: white;
-            box-shadow: 0 4px 15px rgba(29, 209, 161, 0.4);
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(29, 209, 161, 0.6);
-        }
-
-        .message-overlay {
+        .modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
             display: none;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 20px;
             z-index: 100;
-            backdrop-filter: blur(5px);
+            padding: 20px;
         }
 
-        .message-overlay.show {
-            display: flex;
-        }
+        .modal.show { display: flex; animation: modalFade 0.3s ease; }
+        @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
 
-        .message-box {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            padding: 40px 60px;
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 32px;
+            max-width: 360px;
+            width: 100%;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            max-width: 90vw;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+            animation: modalSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalSlide {
+            from { opacity: 0; transform: scale(0.8) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .message-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 15px;
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            animation: bounce 1s ease infinite;
         }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        .message-title.win {
-            background: linear-gradient(90deg, #1dd1a1, #48dbfb, #ff9ff3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .modal h2 { color: #fff; font-size: 1.6rem; margin-bottom: 8px; }
+        .modal p { color: #a0a8c0; margin-bottom: 24px; line-height: 1.6; }
 
-        .message-title.lose {
-            background: linear-gradient(90deg, #ff6b6b, #feca57);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .message-stats {
-            display: flex;
-            gap: 40px;
-            justify-content: center;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .message-stat {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .message-stat-label {
-            font-size: 0.8rem;
-            color: #888;
-        }
-
-        .message-stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
-        }
-
-        .legend {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
+        .modal-stats { 
+            display: flex; 
+            justify-content: center; 
+            gap: 24px; 
+            margin: 20px 0; 
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
         }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .modal-stat { display: flex; flex-direction: column; gap: 4px; }
+        .modal-stat-label { font-size: 0.75rem; color: #8892b0; }
+        .modal-stat-value { font-size: 1.5rem; font-weight: 700; color: #fff; }
+
+        .hint-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 10px 24px;
+            color: #8892b0;
             font-size: 0.85rem;
-            color: #ccc;
+            backdrop-filter: blur(10px);
+            z-index: 50;
+            white-space: nowrap;
         }
 
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message-box {
-            animation: slideIn 0.4s ease-out;
-        }
-
-        .car-selected {
-            animation: pulse 0.5s ease-in-out infinite;
-        }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 1.8rem; }
-            .stats-bar { gap: 15px; padding: 10px 20px; }
+        @media (max-width: 480px) {
+            .stats-bar { padding: 10px 12px; }
             .stat-value { font-size: 1.2rem; }
-            .message-box { padding: 30px 20px; }
-            .message-title { font-size: 1.8rem; }
-            button { padding: 10px 20px; font-size: 0.9rem; }
+            .btn { padding: 12px 20px; min-width: 100px; }
+            .modal-content { padding: 24px; }
+        }
+
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 90;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: particleBurst 0.8s ease-out forwards;
+        }
+
+        @keyframes particleBurst {
+            0% { transform: scale(1) translate(0, 0); opacity: 1; }
+            100% { transform: scale(0) translate(var(--tx), var(--ty)); opacity: 0; }
+        }
+
+        .celebration {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 95;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confettiFall 3s ease-in forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>Parking Chaos</h1>
-        <p class="subtitle">把所有车开出停车场 · 每次游戏地图随机生成</p>
-        
+        <header>
+            <h1>停车场大乱斗</h1>
+            <p class="subtitle">移动车辆，让红车冲出出口！</p>
+        </header>
+
         <div class="stats-bar">
-            <div class="stat">
-                <span class="stat-label">移动步数</span>
-                <span class="stat-value moves" id="moveCount">0</span>
+            <div class="stat-item">
+                <span class="stat-label">步数</span>
+                <span class="stat-value moves" id="moves">0</span>
             </div>
-            <div class="stat">
+            <div class="stat-item">
                 <span class="stat-label">用时</span>
                 <span class="stat-value time" id="timer">00:00</span>
             </div>
-            <div class="stat">
-                <span class="stat-label">最佳记录</span>
-                <span class="stat-value best" id="bestRecord">--:-- / --</span>
+            <div class="stat-item">
+                <span class="stat-label">最佳</span>
+                <span class="stat-value best" id="bestMoves">--</span>
             </div>
         </div>
 
-        <canvas id="gameCanvas" width="500" height="500"></canvas>
+        <div class="game-board-wrapper">
+            <div class="game-board" id="board" role="grid" aria-label="停车场网格"></div>
+        </div>
 
         <div class="controls">
-            <button class="btn-primary" id="restartBtn">重新开始</button>
-            <button class="btn-secondary" id="undoBtn">撤销</button>
-            <button class="btn-success" id="hintBtn">提示</button>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #ff6b6b, #ee5a5a);"></div>
-                <span>主车 (目标)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #48dbfb, #0abde3);"></div>
-                <span>横向车辆</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #ff9ff3, #f368e0);"></div>
-                <span>纵向车辆</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #feca57, #ffdd40);"></div>
-                <span>出口</span>
-            </div>
+            <button class="btn btn-primary" id="restartBtn" aria-label="重新开始">🔄 重新开始</button>
+            <button class="btn btn-secondary" id="hintBtn" aria-label="提示">💡 提示</button>
         </div>
     </div>
 
-    <div class="message-overlay" id="winOverlay">
-        <div class="message-box">
-            <h2 class="message-title win">通关成功！🎉</h2>
-            <div class="message-stats">
-                <div class="message-stat">
-                    <span class="message-stat-label">移动步数</span>
-                    <span class="message-stat-value" id="finalMoves">0</span>
+    <div class="hint-bar">拖拽车辆移动 · 横向车只能左右 · 纵向车只能上下</div>
+
+    <div class="modal" id="winModal" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+        <div class="modal-content">
+            <div class="modal-icon">🎉</div>
+            <h2 id="winTitle">通关成功！</h2>
+            <p>你用 <strong id="finalMoves">0</strong> 步，<strong id="finalTime">00:00</strong> 完成挑战</p>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <span class="modal-stat-label">本次步数</span>
+                    <span class="modal-stat-value" id="finalMoves2">0</span>
                 </div>
-                <div class="message-stat">
-                    <span class="message-stat-label">用时</span>
-                    <span class="message-stat-value" id="finalTime">00:00</span>
+                <div class="modal-stat">
+                    <span class="modal-stat-label">历史最佳</span>
+                    <span class="modal-stat-value" id="finalBest">--</span>
                 </div>
             </div>
-            <button class="btn-primary" onclick="restartGame()">下一关</button>
+            <button class="btn btn-primary" id="nextLevelBtn" style="width: 100%;">下一关 🚗</button>
         </div>
     </div>
+
+    <div class="particles" id="particles"></div>
+    <div class="celebration" id="celebration"></div>
 
     <script>
-        // 游戏配置
+        // ===== 游戏配置 =====
         const GRID_SIZE = 6;
-        const CELL_SIZE = 500 / GRID_SIZE;
-        const CAR_COLORS = {
-            main: ['#ff6b6b', '#ee5a5a'],
-            horizontal: ['#48dbfb', '#0abde3'],
-            vertical: ['#ff9ff3', '#f368e0'],
-            exit: ['#feca57', '#ffdd40']
+        const CELL_GAP = 2;
+        const PADDING = 4;
+
+        // 车辆类型配置
+        const CAR_TYPES = [
+            { id: 'truck', name: '卡车', length: 3, color: 'truck', prob: 0.15 },
+            { id: 'van', name: '面包车', length: 3, color: 'van', prob: 0.15 },
+            { id: 'suv', name: 'SUV', length: 2, color: 'suv', prob: 0.25 },
+            { id: 'sedan', name: '轿车', length: 2, color: 'sedan', prob: 0.25 },
+            { id: 'compact', name: '小车', length: 2, color: 'compact', prob: 0.20 }
+        ];
+
+        // ===== 游戏状态 =====
+        let cars = [];
+        let mainCar = null;
+        let moves = 0;
+        let startTime = Date.now();
+        let timerInterval = null;
+        let bestMoves = parseInt(localStorage.getItem('parkingChaosBest') || '0');
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0, car: null, carStartPos: { r: 0, c: 0 } };
+        let gameWon = false;
+
+        const board = document.getElementById('board');
+        const movesEl = document.getElementById('moves');
+        const timerEl = document.getElementById('timer');
+        const bestMovesEl = document.getElementById('bestMoves');
+        const restartBtn = document.getElementById('restartBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const winModal = document.getElementById('winModal');
+        const nextLevelBtn = document.getElementById('nextLevelBtn');
+        const particlesEl = document.getElementById('particles');
+        const celebrationEl = document.getElementById('celebration');
+
+        // ===== 工具函数 =====
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const choice = (arr) => arr[rand(0, arr.length - 1)];
+        const weightedChoice = (items) => {
+            const total = items.reduce((sum, item) => sum + item.prob, 0);
+            let r = Math.random() * total;
+            for (const item of items) {
+                r -= item.prob;
+                if (r <= 0) return item;
+            }
+            return items[items.length - 1];
         };
 
-        // 游戏状态
-        let cars = [];
-        let selectedCar = null;
-        let dragStart = null;
-        let moveCount = 0;
-        let startTime = null;
-        let timerInterval = null;
-        let gameWon = false;
-        let moveHistory = [];
+        function getCellKey(r, c) { return `${r},${c}`; }
+        function parseKey(key) { return key.split(',').map(Number); }
 
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const moveCountEl = document.getElementById('moveCount');
-        const timerEl = document.getElementById('timer');
-        const bestRecordEl = document.getElementById('bestRecord');
-        const winOverlay = document.getElementById('winOverlay');
-        const finalMovesEl = document.getElementById('finalMoves');
-        const finalTimeEl = document.getElementById('finalTime');
-
-        // 车辆类
-        class Car {
-            constructor(id, x, y, length, orientation, isMain = false) {
-                this.id = id;
-                this.x = x;
-                this.y = y;
-                this.length = length;
-                this.orientation = orientation; // 'horizontal' 或 'vertical'
-                this.isMain = isMain;
-                this.color = isMain ? CAR_COLORS.main : (orientation === 'horizontal' ? CAR_COLORS.horizontal : CAR_COLORS.vertical);
-            }
-
-            getCells() {
-                const cells = [];
-                for (let i = 0; i < this.length; i++) {
-                    if (this.orientation === 'horizontal') {
-                        cells.push({x: this.x + i, y: this.y});
-                    } else {
-                        cells.push({x: this.x, y: this.y + i});
-                    }
-                }
-                return cells;
-            }
-
-            canMove(dir, allCars) {
-                const cells = this.getCells();
-                let testX = this.x;
-                let testY = this.y;
-
-                if (this.orientation === 'horizontal') {
-                    testX += dir;
-                } else {
-                    testY += dir;
-                }
-
-                // 检查边界
-                if (this.orientation === 'horizontal') {
-                    if (testX < 0 || testX + this.length > GRID_SIZE) return false;
-                } else {
-                    if (testY < 0 || testY + this.length > GRID_SIZE) return false;
-                }
-
-                // 检查碰撞
-                const newCells = [];
-                for (let i = 0; i < this.length; i++) {
-                    if (this.orientation === 'horizontal') {
-                        newCells.push({x: testX + i, y: testY});
-                    } else {
-                        newCells.push({x: testX, y: testY + i});
-                    }
-                }
-
-                for (const car of allCars) {
-                    if (car.id === this.id) continue;
-                    const otherCells = car.getCells();
-                    for (const nc of newCells) {
-                        for (const oc of otherCells) {
-                            if (nc.x === oc.x && nc.y === oc.y) return false;
-                        }
-                    }
-                }
-                return true;
-            }
-
-            move(dir) {
-                if (this.orientation === 'horizontal') {
-                    this.x += dir;
-                } else {
-                    this.y += dir;
-                }
-            }
-
-            isAtExit() {
-                if (!this.isMain) return false;
-                // 主车在最右列且朝右
-                return this.orientation === 'horizontal' && this.x + this.length === GRID_SIZE;
-            }
-        }
-
-        // 生成随机关卡
+        // ===== 生成随机关卡 =====
         function generateLevel() {
-            cars = [];
-            const occupied = new Array(GRID_SIZE).fill(null).map(() => new Array(GRID_SIZE).fill(false));
-            let carId = 0;
+            const occupied = new Set();
+            const newCars = [];
+            let attempts = 0;
+            const maxAttempts = 200;
 
-            // 1. 放置主车 (长度2，横向，第2或3行)
-            const mainRow = Math.floor(Math.random() * 2) + 2; // 第2或3行 (0-indexed: 2, 3)
-            const mainCar = new Car(carId++, 0, mainRow, 2, 'horizontal', true);
-            cars.push(mainCar);
-            markOccupied(occupied, mainCar);
+            // 主车固定在第3行 (索引2)，从第0-1列开始，长度2，横向
+            const mainRow = 2;
+            mainCar = {
+                id: 'main',
+                type: 'main',
+                r: mainRow,
+                c: 0,
+                length: 2,
+                horizontal: true,
+                color: 'main-car',
+                name: '主车'
+            };
+            for (let i = 0; i < mainCar.length; i++) {
+                occupied.add(getCellKey(mainRow, i));
+            }
+            newCars.push(mainCar);
 
-            // 2. 随机放置其他车辆
-            const numOtherCars = Math.floor(Math.random() * 5) + 4; // 4-8辆其他车
-            
-            for (let i = 0; i < numOtherCars; i++) {
-                const orientation = Math.random() < 0.5 ? 'horizontal' : 'vertical';
-                const length = Math.random() < 0.7 ? 2 : 3; // 70%长度2，30%长度3
-                let placed = false;
-                let attempts = 0;
+            // 生成其他车辆
+            const carCount = rand(6, 9); // 6-9辆其他车
+            let placed = 0;
 
-                while (!placed && attempts < 50) {
-                    attempts++;
-                    let x, y;
+            while (placed < carCount && attempts < maxAttempts) {
+                attempts++;
+                const type = weightedChoice(CAR_TYPES);
+                const horizontal = Math.random() < 0.5;
+                const length = type.length;
 
-                    if (orientation === 'horizontal') {
-                        x = Math.floor(Math.random() * (GRID_SIZE - length + 1));
-                        y = Math.floor(Math.random() * GRID_SIZE);
-                    } else {
-                        x = Math.floor(Math.random() * GRID_SIZE);
-                        y = Math.floor(Math.random() * (GRID_SIZE - length + 1));
-                    }
+                // 随机位置
+                let r, c;
+                if (horizontal) {
+                    r = rand(0, GRID_SIZE - 1);
+                    c = rand(0, GRID_SIZE - length);
+                    // 避开主车所在行的出口路径
+                    if (r === mainRow && c + length - 1 >= 2) continue;
+                } else {
+                    r = rand(0, GRID_SIZE - length);
+                    c = rand(0, GRID_SIZE - 1);
+                }
 
-                    // 检查是否与主车重叠
-                    if (orientation === 'horizontal' && y === mainRow && x < 2) continue;
-
-                    const testCar = new Car(-1, x, y, length, orientation);
-                    if (canPlace(occupied, testCar)) {
-                        const car = new Car(carId++, x, y, length, orientation);
-                        cars.push(car);
-                        markOccupied(occupied, car);
-                        placed = true;
+                // 检查重叠
+                let overlap = false;
+                for (let i = 0; i < length; i++) {
+                    const rr = horizontal ? r : r + i;
+                    const cc = horizontal ? c + i : c;
+                    if (occupied.has(getCellKey(rr, cc))) {
+                        overlap = true;
+                        break;
                     }
                 }
-            }
+                if (overlap) continue;
 
-            // 确保主车有解（至少出口路径上没有完全阻挡）
-            ensureSolvable();
-        }
-
-        function markOccupied(occupied, car) {
-            const cells = car.getCells();
-            for (const cell of cells) {
-                if (cell.x >= 0 && cell.x < GRID_SIZE && cell.y >= 0 && cell.y < GRID_SIZE) {
-                    occupied[cell.y][cell.x] = true;
+                // 占用格子
+                for (let i = 0; i < length; i++) {
+                    const rr = horizontal ? r : r + i;
+                    const cc = horizontal ? c + i : c;
+                    occupied.add(getCellKey(rr, cc));
                 }
+
+                newCars.push({
+                    id: `car_${newCars.length}`,
+                    type: type.id,
+                    r, c, length,
+                    horizontal,
+                    color: type.color,
+                    name: type.name
+                });
+                placed++;
             }
+
+            // 确保可解性：主车右侧路径上不能有无法移开的垂直车堵死
+            // 简单策略：检查主车右侧列，如果有垂直车完全堵住且无法移动，重新生成
+            if (!isSolvable(newCars, occupied)) {
+                return generateLevel(); // 递归重试
+            }
+
+            cars = newCars;
+            return cars;
         }
 
-        function canPlace(occupied, car) {
-            const cells = car.getCells();
-            for (const cell of cells) {
-                if (cell.x < 0 || cell.x >= GRID_SIZE || cell.y < 0 || cell.y >= GRID_SIZE) return false;
-                if (occupied[cell.y][cell.x]) return false;
-            }
-            return true;
-        }
-
-        function ensureSolvable() {
-            // 简单确保：检查主车右侧是否有路径，如果完全堵死则移除阻挡车
-            const mainCar = cars.find(c => c.isMain);
-            let blocked = false;
-            
-            for (let x = mainCar.x + mainCar.length; x < GRID_SIZE; x++) {
-                for (const car of cars) {
-                    if (car.id === mainCar.id) continue;
-                    const cells = car.getCells();
-                    for (const cell of cells) {
-                        if (cell.x === x && cell.y === mainCar.y) {
-                            blocked = true;
-                            break;
-                        }
-                    }
-                    if (blocked) break;
-                }
-                if (blocked) break;
-            }
-
-            // 如果被堵，尝试移动阻挡的纵向车辆
-            if (blocked) {
-                for (const car of cars) {
-                    if (car.id === mainCar.id) continue;
-                    if (car.orientation === 'vertical') {
-                        const cells = car.getCells();
-                        for (const cell of cells) {
-                            if (cell.y === mainCar.y && cell.x >= mainCar.x + mainCar.length) {
-                                // 尝试向上或向下移动
-                                if (car.y > 0 && canMoveCar(car, -1)) {
-                                    car.y--;
-                                    return;
-                                }
-                                if (car.y + car.length < GRID_SIZE && canMoveCar(car, 1)) {
-                                    car.y++;
-                                    return;
-                                }
+        // 简单可解性检查
+        function isSolvable(carList, occupied) {
+            // 检查主车右侧 (列2-5) 的垂直车是否都能移动
+            for (let c = 2; c < GRID_SIZE; c++) {
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    if (occupied.has(getCellKey(r, c))) {
+                        const car = carList.find(car => 
+                            car.id !== 'main' && 
+                            !car.horizontal && 
+                            car.c === c && 
+                            car.r <= r && 
+                            car.r + car.length > r
+                        );
+                        if (car) {
+                            // 检查这辆垂直车能否上下移动
+                            const canMoveUp = car.r > 0 && !occupied.has(getCellKey(car.r - 1, c));
+                            const canMoveDown = car.r + car.length < GRID_SIZE && !occupied.has(getCellKey(car.r + car.length, c));
+                            if (!canMoveUp && !canMoveDown) {
+                                // 完全卡死，不可解
+                                return false;
                             }
                         }
                     }
                 }
             }
-        }
-
-        function canMoveCar(car, dir) {
-            if (car.orientation === 'horizontal') {
-                const newX = car.x + dir;
-                if (newX < 0 || newX + car.length > GRID_SIZE) return false;
-            } else {
-                const newY = car.y + dir;
-                if (newY < 0 || newY + car.length > GRID_SIZE) return false;
-            }
-            // 检查碰撞
-            for (const other of cars) {
-                if (other.id === car.id) continue;
-                const cells = other.getCells();
-                const testCells = car.orientation === 'horizontal' 
-                    ? Array.from({length: car.length}, (_, i) => ({x: car.x + dir + i, y: car.y}))
-                    : Array.from({length: car.length}, (_, i) => ({x: car.x, y: car.y + dir + i}));
-                for (const tc of testCells) {
-                    for (const oc of cells) {
-                        if (tc.x === oc.x && tc.y === oc.y) return false;
-                    }
-                }
-            }
             return true;
         }
 
-        // 绘制游戏
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // ===== 渲染 =====
+        function render() {
+            board.innerHTML = '';
+            board.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
+            board.style.gridTemplateRows = `repeat(${GRID_SIZE}, 1fr)`;
 
-            // 绘制网格背景
-            drawGrid();
-
-            // 绘制出口
-            drawExit();
-
-            // 绘制车辆
-            for (const car of cars) {
-                drawCar(car);
-            }
-        }
-
-        function drawGrid() {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-            ctx.lineWidth = 1;
-            
-            for (let i = 0; i <= GRID_SIZE; i++) {
-                // 竖线
-                ctx.beginPath();
-                ctx.moveTo(i * CELL_SIZE, 0);
-                ctx.lineTo(i * CELL_SIZE, canvas.height);
-                ctx.stroke();
-                
-                // 横线
-                ctx.beginPath();
-                ctx.moveTo(0, i * CELL_SIZE);
-                ctx.lineTo(canvas.width, i * CELL_SIZE);
-                ctx.stroke();
-            }
-
-            // 绘制停车位标记
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
-            for (let row = 0; row < GRID_SIZE; row++) {
-                for (let col = 0; col < GRID_SIZE; col++) {
-                    if ((row + col) % 2 === 0) {
-                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            // 创建格子
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    // 出口在主车右侧，第2行，第5列右边
+                    if (r === mainCar.r && c === GRID_SIZE - 1) {
+                        cell.classList.add('exit');
                     }
+                    board.appendChild(cell);
                 }
             }
-        }
 
-        function drawExit() {
-            const mainCar = cars.find(c => c.isMain);
-            const exitX = GRID_SIZE * CELL_SIZE;
-            const exitY = mainCar.y * CELL_SIZE;
-            
-            // 出口箭头区域
-            const gradient = ctx.createLinearGradient(canvas.width - 40, 0, canvas.width, 0);
-            gradient.addColorStop(0, 'rgba(254, 202, 87, 0.3)');
-            gradient.addColorStop(1, 'rgba(254, 202, 87, 0.1)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(canvas.width - 40, exitY, 40, CELL_SIZE);
+            // 创建车辆
+            cars.forEach(car => {
+                const carEl = document.createElement('div');
+                carEl.className = `car ${car.color} ${car.horizontal ? 'horizontal' : 'vertical'}`;
+                carEl.dataset.id = car.id;
+                carEl.draggable = false;
 
-            // 出口箭头
-            ctx.fillStyle = '#feca57';
-            ctx.beginPath();
-            const arrowX = canvas.width - 20;
-            const arrowY = exitY + CELL_SIZE / 2;
-            ctx.moveTo(arrowX - 12, arrowY - 10);
-            ctx.lineTo(arrowX + 8, arrowY);
-            ctx.lineTo(arrowX - 12, arrowY + 10);
-            ctx.closePath();
-            ctx.fill();
-
-            // "出口" 文字
-            ctx.fillStyle = '#feca57';
-            ctx.font = 'bold 14px Microsoft YaHei';
-            ctx.textAlign = 'center';
-            ctx.fillText('出口', arrowX, exitY + CELL_SIZE + 20);
-        }
-
-        function drawCar(car) {
-            const cells = car.getCells();
-            const x = cells[0].x * CELL_SIZE;
-            const y = cells[0].y * CELL_SIZE;
-            const w = car.orientation === 'horizontal' ? car.length * CELL_SIZE : CELL_SIZE;
-            const h = car.orientation === 'horizontal' ? CELL_SIZE : car.length * CELL_SIZE;
-
-            const padding = 3;
-            const rx = 8;
-
-            // 阴影
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 8;
-            ctx.shadowOffsetX = 3;
-            ctx.shadowOffsetY = 3;
-
-            // 车身渐变
-            const gradient = ctx.createLinearGradient(x + padding, y + padding, x + padding, y + h - padding);
-            gradient.addColorStop(0, car.color[0]);
-            gradient.addColorStop(1, car.color[1]);
-            
-            ctx.fillStyle = gradient;
-            roundRect(ctx, x + padding, y + padding, w - padding * 2, h - padding * 2, rx);
-            ctx.fill();
-
-            // 高光
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-
-            const highlightGradient = ctx.createLinearGradient(x + padding, y + padding, x + padding, y + padding + 15);
-            highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-            highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            ctx.fillStyle = highlightGradient;
-            roundRect(ctx, x + padding, y + padding, w - padding * 2, Math.min(15, h - padding * 2), rx);
-            ctx.fill();
-
-            // 选中效果
-            if (car === selectedCar) {
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([5, 5]);
-                roundRect(ctx, x + padding, y + padding, w - padding * 2, h - padding * 2, rx);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-
-            // 车窗
-            drawWindows(car, x, y, w, h, padding);
-
-            // 主车标识
-            if (car.isMain) {
-                drawMainCarMark(x, y, w, h, padding);
-            }
-
-            // 轮胎
-            drawWheels(car, x, y, w, h, padding);
-        }
-
-        function drawWindows(car, x, y, w, h, padding) {
-            const innerX = x + padding;
-            const innerY = y + padding;
-            const innerW = w - padding * 2;
-            const innerH = h - padding * 2;
-
-            ctx.fillStyle = 'rgba(30, 50, 80, 0.8)';
-            
-            if (car.orientation === 'horizontal') {
-                const windowW = innerW / car.length * 0.6;
-                const windowH = innerH * 0.5;
-                const startX = innerX + (innerW - windowW * car.length) / 2;
+                // 计算位置和大小
+                const cellWidth = 100 / GRID_SIZE;
+                const gapPercent = (CELL_GAP * 100) / (GRID_SIZE * (100 + CELL_GAP)); // 近似
                 
-                for (let i = 0; i < car.length; i++) {
-                    const wx = startX + i * (innerW / car.length) + (innerW / car.length - windowW) / 2;
-                    const wy = innerY + (innerH - windowH) / 2;
-                    roundRect(ctx, wx, wy, windowW, windowH, 3);
-                    ctx.fill();
+                if (car.horizontal) {
+                    carEl.style.left = `${(car.c / GRID_SIZE) * 100}%`;
+                    carEl.style.top = `${(car.r / GRID_SIZE) * 100}%`;
+                    carEl.style.width = `${(car.length / GRID_SIZE) * 100 - (CELL_GAP / GRID_SIZE) * 100}%`;
+                    carEl.style.height = `calc(${100 / GRID_SIZE}% - ${CELL_GAP}px)`;
+                } else {
+                    carEl.style.left = `${(car.c / GRID_SIZE) * 100}%`;
+                    carEl.style.top = `${(car.r / GRID_SIZE) * 100}%`;
+                    carEl.style.width = `calc(${100 / GRID_SIZE}% - ${CELL_GAP}px)`;
+                    carEl.style.height = `${(car.length / GRID_SIZE) * 100 - (CELL_GAP / GRID_SIZE) * 100}%`;
                 }
-            } else {
-                const windowW = innerW * 0.7;
-                const windowH = innerH / car.length * 0.5;
-                const startY = innerY + (innerH - windowH * car.length) / 2;
-                
-                for (let i = 0; i < car.length; i++) {
-                    const wx = innerX + (innerW - windowW) / 2;
-                    const wy = startY + i * (innerH / car.length) + (innerH / car.length - windowH) / 2;
-                    roundRect(ctx, wx, wy, windowW, windowH, 3);
-                    ctx.fill();
-                }
-            }
+
+                // 触摸/鼠标事件
+                carEl.addEventListener('pointerdown', (e) => startDrag(e, car));
+                board.appendChild(carEl);
+            });
         }
 
-        function drawMainCarMark(x, y, w, h, padding) {
-            // 箭头指示方向
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            const cx = x + w / 2;
-            const cy = y + h / 2;
-            const size = Math.min(w, h) * 0.25;
-            
-            ctx.beginPath();
-            ctx.moveTo(cx + size, cy);
-            ctx.lineTo(cx - size, cy - size * 0.7);
-            ctx.lineTo(cx - size * 0.3, cy);
-            ctx.lineTo(cx - size, cy + size * 0.7);
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        function drawWheels(car, x, y, w, h, padding) {
-            ctx.fillStyle = '#1a1a2e';
-            const wheelR = Math.min(w, h) * 0.12;
-            const offset = Math.max(w, h) * 0.2;
-
-            if (car.orientation === 'horizontal') {
-                // 前后轮
-                const wheelY = y + h / 2;
-                ctx.beginPath();
-                ctx.arc(x + offset, wheelY, wheelR, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(x + w - offset, wheelY, wheelR, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
-                // 左右轮
-                const wheelX = x + w / 2;
-                ctx.beginPath();
-                ctx.arc(wheelX, y + offset, wheelR, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(wheelX, y + h - offset, wheelR, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function roundRect(ctx, x, y, w, h, r) {
-            ctx.beginPath();
-            ctx.moveTo(x + r, y);
-            ctx.lineTo(x + w - r, y);
-            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-            ctx.lineTo(x + w, y + h - r);
-            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-            ctx.lineTo(x + r, y + h);
-            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-            ctx.lineTo(x, y + r);
-            ctx.quadraticCurveTo(x, y, x + r, y);
-            ctx.closePath();
-        }
-
-        // 获取点击位置的车辆
-        function getCarAt(x, y) {
-            const col = Math.floor(x / CELL_SIZE);
-            const row = Math.floor(y / CELL_SIZE);
-            
-            for (const car of cars) {
-                const cells = car.getCells();
-                for (const cell of cells) {
-                    if (cell.x === col && cell.y === row) {
-                        return car;
-                    }
-                }
-            }
-            return null;
-        }
-
-        // 鼠标/触摸事件
-        function getEventPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
-        }
-
-        canvas.addEventListener('mousedown', onPointerDown);
-        canvas.addEventListener('touchstart', onPointerDown, {passive: false});
-        
-        window.addEventListener('mousemove', onPointerMove);
-        window.addEventListener('touchmove', onPointerMove, {passive: false});
-        
-        window.addEventListener('mouseup', onPointerUp);
-        window.addEventListener('touchend', onPointerUp);
-
-        function onPointerDown(e) {
+        // ===== 拖拽逻辑 =====
+        function startDrag(e, car) {
             if (gameWon) return;
             e.preventDefault();
             
-            const pos = getEventPos(e);
-            const car = getCarAt(pos.x, pos.y);
+            const rect = board.getBoundingClientRect();
+            const startX = e.clientX;
+            const startY = e.clientY;
             
-            if (car) {
-                selectedCar = car;
-                dragStart = {x: pos.x, y: pos.y};
-                canvas.style.cursor = 'grabbing';
-                draw();
-            }
+            isDragging = true;
+            dragStart = {
+                x: startX,
+                y: startY,
+                car,
+                carStartPos: { r: car.r, c: car.c }
+            };
+
+            const carEl = document.querySelector(`[data-id="${car.id}"]`);
+            if (carEl) carEl.classList.add('dragging');
+
+            document.addEventListener('pointermove', onDragMove);
+            document.addEventListener('pointerup', onDragEnd);
         }
 
-        function onPointerMove(e) {
-            if (!selectedCar || !dragStart || gameWon) return;
+        function onDragMove(e) {
+            if (!isDragging || !dragStart.car) return;
             e.preventDefault();
+
+            const car = dragStart.car;
+            const carEl = document.querySelector(`[data-id="${car.id}"]`);
+            if (!carEl) return;
+
+            const dx = e.clientX - dragStart.x;
+            const dy = e.clientY - dragStart.y;
+
+            // 只允许沿车辆方向移动
+            let moveDist = car.horizontal ? dx : dy;
+            const cellSize = board.clientWidth / GRID_SIZE;
+            const maxCells = getMaxMove(car, car.horizontal ? (moveDist > 0 ? 1 : -1) : (moveDist > 0 ? 1 : -1));
             
-            const pos = getEventPos(e);
-            const dx = pos.x - dragStart.x;
-            const dy = pos.y - dragStart.y;
+            // 限制移动范围
+            const maxPx = maxCells * cellSize;
+            if (Math.abs(moveDist) > Math.abs(maxPx)) {
+                moveDist = maxPx * (moveDist > 0 ? 1 : -1);
+            }
+
+            carEl.style.transform = car.horizontal 
+                ? `translateX(${moveDist}px)` 
+                : `translateY(${moveDist}px)`;
+        }
+
+        function getMaxMove(car, dir) {
+            // dir: 1 为正方向 (右/下), -1 为负方向 (左/上)
+            const occupied = new Set();
+            cars.forEach(c => {
+                if (c.id === car.id) return;
+                for (let i = 0; i < c.length; i++) {
+                    const rr = c.horizontal ? c.r : c.r + i;
+                    const cc = c.horizontal ? c.c + i : c.c;
+                    occupied.add(getCellKey(rr, cc));
+                }
+            });
+
+            let maxMove = 0;
+            for (let step = 1; step < GRID_SIZE; step++) {
+                let blocked = false;
+                if (car.horizontal) {
+                    const checkC = dir > 0 ? car.c + car.length - 1 + step : car.c - step;
+                    if (checkC < 0 || checkC >= GRID_SIZE) break;
+                    if (occupied.has(getCellKey(car.r, checkC))) break;
+                    // 主车冲出出口的特殊判断
+                    if (car.id === 'main' && dir > 0 && car.c + car.length - 1 + step >= GRID_SIZE) {
+                        return step; // 可以冲出去
+                    }
+                } else {
+                    const checkR = dir > 0 ? car.r + car.length - 1 + step : car.r - step;
+                    if (checkR < 0 || checkR >= GRID_SIZE) break;
+                    if (occupied.has(getCellKey(checkR, car.c))) break;
+                }
+                maxMove = step;
+            }
+            return maxMove;
+        }
+
+        function onDragEnd(e) {
+            if (!isDragging || !dragStart.car) return;
             
-            // 确定移动方向
+            const car = dragStart.car;
+            const carEl = document.querySelector(`[data-id="${car.id}"]`);
+            if (carEl) carEl.classList.remove('dragging');
+
+            const dx = e.clientX - dragStart.x;
+            const dy = e.clientY - dragStart.y;
+            const cellSize = board.clientWidth / GRID_SIZE;
+            const threshold = cellSize * 0.35; // 35% 格子大小才算移动
+
             let moved = false;
-            if (selectedCar.orientation === 'horizontal') {
-                if (Math.abs(dx) > CELL_SIZE * 0.5) {
-                    const dir = dx > 0 ? 1 : -1;
-                    if (selectedCar.canMove(dir, cars)) {
-                        saveState();
-                        selectedCar.move(dir);
-                        moveCount++;
-                        updateMoveCount();
+            let moveDist = car.horizontal ? dx : dy;
+
+            if (Math.abs(moveDist) > threshold) {
+                const dir = moveDist > 0 ? 1 : -1;
+                const maxCells = getMaxMove(car, dir);
+                if (maxCells > 0) {
+                    const actualMove = Math.min(Math.floor(Math.abs(moveDist) / cellSize + 0.5), maxCells);
+                    if (actualMove > 0) {
+                        applyMove(car, dir * actualMove);
                         moved = true;
                     }
+                }
+            }
+
+            if (!moved) {
+                // 回弹动画
+                carEl.style.transition = 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                carEl.style.transform = 'translate(0, 0)';
+                setTimeout(() => {
+                    carEl.style.transition = 'transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                }, 150);
+            }
+
+            isDragging = false;
+            dragStart.car = null;
+            document.removeEventListener('pointermove', onDragMove);
+            document.removeEventListener('pointerup', onDragEnd);
+        }
+
+        function applyMove(car, steps) {
+            if (car.horizontal) {
+                car.c += steps;
+                // 主车冲出出口判断
+                if (car.id === 'main' && car.c + car.length - 1 >= GRID_SIZE) {
+                    triggerWin();
+                    return;
                 }
             } else {
-                if (Math.abs(dy) > CELL_SIZE * 0.5) {
-                    const dir = dy > 0 ? 1 : -1;
-                    if (selectedCar.canMove(dir, cars)) {
-                        saveState();
-                        selectedCar.move(dir);
-                        moveCount++;
-                        updateMoveCount();
-                        moved = true;
-                    }
-                }
+                car.r += steps;
             }
-            
-            if (moved) {
-                dragStart = {x: pos.x, y: pos.y};
-                checkWin();
-                draw();
-            }
+            moves++;
+            movesEl.textContent = moves;
+            render();
+            checkWin();
         }
 
-        function onPointerUp() {
-            selectedCar = null;
-            dragStart = null;
-            canvas.style.cursor = 'grab';
-            draw();
-        }
-
-        // 撤销功能
-        function saveState() {
-            const state = cars.map(car => ({
-                id: car.id,
-                x: car.x,
-                y: car.y,
-                length: car.length,
-                orientation: car.orientation,
-                isMain: car.isMain
-            }));
-            moveHistory.push(state);
-            if (moveHistory.length > 50) moveHistory.shift();
-        }
-
-        function undo() {
-            if (moveHistory.length === 0 || gameWon) return;
-            
-            const prevState = moveHistory.pop();
-            cars = prevState.map(s => {
-                const car = new Car(s.id, s.x, s.y, s.length, s.orientation, s.isMain);
-                return car;
-            });
-            moveCount = Math.max(0, moveCount - 1);
-            updateMoveCount();
-            draw();
-        }
-
-        // 检查胜利
+        // ===== 胜利判断 =====
         function checkWin() {
-            const mainCar = cars.find(c => c.isMain);
-            if (mainCar.isAtExit()) {
-                gameWon = true;
-                stopTimer();
-                showWin();
+            if (mainCar.c + mainCar.length - 1 >= GRID_SIZE) {
+                triggerWin();
             }
         }
 
-        function showWin() {
-            finalMovesEl.textContent = moveCount;
-            finalTimeEl.textContent = formatTime(Date.now() - startTime);
+        function triggerWin() {
+            gameWon = true;
+            clearInterval(timerInterval);
+            
+            const elapsed = Date.now() - startTime;
+            const timeStr = formatTime(elapsed);
             
             // 更新最佳记录
-            const best = getBestRecord();
-            if (!best || moveCount < best.moves || (moveCount === best.moves && (Date.now() - startTime) < best.time)) {
-                saveBestRecord(moveCount, Date.now() - startTime);
-                updateBestRecord();
+            let isNewBest = false;
+            if (bestMoves === 0 || moves < bestMoves) {
+                bestMoves = moves;
+                localStorage.setItem('parkingChaosBest', moves.toString());
+                isNewBest = true;
             }
-            
-            winOverlay.classList.add('show');
+            bestMovesEl.textContent = bestMoves;
+
+            // 显示胜利弹窗
+            setTimeout(() => {
+                document.getElementById('finalMoves').textContent = moves;
+                document.getElementById('finalTime').textContent = timeStr;
+                document.getElementById('finalMoves2').textContent = moves;
+                document.getElementById('finalBest').textContent = bestMoves;
+                winModal.classList.add('show');
+                createCelebration();
+            }, 300);
         }
 
-        // 计时器
+        // ===== 计时器 =====
         function startTimer() {
+            clearInterval(timerInterval);
             startTime = Date.now();
             timerInterval = setInterval(() => {
-                timerEl.textContent = formatTime(Date.now() - startTime);
+                const elapsed = Date.now() - startTime;
+                timerEl.textContent = formatTime(elapsed);
             }, 500);
-        }
-
-        function stopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
         }
 
         function formatTime(ms) {
             const totalSec = Math.floor(ms / 1000);
-            const min = Math.floor(totalSec / 60);
-            const sec = totalSec % 60;
-            return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+            const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+            const s = (totalSec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
         }
 
-        // 最佳记录
-        function getBestRecord() {
-            try {
-                const data = localStorage.getItem('parkingChaosBest');
-                return data ? JSON.parse(data) : null;
-            } catch {
-                return null;
+        // ===== 粒子/庆祝效果 =====
+        function createCelebration() {
+            // 粒子爆发
+            const rect = board.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#70a1ff', '#ffa502', '#d63031'];
+
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = centerX + 'px';
+                p.style.top = centerY + 'px';
+                p.style.background = choice(colors);
+                const angle = (i / 30) * Math.PI * 2;
+                const dist = rand(80, 180);
+                p.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+                p.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+                p.style.animationDelay = `${rand(0, 100)}ms`;
+                particlesEl.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+
+            // 彩带
+            for (let i = 0; i < 50; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = `${Math.random() * 100}%`;
+                c.style.background = choice(colors);
+                c.style.animationDelay = `${Math.random() * 2}s`;
+                c.style.animationDuration = `${rand(2, 4)}s`;
+                c.style.transform = `rotate(${Math.random() * 360}deg)`;
+                celebrationEl.appendChild(c);
+                setTimeout(() => c.remove(), 4000);
             }
         }
 
-        function saveBestRecord(moves, time) {
-            try {
-                localStorage.setItem('parkingChaosBest', JSON.stringify({moves, time, date: Date.now()}));
-            } catch {}
-        }
-
-        function updateBestRecord() {
-            const best = getBestRecord();
-            if (best) {
-                bestRecordEl.textContent = `${formatTime(best.time)} / ${best.moves}步`;
-            } else {
-                bestRecordEl.textContent = '--:-- / --';
-            }
-        }
-
-        function updateMoveCount() {
-            moveCountEl.textContent = moveCount;
-        }
-
-        // 重新开始
+        // ===== 重新开始 / 下一关 =====
         function restartGame() {
             gameWon = false;
-            moveCount = 0;
-            moveHistory = [];
-            selectedCar = null;
-            winOverlay.classList.remove('show');
+            moves = 0;
+            movesEl.textContent = '0';
+            winModal.classList.remove('show');
             generateLevel();
-            updateMoveCount();
+            render();
             startTimer();
-            draw();
         }
 
-        // 提示功能
+        // ===== 提示功能 =====
         function showHint() {
-            const mainCar = cars.find(c => c.isMain);
-            
-            // 找到阻挡主车的车辆
-            for (let x = mainCar.x + mainCar.length; x < GRID_SIZE; x++) {
-                for (const car of cars) {
-                    if (car.id === mainCar.id) continue;
-                    const cells = car.getCells();
-                    for (const cell of cells) {
-                        if (cell.x === x && cell.y === mainCar.y) {
-                            // 高亮显示这辆车
-                            selectedCar = car;
-                            draw();
-                            setTimeout(() => {
-                                selectedCar = null;
-                                draw();
-                            }, 1500);
-                            return;
-                        }
-                    }
+            // 找到阻挡主车的第一辆车并高亮
+            const blockingCars = [];
+            for (let c = mainCar.c + mainCar.length; c < GRID_SIZE; c++) {
+                const car = cars.find(car => 
+                    car.id !== 'main' && 
+                    !car.horizontal && 
+                    car.c === c && 
+                    car.r <= mainCar.r && 
+                    car.r + car.length > mainCar.r
+                );
+                if (car) blockingCars.push(car);
+            }
+
+            if (blockingCars.length > 0) {
+                const target = blockingCars[0];
+                const carEl = document.querySelector(`[data-id="${target.id}"]`);
+                if (carEl) {
+                    carEl.style.boxShadow = '0 0 0 3px #ffd93d, 0 8px 24px rgba(0,0,0,0.5)';
+                    setTimeout(() => {
+                        carEl.style.boxShadow = '';
+                    }, 2000);
+                }
+            } else {
+                // 主车可以直接出去
+                const mainEl = document.querySelector('[data-id="main"]');
+                if (mainEl) {
+                    mainEl.style.boxShadow = '0 0 0 3px #6bcb77, 0 8px 24px rgba(0,0,0,0.5)';
+                    setTimeout(() => mainEl.style.boxShadow = '', 2000);
                 }
             }
-            
-            // 如果没有阻挡，提示主车
-            selectedCar = mainCar;
-            draw();
-            setTimeout(() => {
-                selectedCar = null;
-                draw();
-            }, 1500);
         }
 
-        // 按钮事件
-        document.getElementById('restartBtn').addEventListener('click', restartGame);
-        document.getElementById('undoBtn').addEventListener('click', undo);
-        document.getElementById('hintBtn').addEventListener('click', showHint);
+        // ===== 事件绑定 =====
+        restartBtn.addEventListener('click', restartGame);
+        nextLevelBtn.addEventListener('click', restartGame);
+        hintBtn.addEventListener('click', showHint);
 
         // 键盘支持
         document.addEventListener('keydown', (e) => {
             if (gameWon) return;
-            
-            if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
+            const keyMap = {
+                'ArrowUp': { dir: -1, horizontal: false },
+                'ArrowDown': { dir: 1, horizontal: false },
+                'ArrowLeft': { dir: -1, horizontal: true },
+                'ArrowRight': { dir: 1, horizontal: true },
+                'w': { dir: -1, horizontal: false },
+                's': { dir: 1, horizontal: false },
+                'a': { dir: -1, horizontal: true },
+                'd': { dir: 1, horizontal: true }
+            };
+            const action = keyMap[e.key];
+            if (action) {
                 e.preventDefault();
-                undo();
-            } else if (e.key === 'r') {
-                restartGame();
-            } else if (e.key === 'h') {
-                showHint();
-            } else if (selectedCar) {
-                let dir = 0;
-                if (selectedCar.orientation === 'horizontal') {
-                    if (e.key === 'ArrowLeft') dir = -1;
-                    else if (e.key === 'ArrowRight') dir = 1;
-                } else {
-                    if (e.key === 'ArrowUp') dir = -1;
-                    else if (e.key === 'ArrowDown') dir = 1;
+                // 选中最近的可移动车（简化：选主车或第一辆匹配方向的车）
+                let targetCar = action.horizontal ? mainCar : null;
+                if (!targetCar) {
+                    targetCar = cars.find(c => !c.horizontal && c !== mainCar);
                 }
-                
-                if (dir !== 0 && selectedCar.canMove(dir, cars)) {
-                    saveState();
-                    selectedCar.move(dir);
-                    moveCount++;
-                    updateMoveCount();
-                    checkWin();
-                    draw();
+                if (targetCar) {
+                    const maxMove = getMaxMove(targetCar, action.dir);
+                    if (maxMove > 0) {
+                        applyMove(targetCar, action.dir);
+                    }
                 }
             }
+            if (e.key === 'r' || e.key === 'R') restartGame();
+            if (e.key === 'h' || e.key === 'H') showHint();
         });
 
-        // 初始化
-        updateBestRecord();
-        restartGame();
+        // 防止页面滚动
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.closest('.game-board-wrapper')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // ===== 初始化 =====
+        bestMovesEl.textContent = bestMoves || '--';
+        generateLevel();
+        render();
+        startTimer();
     </script>
 </body>
 </html>
