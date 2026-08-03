@@ -1,14 +1,12 @@
-name: Hermes Games  uploader
+name: Hermes Games uploader
 
 
 on:
 
   workflow_dispatch:
 
- # schedule:
-
- #   - cron: "0 */2 * * *"
-
+  # schedule:
+  #   - cron: "0 */2 * * *"
 
 
 permissions:
@@ -16,17 +14,13 @@ permissions:
   contents: write
 
 
-
 jobs:
 
-
   build:
-
 
     runs-on: ubuntu-latest
 
     timeout-minutes: 30
-
 
 
     steps:
@@ -39,6 +33,8 @@ jobs:
       with:
 
         fetch-depth: 0
+
+        token: ${{ secrets.GITHUB_TOKEN }}
 
 
 
@@ -97,25 +93,50 @@ jobs:
           "
 
 
-          不要停下来问（一次都不能停）。你自己想办法完成输出。
+          不要停下来问问题，一次都不要停。
+
+          不要执行git push。
+
+          GitHub提交由外部workflow完成。
 
 
-          我已经把github的token放到了Repository secrets的变量GITTOKEN里。
+          任务：
+
+          1. 在仓库 https://github.com/gmicroul/gmicroul.github.io 创建 Games-Offline/index.html
 
 
-          要求：
+          2. 获取：
+          https://github.com/gmicroul/Offline-HTML-Games-Pack/tree/master/offline/
 
-          1，在https://github.com/gmicroul/gmicroul.github.io/Games-Offline新建index.html.
-          2. 将https://github.com/gmicroul/Offline-HTML-Games-Pack/tree/master/offline/下的所有html全部上传到https://github.com/gmicroul/gmicroul.github.io/Games-Offline
-          3. 对https://github.com/gmicroul/gmicroul.github.io/Games-Offline的所有html汇总，生成一个index.html在https://github.com/gmicroul/gmicroul.github.io/Games-Offline目录做一个总导引并带有每个游戏的小图标。
-          4. 将https://github.com/gmicroul/gmicroul.github.io/Games-Offline/index.html复制到output/index.html
-    
-          
-          4. 不要修改或删除其它文件。
+          下所有HTML游戏文件。
 
-          5. 你要一定自己去想法提交，别推给我提交。
 
-          
+          3. 将所有游戏上传到：
+
+          https://github.com/gmicroul/gmicroul.github.io/Games-Offline
+
+
+          4. 扫描 Games-Offline 下所有html。
+
+
+          5. 自动生成 Games-Offline/index.html：
+
+             - 游戏列表
+             - 游戏标题
+             - 游戏小图标
+             - 点击进入游戏
+
+
+          6. 将最终：
+
+             Games-Offline/index.html
+
+             复制到：
+
+             output/index.html
+
+
+          7. 不修改、不删除其它文件。
 
 
           "
@@ -202,6 +223,11 @@ jobs:
 
     - name: Commit only Hermes page
 
+      env:
+
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
       run: |
 
 
@@ -234,8 +260,10 @@ jobs:
 
 
         git commit \
-          -m "Update Hermes generated news"
+          -m "Update Hermes generated Games page"
 
 
 
-        git push origin HEAD:${GITHUB_REF_NAME}
+        git push \
+          https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git \
+          HEAD:${GITHUB_REF_NAME}
