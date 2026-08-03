@@ -1,0 +1,248 @@
+name: Hermes Phone-News Generator
+
+
+on:
+
+  workflow_dispatch:
+
+  schedule:
+
+    - cron: "0 */3 * * *"
+
+
+
+permissions:
+
+  contents: write
+
+
+
+jobs:
+
+
+  build:
+
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 30
+
+
+
+    steps:
+
+
+    - name: Checkout repository
+
+      uses: actions/checkout@v4
+
+      with:
+
+        fetch-depth: 0
+
+
+
+    - name: Build Hermes Docker image
+
+      run: |
+
+        docker build \
+          --progress=plain \
+          -t hermes-agent .
+
+
+
+    - name: Prepare output directory
+
+      run: |
+
+        rm -rf output
+
+        mkdir -p output
+
+        chmod 777 output
+
+
+
+    - name: Run Hermes
+
+      env:
+
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+
+
+      run: |
+
+
+        echo "=================="
+
+        echo "Running Hermes..."
+
+        date
+
+
+
+        timeout 25m docker run \
+          --rm \
+          --user root \
+          -e OPENAI_API_KEY \
+          -e OPENAI_BASE_URL \
+          -e OPENAI_MODEL \
+          -v "$PWD/output:/output" \
+          hermes-agent \
+          "
+
+
+          不要搜索大于一个月发布的产品。不要停下来问（一次都不能停）。你自己想办法完成输出。
+
+
+          生成一个真实的中文 2026年AI前沿快讯的 HTML 页面。
+
+
+          要求：
+
+
+          1. 把汇总的内容以HTML5形式写入以下文件：
+
+          /output/index.html
+
+
+          2. 必须是完整 HTML5 页面。
+
+
+          3. 内容必须来自真实来源。
+
+
+          4. 使用中文。
+
+
+          5. 不要修改或删除其它文件。
+
+          6. 生成的文件在https://g.aisword.top/sandbox/share/AdjTiMA1zvi5qAdPf7jpIwNL5q9FWAUNXllq9KkcNCY的页面点击提交上传，这个你要一定自己去想法提交，别推给我提交。
+
+
+          "
+
+
+
+        echo "Hermes finished"
+
+        date
+
+
+
+
+
+    - name: Fix Hermes output permission
+
+      run: |
+
+
+        echo "Fix output permission"
+
+
+        sudo chown -R $USER:$USER output
+
+
+        sudo chmod -R u+rwX,go+rX output
+
+
+        ls -lah output
+
+
+
+
+
+    - name: Verify Hermes output
+
+      run: |
+
+
+        echo "===== output ====="
+
+
+        ls -lah output
+
+
+
+        if [ ! -f output/index.html ]; then
+
+          echo "ERROR: output/index.html missing"
+
+          exit 1
+
+        fi
+
+
+
+        SIZE=$(wc -c < output/index.html)
+
+
+        echo "SIZE=$SIZE"
+
+
+
+        if [ "$SIZE" -lt 1000 ]; then
+
+          echo "ERROR: index.html too small"
+
+          cat output/index.html
+
+          exit 1
+
+        fi
+
+
+
+        echo "===== Preview ====="
+
+
+        head -50 output/index.html
+
+
+
+
+
+    - name: Commit only Hermes page
+
+      run: |
+
+
+        git config user.name "github-actions[bot]"
+
+
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+
+        echo "===== Git status ====="
+
+
+        git status
+
+
+
+        git add output/index.html
+
+
+
+        if git diff --cached --quiet; then
+
+          echo "No changes"
+
+          exit 0
+
+        fi
+
+
+
+        git commit \
+          -m "Update Hermes generated news"
+
+
+
+        git push origin HEAD:${GITHUB_REF_NAME}
