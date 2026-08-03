@@ -35,6 +35,31 @@ jobs:
 
 
 
+    - name: Download Offline HTML Games Pack
+
+      run: |
+
+        git clone --depth=1 \
+          https://github.com/gmicroul/Offline-HTML-Games-Pack.git games-pack
+
+
+        mkdir -p Games-Offline
+
+
+        cp -r games-pack/offline/* Games-Offline/
+
+
+        rm -rf games-pack
+
+
+        echo "Games copied"
+
+        find Games-Offline -name "*.html" | wc -l
+
+
+
+
+
     - name: Build Hermes Docker image
 
       run: |
@@ -45,15 +70,19 @@ jobs:
 
 
 
-    - name: Prepare workspace
+
+
+    - name: Prepare output directory
 
       run: |
+
+        rm -rf output
 
         mkdir -p output
 
         chmod 777 output
 
-        ls -lah
+
 
 
 
@@ -76,7 +105,6 @@ jobs:
         echo "Starting Hermes..."
 
 
-
         timeout 25m docker run \
           --rm \
           --user root \
@@ -92,78 +120,56 @@ jobs:
 
           不要执行 git push。
 
-          GitHub Actions 会负责提交。
 
-
-          当前工作目录：
+          当前仓库：
 
           /opt/hermes-agent/gmicroul.github.io
 
 
+          已经准备好 Games-Offline 目录。
+
+
           任务：
 
-          1.
-          从：
 
-          https://github.com/gmicroul/Offline-HTML-Games-Pack
+          1. 扫描：
 
-          获取：
-
-          offline/
-
-          下全部游戏文件。
+          /opt/hermes-agent/gmicroul.github.io/Games-Offline/
 
 
-          2.
-
-          在当前仓库创建：
-
-          Games-Offline/
+          下全部 HTML 游戏。
 
 
-          3.
+          2. 生成：
 
-          将所有游戏复制到：
-
-          Games-Offline/
-
-
-          4.
-
-          扫描 Games-Offline 下所有 HTML 游戏。
-
-
-          5.
-
-          生成：
-
-          Games-Offline/index.html
+          /opt/hermes-agent/gmicroul.github.io/Games-Offline/index.html
 
 
           要求：
 
-          - 显示全部游戏
-          - 提取游戏标题
-          - 自动生成图标
-          - 支持搜索
-          - 响应式布局
+          - 汇总全部游戏
+          - 提取HTML title作为游戏名称
+          - 自动生成游戏图标
+          - 网格布局
+          - 搜索功能
+          - 手机和电脑自适应
 
 
-          6.
-
-          将：
-
-          Games-Offline/index.html
+          3. 完成后复制：
 
 
-          复制到：
-
-          output/index.html
+          /opt/hermes-agent/gmicroul.github.io/Games-Offline/index.html
 
 
-          7.
+          到：
 
-          不修改、不删除仓库其它文件。
+
+          /opt/hermes-agent/gmicroul.github.io/output/index.html
+
+
+          4. 不删除其它文件。
+
+          5. 不执行git操作。
 
 
           "
@@ -177,17 +183,19 @@ jobs:
 
 
 
-    - name: Fix permission
+    - name: Fix permissions
 
       run: |
 
-        sudo chown -R $USER:$USER Games-Offline output || true
+        sudo chown -R $USER:$USER Games-Offline output
 
-        sudo chmod -R u+rwX,go+rX Games-Offline output || true
+        sudo chmod -R u+rwX,go+rX Games-Offline output
 
 
 
-    - name: Verify output
+
+
+    - name: Verify files
 
       run: |
 
@@ -197,12 +205,29 @@ jobs:
         ls -lah output
 
 
-
         if [ ! -f output/index.html ]; then
 
           echo "ERROR: output/index.html missing"
 
-          find . -maxdepth 3 -name index.html
+          exit 1
+
+        fi
+
+
+
+        echo "===== Games ====="
+
+
+        COUNT=$(find Games-Offline -name "*.html" | wc -l)
+
+
+        echo "HTML COUNT=$COUNT"
+
+
+
+        if [ "$COUNT" -lt 1 ]; then
+
+          echo "ERROR: Games-Offline empty"
 
           exit 1
 
@@ -212,40 +237,14 @@ jobs:
 
         SIZE=$(wc -c < output/index.html)
 
-        echo "SIZE=$SIZE"
+
+        echo "INDEX SIZE=$SIZE"
 
 
 
         if [ "$SIZE" -lt 1000 ]; then
 
-          echo "ERROR: index.html too small"
-
-          exit 1
-
-        fi
-
-
-
-    - name: Verify Games-Offline
-
-      run: |
-
-
-        echo "===== Games-Offline ====="
-
-
-        ls -lah Games-Offline | head -50
-
-
-        COUNT=$(find Games-Offline -name "*.html" | wc -l)
-
-
-        echo "HTML COUNT=$COUNT"
-
-
-        if [ "$COUNT" -lt 1 ]; then
-
-          echo "ERROR: no games found"
+          echo "ERROR: index too small"
 
           exit 1
 
@@ -268,12 +267,6 @@ jobs:
         git config user.name "github-actions[bot]"
 
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-
-
-        echo "===== Git status ====="
-
-        git status
 
 
 
