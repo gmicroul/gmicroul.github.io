@@ -5,9 +5,6 @@ on:
 
   workflow_dispatch:
 
-  # schedule:
-  #   - cron: "0 */2 * * *"
-
 
 permissions:
 
@@ -48,15 +45,15 @@ jobs:
 
 
 
-    - name: Prepare output directory
+    - name: Prepare workspace
 
       run: |
-
-        rm -rf output
 
         mkdir -p output
 
         chmod 777 output
+
+        ls -lah
 
 
 
@@ -76,9 +73,7 @@ jobs:
 
         echo "=================="
 
-        echo "Running Hermes..."
-
-        date
+        echo "Starting Hermes..."
 
 
 
@@ -88,59 +83,90 @@ jobs:
           -e OPENAI_API_KEY \
           -e OPENAI_BASE_URL \
           -e OPENAI_MODEL \
-          -v "$PWD/output:/output" \
+          -v "$PWD:/opt/hermes-agent/gmicroul.github.io" \
           hermes-agent \
           "
 
 
-          不要停下来问问题，一次都不要停。
+          不要停下来询问。
 
-          不要执行git push。
+          不要执行 git push。
 
-          GitHub提交由外部workflow完成。
+          GitHub Actions 会负责提交。
+
+
+          当前工作目录：
+
+          /opt/hermes-agent/gmicroul.github.io
 
 
           任务：
 
-          1. 在仓库 https://github.com/gmicroul/gmicroul.github.io 创建 Games-Offline/index.html
+          1.
+          从：
+
+          https://github.com/gmicroul/Offline-HTML-Games-Pack
+
+          获取：
+
+          offline/
+
+          下全部游戏文件。
 
 
-          2. 获取：
-          https://github.com/gmicroul/Offline-HTML-Games-Pack/tree/master/offline/
+          2.
 
-          下所有HTML游戏文件。
+          在当前仓库创建：
 
-
-          3. 将所有游戏上传到：
-
-          https://github.com/gmicroul/gmicroul.github.io/Games-Offline
+          Games-Offline/
 
 
-          4. 扫描 Games-Offline 下所有html。
+          3.
+
+          将所有游戏复制到：
+
+          Games-Offline/
 
 
-          5. 自动生成 Games-Offline/index.html：
+          4.
 
-             - 游戏列表
-             - 游戏标题
-             - 游戏小图标
-             - 点击进入游戏
+          扫描 Games-Offline 下所有 HTML 游戏。
 
 
-          6. 将最终：
+          5.
 
-             Games-Offline/index.html
+          生成：
 
-             复制到：
-
-             output/index.html
+          Games-Offline/index.html
 
 
-          7. 不修改、不删除其它文件。
+          要求：
+
+          - 显示全部游戏
+          - 提取游戏标题
+          - 自动生成图标
+          - 支持搜索
+          - 响应式布局
+
+
+          6.
+
+          将：
+
+          Games-Offline/index.html
+
+
+          复制到：
+
+          output/index.html
+
+
+          7.
+
+          不修改、不删除仓库其它文件。
 
 
           "
-
 
 
         echo "Hermes finished"
@@ -151,33 +177,22 @@ jobs:
 
 
 
-    - name: Fix Hermes output permission
+    - name: Fix permission
 
       run: |
 
+        sudo chown -R $USER:$USER Games-Offline output || true
 
-        echo "Fix output permission"
-
-
-        sudo chown -R $USER:$USER output
-
-
-        sudo chmod -R u+rwX,go+rX output
-
-
-        ls -lah output
+        sudo chmod -R u+rwX,go+rX Games-Offline output || true
 
 
 
-
-
-    - name: Verify Hermes output
+    - name: Verify output
 
       run: |
 
 
         echo "===== output ====="
-
 
         ls -lah output
 
@@ -187,6 +202,8 @@ jobs:
 
           echo "ERROR: output/index.html missing"
 
+          find . -maxdepth 3 -name index.html
+
           exit 1
 
         fi
@@ -194,7 +211,6 @@ jobs:
 
 
         SIZE=$(wc -c < output/index.html)
-
 
         echo "SIZE=$SIZE"
 
@@ -204,7 +220,32 @@ jobs:
 
           echo "ERROR: index.html too small"
 
-          cat output/index.html
+          exit 1
+
+        fi
+
+
+
+    - name: Verify Games-Offline
+
+      run: |
+
+
+        echo "===== Games-Offline ====="
+
+
+        ls -lah Games-Offline | head -50
+
+
+        COUNT=$(find Games-Offline -name "*.html" | wc -l)
+
+
+        echo "HTML COUNT=$COUNT"
+
+
+        if [ "$COUNT" -lt 1 ]; then
+
+          echo "ERROR: no games found"
 
           exit 1
 
@@ -212,16 +253,9 @@ jobs:
 
 
 
-        echo "===== Preview ====="
 
 
-        head -50 output/index.html
-
-
-
-
-
-    - name: Commit only Hermes page
+    - name: Commit and push
 
       env:
 
@@ -233,19 +267,17 @@ jobs:
 
         git config user.name "github-actions[bot]"
 
-
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
 
 
         echo "===== Git status ====="
 
-
         git status
 
 
 
-        git add output/index.html Games-Offline
+        git add Games-Offline output/index.html
 
 
 
@@ -260,7 +292,7 @@ jobs:
 
 
         git commit \
-          -m "Update Hermes generated Games page"
+          -m "Update Hermes Games Offline"
 
 
 
