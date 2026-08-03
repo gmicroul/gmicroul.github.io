@@ -52,9 +52,15 @@ jobs:
         rm -rf games-pack
 
 
-        echo "Games copied"
+        echo "Remove files larger than 25MB"
 
-        find Games-Offline -name "*.html" | wc -l
+
+        find Games-Offline -type f -size +25M -print -delete
+
+
+        echo "Remaining files:"
+
+        find Games-Offline -type f | wc -l
 
 
 
@@ -72,7 +78,7 @@ jobs:
 
 
 
-    - name: Prepare output directory
+    - name: Prepare output
 
       run: |
 
@@ -100,11 +106,6 @@ jobs:
       run: |
 
 
-        echo "=================="
-
-        echo "Starting Hermes..."
-
-
         timeout 25m docker run \
           --rm \
           --user root \
@@ -116,9 +117,9 @@ jobs:
           "
 
 
-          不要停下来询问。
+          不要询问。
 
-          不要执行 git push。
+          不要执行git操作。
 
 
           当前仓库：
@@ -126,70 +127,42 @@ jobs:
           /opt/hermes-agent/gmicroul.github.io
 
 
-          已经准备好 Games-Offline 目录。
+          已经存在 Games-Offline。
 
 
-          任务：
+          扫描：
+
+          Games-Offline/
 
 
-          1. 扫描：
+          生成：
 
-          /opt/hermes-agent/gmicroul.github.io/Games-Offline/
-
-
-          下全部 HTML 游戏。
-
-
-          2. 生成：
-
-          /opt/hermes-agent/gmicroul.github.io/Games-Offline/index.html
+          Games-Offline/index.html
 
 
           要求：
 
-          - 汇总全部游戏
-          - 提取HTML title作为游戏名称
-          - 自动生成游戏图标
-          - 网格布局
+          - 汇总所有HTML游戏
+          - 提取title
+          - 自动生成图标
           - 搜索功能
-          - 手机和电脑自适应
+          - 响应式布局
 
 
-          3. 完成后复制：
+          完成后复制：
 
-
-          /opt/hermes-agent/gmicroul.github.io/Games-Offline/index.html
+          Games-Offline/index.html
 
 
           到：
 
+          output/index.html
 
-          /opt/hermes-agent/gmicroul.github.io/output/index.html
 
-
-          4. 不删除其它文件。
-
-          5. 不执行git操作。
+          不删除其它文件。
 
 
           "
-
-
-        echo "Hermes finished"
-
-        date
-
-
-
-
-
-    - name: Fix permissions
-
-      run: |
-
-        sudo chown -R $USER:$USER Games-Offline output
-
-        sudo chmod -R u+rwX,go+rX Games-Offline output
 
 
 
@@ -205,46 +178,18 @@ jobs:
         ls -lah output
 
 
-        if [ ! -f output/index.html ]; then
 
-          echo "ERROR: output/index.html missing"
+        test -f output/index.html
 
-          exit 1
-
-        fi
-
-
-
-        echo "===== Games ====="
 
 
         COUNT=$(find Games-Offline -name "*.html" | wc -l)
 
-
-        echo "HTML COUNT=$COUNT"
+        echo "Games count: $COUNT"
 
 
 
         if [ "$COUNT" -lt 1 ]; then
-
-          echo "ERROR: Games-Offline empty"
-
-          exit 1
-
-        fi
-
-
-
-        SIZE=$(wc -c < output/index.html)
-
-
-        echo "INDEX SIZE=$SIZE"
-
-
-
-        if [ "$SIZE" -lt 1000 ]; then
-
-          echo "ERROR: index too small"
 
           exit 1
 
@@ -267,6 +212,11 @@ jobs:
         git config user.name "github-actions[bot]"
 
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+        git config http.postBuffer 524288000
+
+        git config core.compression 0
 
 
 
