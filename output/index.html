@@ -3,1251 +3,409 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>停车大乱斗 - Parking Chaos</title>
+    <title>离线 HTML 游戏合集 - 小于 10MB</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
-            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #eee;
-            overflow: hidden;
+            padding: 20px;
+            color: #eaeaea;
         }
-        
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
-        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
         h1 {
             font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
             margin-bottom: 10px;
         }
-        
         .subtitle {
-            color: #aaa;
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }
-        
-        #gameCanvas {
-            border: 4px solid #2a2a4a;
-            border-radius: 12px;
-            box-shadow: 
-                0 0 30px rgba(0, 0, 0, 0.5),
-                inset 0 0 30px rgba(0, 0, 0, 0.3),
-                0 0 0 2px #3a3a5a;
-            background: #1e1e3a;
-            display: block;
-        }
-        
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-            width: 100%;
-            max-width: 600px;
-        }
-        
-        .control-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 28px;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #48dbfb, #0abde3);
-            color: #1a1a2e;
-            box-shadow: 0 4px 15px rgba(72, 219, 251, 0.4);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(72, 219, 251, 0.6);
-        }
-        
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, #ff6b6b, #ee5253);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-        }
-            
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #5f6caf, #4a55a0);
-            color: white;
-            box-shadow: 0 4px 15px rgba(95, 108, 175, 0.4);
-        }
-        
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(95, 108, 175, 0.6);
-        }
-        
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        
-        .info-panel {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding: 15px 25px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .info-label {
-            font-size: 0.75rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .info-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .info-value.moves { color: #48dbfb; }
-        .info-value.time { color: #feca57; }
-        .info-value.cars { color: #ff6b6b; }
-        
-        .legend {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding: 10px 20px;
-            font-size: 0.85rem;
-            color: #ccc;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 2px solid rgba(255,255,255,0.2);
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-        
-        .modal.show {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: linear-gradient(135deg, #1e1e3a, #16213e);
-            border: 2px solid #3a3a5a;
-            border-radius: 16px;
-            padding: 40px;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
-        }
-        
-        .modal-title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 15px;
-            background: linear-gradient(90deg, #48dbfb, #feca57);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .modal-text {
+            color: #a0a0b0;
             font-size: 1.1rem;
-            color: #ccc;
-            margin-bottom: 25px;
-            line-height: 1.6;
         }
-        
         .stats {
             display: flex;
             justify-content: center;
             gap: 30px;
-            margin: 25px 0;
+            margin-top: 20px;
             flex-wrap: wrap;
         }
-        
-        .stat {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px 25px;
+            text-align: center;
         }
-        
-        .stat-label {
-            font-size: 0.75rem;
-            color: #888;
-            text-transform: uppercase;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
+        .stat-number {
+            font-size: 1.8rem;
             font-weight: 700;
-            font-family: 'Courier New', monospace;
             color: #48dbfb;
         }
-        
-        .particle {
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a0a0b0;
+            margin-top: 4px;
+        }
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            font-size: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #eaeaea;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .search-box input:focus {
+            border-color: #48dbfb;
+            box-shadow: 0 0 20px rgba(72, 219, 251, 0.2);
+        }
+        .search-box input::placeholder {
+            color: #666;
+        }
+        .search-box svg {
             position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            stroke: #666;
             pointer-events: none;
-            border-radius: 50%;
         }
-        
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
         }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        .game-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
-        
-        .shake {
-            animation: shake 0.4s ease-in-out;
+        .game-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(72, 219, 251, 0.4);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(72, 219, 251, 0.1);
         }
-        
-        @media (max-width: 600px) {
+        .game-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+        .game-size {
+            font-size: 0.85rem;
+            color: #feca57;
+            margin-bottom: 16px;
+        }
+        .game-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+            color: #0f0f23;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            margin-top: auto;
+        }
+        .game-link:hover {
+            background: linear-gradient(135deg, #feca57 0%, #ff6b6b 100%);
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(254, 202, 87, 0.4);
+        }
+        .game-link svg {
+            width: 18px;
+            height: 18px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .no-results svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        @media (max-width: 480px) {
             h1 { font-size: 1.8rem; }
-            .info-panel { gap: 15px; padding: 12px; }
-            .info-value { font-size: 1.2rem; }
-            .modal-content { padding: 25px 20px; }
-            .btn { padding: 10px 20px; font-size: 0.9rem; }
+            .game-grid { grid-template-columns: 1fr; }
+            .stat-item { padding: 12px 18px; }
+            .stat-number { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>停车大乱斗</h1>
-        <p class="subtitle">把红车开出停车场 · 每次地图随机生成</p>
-        
-        <canvas id="gameCanvas" width="600" height="600"></canvas>
-        
-        <div class="info-panel">
-            <div class="info-item">
-                <span class="info-label">步数</span>
-                <span class="info-value moves" id="moveCount">0</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">用时</span>
-                <span class="info-value time" id="timeCount">00:00</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">阻挡车辆</span>
-                <span class="info-value cars" id="blockingCars">0</span>
-            </div>
-        </div>
-        
-        <div class="controls">
-            <div class="control-row">
-                <button class="btn btn-primary" id="upBtn" ontouchstart="touchMove(0,-1)" ontouchend="stopTouch()">▲ 上</button>
-                <button class="btn btn-primary" id="leftBtn" ontouchstart="touchMove(-1,0)" ontouchend="stopTouch()">◄ 左</button>
-                <button class="btn btn-primary" id="rightBtn" ontouchstart="touchMove(1,0)" ontouchend="stopTouch()">右 ►</button>
-                <button class="btn btn-primary" id="downBtn" ontouchstart="touchMove(0,1)" ontouchend="stopTouch()">▼ 下</button>
-            </div>
-            <div class="control-row">
-                <button class="btn btn-secondary" id="newGameBtn">新游戏</button>
-                <button class="btn btn-danger" id="undoBtn">撤销</button>
-            </div>
-        </div>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #ff4444, #cc0000);"></div>
-                <span>你的车 (目标: 右边出口)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #4488ff, #0044cc);"></div>
-                <span>横向车辆 (只能左右移动)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #44ff88, #00aa44);"></div>
-                <span>纵向车辆 (只能上下移动)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: linear-gradient(135deg, #ffaa44, #cc7700);"></div>
-                <span>卡车 (占3格)</span>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="winModal">
-        <div class="modal-content">
-            <div class="modal-title">🎉 逃脱成功！</div>
-            <div class="modal-text">你把红车开出了拥挤的停车场</div>
+    <div class="container">
+        <header>
+            <h1>离线 HTML 游戏合集</h1>
+            <p class="subtitle">来自 CoolDude2349/Offline-HTML-Games-Pack 的小于 10MB 游戏列表</p>
             <div class="stats">
-                <div class="stat">
-                    <span class="stat-label">总步数</span>
-                    <span class="stat-value" id="finalMoves">0</span>
+                <div class="stat-item">
+                    <div class="stat-number" id="total-count">124</div>
+                    <div class="stat-label">款游戏</div>
                 </div>
-                <div class="stat">
-                    <span class="stat-label">用时</span>
-                    <span class="stat-value" id="finalTime">00:00</span>
+                <div class="stat-item">
+                    <div class="stat-number" id="visible-count">124</div>
+                    <div class="stat-label">显示中</div>
                 </div>
             </div>
-            <button class="btn btn-primary" onclick="startNewGame()">再来一局</button>
+        </header>
+
+        <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input type="text" id="search-input" placeholder="搜索游戏名称..." autocomplete="off">
         </div>
-    </div>
-    
-    <div class="modal" id="helpModal">
-        <div class="modal-content">
-            <div class="modal-title">🎮 游戏说明</div>
-            <div class="modal-text" style="text-align: left; line-height: 2;">
-                <strong>目标：</strong> 移动车辆，让红车(★)驶向右侧出口<br><br>
-                <strong>操作：</strong><br>
-                • 点击方向按钮或按 WASD/方向键移动选中的车<br>
-                • 点击车辆选择它 (红车默认选中)<br>
-                • 横向车只能左右动，纵向车只能上下动<br><br>
-                <strong>车辆类型：</strong><br>
-                🔴 红车 (2格) - 你的目标<br>
-                🔵 蓝色轿车 (2格) - 横向/纵向<br>
-                🟢 绿色SUV (2格) - 横向/纵向<br>
-                🟠 橙色卡车 (3格) - 横向/纵向<br><br>
-                <strong>技巧：</strong> 先腾出红车前方的路，再逐步清理障碍
-            </div>
-            <button class="btn btn-primary" onclick="document.getElementById('helpModal').classList.remove('show')">开始游戏</button>
+
+        <div class="game-grid" id="game-grid">
+            <!-- 游戏卡片将通过 JavaScript 动态生成 -->
+        </div>
+
+        <div class="no-results hidden" id="no-results">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>没有找到匹配的游戏</p>
         </div>
     </div>
 
     <script>
-        // 游戏常量
-        const GRID_SIZE = 6;
-        const CELL_SIZE = 100;
-        const CANVAS_SIZE = GRID_SIZE * CELL_SIZE;
-        
-        // 车辆颜色
-        const CAR_COLORS = {
-            player: { main: '#ff4444', light: '#ff6666', dark: '#cc0000', accent: '#ffaaaa' },
-            hBlue: { main: '#4488ff', light: '#66aaff', dark: '#0044cc', accent: '#88ccff' },
-            hGreen: { main: '#44cc88', light: '#66eeaa', dark: '#008844', accent: '#88ffaa' },
-            hOrange: { main: '#ff8844', light: '#ffaa66', dark: '#cc5500', accent: '#ffcc88' },
-            vBlue: { main: '#4466ff', light: '#6688ff', dark: '#0022aa', accent: '#88aaff' },
-            vGreen: { main: '#22aa66', light: '#44cc88', dark: '#006633', accent: '#66ee88' },
-            vOrange: { main: '#dd6600', light: '#ff8822', dark: '#993300', accent: '#ffaa66' },
-        };
-        
-        // 画布设置
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = CANVAS_SIZE;
-        canvas.height = CANVAS_SIZE;
-        
-        // 游戏状态
-        let cars = [];
-        let selectedCarIndex = 0;
-        let moveCount = 0;
-        let startTime = Date.now();
-        let timerInterval = null;
-        let gameWon = false;
-        let moveHistory = [];
-        let touchDirection = null;
-        let touchInterval = null;
-        let particles = [];
-        
-        // DOM 元素
-        const moveCountEl = document.getElementById('moveCount');
-        const timeCountEl = document.getElementById('timeCount');
-        const blockingCarsEl = document.getElementById('blockingCars');
-        const winModal = document.getElementById('winModal');
-        const finalMovesEl = document.getElementById('finalMoves');
-        const finalTimeEl = document.getElementById('finalTime');
-        
-        // 车辆类
-        class Car {
-            constructor(id, x, y, length, horizontal, colorKey, isPlayer = false) {
-                this.id = id;
-                this.x = x;
-                this.y = y;
-                this.length = length;
-                this.horizontal = horizontal;
-                this.colorKey = colorKey;
-                this.isPlayer = isPlayer;
-                this.color = CAR_COLORS[colorKey];
-                this.targetX = x;
-                this.targetY = y;
-                this.moving = false;
-            }
-            
-            getCells() {
-                const cells = [];
-                for (let i = 0; i < this.length; i++) {
-                    if (this.horizontal) {
-                        cells.push({ x: this.x + i, y: this.y });
-                    } else {
-                        cells.push({ x: this.x, y: this.y + i });
-                    }
-                }
-                return cells;
-            }
-            
-            canMove(dir, grid) {
-                if (this.horizontal && (dir === 0 || dir === 3)) return false; // 上下
-                if (!this.horizontal && (dir === 1 || dir === 2)) return false; // 左右
-                
-                const cells = this.getCells();
-                let checkX, checkY;
-                
-                if (dir === 0) { // 上
-                    checkX = this.x;
-                    checkY = this.y - 1;
-                } else if (dir === 1) { // 右
-                    checkX = this.x + this.length;
-                    checkY = this.y;
-                } else if (dir === 2) { // 下
-                    checkX = this.x;
-                    checkY = this.y + this.length;
-                } else if (dir === 3) { // 左
-                    checkX = this.x - 1;
-                    checkY = this.y;
-                }
-                
-                if (checkX < 0 || checkX >= GRID_SIZE || checkY < 0 || checkY >= GRID_SIZE) {
-                    // 玩家车可以从右边出口出去
-                    if (this.isPlayer && dir === 1 && this.x + this.length === GRID_SIZE && this.y === 2) {
-                        return true;
-                    }
-                    return false;
-                }
-                
-                return grid[checkY][checkX] === null;
-            }
-            
-            move(dir) {
-                if (dir === 0) this.targetY = this.y - 1;
-                else if (dir === 1) this.targetX = this.x + 1;
-                else if (dir === 2) this.targetY = this.y + 1;
-                else if (dir === 3) this.targetX = this.x - 1;
-                this.moving = true;
-            }
-            
-            update() {
-                if (!this.moving) return;
-                
-                const speed = 0.15;
-                const dx = this.targetX - this.x;
-                const dy = this.targetY - this.y;
-                
-                if (Math.abs(dx) < speed && Math.abs(dy) < speed) {
-                    this.x = this.targetX;
-                    this.y = this.targetY;
-                    this.moving = false;
-                } else {
-                    this.x += dx * speed;
-                    this.y += dy * speed;
-                }
-            }
-            
-            draw(ctx) {
-                const colors = this.color;
-                const px = this.x * CELL_SIZE;
-                const py = this.y * CELL_SIZE;
-                const w = this.horizontal ? this.length * CELL_SIZE : CELL_SIZE;
-                const h = this.horizontal ? CELL_SIZE : this.length * CELL_SIZE;
-                const radius = 12;
-                
-                ctx.save();
-                
-                // 阴影
-                ctx.shadowColor = 'rgba(0,0,0,0.4)';
-                ctx.shadowBlur = 8;
-                ctx.shadowOffsetY = 4;
-                
-                // 车身主体 - 圆角矩形
-                const drawRoundRect = (x, y, w, h, r) => {
-                    ctx.beginPath();
-                    ctx.moveTo(x + r, y);
-                    ctx.lineTo(x + w - r, y);
-                    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-                    ctx.lineTo(x + w, y + h - r);
-                    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-                    ctx.lineTo(x + r, y + h);
-                    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-                    ctx.lineTo(x, y + r);
-                    ctx.quadraticCurveTo(x, y, x + r, y);
-                    ctx.closePath();
-                };
-                
-                // 主体渐变
-                const grad = ctx.createLinearGradient(px, py, px, py + h);
-                grad.addColorStop(0, colors.light);
-                grad.addColorStop(0.5, colors.main);
-                grad.addColorStop(1, colors.dark);
-                ctx.fillStyle = grad;
-                drawRoundRect(px + 3, py + 3, w - 6, h - 6, radius);
-                ctx.fill();
-                
-                // 高光
-                const highlightGrad = ctx.createLinearGradient(px, py, px, py + h * 0.4);
-                highlightGrad.addColorStop(0, 'rgba(255,255,255,0.3)');
-                highlightGrad.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = highlightGrad;
-                drawRoundRect(px + 4, py + 4, w - 8, h * 0.4, radius);
-                ctx.fill();
-                
-                // 车窗
-                ctx.fillStyle = 'rgba(30, 50, 80, 0.8)';
-                const windowMargin = 8;
-                const windowH = h * 0.35;
-                if (this.horizontal) {
-                    const windowW = (w - windowMargin * 2) / this.length * 0.7;
-                    for (let i = 0; i < this.length; i++) {
-                        const wx = px + windowMargin + i * (w / this.length) + (w / this.length - windowW) / 2;
-                        const wy = py + windowMargin;
-                        ctx.beginPath();
-                        ctx.roundRect(wx, wy, windowW, windowH, 4);
-                        ctx.fill();
-                    }
-                } else {
-                    const windowW = w - windowMargin * 2;
-                    for (let i = 0; i < this.length; i++) {
-                        const wx = px + windowMargin;
-                        const wy = py + windowMargin + i * (h / this.length) + (h / this.length - windowH) / 2;
-                        ctx.beginPath();
-                        ctx.roundRect(wx, wy, windowW, windowH, 4);
-                        ctx.fill();
-                    }
-                }
-                
-                // 车轮
-                ctx.fillStyle = '#1a1a1a';
-                const wheelR = 8;
-                const wheelOffset = 10;
-                if (this.horizontal) {
-                    // 前后轮
-                    const wheelY1 = py + 6;
-                    const wheelY2 = py + h - 14;
-                    const wheelX1 = px + wheelOffset;
-                    const wheelX2 = px + w - wheelOffset - wheelR * 2;
-                    ctx.beginPath(); ctx.roundRect(wheelX1, wheelY1, wheelR * 2, wheelR, 3); ctx.fill();
-                    ctx.beginPath(); ctx.roundRect(wheelX2, wheelY1, wheelR * 2, wheelR, 3); ctx.fill();
-                    ctx.beginPath(); ctx.roundRect(wheelX1, wheelY2, wheelR * 2, wheelR, 3); ctx.fill();
-                    ctx.beginPath(); ctx.roundRect(wheelX2, wheelY2, wheelR * 2, wheelR, 3); ctx.fill();
-                } else {
-                    const wheelX1 = px + 6;
-                    const wheelX2 = px + w - 14;
-                    const wheelY1 = py + wheelOffset;
-                    const wheelY2 = py + h - wheelOffset - wheelR * 2;
-                    ctx.beginPath(); ctx.roundRect(wheelX1, wheelY1, wheelR, wheelR * 2, 3); ctx.fill();
-                    ctx.beginPath(); ctx.roundRect(wheelX2, wheelY1, wheelR, wheelR * 2, 3); ctx.fill();
-                    ctx.beginPath(); ctx.roundRect(wheelX1, wheelY2, wheelR, wheelR * 2, 3); ctx.fill();
-                    ctx.beginPath(); ctx.roundRect(wheelX2, wheelY2, wheelR, wheelR * 2, 3); ctx.fill();
-                }
-                
-                // 玩家车标记
-                if (this.isPlayer) {
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 24px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('★', px + w/2, py + h/2);
-                    
-                    // 选中高亮
-                    if (selectedCarIndex === cars.indexOf(this)) {
-                        ctx.strokeStyle = '#fff';
-                        ctx.lineWidth = 3;
-                        ctx.setLineDash([8, 4]);
-                        ctx.strokeRect(px, py, w, h);
-                    }
-                } else if (selectedCarIndex === cars.indexOf(this)) {
-                    // 选中非玩家车
-                    ctx.strokeStyle = colors.accent;
-                    ctx.lineWidth = 3;
-                    ctx.setLineDash([8, 4]);
-                    ctx.strokeRect(px, py, w, h);
-                }
-                
-                // 方向指示箭头
-                if (selectedCarIndex === cars.indexOf(this) && !this.moving) {
-                    ctx.fillStyle = colors.accent;
-                    ctx.globalAlpha = 0.8;
-                    const cx = px + w/2;
-                    const cy = py + h/2;
-                    const arrowSize = 12;
-                    
-                    if (this.horizontal) {
-                        // 左右箭头
-                        drawArrow(ctx, cx - w/2 + 10, cy, -1);
-                        drawArrow(ctx, cx + w/2 - 10, cy, 1);
-                    } else {
-                        drawArrow(ctx, cx, cy - h/2 + 10, -1, true);
-                        drawArrow(ctx, cx, cy + h/2 - 10, 1, true);
-                    }
-                    ctx.globalAlpha = 1;
-                }
-                
-                ctx.restore();
-            }
+        const games = [
+            {"name": "1on1soccer.html", "size": 7204081, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/1on1soccer.html"},
+            {"name": "1on1tennis.html", "size": 7670973, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/1on1tennis.html"},
+            {"name": "2048.html", "size": 46342, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/2048.html"},
+            {"name": "2048cupcakes.html", "size": 2605649, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/2048cupcakes.html"},
+            {"name": "8ballclassic.html", "size": 8815098, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/8ballclassic.html"},
+            {"name": "agariolite.html", "size": 107555, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/agariolite.html"},
+            {"name": "Alpha_1.2.6.html", "size": 8621988, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Alpha_1.2.6.html"},
+            {"name": "amongus.html", "size": 7870674, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/amongus.html"},
+            {"name": "awesometanks.html", "size": 9825398, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/awesometanks.html"},
+            {"name": "baconmaydie.html", "size": 6131725, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/baconmaydie.html"},
+            {"name": "badicecream.html", "size": 9217334, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream.html"},
+            {"name": "badicecream2.html", "size": 4313677, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream2.html"},
+            {"name": "badicecream3.html", "size": 5069609, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream3.html"},
+            {"name": "badpiggies.html", "size": 10002011, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badpiggies.html"},
+            {"name": "basketballlegends.html", "size": 8134654, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/basketballlegends.html"},
+            {"name": "basketrandom.html", "size": 5055174, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/basketrandom.html"},
+            {"name": "Beta_1.3.html", "size": 4513066, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Beta_1.3.html"},
+            {"name": "bloonsTD.html", "size": 7512645, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD.html"},
+            {"name": "bloonsTD2.html", "size": 7852517, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD2.html"},
+            {"name": "bloonsTD3.html", "size": 8665053, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD3.html"},
+            {"name": "bloxorz.html", "size": 9824296, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloxorz.html"},
+            {"name": "blumgiracers.html", "size": 5060517, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/blumgiracers.html"},
+            {"name": "blumgirocket.html", "size": 3637881, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/blumgirocket.html"},
+            {"name": "bubbleshooter.html", "size": 7076246, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bubbleshooter.html"},
+            {"name": "candycrush.html", "size": 4528176, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/candycrush.html"},
+            {"name": "chess.html", "size": 6914845, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/chess.html"},
+            {"name": "choppyorc.html", "size": 3718607, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/choppyorc.html"},
+            {"name": "circloO.html", "size": 3299500, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/circloO.html"},
+            {"name": "circloO2.html", "size": 5841295, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/circloO2.html"},
+            {"name": "clashofvikings.html", "size": 3788303, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/clashofvikings.html"},
+            {"name": "dadish.html", "size": 8869262, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish.html"},
+            {"name": "dadish2.html", "size": 8945907, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish2.html"},
+            {"name": "dadish3.html", "size": 6197234, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish3.html"},
+            {"name": "deathrun3D.html", "size": 8436780, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/deathrun3D.html"},
+            {"name": "doodlejump.html", "size": 422608, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/doodlejump.html"},
+            {"name": "drawclimber.html", "size": 1830296, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/drawclimber.html"},
+            {"name": "ducklife.html", "size": 8514800, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklife.html"},
+            {"name": "ducklife2.html", "size": 9340008, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklife2.html"},
+            {"name": "ducklingsio.html", "size": 10003334, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklingsio.html"},
+            {"name": "eggycar.html", "size": 6784286, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/eggycar.html"},
+            {"name": "evilglitch.html", "size": 33033, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/evilglitch.html"},
+            {"name": "fancypantsadventure.html", "size": 9096894, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fancypantsadventure.html"},
+            {"name": "fireboyandwatergirl.html", "size": 9279226, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl.html"},
+            {"name": "fireboyandwatergirl2.html", "size": 9720912, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl2.html"},
+            {"name": "fireboyandwatergirl3.html", "size": 9490651, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl3.html"},
+            {"name": "fireboyandwatergirl4.html", "size": 9214888, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl4.html"},
+            {"name": "flappybird.html", "size": 4341092, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/flappybird.html"},
+            {"name": "floodrunner2.html", "size": 9256313, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/floodrunner2.html"},
+            {"name": "footballlegends.html", "size": 3645415, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/footballlegends.html"},
+            {"name": "freerider3.html", "size": 8174213, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/freerider3.html"},
+            {"name": "fruitninja.html", "size": 8404819, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fruitninja.html"},
+            {"name": "getontop.html", "size": 1558693, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/getontop.html"},
+            {"name": "googlebaseball.html", "size": 2951367, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/googlebaseball.html"},
+            {"name": "googledino.html", "size": 115940, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/googledino.html"},
+            {"name": "hanger2.html", "size": 3515346, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/hanger2.html"},
+            {"name": "hillclimbracinglite.html", "size": 8742889, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/hillclimbracinglite.html"},
+            {"name": "idlebreakout.html", "size": 2052721, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/idlebreakout.html"},
+            {"name": "Indev.html", "size": 1140663, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Indev.html"},
+            {"name": "ironsnout.html", "size": 5950790, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ironsnout.html"},
+            {"name": "johnnytrigger.html", "size": 1427111, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/johnnytrigger.html"},
+            {"name": "jumpingshell.html", "size": 3253052, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/jumpingshell.html"},
+            {"name": "learntofly.html", "size": 7994335, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/learntofly.html"},
+            {"name": "leveldevil.html", "size": 6800668, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/leveldevil.html"},
+            {"name": "mergeroundracers.html", "size": 5026792, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/mergeroundracers.html"},
+            {"name": "minesweeper.html", "size": 1230108, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/minesweeper.html"},
+            {"name": "monstertracks.html", "size": 3505235, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/monstertracks.html"},
+            {"name": "motox3m2.html", "size": 9837708, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3m2.html"},
+            {"name": "motox3mpoolparty.html", "size": 5105520, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mpoolparty.html"},
+            {"name": "motox3mspookyland.html", "size": 5945904, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mspookyland.html"},
+            {"name": "motox3mwinter.html", "size": 7994311, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mwinter.html"},
+            {"name": "noobminer.html", "size": 2599751, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/noobminer.html"},
+            {"name": "oppositeday.html", "size": 165415, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/oppositeday.html"},
+            {"name": "ovo.html", "size": 7269406, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ovo.html"},
+            {"name": "ovo2.html", "size": 2410032, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ovo2.html"},
+            {"name": "pacman.html", "size": 3364269, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/pacman.html"},
+            {"name": "parkingfury.html", "size": 6886906, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury.html"},
+            {"name": "parkingfury2.html", "size": 8566580, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury2.html"},
+            {"name": "parkingfury3.html", "size": 8825152, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury3.html"},
+            {"name": "picosschool.html", "size": 9555915, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/picosschool.html"},
+            {"name": "pixelspeedrun.html", "size": 1101368, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/pixelspeedrun.html"},
+            {"name": "plonky.html", "size": 5380850, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/plonky.html"},
+            {"name": "polytrack.html", "size": 7174330, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/polytrack.html"},
+            {"name": "poorbunny.html", "size": 5969971, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/poorbunny.html"},
+            {"name": "retrobowl.html", "size": 7253470, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrobowl.html"},
+            {"name": "retrobowlcollege.html", "size": 8215975, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrobowlcollege.html"},
+            {"name": "retrohighway.html", "size": 4962847, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrohighway.html"},
+            {"name": "retropingpong.html", "size": 3520774, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retropingpong.html"},
+            {"name": "riddleschool.html", "size": 7641687, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/riddleschool.html"},
+            {"name": "riddleschool2.html", "size": 8799087, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/riddleschool2.html"},
+            {"name": "run.html", "size": 8895652, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/run.html"},
+            {"name": "run2.html", "size": 8097620, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/run2.html"},
+            {"name": "sandgame.html", "size": 60215, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/sandgame.html"},
+            {"name": "slope2player.html", "size": 10274649, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/slope2player.html"},
+            {"name": "sm64.html", "size": 8376747, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/sm64.html"},
+            {"name": "spacebarclicker.html", "size": 108678, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spacebarclicker.html"},
+            {"name": "spaceiskey.html", "size": 8247101, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spaceiskey.html"},
+            {"name": "spaceiskey2.html", "size": 10156649, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spaceiskey2.html"},
+            {"name": "stack.html", "size": 628576, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stack.html"},
+            {"name": "stacktris.html", "size": 3746707, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stacktris.html"},
+            {"name": "stateio.html", "size": 4692450, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stateio.html"},
+            {"name": "stickarchersbattle.html", "size": 4459162, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickarchersbattle.html"},
+            {"name": "stickfighter.html", "size": 6044320, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickfighter.html"},
+            {"name": "stickmanhook.html", "size": 4602862, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickmanhook.html"},
+            {"name": "stickmerge.html", "size": 8285402, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickmerge.html"},
+            {"name": "tabletennisworldtour.html", "size": 3918995, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tabletennisworldtour.html"},
+            {"name": "tag.html", "size": 4199014, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tag.html"},
+            {"name": "templeofboom.html", "size": 6338884, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/templeofboom.html"},
+            {"name": "territorialio.html", "size": 1407570, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/territorialio.html"},
+            {"name": "thereisnog.html", "size": 6763354, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thereisnog.html"},
+            {"name": "thisistheonlylevel.html", "size": 8650025, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thisistheonlylevel.html"},
+            {"name": "thisistheonlyleveltoo.html", "size": 9374061, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thisistheonlyleveltoo.html"},
+            {"name": "tinyfishing.html", "size": 2451912, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tinyfishing.html"},
+            {"name": "trapthecat.html", "size": 76414, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/trapthecat.html"},
+            {"name": "triviacrack.html", "size": 2648550, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/triviacrack.html"},
+            {"name": "unicyclehero.html", "size": 2573448, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/unicyclehero.html"},
+            {"name": "vexx3m.html", "size": 10255000, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/vexx3m.html"},
+            {"name": "volleyrandom.html", "size": 3853392, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/volleyrandom.html"},
+            {"name": "webecomewhatwebehold.html", "size": 8045029, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/webecomewhatwebehold.html"},
+            {"name": "wheeliebike.html", "size": 2135099, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/wheeliebike.html"},
+            {"name": "wordleunlimited.html", "size": 184510, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/wordleunlimited.html"},
+            {"name": "worldshardestgame.html", "size": 7796770, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame.html"},
+            {"name": "worldshardestgame2.html", "size": 9974414, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame2.html"},
+            {"name": "worldshardestgame3.html", "size": 8672453, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame3.html"},
+            {"name": "zombierush.html", "size": 2826740, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/zombierush.html"}
+        ];
+
+        const grid = document.getElementById('game-grid');
+        const searchInput = document.getElementById('search-input');
+        const visibleCount = document.getElementById('visible-count');
+        const noResults = document.getElementById('no-results');
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
         }
-        
-        function drawArrow(ctx, x, y, dir, vertical = false) {
-            ctx.beginPath();
-            if (vertical) {
-                ctx.moveTo(x, y + dir * 8);
-                ctx.lineTo(x - 6, y - dir * 8);
-                ctx.lineTo(x + 6, y - dir * 8);
-            } else {
-                ctx.moveTo(x + dir * 8, y);
-                ctx.lineTo(x - dir * 8, y - 6);
-                ctx.lineTo(x - dir * 8, y + 6);
-            }
-            ctx.closePath();
-            ctx.fill();
+
+        function formatName(filename) {
+            return filename.replace('.html', '')
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/_/g, ' ')
+                .replace(/([0-9])([A-Za-z])/g, '$1 $2')
+                .replace(/([A-Za-z])([0-9])/g, '$1 $2')
+                .trim()
+                .split(' ')
+                .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                .join(' ');
         }
-        
-        // 粒子效果
-        function createParticles(x, y, color) {
-            for (let i = 0; i < 8; i++) {
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8 - 2,
-                    life: 1,
-                    decay: 0.02 + Math.random() * 0.02,
-                    size: 3 + Math.random() * 4,
-                    color: color
-                });
+
+        function renderGames(filteredGames) {
+            grid.innerHTML = '';
+            if (filteredGames.length === 0) {
+                grid.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                visibleCount.textContent = '0';
+                return;
             }
-        }
-        
-        function updateParticles() {
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.1;
-                p.life -= p.decay;
-                if (p.life <= 0) particles.splice(i, 1);
-            }
-        }
-        
-        function drawParticles(ctx) {
-            particles.forEach(p => {
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-                ctx.fill();
+            grid.classList.remove('hidden');
+            noResults.classList.add('hidden');
+            visibleCount.textContent = filteredGames.length;
+            filteredGames.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `
+                    <div class="game-name">${formatName(game.name)}</div>
+                    <div class="game-size">${formatSize(game.size)}</div>
+                    <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="game-link">
+                        在 GitHub 上打开
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                        </svg>
+                    </a>
+                `;
+                grid.appendChild(card);
             });
-            ctx.globalAlpha = 1;
         }
-        
-        // 生成随机关卡
-        function generateLevel() {
-            const maxAttempts = 100;
-            let bestLevel = null;
-            let bestScore = -1;
-            
-            for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                const level = tryGenerateLevel();
-                if (level) {
-                    const score = evaluateLevel(level);
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestLevel = level;
-                        if (score > 50) break; // 够好了
-                    }
-                }
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (!query) {
+                renderGames(games);
+                return;
             }
-            
-            return bestLevel || getFallbackLevel();
-        }
-        
-        function tryGenerateLevel() {
-            const grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
-            const newCars = [];
-            let carId = 0;
-            
-            // 玩家车固定在第3行(索引2)，从左边开始
-            const playerCar = new Car(carId++, 0, 2, 2, true, 'player', true);
-            newCars.push(playerCar);
-            grid[2][0] = playerCar;
-            grid[2][1] = playerCar;
-            
-            // 确保出口附近没有车阻挡 (至少要能通行)
-            const exitRow = 2;
-            
-            // 随机放置其他车辆
-            const carTypes = [
-                { length: 2, horizontal: true, colors: ['hBlue', 'hGreen'] },
-                { length: 2, horizontal: false, colors: ['vBlue', 'vGreen'] },
-                { length: 3, horizontal: true, colors: ['hOrange'] },
-                { length: 3, horizontal: false, colors: ['vOrange'] },
-            ];
-            
-            const numCars = 5 + Math.floor(Math.random() * 5); // 5-9辆其他车
-            
-            for (let i = 0; i < numCars; i++) {
-                const type = carTypes[Math.floor(Math.random() * carTypes.length)];
-                const colorKey = type.colors[Math.floor(Math.random() * type.colors.length)];
-                const placed = tryPlaceCar(grid, newCars, carId++, type.length, type.horizontal, colorKey);
-                if (!placed && i > numCars - 3) {
-                    // 最后几辆如果放不下就算了
-                }
-            }
-            
-            // 验证关卡可解性 (简单检查: 玩家车前方不是完全堵死无法移动的车)
-            if (!isLevelSolvable(grid, newCars)) {
-                return null;
-            }
-            
-            return newCars;
-        }
-        
-        function tryPlaceCar(grid, cars, id, length, horizontal, colorKey) {
-            const emptySpots = [];
-            
-            for (let y = 0; y < GRID_SIZE; y++) {
-                for (let x = 0; x < GRID_SIZE; x++) {
-                    if (horizontal && x + length <= GRID_SIZE) {
-                        let canPlace = true;
-                        for (let i = 0; i < length; i++) {
-                            if (grid[y][x + i] !== null) { canPlace = false; break; }
-                        }
-                        // 别堵死玩家车出口
-                        if (y === 2 && x + length > 2 && x < 6) {
-                            // 允许在出口行放车，但别完全堵死
-                        }
-                        if (canPlace) emptySpots.push({ x, y });
-                    } else if (!horizontal && y + length <= GRID_SIZE) {
-                        let canPlace = true;
-                        for (let i = 0; i < length; i++) {
-                            if (grid[y + i][x] !== null) { canPlace = false; break; }
-                        }
-                        if (canPlace) emptySpots.push({ x, y });
-                    }
-                }
-            }
-            
-            if (emptySpots.length === 0) return false;
-            
-            const spot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
-            const car = new Car(id, spot.x, spot.y, length, horizontal, colorKey);
-            cars.push(car);
-            
-            if (horizontal) {
-                for (let i = 0; i < length; i++) grid[spot.y][spot.x + i] = car;
-            } else {
-                for (let i = 0; i < length; i++) grid[spot.y + i][spot.x] = car;
-            }
-            
-            return true;
-        }
-        
-        function isLevelSolvable(grid, cars) {
-            // 简单检查：玩家车能否至少动一下，或者前方车辆能动
-            const playerCar = cars[0];
-            const cellsAhead = [];
-            for (let x = playerCar.x + playerCar.length; x < GRID_SIZE; x++) {
-                if (grid[2][x]) cellsAhead.push(grid[2][x]);
-            }
-            
-            // 如果前方全是横向车且都动不了，可能无解
-            let movableBlockers = 0;
-            for (const car of cellsAhead) {
-                if (car.horizontal) {
-                    // 检查能否上下移动
-                    let canMove = false;
-                    const carCells = car.getCells();
-                    // 尝试上
-                    let blocked = false;
-                    for (const c of carCells) {
-                        if (c.y === 0 || grid[c.y - 1][c.x]) { blocked = true; break; }
-                    }
-                    if (!blocked) canMove = true;
-                    // 尝试下
-                    blocked = false;
-                    for (const c of carCells) {
-                        if (c.y === GRID_SIZE - 1 || grid[c.y + 1][c.x]) { blocked = true; break; }
-                    }
-                    if (!blocked) canMove = true;
-                    if (canMove) movableBlockers++;
-                }
-            }
-            
-            // 至少有一个阻挡车能动，或者玩家车前面没车
-            return cellsAhead.length === 0 || movableBlockers > 0 || Math.random() < 0.3;
-        }
-        
-        function evaluateLevel(cars) {
-            // 评估关卡质量：阻挡车越多、车辆种类越丰富分越高
-            const playerCar = cars[0];
-            let blockers = 0;
-            let variety = new Set();
-            
-            for (let x = playerCar.x + playerCar.length; x < GRID_SIZE; x++) {
-                // 这里需要grid，简化处理
-            }
-            
-            cars.forEach(c => {
-                if (!c.isPlayer) {
-                    variety.add(c.colorKey);
-                    if (c.horizontal && c.y === 2 && c.x > 2) blockers++;
-                }
-            });
-            
-            return blockers * 10 + variety.size * 5 + cars.length * 2;
-        }
-        
-        function getFallbackLevel() {
-            // 保底关卡
-            const cars = [
-                new Car(0, 0, 2, 2, true, 'player', true),
-                new Car(1, 2, 0, 2, false, 'vBlue'),
-                new Car(2, 4, 1, 2, true, 'hGreen'),
-                new Car(3, 3, 3, 3, false, 'vOrange'),
-                new Car(4, 0, 4, 2, true, 'hBlue'),
-                new Car(5, 5, 2, 2, false, 'vGreen'),
-            ];
-            return cars;
-        }
-        
-        // 初始化游戏
-        function initGame() {
-            cars = generateLevel();
-            selectedCarIndex = 0;
-            moveCount = 0;
-            startTime = Date.now();
-            gameWon = false;
-            moveHistory = [];
-            particles = [];
-            saveState();
-            updateUI();
-            startTimer();
-            winModal.classList.remove('show');
-        }
-        
-        function startTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-        
-        function updateTimer() {
-            if (gameWon) return;
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
-            const secs = (elapsed % 60).toString().padStart(2, '0');
-            timeCountEl.textContent = `${mins}:${secs}`;
-        }
-        
-        function updateUI() {
-            moveCountEl.textContent = moveCount;
-            
-            // 计算阻挡车辆数
-            const playerCar = cars[0];
-            let blockers = 0;
-            const grid = buildGrid();
-            for (let x = Math.ceil(playerCar.x) + playerCar.length; x < GRID_SIZE; x++) {
-                if (grid[2][x]) blockers++;
-            }
-            blockingCarsEl.textContent = blockers;
-        }
-        
-        function buildGrid() {
-            const grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
-            cars.forEach(car => {
-                const cells = car.getCells();
-                cells.forEach(cell => {
-                    const gx = Math.floor(cell.x);
-                    const gy = Math.floor(cell.y);
-                    if (gx >= 0 && gx < GRID_SIZE && gy >= 0 && gy < GRID_SIZE) {
-                        grid[gy][gx] = car;
-                    }
-                });
-            });
-            return grid;
-        }
-        
-        function saveState() {
-            const state = {
-                cars: cars.map(c => ({
-                    id: c.id,
-                    x: c.x,
-                    y: c.y,
-                    length: c.length,
-                    horizontal: c.horizontal,
-                    colorKey: c.colorKey,
-                    isPlayer: c.isPlayer
-                })),
-                moveCount,
-                selectedCarIndex
-            };
-            moveHistory.push(JSON.parse(JSON.stringify(state)));
-            if (moveHistory.length > 50) moveHistory.shift();
-        }
-        
-        function undoMove() {
-            if (moveHistory.length <= 1) return;
-            moveHistory.pop(); // 移除当前状态
-            const prev = moveHistory[moveHistory.length - 1];
-            restoreState(prev);
-            moveCount = Math.max(0, moveCount - 1);
-            updateUI();
-        }
-        
-        function restoreState(state) {
-            cars = state.cars.map(c => {
-                const car = new Car(c.id, c.x, c.y, c.length, c.horizontal, c.colorKey, c.isPlayer);
-                car.targetX = c.x;
-                car.targetY = c.y;
-                return car;
-            });
-            selectedCarIndex = state.selectedCarIndex;
-        }
-        
-        // 移动逻辑
-        function moveSelectedCar(dir) {
-            if (gameWon) return false;
-            
-            const car = cars[selectedCarIndex];
-            const grid = buildGrid();
-            
-            if (car.canMove(dir, grid)) {
-                // 检查玩家车是否胜利
-                if (car.isPlayer && dir === 1 && car.x + car.length >= GRID_SIZE - 1) {
-                    car.move(dir);
-                    moveCount++;
-                    saveState();
-                    updateUI();
-                    checkWin();
-                    return true;
-                }
-                
-                car.move(dir);
-                moveCount++;
-                saveState();
-                updateUI();
-                
-                // 粒子效果
-                const px = car.x * CELL_SIZE + (car.horizontal ? car.length * CELL_SIZE / 2 : CELL_SIZE / 2);
-                const py = car.y * CELL_SIZE + (car.horizontal ? CELL_SIZE / 2 : car.length * CELL_SIZE / 2);
-                createParticles(px, py, car.color.accent);
-                
-                checkWin();
-                return true;
-            } else {
-                // 震动反馈
-                canvas.classList.add('shake');
-                setTimeout(() => canvas.classList.remove('shake'), 400);
-                return false;
-            }
-        }
-        
-        function checkWin() {
-            const playerCar = cars[0];
-            if (playerCar.x >= GRID_SIZE) {
-                gameWon = true;
-                clearInterval(timerInterval);
-                
-                const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
-                const secs = (elapsed % 60).toString().padStart(2, '0');
-                
-                finalMovesEl.textContent = moveCount;
-                finalTimeEl.textContent = `${mins}:${secs}`;
-                
-                // 胜利粒子
-                for (let i = 0; i < 30; i++) {
-                    setTimeout(() => {
-                        createParticles(
-                            CANVAS_SIZE / 2 + (Math.random() - 0.5) * 200,
-                            CANVAS_SIZE / 2 + (Math.random() - 0.5) * 200,
-                            `hsl(${Math.random() * 60 + 30}, 100%, 60%)`
-                        );
-                    }, i * 30);
-                }
-                
-                setTimeout(() => {
-                    winModal.classList.add('show');
-                }, 500);
-            }
-        }
-        
-        // 选择车辆
-        function selectCarAt(x, y) {
-            const grid = buildGrid();
-            const gx = Math.floor(x / CELL_SIZE);
-            const gy = Math.floor(y / CELL_SIZE);
-            
-            if (gx >= 0 && gx < GRID_SIZE && gy >= 0 && gy < GRID_SIZE) {
-                const car = grid[gy][gx];
-                if (car) {
-                    const index = cars.findIndex(c => c.id === car.id);
-                    if (index !== -1) {
-                        selectedCarIndex = index;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        
-        // 渲染循环
-        function render() {
-            // 清空画布
-            ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-            
-            // 网格线
-            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= GRID_SIZE; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * CELL_SIZE, 0);
-                ctx.lineTo(i * CELL_SIZE, CANVAS_SIZE);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, i * CELL_SIZE);
-                ctx.lineTo(CANVAS_SIZE, i * CELL_SIZE);
-                ctx.stroke();
-            }
-            
-            // 出口标记
-            drawExit();
-            
-            // 绘制所有车辆
-            cars.forEach(car => {
-                car.update();
-                car.draw(ctx);
-            });
-            
-            // 粒子
-            updateParticles();
-            drawParticles(ctx);
-            
-            requestAnimationFrame(render);
-        }
-        
-        function drawExit() {
-            const exitX = GRID_SIZE * CELL_SIZE;
-            const exitY = 2 * CELL_SIZE;
-            const exitW = 30;
-            const exitH = CELL_SIZE;
-            
-            // 出口区域
-            const grad = ctx.createLinearGradient(exitX, exitY, exitX + exitW, exitY);
-            grad.addColorStop(0, 'rgba(72, 219, 251, 0.2)');
-            grad.addColorStop(1, 'rgba(72, 219, 251, 0)');
-            ctx.fillStyle = grad;
-            ctx.fillRect(exitX, exitY, exitW, exitH);
-            
-            // 箭头
-            ctx.fillStyle = '#48dbfb';
-            ctx.globalAlpha = 0.7 + Math.sin(Date.now() / 200) * 0.3;
-            for (let i = 0; i < 3; i++) {
-                const ay = exitY + CELL_SIZE / 2 + (i - 1) * 40;
-                ctx.beginPath();
-                ctx.moveTo(exitX + 20, ay);
-                ctx.lineTo(exitX + 5, ay - 10);
-                ctx.lineTo(exitX + 5, ay + 10);
-                ctx.closePath();
-                ctx.fill();
-            }
-            ctx.globalAlpha = 1;
-            
-            // EXIT 文字
-            ctx.fillStyle = '#48dbfb';
-            ctx.font = 'bold 14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('出口', exitX + exitW / 2, exitY + exitH / 2 + 5);
-        }
-        
-        // 事件处理
-        canvas.addEventListener('click', (e) => {
-            if (gameWon) return;
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX - rect.left) * (CANVAS_SIZE / rect.width);
-            const y = (e.clientY - rect.top) * (CANVAS_SIZE / rect.height);
-            selectCarAt(x, y);
+            const filtered = games.filter(game => 
+                game.name.toLowerCase().includes(query) || 
+                formatName(game.name).toLowerCase().includes(query)
+            );
+            renderGames(filtered);
         });
-        
-        canvas.addEventListener('touchstart', (e) => {
-            if (gameWon) return;
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            const x = (touch.clientX - rect.left) * (CANVAS_SIZE / rect.width);
-            const y = (touch.clientY - rect.top) * (CANVAS_SIZE / rect.height);
-            selectCarAt(x, y);
-        }, { passive: false });
-        
-        // 键盘控制
-        document.addEventListener('keydown', (e) => {
-            if (gameWon) return;
-            
-            const keyMap = {
-                'ArrowUp': 0, 'KeyW': 0, 'Keyw': 0,
-                'ArrowRight': 1, 'KeyD': 1, 'Keyd': 1,
-                'ArrowDown': 2, 'KeyS': 2, 'Keys': 2,
-                'ArrowLeft': 3, 'KeyA': 3, 'Keya': 3,
-            };
-            
-            if (keyMap[e.code] !== undefined) {
-                e.preventDefault();
-                moveSelectedCar(keyMap[e.code]);
-            }
-            
-            // 数字键选择车辆
-            if (e.key >= '1' && e.key <= '9') {
-                const idx = parseInt(e.key) - 1;
-                if (idx < cars.length) {
-                    selectedCarIndex = idx;
-                }
-            }
-            
-            // Z 或 Backspace 撤销
-            if (e.code === 'KeyZ' || e.code === 'Backspace') {
-                e.preventDefault();
-                undoMove();
-            }
-            
-            // R 重新开始
-            if (e.code === 'KeyR') {
-                startNewGame();
-            }
-            
-            // H 帮助
-            if (e.code === 'KeyH') {
-                document.getElementById('helpModal').classList.add('show');
-            }
-        });
-        
-        // 按钮事件
-        document.getElementById('upBtn').addEventListener('click', () => moveSelectedCar(0));
-        document.getElementById('rightBtn').addEventListener('click', () => moveSelectedCar(1));
-        document.getElementById('downBtn').addEventListener('click', () => moveSelectedCar(2));
-        document.getElementById('leftBtn').addEventListener('click', () => moveSelectedCar(3));
-        document.getElementById('newGameBtn').addEventListener('click', startNewGame);
-        document.getElementById('undoBtn').addEventListener('click', undoMove);
-        
-        // 触摸长按移动
-        function touchMove(dx, dy) {
-            let dir;
-            if (dx === -1) dir = 3;
-            else if (dx === 1) dir = 1;
-            else if (dy === -1) dir = 0;
-            else if (dy === 1) dir = 2;
-            
-            touchDirection = dir;
-            moveSelectedCar(dir);
-            
-            touchInterval = setInterval(() => {
-                if (touchDirection !== null) {
-                    moveSelectedCar(touchDirection);
-                }
-            }, 200);
-        }
-        
-        function stopTouch() {
-            touchDirection = null;
-            if (touchInterval) {
-                clearInterval(touchInterval);
-                touchInterval = null;
-            }
-        }
-        
-        // 鼠标按住也支持长按
-        ['upBtn', 'rightBtn', 'downBtn', 'leftBtn'].forEach(id => {
-            const btn = document.getElementById(id);
-            btn.addEventListener('mousedown', () => {
-                const dirMap = { upBtn: 0, rightBtn: 1, downBtn: 2, leftBtn: 3 };
-                touchDirection = dirMap[id];
-                touchInterval = setInterval(() => moveSelectedCar(touchDirection), 200);
-            });
-            btn.addEventListener('mouseup', stopTouch);
-            btn.addEventListener('mouseleave', stopTouch);
-        });
-        
-        function startNewGame() {
-            initGame();
-        }
-        
-        // 启动
-        initGame();
-        render();
-        
-        // 显示帮助
-        setTimeout(() => {
-            if (!gameWon) {
-                document.getElementById('helpModal').classList.add('show');
-            }
-        }, 500);
+
+        // 初始渲染
+        renderGames(games);
     </script>
 </body>
 </html>
