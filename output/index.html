@@ -3,409 +3,598 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>离线 HTML 游戏合集 - 小于 10MB</title>
+    <title>游戏导航主页</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
+        :root {
+            --primary-color: #4a90d9;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #64b5f6;
+                --bg-color: #1a1a2e;
+                --card-bg: #16213e;
+                --text-color: #eaeaea;
+                --border-color: #2a2a4a;
+                --shadow: 0 2px 8px rgba(0,0,0,0.3);
+                --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
+            }
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
             padding: 20px;
-            color: #eaeaea;
+            transition: background-color 0.3s, color 0.3s;
         }
+
         .container {
-            max-width: 1000px;
+            max-width: 1400px;
             margin: 0 auto;
         }
+
         header {
             text-align: center;
-            margin-bottom: 40px;
-            padding: 30px 0;
+            margin-bottom: 30px;
         }
+
         h1 {
             font-size: 2.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 50%, #48dbfb 100%);
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 10px;
         }
+
         .subtitle {
-            color: #a0a0b0;
+            color: var(--text-color);
+            opacity: 0.7;
             font-size: 1.1rem;
         }
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        .stat-item {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 15px 25px;
-            text-align: center;
-        }
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #48dbfb;
-        }
-        .stat-label {
-            font-size: 0.9rem;
-            color: #a0a0b0;
-            margin-top: 4px;
-        }
-        .search-box {
-            width: 100%;
-            max-width: 500px;
+
+        .search-container {
+            max-width: 600px;
             margin: 0 auto 30px;
             position: relative;
         }
-        .search-box input {
+
+        .search-input {
             width: 100%;
-            padding: 15px 20px 15px 50px;
+            padding: 15px 20px;
             font-size: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--border-color);
             border-radius: 50px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #eaeaea;
+            background-color: var(--card-bg);
+            color: var(--text-color);
             outline: none;
-            transition: all 0.3s ease;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
-        .search-box input:focus {
-            border-color: #48dbfb;
-            box-shadow: 0 0 20px rgba(72, 219, 251, 0.2);
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.2);
         }
-        .search-box input::placeholder {
-            color: #666;
+
+        .search-input::placeholder {
+            color: var(--text-color);
+            opacity: 0.5;
         }
-        .search-box svg {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 22px;
-            height: 22px;
-            stroke: #666;
-            pointer-events: none;
+
+        .game-count {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            opacity: 0.7;
+            font-size: 0.95rem;
         }
-        .game-grid {
+
+        .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
         }
+
         .game-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--card-bg);
             border-radius: 16px;
             padding: 20px;
-            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
+            align-items: center;
         }
+
         .game-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(72, 219, 251, 0.4);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(72, 219, 251, 0.1);
+            box-shadow: var(--shadow-hover);
         }
-        .game-name {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 8px;
-            word-break: break-word;
+
+        .game-card.hidden {
+            display: none;
         }
-        .game-size {
-            font-size: 0.85rem;
-            color: #feca57;
-            margin-bottom: 16px;
-        }
-        .game-link {
-            display: inline-flex;
+
+        .game-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
-            color: #0f0f23;
-            text-decoration: none;
-            border-radius: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+
+        .game-icon img {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            object-fit: cover;
+        }
+
+        .game-name {
+            font-size: 0.95rem;
             font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-            margin-top: auto;
+            line-height: 1.4;
+            word-break: break-word;
+            max-width: 100%;
         }
-        .game-link:hover {
-            background: linear-gradient(135deg, #feca57 0%, #ff6b6b 100%);
-            transform: scale(1.02);
-            box-shadow: 0 4px 15px rgba(254, 202, 87, 0.4);
+
+        .play-btn {
+            margin-top: 12px;
+            padding: 8px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-        .game-link svg {
-            width: 18px;
-            height: 18px;
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(74, 144, 217, 0.4);
         }
-        .hidden {
-            display: none !important;
+
+        .play-btn:active {
+            transform: scale(0.98);
         }
+
         .no-results {
             grid-column: 1 / -1;
             text-align: center;
             padding: 60px 20px;
-            color: #666;
+            color: var(--text-color);
+            opacity: 0.6;
+            font-size: 1.1rem;
         }
-        .no-results svg {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 16px;
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--text-color);
             opacity: 0.5;
+            font-size: 0.85rem;
         }
-        @media (max-width: 480px) {
-            h1 { font-size: 1.8rem; }
-            .game-grid { grid-template-columns: 1fr; }
-            .stat-item { padding: 12px 18px; }
-            .stat-number { font-size: 1.5rem; }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 15px;
+            }
+            
+            .game-card {
+                padding: 16px;
+            }
+            
+            .game-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .games-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>离线 HTML 游戏合集</h1>
-            <p class="subtitle">来自 CoolDude2349/Offline-HTML-Games-Pack 的小于 10MB 游戏列表</p>
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-number" id="total-count">124</div>
-                    <div class="stat-label">款游戏</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="visible-count">124</div>
-                    <div class="stat-label">显示中</div>
-                </div>
-            </div>
+            <h1>游戏导航</h1>
+            <p class="subtitle">224 款HTML5游戏合集</p>
         </header>
 
-        <div class="search-box">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-            </svg>
-            <input type="text" id="search-input" placeholder="搜索游戏名称..." autocomplete="off">
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="搜索游戏名称..." autocomplete="off">
         </div>
 
-        <div class="game-grid" id="game-grid">
-            <!-- 游戏卡片将通过 JavaScript 动态生成 -->
+        <div class="game-count" id="gameCount">显示 224 款游戏</div>
+
+        <div class="games-grid" id="gamesGrid">
+            <!-- 游戏卡片将由JavaScript动态生成 -->
         </div>
 
-        <div class="no-results hidden" id="no-results">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p>没有找到匹配的游戏</p>
+        <div class="no-results" id="noResults" style="display: none;">
+            没有找到匹配的游戏
         </div>
+
+        <footer>
+            <p>数据来源: games-web/ 目录 | 共 224 款游戏</p>
+        </footer>
     </div>
 
     <script>
+        // 游戏数据
         const games = [
-            {"name": "1on1soccer.html", "size": 7204081, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/1on1soccer.html"},
-            {"name": "1on1tennis.html", "size": 7670973, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/1on1tennis.html"},
-            {"name": "2048.html", "size": 46342, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/2048.html"},
-            {"name": "2048cupcakes.html", "size": 2605649, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/2048cupcakes.html"},
-            {"name": "8ballclassic.html", "size": 8815098, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/8ballclassic.html"},
-            {"name": "agariolite.html", "size": 107555, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/agariolite.html"},
-            {"name": "Alpha_1.2.6.html", "size": 8621988, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Alpha_1.2.6.html"},
-            {"name": "amongus.html", "size": 7870674, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/amongus.html"},
-            {"name": "awesometanks.html", "size": 9825398, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/awesometanks.html"},
-            {"name": "baconmaydie.html", "size": 6131725, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/baconmaydie.html"},
-            {"name": "badicecream.html", "size": 9217334, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream.html"},
-            {"name": "badicecream2.html", "size": 4313677, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream2.html"},
-            {"name": "badicecream3.html", "size": 5069609, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream3.html"},
-            {"name": "badpiggies.html", "size": 10002011, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badpiggies.html"},
-            {"name": "basketballlegends.html", "size": 8134654, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/basketballlegends.html"},
-            {"name": "basketrandom.html", "size": 5055174, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/basketrandom.html"},
-            {"name": "Beta_1.3.html", "size": 4513066, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Beta_1.3.html"},
-            {"name": "bloonsTD.html", "size": 7512645, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD.html"},
-            {"name": "bloonsTD2.html", "size": 7852517, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD2.html"},
-            {"name": "bloonsTD3.html", "size": 8665053, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD3.html"},
-            {"name": "bloxorz.html", "size": 9824296, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloxorz.html"},
-            {"name": "blumgiracers.html", "size": 5060517, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/blumgiracers.html"},
-            {"name": "blumgirocket.html", "size": 3637881, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/blumgirocket.html"},
-            {"name": "bubbleshooter.html", "size": 7076246, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bubbleshooter.html"},
-            {"name": "candycrush.html", "size": 4528176, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/candycrush.html"},
-            {"name": "chess.html", "size": 6914845, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/chess.html"},
-            {"name": "choppyorc.html", "size": 3718607, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/choppyorc.html"},
-            {"name": "circloO.html", "size": 3299500, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/circloO.html"},
-            {"name": "circloO2.html", "size": 5841295, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/circloO2.html"},
-            {"name": "clashofvikings.html", "size": 3788303, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/clashofvikings.html"},
-            {"name": "dadish.html", "size": 8869262, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish.html"},
-            {"name": "dadish2.html", "size": 8945907, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish2.html"},
-            {"name": "dadish3.html", "size": 6197234, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish3.html"},
-            {"name": "deathrun3D.html", "size": 8436780, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/deathrun3D.html"},
-            {"name": "doodlejump.html", "size": 422608, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/doodlejump.html"},
-            {"name": "drawclimber.html", "size": 1830296, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/drawclimber.html"},
-            {"name": "ducklife.html", "size": 8514800, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklife.html"},
-            {"name": "ducklife2.html", "size": 9340008, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklife2.html"},
-            {"name": "ducklingsio.html", "size": 10003334, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklingsio.html"},
-            {"name": "eggycar.html", "size": 6784286, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/eggycar.html"},
-            {"name": "evilglitch.html", "size": 33033, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/evilglitch.html"},
-            {"name": "fancypantsadventure.html", "size": 9096894, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fancypantsadventure.html"},
-            {"name": "fireboyandwatergirl.html", "size": 9279226, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl.html"},
-            {"name": "fireboyandwatergirl2.html", "size": 9720912, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl2.html"},
-            {"name": "fireboyandwatergirl3.html", "size": 9490651, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl3.html"},
-            {"name": "fireboyandwatergirl4.html", "size": 9214888, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl4.html"},
-            {"name": "flappybird.html", "size": 4341092, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/flappybird.html"},
-            {"name": "floodrunner2.html", "size": 9256313, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/floodrunner2.html"},
-            {"name": "footballlegends.html", "size": 3645415, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/footballlegends.html"},
-            {"name": "freerider3.html", "size": 8174213, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/freerider3.html"},
-            {"name": "fruitninja.html", "size": 8404819, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fruitninja.html"},
-            {"name": "getontop.html", "size": 1558693, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/getontop.html"},
-            {"name": "googlebaseball.html", "size": 2951367, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/googlebaseball.html"},
-            {"name": "googledino.html", "size": 115940, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/googledino.html"},
-            {"name": "hanger2.html", "size": 3515346, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/hanger2.html"},
-            {"name": "hillclimbracinglite.html", "size": 8742889, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/hillclimbracinglite.html"},
-            {"name": "idlebreakout.html", "size": 2052721, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/idlebreakout.html"},
-            {"name": "Indev.html", "size": 1140663, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Indev.html"},
-            {"name": "ironsnout.html", "size": 5950790, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ironsnout.html"},
-            {"name": "johnnytrigger.html", "size": 1427111, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/johnnytrigger.html"},
-            {"name": "jumpingshell.html", "size": 3253052, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/jumpingshell.html"},
-            {"name": "learntofly.html", "size": 7994335, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/learntofly.html"},
-            {"name": "leveldevil.html", "size": 6800668, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/leveldevil.html"},
-            {"name": "mergeroundracers.html", "size": 5026792, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/mergeroundracers.html"},
-            {"name": "minesweeper.html", "size": 1230108, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/minesweeper.html"},
-            {"name": "monstertracks.html", "size": 3505235, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/monstertracks.html"},
-            {"name": "motox3m2.html", "size": 9837708, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3m2.html"},
-            {"name": "motox3mpoolparty.html", "size": 5105520, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mpoolparty.html"},
-            {"name": "motox3mspookyland.html", "size": 5945904, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mspookyland.html"},
-            {"name": "motox3mwinter.html", "size": 7994311, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mwinter.html"},
-            {"name": "noobminer.html", "size": 2599751, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/noobminer.html"},
-            {"name": "oppositeday.html", "size": 165415, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/oppositeday.html"},
-            {"name": "ovo.html", "size": 7269406, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ovo.html"},
-            {"name": "ovo2.html", "size": 2410032, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ovo2.html"},
-            {"name": "pacman.html", "size": 3364269, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/pacman.html"},
-            {"name": "parkingfury.html", "size": 6886906, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury.html"},
-            {"name": "parkingfury2.html", "size": 8566580, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury2.html"},
-            {"name": "parkingfury3.html", "size": 8825152, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury3.html"},
-            {"name": "picosschool.html", "size": 9555915, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/picosschool.html"},
-            {"name": "pixelspeedrun.html", "size": 1101368, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/pixelspeedrun.html"},
-            {"name": "plonky.html", "size": 5380850, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/plonky.html"},
-            {"name": "polytrack.html", "size": 7174330, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/polytrack.html"},
-            {"name": "poorbunny.html", "size": 5969971, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/poorbunny.html"},
-            {"name": "retrobowl.html", "size": 7253470, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrobowl.html"},
-            {"name": "retrobowlcollege.html", "size": 8215975, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrobowlcollege.html"},
-            {"name": "retrohighway.html", "size": 4962847, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrohighway.html"},
-            {"name": "retropingpong.html", "size": 3520774, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retropingpong.html"},
-            {"name": "riddleschool.html", "size": 7641687, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/riddleschool.html"},
-            {"name": "riddleschool2.html", "size": 8799087, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/riddleschool2.html"},
-            {"name": "run.html", "size": 8895652, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/run.html"},
-            {"name": "run2.html", "size": 8097620, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/run2.html"},
-            {"name": "sandgame.html", "size": 60215, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/sandgame.html"},
-            {"name": "slope2player.html", "size": 10274649, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/slope2player.html"},
-            {"name": "sm64.html", "size": 8376747, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/sm64.html"},
-            {"name": "spacebarclicker.html", "size": 108678, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spacebarclicker.html"},
-            {"name": "spaceiskey.html", "size": 8247101, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spaceiskey.html"},
-            {"name": "spaceiskey2.html", "size": 10156649, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spaceiskey2.html"},
-            {"name": "stack.html", "size": 628576, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stack.html"},
-            {"name": "stacktris.html", "size": 3746707, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stacktris.html"},
-            {"name": "stateio.html", "size": 4692450, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stateio.html"},
-            {"name": "stickarchersbattle.html", "size": 4459162, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickarchersbattle.html"},
-            {"name": "stickfighter.html", "size": 6044320, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickfighter.html"},
-            {"name": "stickmanhook.html", "size": 4602862, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickmanhook.html"},
-            {"name": "stickmerge.html", "size": 8285402, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickmerge.html"},
-            {"name": "tabletennisworldtour.html", "size": 3918995, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tabletennisworldtour.html"},
-            {"name": "tag.html", "size": 4199014, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tag.html"},
-            {"name": "templeofboom.html", "size": 6338884, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/templeofboom.html"},
-            {"name": "territorialio.html", "size": 1407570, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/territorialio.html"},
-            {"name": "thereisnog.html", "size": 6763354, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thereisnog.html"},
-            {"name": "thisistheonlylevel.html", "size": 8650025, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thisistheonlylevel.html"},
-            {"name": "thisistheonlyleveltoo.html", "size": 9374061, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thisistheonlyleveltoo.html"},
-            {"name": "tinyfishing.html", "size": 2451912, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tinyfishing.html"},
-            {"name": "trapthecat.html", "size": 76414, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/trapthecat.html"},
-            {"name": "triviacrack.html", "size": 2648550, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/triviacrack.html"},
-            {"name": "unicyclehero.html", "size": 2573448, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/unicyclehero.html"},
-            {"name": "vexx3m.html", "size": 10255000, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/vexx3m.html"},
-            {"name": "volleyrandom.html", "size": 3853392, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/volleyrandom.html"},
-            {"name": "webecomewhatwebehold.html", "size": 8045029, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/webecomewhatwebehold.html"},
-            {"name": "wheeliebike.html", "size": 2135099, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/wheeliebike.html"},
-            {"name": "wordleunlimited.html", "size": 184510, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/wordleunlimited.html"},
-            {"name": "worldshardestgame.html", "size": 7796770, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame.html"},
-            {"name": "worldshardestgame2.html", "size": 9974414, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame2.html"},
-            {"name": "worldshardestgame3.html", "size": 8672453, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame3.html"},
-            {"name": "zombierush.html", "size": 2826740, "url": "https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/zombierush.html"}
+    {filename: "1.5.html", title: "My Drive - Google Drive", url: "games-web/1.5.html"},
+    {filename: "1.8.html", title: "School", url: "games-web/1.8.html"},
+    {filename: "12minibattles.html", title: "12minibattles", url: "games-web/12minibattles.html"},
+    {filename: "1on1soccer.html", title: "1on1soccer", url: "games-web/1on1soccer.html"},
+    {filename: "1on1tennis.html", title: "1on1tennis", url: "games-web/1on1tennis.html"},
+    {filename: "2048.html", title: "2048", url: "games-web/2048.html"},
+    {filename: "2048cupcakes.html", title: "2048cupcakes", url: "games-web/2048cupcakes.html"},
+    {filename: "8ballclassic.html", title: "8ballclassic", url: "games-web/8ballclassic.html"},
+    {filename: "Alpha_1.2.6.html", title: "Alpha 1.2.6", url: "games-web/Alpha_1.2.6.html"},
+    {filename: "Beta_1.3.html", title: "Eaglercraft Launcher | Beta 1.3 Offline", url: "games-web/Beta_1.3.html"},
+    {filename: "Indev.html", title: "Eaglercraft Launcher | Indev Offline", url: "games-web/Indev.html"},
+    {filename: "agariolite.html", title: "Solo Agario", url: "games-web/agariolite.html"},
+    {filename: "ageofwar.html", title: "Ageofwar", url: "games-web/ageofwar.html"},
+    {filename: "ageofwar2.html", title: "Ageofwar2", url: "games-web/ageofwar2.html"},
+    {filename: "agesofconflict.html", title: "Agesofconflict", url: "games-web/agesofconflict.html"},
+    {filename: "amongus.html", title: "Amongus", url: "games-web/amongus.html"},
+    {filename: "angrybirds.html", title: "Angrybirds", url: "games-web/angrybirds.html"},
+    {filename: "angrybirdsspace.html", title: "Angrybirdsspace", url: "games-web/angrybirdsspace.html"},
+    {filename: "awesometanks.html", title: "Awesometanks", url: "games-web/awesometanks.html"},
+    {filename: "awesometanks2.html", title: "Awesometanks2", url: "games-web/awesometanks2.html"},
+    {filename: "backrooms.html", title: "Backrooms", url: "games-web/backrooms.html"},
+    {filename: "baconmaydie.html", title: "Baconmaydie", url: "games-web/baconmaydie.html"},
+    {filename: "badicecream.html", title: "Badicecream", url: "games-web/badicecream.html"},
+    {filename: "badicecream2.html", title: "Badicecream2", url: "games-web/badicecream2.html"},
+    {filename: "badicecream3.html", title: "Badicecream3", url: "games-web/badicecream3.html"},
+    {filename: "badpiggies.html", title: "Badpiggies", url: "games-web/badpiggies.html"},
+    {filename: "baseballbros.html", title: "Baseballbros", url: "games-web/baseballbros.html"},
+    {filename: "basketballlegends.html", title: "Basketballlegends", url: "games-web/basketballlegends.html"},
+    {filename: "basketballstars.html", title: "Basketballstars", url: "games-web/basketballstars.html"},
+    {filename: "basketbros.html", title: "Basketbros", url: "games-web/basketbros.html"},
+    {filename: "basketrandom.html", title: "Class", url: "games-web/basketrandom.html"},
+    {filename: "blockysnakes.html", title: "Blockysnakes", url: "games-web/blockysnakes.html"},
+    {filename: "bloonsTD.html", title: "Bloonstd", url: "games-web/bloonsTD.html"},
+    {filename: "bloonsTD2.html", title: "Bloonstd2", url: "games-web/bloonsTD2.html"},
+    {filename: "bloonsTD3.html", title: "Bloonstd3", url: "games-web/bloonsTD3.html"},
+    {filename: "bloonsTD4.html", title: "Bloonstd4", url: "games-web/bloonsTD4.html"},
+    {filename: "bloonsTD5.html", title: "Bloonstd5", url: "games-web/bloonsTD5.html"},
+    {filename: "bloxorz.html", title: "Bloxorz", url: "games-web/bloxorz.html"},
+    {filename: "blumgiracers.html", title: "Blumgiracers", url: "games-web/blumgiracers.html"},
+    {filename: "blumgirocket.html", title: "Blumgirocket", url: "games-web/blumgirocket.html"},
+    {filename: "bobtherobber.html", title: "Bobtherobber", url: "games-web/bobtherobber.html"},
+    {filename: "bobtherobber2.html", title: "Bobtherobber2", url: "games-web/bobtherobber2.html"},
+    {filename: "bobtherobber5.html", title: "Bobtherobber5", url: "games-web/bobtherobber5.html"},
+    {filename: "breakingthebank.html", title: "Breakingthebank", url: "games-web/breakingthebank.html"},
+    {filename: "bubbleshooter.html", title: "Bubbleshooter", url: "games-web/bubbleshooter.html"},
+    {filename: "candycrush.html", title: "Candycrush", url: "games-web/candycrush.html"},
+    {filename: "capybaraclicker.html", title: "Capybaraclicker", url: "games-web/capybaraclicker.html"},
+    {filename: "cardrawing.html", title: "Cardrawing", url: "games-web/cardrawing.html"},
+    {filename: "carkingarena.html", title: "Carkingarena", url: "games-web/carkingarena.html"},
+    {filename: "chess.html", title: "Chess", url: "games-web/chess.html"},
+    {filename: "choppyorc.html", title: "Choppyorc", url: "games-web/choppyorc.html"},
+    {filename: "circloO.html", title: "Circloo", url: "games-web/circloO.html"},
+    {filename: "circloO2.html", title: "Circloo2", url: "games-web/circloO2.html"},
+    {filename: "clashofvikings.html", title: "Clashofvikings", url: "games-web/clashofvikings.html"},
+    {filename: "cleanupio.html", title: "Cleanupio", url: "games-web/cleanupio.html"},
+    {filename: "clusterrush.html", title: "Cluster Rush", url: "games-web/clusterrush.html"},
+    {filename: "crazycars.html", title: "Crazycars", url: "games-web/crazycars.html"},
+    {filename: "crazymotorcycle.html", title: "Crazymotorcycle", url: "games-web/crazymotorcycle.html"},
+    {filename: "dadish.html", title: "Dadish", url: "games-web/dadish.html"},
+    {filename: "dadish2.html", title: "Dadish2", url: "games-web/dadish2.html"},
+    {filename: "dadish3.html", title: "Dadish3", url: "games-web/dadish3.html"},
+    {filename: "deathrun3D.html", title: "Deathrun3d", url: "games-web/deathrun3D.html"},
+    {filename: "doodlejump.html", title: "Jump", url: "games-web/doodlejump.html"},
+    {filename: "drawclimber.html", title: "Drawclimber", url: "games-web/drawclimber.html"},
+    {filename: "ducklife.html", title: "Ducklife", url: "games-web/ducklife.html"},
+    {filename: "ducklife2.html", title: "Ducklife2", url: "games-web/ducklife2.html"},
+    {filename: "ducklife3.html", title: "Ducklife3", url: "games-web/ducklife3.html"},
+    {filename: "ducklife4.html", title: "Ducklife4", url: "games-web/ducklife4.html"},
+    {filename: "ducklife5.html", title: "Ducklife5", url: "games-web/ducklife5.html"},
+    {filename: "ducklingsio.html", title: "Ducklingsio", url: "games-web/ducklingsio.html"},
+    {filename: "eagleride.html", title: "Eagleride", url: "games-web/eagleride.html"},
+    {filename: "earntodie.html", title: "Earntodie", url: "games-web/earntodie.html"},
+    {filename: "earntodie2.html", title: "Earntodie2", url: "games-web/earntodie2.html"},
+    {filename: "eggycar.html", title: "Eggycar", url: "games-web/eggycar.html"},
+    {filename: "escapingtheprison.html", title: "Escapingtheprison", url: "games-web/escapingtheprison.html"},
+    {filename: "evilglitch.html", title: "Evil Glitch", url: "games-web/evilglitch.html"},
+    {filename: "fancypantsadventure.html", title: "Fancypantsadventure", url: "games-web/fancypantsadventure.html"},
+    {filename: "fancypantsadventure2.html", title: "Fancypantsadventure2", url: "games-web/fancypantsadventure2.html"},
+    {filename: "fireboyandwatergirl.html", title: "Fireboyandwatergirl", url: "games-web/fireboyandwatergirl.html"},
+    {filename: "fireboyandwatergirl2.html", title: "Fireboyandwatergirl2", url: "games-web/fireboyandwatergirl2.html"},
+    {filename: "fireboyandwatergirl3.html", title: "Fireboyandwatergirl3", url: "games-web/fireboyandwatergirl3.html"},
+    {filename: "fireboyandwatergirl4.html", title: "Fireboyandwatergirl4", url: "games-web/fireboyandwatergirl4.html"},
+    {filename: "flappybird.html", title: "Flappy Bird", url: "games-web/flappybird.html"},
+    {filename: "floodrunner2.html", title: "Floodrunner2", url: "games-web/floodrunner2.html"},
+    {filename: "floodrunner3.html", title: "Floodrunner3", url: "games-web/floodrunner3.html"},
+    {filename: "floodrunner4.html", title: "Floodrunner4", url: "games-web/floodrunner4.html"},
+    {filename: "fnaf.html", title: "Fnaf", url: "games-web/fnaf.html"},
+    {filename: "fnaf4.html", title: "FNAF-4", url: "games-web/fnaf4.html"},
+    {filename: "footballbros.html", title: "FOOTBALL BROS! | Official Site", url: "games-web/footballbros.html"},
+    {filename: "footballlegends.html", title: "Footballlegends", url: "games-web/footballlegends.html"},
+    {filename: "freerider3.html", title: "Freerider3", url: "games-web/freerider3.html"},
+    {filename: "fruitninja.html", title: "Fruitninja", url: "games-web/fruitninja.html"},
+    {filename: "funnybattle.html", title: "Funnybattle", url: "games-web/funnybattle.html"},
+    {filename: "funnybattle2.html", title: "Funnybattle2", url: "games-web/funnybattle2.html"},
+    {filename: "geometrydash.html", title: "Geometry Dash", url: "games-web/geometrydash.html"},
+    {filename: "getontop.html", title: "Getontop", url: "games-web/getontop.html"},
+    {filename: "googlebaseball.html", title: "Googlebaseball", url: "games-web/googlebaseball.html"},
+    {filename: "googledino.html", title: "Dinosaur Game Chrome", url: "games-web/googledino.html"},
+    {filename: "guesstheiranswer.html", title: "Guesstheiranswer", url: "games-web/guesstheiranswer.html"},
+    {filename: "hanger2.html", title: "Hanger2", url: "games-web/hanger2.html"},
+    {filename: "happywheels.html", title: "Happywheels", url: "games-web/happywheels.html"},
+    {filename: "helixjump.html", title: "Helixjump", url: "games-web/helixjump.html"},
+    {filename: "hillclimbracinglite.html", title: "Hillclimbracinglite", url: "games-web/hillclimbracinglite.html"},
+    {filename: "holeio.html", title: "Holeio", url: "games-web/holeio.html"},
+    {filename: "houseofhazards.html", title: "Houseofhazards", url: "games-web/houseofhazards.html"},
+    {filename: "hoverracerdrive.html", title: "Hoverracerdrive", url: "games-web/hoverracerdrive.html"},
+    {filename: "idlebreakout.html", title: "Idlebreakout", url: "games-web/idlebreakout.html"},
+    {filename: "ironsnout.html", title: "Ironsnout", url: "games-web/ironsnout.html"},
+    {filename: "jetpackjoyride.html", title: "Jetpackjoyride", url: "games-web/jetpackjoyride.html"},
+    {filename: "johnnytrigger.html", title: "Johnnytrigger", url: "games-web/johnnytrigger.html"},
+    {filename: "jumpingshell.html", title: "Jumping Shell", url: "games-web/jumpingshell.html"},
+    {filename: "karatebros.html", title: "Karatebros", url: "games-web/karatebros.html"},
+    {filename: "learntofly.html", title: "Learntofly", url: "games-web/learntofly.html"},
+    {filename: "learntofly2.html", title: "Learntofly2", url: "games-web/learntofly2.html"},
+    {filename: "learntoflyidle.html", title: "Learntoflyidle", url: "games-web/learntoflyidle.html"},
+    {filename: "leveldevil.html", title: "Level Devil", url: "games-web/leveldevil.html"},
+    {filename: "melonplayground.html", title: "Melonplayground", url: "games-web/melonplayground.html"},
+    {filename: "mergeroundracers.html", title: "Mergeroundracers", url: "games-web/mergeroundracers.html"},
+    {filename: "minesweeper.html", title: "Minesweeper", url: "games-web/minesweeper.html"},
+    {filename: "monstertracks.html", title: "Monstertracks", url: "games-web/monstertracks.html"},
+    {filename: "motox3m2.html", title: "Motox3m2", url: "games-web/motox3m2.html"},
+    {filename: "motox3m3.html", title: "Motox3m3", url: "games-web/motox3m3.html"},
+    {filename: "motox3mpoolparty.html", title: "Motox3mpoolparty", url: "games-web/motox3mpoolparty.html"},
+    {filename: "motox3mspookyland.html", title: "Motox3mspookyland", url: "games-web/motox3mspookyland.html"},
+    {filename: "motox3mwinter.html", title: "Motox3mwinter", url: "games-web/motox3mwinter.html"},
+    {filename: "noobminer.html", title: "Noob Miner", url: "games-web/noobminer.html"},
+    {filename: "oppositeday.html", title: "Oppositeday", url: "games-web/oppositeday.html"},
+    {filename: "ovo.html", title: "OvOfw", url: "games-web/ovo.html"},
+    {filename: "ovo2.html", title: "OvO 2", url: "games-web/ovo2.html"},
+    {filename: "pacman.html", title: "Pac Man", url: "games-web/pacman.html"},
+    {filename: "papasburgeria.html", title: "Papasburgeria", url: "games-web/papasburgeria.html"},
+    {filename: "papascheeseria.html", title: "Papascheeseria", url: "games-web/papascheeseria.html"},
+    {filename: "papascupcakeria.html", title: "Papascupcakeria", url: "games-web/papascupcakeria.html"},
+    {filename: "papasdonuteria.html", title: "Papasdonuteria", url: "games-web/papasdonuteria.html"},
+    {filename: "papasfreezeria.html", title: "Papasfreezeria", url: "games-web/papasfreezeria.html"},
+    {filename: "papashotdoggeria.html", title: "Papashotdoggeria", url: "games-web/papashotdoggeria.html"},
+    {filename: "papaspancakeria.html", title: "Papaspancakeria", url: "games-web/papaspancakeria.html"},
+    {filename: "papaspastaria.html", title: "Papaspastaria", url: "games-web/papaspastaria.html"},
+    {filename: "papaspizzeria.html", title: "Papaspizzeria", url: "games-web/papaspizzeria.html"},
+    {filename: "papastacomia.html", title: "Papastacomia", url: "games-web/papastacomia.html"},
+    {filename: "papaswingeria.html", title: "Papaswingeria", url: "games-web/papaswingeria.html"},
+    {filename: "parkingfury.html", title: "Parkingfury", url: "games-web/parkingfury.html"},
+    {filename: "parkingfury2.html", title: "Parkingfury2", url: "games-web/parkingfury2.html"},
+    {filename: "parkingfury3.html", title: "Parkingfury3", url: "games-web/parkingfury3.html"},
+    {filename: "picosschool.html", title: "Picosschool", url: "games-web/picosschool.html"},
+    {filename: "pingpongchaos.html", title: "Pingpongchaos", url: "games-web/pingpongchaos.html"},
+    {filename: "pixelspeedrun.html", title: "Pixel Speedrun", url: "games-web/pixelspeedrun.html"},
+    {filename: "plantsvszombies.html", title: "Plantsvszombies", url: "games-web/plantsvszombies.html"},
+    {filename: "plonky.html", title: "Plonky", url: "games-web/plonky.html"},
+    {filename: "polytrack.html", title: "Polytrack", url: "games-web/polytrack.html"},
+    {filename: "poorbunny.html", title: "Poorbunny", url: "games-web/poorbunny.html"},
+    {filename: "pou.html", title: "Pou", url: "games-web/pou.html"},
+    {filename: "ragdollhit.html", title: "Ragdollhit", url: "games-web/ragdollhit.html"},
+    {filename: "ragdollsoccer.html", title: "Ragdollsoccer", url: "games-web/ragdollsoccer.html"},
+    {filename: "redball4vol1.html", title: "Redball4vol1", url: "games-web/redball4vol1.html"},
+    {filename: "redball4vol2.html", title: "Redball4vol2", url: "games-web/redball4vol2.html"},
+    {filename: "redball4vol3.html", title: "Redball4vol3", url: "games-web/redball4vol3.html"},
+    {filename: "retrobowl.html", title: "Retrobowl", url: "games-web/retrobowl.html"},
+    {filename: "retrobowlcollege.html", title: "Retrobowlcollege", url: "games-web/retrobowlcollege.html"},
+    {filename: "retrohighway.html", title: "Retrohighway", url: "games-web/retrohighway.html"},
+    {filename: "retropingpong.html", title: "Retro-Ping-Pong", url: "games-web/retropingpong.html"},
+    {filename: "riddleschool.html", title: "Riddleschool", url: "games-web/riddleschool.html"},
+    {filename: "riddleschool2.html", title: "Riddleschool2", url: "games-web/riddleschool2.html"},
+    {filename: "riddleschool3.html", title: "Riddleschool3", url: "games-web/riddleschool3.html"},
+    {filename: "riddleschool4.html", title: "Riddleschool4", url: "games-web/riddleschool4.html"},
+    {filename: "rooftopsnipers2.html", title: "Rooftop Snipers 2", url: "games-web/rooftopsnipers2.html"},
+    {filename: "run.html", title: "Run", url: "games-web/run.html"},
+    {filename: "run2.html", title: "Run2", url: "games-web/run2.html"},
+    {filename: "run3.html", title: "Run3", url: "games-web/run3.html"},
+    {filename: "sandgame.html", title: "Sand", url: "games-web/sandgame.html"},
+    {filename: "shortlife.html", title: "Shortlife", url: "games-web/shortlife.html"},
+    {filename: "slope2player.html", title: "Slope2player", url: "games-web/slope2player.html"},
+    {filename: "slowroads.html", title: "Slowroads", url: "games-web/slowroads.html"},
+    {filename: "sm64.html", title: "Super Mario 64", url: "games-web/sm64.html"},
+    {filename: "snowballio.html", title: "Snowballio", url: "games-web/snowballio.html"},
+    {filename: "soccerbros.html", title: "Soccerbros", url: "games-web/soccerbros.html"},
+    {filename: "spacebarclicker.html", title: "SPACEBAR CLICKER", url: "games-web/spacebarclicker.html"},
+    {filename: "spaceiskey.html", title: "Spaceiskey", url: "games-web/spaceiskey.html"},
+    {filename: "spaceiskey2.html", title: "Spaceiskey2", url: "games-web/spaceiskey2.html"},
+    {filename: "spacewaves.html", title: "Space Waves", url: "games-web/spacewaves.html"},
+    {filename: "speedstars.html", title: "Speedstars", url: "games-web/speedstars.html"},
+    {filename: "sprunki.html", title: "Sprunki", url: "games-web/sprunki.html"},
+    {filename: "stack.html", title: "Stack", url: "games-web/stack.html"},
+    {filename: "stacktris.html", title: "Stacktris", url: "games-web/stacktris.html"},
+    {filename: "stateio.html", title: "Stateio", url: "games-web/stateio.html"},
+    {filename: "stickarchersbattle.html", title: "Stickarchersbattle", url: "games-web/stickarchersbattle.html"},
+    {filename: "stickfighter.html", title: "Stickfighter", url: "games-web/stickfighter.html"},
+    {filename: "stickmanhook.html", title: "Stickman Hook", url: "games-web/stickmanhook.html"},
+    {filename: "stickmerge.html", title: "Stickmerge", url: "games-web/stickmerge.html"},
+    {filename: "superliquidsoccer.html", title: "Superliquidsoccer", url: "games-web/superliquidsoccer.html"},
+    {filename: "tabletennisworldtour.html", title: "Tabletennisworldtour", url: "games-web/tabletennisworldtour.html"},
+    {filename: "tag.html", title: "Tag", url: "games-web/tag.html"},
+    {filename: "templeofboom.html", title: "Templeofboom", url: "games-web/templeofboom.html"},
+    {filename: "territorialio.html", title: "Territorialio", url: "games-web/territorialio.html"},
+    {filename: "theimpossiblequiz.html", title: "Theimpossiblequiz", url: "games-web/theimpossiblequiz.html"},
+    {filename: "theimpossiblequiz2.html", title: "Theimpossiblequiz2", url: "games-web/theimpossiblequiz2.html"},
+    {filename: "thereisnog.html", title: "Thereisnog", url: "games-web/thereisnog.html"},
+    {filename: "thisistheonlylevel.html", title: "Thisistheonlylevel", url: "games-web/thisistheonlylevel.html"},
+    {filename: "thisistheonlyleveltoo.html", title: "Thisistheonlyleveltoo", url: "games-web/thisistheonlyleveltoo.html"},
+    {filename: "timeshooter2.html", title: "Timeshooter2", url: "games-web/timeshooter2.html"},
+    {filename: "tinyfishing.html", title: "Tinyfishing", url: "games-web/tinyfishing.html"},
+    {filename: "trapthecat.html", title: "Trapthecat", url: "games-web/trapthecat.html"},
+    {filename: "triviacrack.html", title: "Triviacrack", url: "games-web/triviacrack.html"},
+    {filename: "tubejumpers.html", title: "Tubejumpers", url: "games-web/tubejumpers.html"},
+    {filename: "tunnelrush.html", title: "Tunnelrush", url: "games-web/tunnelrush.html"},
+    {filename: "unicyclehero.html", title: "Unicyclehero", url: "games-web/unicyclehero.html"},
+    {filename: "vex4.html", title: "Vex4", url: "games-web/vex4.html"},
+    {filename: "vex5.html", title: "Vex5", url: "games-web/vex5.html"},
+    {filename: "vexx3m.html", title: "Vexx3m", url: "games-web/vexx3m.html"},
+    {filename: "vexx3m2.html", title: "Vexx3m2", url: "games-web/vexx3m2.html"},
+    {filename: "volleyrandom.html", title: "Volleyrandom", url: "games-web/volleyrandom.html"},
+    {filename: "webecomewhatwebehold.html", title: "Webecomewhatwebehold", url: "games-web/webecomewhatwebehold.html"},
+    {filename: "wheeliebike.html", title: "Wheeliebike", url: "games-web/wheeliebike.html"},
+    {filename: "wheely.html", title: "Wheely", url: "games-web/wheely.html"},
+    {filename: "wheely2.html", title: "Wheely2", url: "games-web/wheely2.html"},
+    {filename: "wheely3.html", title: "Wheely3", url: "games-web/wheely3.html"},
+    {filename: "wheely6.html", title: "Wheely6", url: "games-web/wheely6.html"},
+    {filename: "wheely8.html", title: "Wheely8", url: "games-web/wheely8.html"},
+    {filename: "wordleunlimited.html", title: "Wordleunlimited", url: "games-web/wordleunlimited.html"},
+    {filename: "worldshardestgame.html", title: "Worldshardestgame", url: "games-web/worldshardestgame.html"},
+    {filename: "worldshardestgame2.html", title: "Worldshardestgame2", url: "games-web/worldshardestgame2.html"},
+    {filename: "worldshardestgame3.html", title: "Worldshardestgame3", url: "games-web/worldshardestgame3.html"},
+    {filename: "wrestlebros.html", title: "Wrestlebros", url: "games-web/wrestlebros.html"},
+    {filename: "zombierush.html", title: "Zombierush", url: "games-web/zombierush.html"},
+];
+
+        // 颜色数组，用于生成字母图标
+        const colors = [
+            '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
+            '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b',
+            '#2980b9', '#27ae60', '#8e44ad', '#d35400', '#7f8c8d',
+            '#e91e63', '#00bcd4', '#ff5722', '#607d8b', '#795548'
         ];
 
-        const grid = document.getElementById('game-grid');
-        const searchInput = document.getElementById('search-input');
-        const visibleCount = document.getElementById('visible-count');
-        const noResults = document.getElementById('no-results');
-
-        function formatSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        // 简单的哈希函数，用于根据标题生成一致的颜色
+        function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return Math.abs(hash);
         }
 
-        function formatName(filename) {
-            return filename.replace('.html', '')
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/_/g, ' ')
-                .replace(/([0-9])([A-Za-z])/g, '$1 $2')
-                .replace(/([A-Za-z])([0-9])/g, '$1 $2')
-                .trim()
-                .split(' ')
-                .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-                .join(' ');
+        // 生成字母图标的背景色
+        function getIconColor(title) {
+            return colors[hashString(title) % colors.length];
         }
 
+        // 获取首字母（大写）
+        function getFirstLetter(title) {
+            const match = title.match(/[A-Za-z0-9]/);
+            return match ? match[0].toUpperCase() : '?';
+        }
+
+        // 创建游戏卡片
+        function createGameCard(game) {
+            const card = document.createElement('a');
+            card.href = game.url;
+            card.className = 'game-card';
+            card.target = '_blank';
+            card.rel = 'noopener noreferrer';
+
+            const iconColor = getIconColor(game.title);
+            const firstLetter = getFirstLetter(game.title);
+
+            card.innerHTML = `
+                <div class="game-icon" style="background: ${iconColor};">
+                    ${firstLetter}
+                </div>
+                <div class="game-name">${escapeHtml(game.title)}</div>
+                <button class="play-btn">打开游戏</button>
+            `;
+
+            return card;
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 渲染游戏列表
         function renderGames(filteredGames) {
+            const grid = document.getElementById('gamesGrid');
+            const noResults = document.getElementById('noResults');
+            const gameCount = document.getElementById('gameCount');
+
             grid.innerHTML = '';
+
             if (filteredGames.length === 0) {
-                grid.classList.add('hidden');
-                noResults.classList.remove('hidden');
-                visibleCount.textContent = '0';
+                noResults.style.display = 'block';
+                gameCount.textContent = '显示 0 款游戏';
                 return;
             }
-            grid.classList.remove('hidden');
-            noResults.classList.add('hidden');
-            visibleCount.textContent = filteredGames.length;
+
+            noResults.style.display = 'none';
+            gameCount.textContent = `显示 ${filteredGames.length} 款游戏`;
+
             filteredGames.forEach(game => {
-                const card = document.createElement('div');
-                card.className = 'game-card';
-                card.innerHTML = `
-                    <div class="game-name">${formatName(game.name)}</div>
-                    <div class="game-size">${formatSize(game.size)}</div>
-                    <a href="${game.url}" target="_blank" rel="noopener noreferrer" class="game-link">
-                        在 GitHub 上打开
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
-                        </svg>
-                    </a>
-                `;
+                const card = createGameCard(game);
                 grid.appendChild(card);
             });
         }
 
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            if (!query) {
-                renderGames(games);
-                return;
-            }
-            const filtered = games.filter(game => 
-                game.name.toLowerCase().includes(query) || 
-                formatName(game.name).toLowerCase().includes(query)
-            );
-            renderGames(filtered);
-        });
+        // 搜索过滤
+        function filterGames(query) {
+            const lowerQuery = query.toLowerCase().trim();
+            if (!lowerQuery) return games;
 
-        // 初始渲染
-        renderGames(games);
+            return games.filter(game =>
+                game.title.toLowerCase().includes(lowerQuery)
+            );
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+
+            // 初始渲染
+            renderGames(games);
+
+            // 搜索输入监听
+            searchInput.addEventListener('input', (e) => {
+                const filtered = filterGames(e.target.value);
+                renderGames(filtered);
+            });
+
+            // 清空搜索时显示所有
+            searchInput.addEventListener('search', () => {
+                renderGames(games);
+            });
+        });
     </script>
 </body>
 </html>
