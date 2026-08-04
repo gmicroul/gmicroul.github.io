@@ -1,1039 +1,178 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>游戏大厅 | gmicroul.github.io</title>
+<title>Game Hub</title>
 <style>
 :root{
-  --bg0:#0a1622; --bg1:#0f2233; --bg2:#123048;
-  --text:#eaf4fb; --muted:#7fa3bd; --accent:#39b6e8;
-  --card-gap:22px;
+  --bg:#0b0f1a; --bg2:#111827; --card:#151c2e; --card-hover:#1c2438;
+  --text:#e8ecf4; --muted:#8b94ab; --accent:#4cc2ff; --border:rgba(255,255,255,.07);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
+html,body{height:100%}
 body{
-  min-height:100vh;
-  font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(57,182,232,.18), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(124,92,255,.14), transparent 60%),
-    linear-gradient(160deg,var(--bg0) 0%,var(--bg1) 55%,var(--bg2) 100%);
-  background-attachment:fixed;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:radial-gradient(1200px 600px at 80% -10%,rgba(76,194,255,.12),transparent 60%),
+             radial-gradient(900px 500px at 10% -10%,rgba(150,90,255,.10),transparent 60%),
+             var(--bg);
+  color:var(--text);min-height:100vh;
 }
 header{
-  position:sticky;top:0;z-index:10;
-  padding:22px 20px 16px;
-  background:linear-gradient(180deg, rgba(10,22,34,.92), rgba(10,22,34,.78));
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid rgba(127,163,189,.16);
+  position:sticky;top:0;z-index:50;
+  background:rgba(11,15,26,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
 }
-.header-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:14px}
-h1{
-  font-size:clamp(20px,3.4vw,28px);font-weight:700;letter-spacing:.5px;
-  background:linear-gradient(90deg,#fff,#9fdcf5);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
+.bar{max-width:1280px;margin:0 auto;padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto}
+.logo{
+  width:42px;height:42px;border-radius:12px;flex:0 0 auto;
+  background:linear-gradient(135deg,#4cc2ff 0%,#3a6ff7 55%,#7a3ff2 100%);
+  box-shadow:0 4px 14px rgba(60,130,255,.45),inset 0 1px 0 rgba(255,255,255,.35);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
 }
-.stats{font-size:14px;color:var(--muted);white-space:nowrap}
-.stats b{color:var(--accent);font-weight:600}
-.search-wrap{flex:1 1 240px;display:flex;justify-content:flex-end}
+.brand h1{font-size:20px;font-weight:700;letter-spacing:.3px}
+.brand .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.searchwrap{position:relative;flex:1 1 240px;max-width:420px}
+.searchwrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;pointer-events:none}
 #search{
-  width:min(420px,100%);
-  padding:11px 18px;font-size:15px;color:var(--text);
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(127,163,189,.28);border-radius:999px;outline:none;
-  transition:border-color .2s, box-shadow .2s, background .2s;
+  width:100%;padding:11px 36px 11px 36px;border-radius:12px;border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;
 }
+#search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(76,194,255,.18)}
 #search::placeholder{color:var(--muted)}
-#search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(57,182,232,.22);background:rgba(255,255,255,.09)}
-main{max-width:1200px;margin:0 auto;padding:28px 20px 64px}
-.grid{
-  display:grid;gap:var(--card-gap);
-  grid-template-columns:repeat(auto-fill,minmax(132px,1fr));
+#clear{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:24px;height:24px;border:none;border-radius:50%;background:rgba(255,255,255,.08);
+  color:var(--muted);font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;
 }
+#clear:hover{background:rgba(255,255,255,.16);color:var(--text)}
+.stats{font-size:13px;color:var(--muted);white-space:nowrap}
+.stats b{color:var(--accent);font-weight:600}
+main{max-width:1280px;margin:0 auto;padding:24px 20px 60px}
+.grid{
+  display:grid;gap:18px 14px;
+  grid-template-columns:repeat(auto-fill,minmax(108px,1fr));
+}
+@media(min-width:720px){.grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:22px 18px}}
 .card{
   display:flex;flex-direction:column;align-items:center;gap:10px;
-  padding:16px 8px 14px;border-radius:20px;text-decoration:none;color:var(--text);
-  transition:transform .18s ease, background .18s ease, box-shadow .18s ease;
+  padding:16px 8px 14px;border-radius:16px;cursor:pointer;text-decoration:none;color:inherit;
+  background:transparent;border:1px solid transparent;
+  transition:transform .18s ease,background .18s ease,border-color .18s ease;
 }
-.card:hover,.card:focus-visible{
-  transform:translateY(-5px);
-  background:rgba(255,255,255,.06);
-  box-shadow:0 12px 28px rgba(0,0,0,.35);
-  outline:none;
-}
+.card:hover,.card:focus-visible{background:var(--card);border-color:var(--border);transform:translateY(-3px)}
+.card:active{transform:translateY(0) scale(.97)}
+.card.hidden{display:none}
+/* SailfishOS-style icon: squircle, vivid gradient, glossy top light, centered glyph */
 .icon{
-  position:relative;display:flex;align-items:center;justify-content:center;
-  width:72px;height:72px;border-radius:26%;
-  box-shadow:0 6px 16px rgba(0,0,0,.4), inset 0 -3px 8px rgba(0,0,0,.22);
-  overflow:hidden;flex:none;
+  position:relative;width:64px;height:64px;border-radius:22%;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  box-shadow:0 6px 16px rgba(0,0,0,.45),inset 0 -8px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .18s ease,box-shadow .18s ease;
 }
-.sheen{
-  position:absolute;inset:0;
-  background:linear-gradient(150deg, rgba(255,255,255,.38) 0%, rgba(255,255,255,.10) 34%, rgba(255,255,255,0) 55%);
-  border-radius:inherit;
+@media(min-width:720px){.icon{width:76px;height:76px}}
+.card:hover .icon{transform:scale(1.06);box-shadow:0 10px 22px rgba(0,0,0,.5),inset 0 -8px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.4)}
+.icon::before{ /* glossy highlight */
+  content:"";position:absolute;left:6%;right:6%;top:3%;height:46%;
+  border-radius:50% 50% 60% 60%/100% 100% 40% 40%;
+  background:linear-gradient(rgba(255,255,255,.42),rgba(255,255,255,.04));
 }
-.glyph{
-  position:relative;font-size:34px;font-weight:800;color:#fff;
-  text-shadow:0 2px 6px rgba(0,0,0,.35);
-  font-family:"Segoe UI",system-ui,sans-serif;
+.icon::after{ /* inner ring */
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
 }
-.label{
-  font-size:13px;line-height:1.3;text-align:center;color:var(--text);
-  max-width:100%;overflow:hidden;display:-webkit-box;
-  -webkit-line-clamp:2;-webkit-box-orient:vertical;
+.icon span{
+  position:relative;z-index:1;font-weight:800;color:#fff;
+  font-size:30px;line-height:1;text-shadow:0 2px 6px rgba(0,0,0,.35);
+  font-family:inherit;
+}
+@media(min-width:720px){.icon span{font-size:34px}}
+.name{
+  font-size:12.5px;line-height:1.3;text-align:center;color:var(--text);
+  max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   word-break:break-word;
 }
-.empty{display:none;text-align:center;color:var(--muted);padding:64px 0;font-size:16px}
-@media (max-width:640px){
-  :root{--card-gap:14px}
-  header{padding:16px 14px 12px}
-  main{padding:20px 14px 48px}
-  .grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
-  .icon{width:60px;height:60px}
-  .glyph{font-size:28px}
-  .label{font-size:12px}
-  .search-wrap{flex-basis:100%;justify-content:stretch}
-  #search{width:100%}
-}
+.empty{display:none;text-align:center;padding:70px 20px;color:var(--muted)}
+.empty .big{font-size:44px;margin-bottom:12px}
+footer{border-top:1px solid var(--border);padding:18px 20px;text-align:center;color:var(--muted);font-size:12px}
+@media(max-width:480px){.brand h1{font-size:17px}.stats{width:100%;order:3}}
 </style>
 </head>
 <body>
 <header>
-  <div class="header-inner">
-    <h1>游戏大厅</h1>
-    <span class="stats">共 <b id="total">224</b> 款游戏<span id="shown-wrap"> · 显示 <b id="shown">224</b></span></span>
-    <div class="search-wrap">
-      <input id="search" type="search" placeholder="搜索游戏…" autocomplete="off" aria-label="搜索游戏">
+  <div class="bar">
+    <div class="brand">
+      <div class="logo">🎮</div>
+      <div>
+        <h1>Game Hub</h1>
+        <div class="sub">HTML5 Games Library</div>
+      </div>
     </div>
+    <div class="searchwrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+      <input id="search" type="search" placeholder="Search games..." autocomplete="off" aria-label="Search games">
+      <button id="clear" aria-label="Clear search">✕</button>
+    </div>
+    <div class="stats"><b id="shown">0</b> / <span id="total">0</span> games</div>
   </div>
 </header>
 <main>
-  <div class="grid" id="grid">
-      <a class="card" href="/games-web/1.5.html" target="_blank" rel="noopener" data-name="eaglercraft 1.5" title="Eaglercraft 1.5">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(10,72%,52%) 0%,hsl(55,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Eaglercraft 1.5</span>
-      </a>
-      <a class="card" href="/games-web/1.8.html" target="_blank" rel="noopener" data-name="eaglercraft 1.8" title="Eaglercraft 1.8">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(13,72%,52%) 0%,hsl(58,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Eaglercraft 1.8</span>
-      </a>
-      <a class="card" href="/games-web/12minibattles.html" target="_blank" rel="noopener" data-name="12 mini battles" title="12 Mini Battles">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(49,72%,52%) 0%,hsl(94,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">1</span></span>
-        <span class="label">12 Mini Battles</span>
-      </a>
-      <a class="card" href="/games-web/1on1soccer.html" target="_blank" rel="noopener" data-name="1 on 1 soccer" title="1 On 1 Soccer">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(210,72%,52%) 0%,hsl(255,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">1</span></span>
-        <span class="label">1 On 1 Soccer</span>
-      </a>
-      <a class="card" href="/games-web/1on1tennis.html" target="_blank" rel="noopener" data-name="1 on 1 tennis" title="1 On 1 Tennis">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(228,72%,52%) 0%,hsl(273,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">1</span></span>
-        <span class="label">1 On 1 Tennis</span>
-      </a>
-      <a class="card" href="/games-web/2048.html" target="_blank" rel="noopener" data-name="2048" title="2048">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(146,72%,52%) 0%,hsl(191,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">2</span></span>
-        <span class="label">2048</span>
-      </a>
-      <a class="card" href="/games-web/2048cupcakes.html" target="_blank" rel="noopener" data-name="2048 cupcakes" title="2048 Cupcakes">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(123,72%,52%) 0%,hsl(168,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">2</span></span>
-        <span class="label">2048 Cupcakes</span>
-      </a>
-      <a class="card" href="/games-web/8ballclassic.html" target="_blank" rel="noopener" data-name="8 ball classic" title="8 Ball Classic">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(185,72%,52%) 0%,hsl(230,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">8</span></span>
-        <span class="label">8 Ball Classic</span>
-      </a>
-      <a class="card" href="/games-web/agariolite.html" target="_blank" rel="noopener" data-name="solo agario" title="Solo Agario">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(350,72%,52%) 0%,hsl(35,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Solo Agario</span>
-      </a>
-      <a class="card" href="/games-web/ageofwar.html" target="_blank" rel="noopener" data-name="age of war" title="Age of War">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(184,72%,52%) 0%,hsl(229,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">A</span></span>
-        <span class="label">Age of War</span>
-      </a>
-      <a class="card" href="/games-web/ageofwar2.html" target="_blank" rel="noopener" data-name="age of war 2" title="Age of War 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(26,72%,52%) 0%,hsl(71,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">A</span></span>
-        <span class="label">Age of War 2</span>
-      </a>
-      <a class="card" href="/games-web/agesofconflict.html" target="_blank" rel="noopener" data-name="ages of conflict" title="Ages of Conflict">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(279,72%,52%) 0%,hsl(324,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">A</span></span>
-        <span class="label">Ages of Conflict</span>
-      </a>
-      <a class="card" href="/games-web/Alpha_1.2.6.html" target="_blank" rel="noopener" data-name="eaglercraft alpha 1.2.6" title="Eaglercraft Alpha 1.2.6">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(205,72%,52%) 0%,hsl(250,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Eaglercraft Alpha 1.2.6</span>
-      </a>
-      <a class="card" href="/games-web/amongus.html" target="_blank" rel="noopener" data-name="among us" title="Among Us">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(10,72%,52%) 0%,hsl(55,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">A</span></span>
-        <span class="label">Among Us</span>
-      </a>
-      <a class="card" href="/games-web/angrybirds.html" target="_blank" rel="noopener" data-name="angry birds" title="Angry Birds">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(235,72%,52%) 0%,hsl(280,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">A</span></span>
-        <span class="label">Angry Birds</span>
-      </a>
-      <a class="card" href="/games-web/angrybirdsspace.html" target="_blank" rel="noopener" data-name="angry birds space" title="Angry Birds Space">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(9,72%,52%) 0%,hsl(54,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">A</span></span>
-        <span class="label">Angry Birds Space</span>
-      </a>
-      <a class="card" href="/games-web/awesometanks.html" target="_blank" rel="noopener" data-name="awesome tanks" title="Awesome Tanks">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(156,72%,52%) 0%,hsl(201,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">A</span></span>
-        <span class="label">Awesome Tanks</span>
-      </a>
-      <a class="card" href="/games-web/awesometanks2.html" target="_blank" rel="noopener" data-name="awesome tanks 2" title="Awesome Tanks 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(118,72%,52%) 0%,hsl(163,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">A</span></span>
-        <span class="label">Awesome Tanks 2</span>
-      </a>
-      <a class="card" href="/games-web/backrooms.html" target="_blank" rel="noopener" data-name="backrooms" title="Backrooms">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(209,72%,52%) 0%,hsl(254,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Backrooms</span>
-      </a>
-      <a class="card" href="/games-web/baconmaydie.html" target="_blank" rel="noopener" data-name="bacon may die" title="Bacon May Die">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(216,72%,52%) 0%,hsl(261,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bacon May Die</span>
-      </a>
-      <a class="card" href="/games-web/badicecream.html" target="_blank" rel="noopener" data-name="bad ice cream" title="Bad Ice Cream">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(98,72%,52%) 0%,hsl(143,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bad Ice Cream</span>
-      </a>
-      <a class="card" href="/games-web/badicecream2.html" target="_blank" rel="noopener" data-name="bad ice cream 2" title="Bad Ice Cream 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(180,72%,52%) 0%,hsl(225,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bad Ice Cream 2</span>
-      </a>
-      <a class="card" href="/games-web/badicecream3.html" target="_blank" rel="noopener" data-name="bad ice cream 3" title="Bad Ice Cream 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(181,72%,52%) 0%,hsl(226,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bad Ice Cream 3</span>
-      </a>
-      <a class="card" href="/games-web/badpiggies.html" target="_blank" rel="noopener" data-name="bad piggies" title="Bad Piggies">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(227,72%,52%) 0%,hsl(272,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bad Piggies</span>
-      </a>
-      <a class="card" href="/games-web/baseballbros.html" target="_blank" rel="noopener" data-name="baseball bros" title="Baseball Bros">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(268,72%,52%) 0%,hsl(313,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Baseball Bros</span>
-      </a>
-      <a class="card" href="/games-web/basketballlegends.html" target="_blank" rel="noopener" data-name="basketball legends" title="Basketball Legends">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(131,72%,52%) 0%,hsl(176,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Basketball Legends</span>
-      </a>
-      <a class="card" href="/games-web/basketballstars.html" target="_blank" rel="noopener" data-name="basketball stars" title="Basketball Stars">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(70,72%,52%) 0%,hsl(115,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Basketball Stars</span>
-      </a>
-      <a class="card" href="/games-web/basketbros.html" target="_blank" rel="noopener" data-name="basket bros" title="Basket Bros">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(350,72%,52%) 0%,hsl(35,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Basket Bros</span>
-      </a>
-      <a class="card" href="/games-web/basketrandom.html" target="_blank" rel="noopener" data-name="basket random" title="Basket Random">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(133,72%,52%) 0%,hsl(178,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Basket Random</span>
-      </a>
-      <a class="card" href="/games-web/Beta_1.3.html" target="_blank" rel="noopener" data-name="eaglercraft beta 1.3" title="Eaglercraft Beta 1.3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(300,72%,52%) 0%,hsl(345,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Eaglercraft Beta 1.3</span>
-      </a>
-      <a class="card" href="/games-web/blockysnakes.html" target="_blank" rel="noopener" data-name="blocky snakes" title="Blocky Snakes">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(327,72%,52%) 0%,hsl(12,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Blocky Snakes</span>
-      </a>
-      <a class="card" href="/games-web/bloonsTD.html" target="_blank" rel="noopener" data-name="bloons td" title="Bloons TD">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(265,72%,52%) 0%,hsl(310,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bloons TD</span>
-      </a>
-      <a class="card" href="/games-web/bloonsTD2.html" target="_blank" rel="noopener" data-name="bloons td 2" title="Bloons TD 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(107,72%,52%) 0%,hsl(152,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bloons TD 2</span>
-      </a>
-      <a class="card" href="/games-web/bloonsTD3.html" target="_blank" rel="noopener" data-name="bloons td 3" title="Bloons TD 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(108,72%,52%) 0%,hsl(153,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bloons TD 3</span>
-      </a>
-      <a class="card" href="/games-web/bloonsTD4.html" target="_blank" rel="noopener" data-name="bloons td 4" title="Bloons TD 4">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(109,72%,52%) 0%,hsl(154,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bloons TD 4</span>
-      </a>
-      <a class="card" href="/games-web/bloonsTD5.html" target="_blank" rel="noopener" data-name="bloons td 5" title="Bloons TD 5">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(110,72%,52%) 0%,hsl(155,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bloons TD 5</span>
-      </a>
-      <a class="card" href="/games-web/bloxorz.html" target="_blank" rel="noopener" data-name="bloxorz" title="Bloxorz">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(212,72%,52%) 0%,hsl(257,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bloxorz</span>
-      </a>
-      <a class="card" href="/games-web/blumgiracers.html" target="_blank" rel="noopener" data-name="blumgi racers" title="Blumgi Racers">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(78,72%,52%) 0%,hsl(123,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Blumgi Racers</span>
-      </a>
-      <a class="card" href="/games-web/blumgirocket.html" target="_blank" rel="noopener" data-name="blumgi rocket" title="Blumgi Rocket">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(296,72%,52%) 0%,hsl(341,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Blumgi Rocket</span>
-      </a>
-      <a class="card" href="/games-web/bobtherobber.html" target="_blank" rel="noopener" data-name="bob the robber" title="Bob the Robber">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(244,72%,52%) 0%,hsl(289,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bob the Robber</span>
-      </a>
-      <a class="card" href="/games-web/bobtherobber2.html" target="_blank" rel="noopener" data-name="bob the robber 2" title="Bob the Robber 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(86,72%,52%) 0%,hsl(131,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bob the Robber 2</span>
-      </a>
-      <a class="card" href="/games-web/bobtherobber5.html" target="_blank" rel="noopener" data-name="bob the robber 5" title="Bob the Robber 5">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(89,72%,52%) 0%,hsl(134,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bob the Robber 5</span>
-      </a>
-      <a class="card" href="/games-web/breakingthebank.html" target="_blank" rel="noopener" data-name="breaking the bank" title="Breaking the Bank">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(8,72%,52%) 0%,hsl(53,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Breaking the Bank</span>
-      </a>
-      <a class="card" href="/games-web/bubbleshooter.html" target="_blank" rel="noopener" data-name="bubble shooter" title="Bubble Shooter">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(40,72%,52%) 0%,hsl(85,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">B</span></span>
-        <span class="label">Bubble Shooter</span>
-      </a>
-      <a class="card" href="/games-web/candycrush.html" target="_blank" rel="noopener" data-name="candy crush" title="Candy Crush">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(144,72%,52%) 0%,hsl(189,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Candy Crush</span>
-      </a>
-      <a class="card" href="/games-web/capybaraclicker.html" target="_blank" rel="noopener" data-name="capybara clicker" title="Capybara Clicker">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(186,72%,52%) 0%,hsl(231,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Capybara Clicker</span>
-      </a>
-      <a class="card" href="/games-web/cardrawing.html" target="_blank" rel="noopener" data-name="car drawing" title="Car Drawing">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(306,72%,52%) 0%,hsl(351,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Car Drawing</span>
-      </a>
-      <a class="card" href="/games-web/carkingarena.html" target="_blank" rel="noopener" data-name="car king arena" title="Car King Arena">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(202,72%,52%) 0%,hsl(247,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Car King Arena</span>
-      </a>
-      <a class="card" href="/games-web/chess.html" target="_blank" rel="noopener" data-name="chess" title="Chess">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(232,72%,52%) 0%,hsl(277,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Chess</span>
-      </a>
-      <a class="card" href="/games-web/choppyorc.html" target="_blank" rel="noopener" data-name="choppy orc" title="Choppy Orc">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(231,72%,52%) 0%,hsl(276,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Choppy Orc</span>
-      </a>
-      <a class="card" href="/games-web/circloO.html" target="_blank" rel="noopener" data-name="circloo" title="circloO">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(85,72%,52%) 0%,hsl(130,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">circloO</span>
-      </a>
-      <a class="card" href="/games-web/circloO2.html" target="_blank" rel="noopener" data-name="circloo 2" title="circloO 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(287,72%,52%) 0%,hsl(332,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">circloO 2</span>
-      </a>
-      <a class="card" href="/games-web/clashofvikings.html" target="_blank" rel="noopener" data-name="clash of vikings" title="Clash of Vikings">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(179,72%,52%) 0%,hsl(224,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Clash of Vikings</span>
-      </a>
-      <a class="card" href="/games-web/cleanupio.html" target="_blank" rel="noopener" data-name="cleanup.io" title="CleanUp.io">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(312,72%,52%) 0%,hsl(357,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">CleanUp.io</span>
-      </a>
-      <a class="card" href="/games-web/clusterrush.html" target="_blank" rel="noopener" data-name="cluster rush" title="Cluster Rush">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(198,72%,52%) 0%,hsl(243,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Cluster Rush</span>
-      </a>
-      <a class="card" href="/games-web/crazycars.html" target="_blank" rel="noopener" data-name="crazy cars" title="Crazy Cars">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(166,72%,52%) 0%,hsl(211,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Crazy Cars</span>
-      </a>
-      <a class="card" href="/games-web/crazymotorcycle.html" target="_blank" rel="noopener" data-name="crazy motorcycle" title="Crazy Motorcycle">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(200,72%,52%) 0%,hsl(245,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Crazy Motorcycle</span>
-      </a>
-      <a class="card" href="/games-web/dadish.html" target="_blank" rel="noopener" data-name="dadish" title="Dadish">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(319,72%,52%) 0%,hsl(4,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Dadish</span>
-      </a>
-      <a class="card" href="/games-web/dadish2.html" target="_blank" rel="noopener" data-name="dadish 2" title="Dadish 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(161,72%,52%) 0%,hsl(206,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Dadish 2</span>
-      </a>
-      <a class="card" href="/games-web/dadish3.html" target="_blank" rel="noopener" data-name="dadish 3" title="Dadish 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(162,72%,52%) 0%,hsl(207,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Dadish 3</span>
-      </a>
-      <a class="card" href="/games-web/deathrun3D.html" target="_blank" rel="noopener" data-name="death run 3d" title="Death Run 3D">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(258,72%,52%) 0%,hsl(303,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Death Run 3D</span>
-      </a>
-      <a class="card" href="/games-web/doodlejump.html" target="_blank" rel="noopener" data-name="doodle jump" title="Doodle Jump">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(173,72%,52%) 0%,hsl(218,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Doodle Jump</span>
-      </a>
-      <a class="card" href="/games-web/drawclimber.html" target="_blank" rel="noopener" data-name="draw climber" title="Draw Climber">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(262,72%,52%) 0%,hsl(307,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Draw Climber</span>
-      </a>
-      <a class="card" href="/games-web/ducklife.html" target="_blank" rel="noopener" data-name="duck life" title="Duck Life">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(27,72%,52%) 0%,hsl(72,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Duck Life</span>
-      </a>
-      <a class="card" href="/games-web/ducklife2.html" target="_blank" rel="noopener" data-name="duck life 2" title="Duck Life 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(349,72%,52%) 0%,hsl(34,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Duck Life 2</span>
-      </a>
-      <a class="card" href="/games-web/ducklife3.html" target="_blank" rel="noopener" data-name="duck life 3" title="Duck Life 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(350,72%,52%) 0%,hsl(35,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Duck Life 3</span>
-      </a>
-      <a class="card" href="/games-web/ducklife4.html" target="_blank" rel="noopener" data-name="duck life 4" title="Duck Life 4">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(351,72%,52%) 0%,hsl(36,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Duck Life 4</span>
-      </a>
-      <a class="card" href="/games-web/ducklife5.html" target="_blank" rel="noopener" data-name="duck life 5" title="Duck Life 5">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(352,72%,52%) 0%,hsl(37,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Duck Life 5</span>
-      </a>
-      <a class="card" href="/games-web/ducklingsio.html" target="_blank" rel="noopener" data-name="ducklings.io" title="Ducklings.io">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(24,72%,52%) 0%,hsl(69,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">D</span></span>
-        <span class="label">Ducklings.io</span>
-      </a>
-      <a class="card" href="/games-web/eagleride.html" target="_blank" rel="noopener" data-name="eagle ride" title="Eagle Ride">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(28,72%,52%) 0%,hsl(73,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Eagle Ride</span>
-      </a>
-      <a class="card" href="/games-web/earntodie.html" target="_blank" rel="noopener" data-name="earn to die" title="Earn to Die">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(355,72%,52%) 0%,hsl(40,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Earn to Die</span>
-      </a>
-      <a class="card" href="/games-web/earntodie2.html" target="_blank" rel="noopener" data-name="earn to die 2" title="Earn to Die 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(197,72%,52%) 0%,hsl(242,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Earn to Die 2</span>
-      </a>
-      <a class="card" href="/games-web/eggycar.html" target="_blank" rel="noopener" data-name="eggy car" title="Eggy Car">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(256,72%,52%) 0%,hsl(301,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Eggy Car</span>
-      </a>
-      <a class="card" href="/games-web/escapingtheprison.html" target="_blank" rel="noopener" data-name="escaping the prison" title="Escaping the Prison">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(180,72%,52%) 0%,hsl(225,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Escaping the Prison</span>
-      </a>
-      <a class="card" href="/games-web/evilglitch.html" target="_blank" rel="noopener" data-name="evil glitch" title="Evil Glitch">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(105,72%,52%) 0%,hsl(150,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Evil Glitch</span>
-      </a>
-      <a class="card" href="/games-web/fancypantsadventure.html" target="_blank" rel="noopener" data-name="fancy pants adventure" title="Fancy Pants Adventure">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(341,72%,52%) 0%,hsl(26,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Fancy Pants Adventure</span>
-      </a>
-      <a class="card" href="/games-web/fancypantsadventure2.html" target="_blank" rel="noopener" data-name="fancy pants adventure 2" title="Fancy Pants Adventure 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(63,72%,52%) 0%,hsl(108,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Fancy Pants Adventure 2</span>
-      </a>
-      <a class="card" href="/games-web/fireboyandwatergirl.html" target="_blank" rel="noopener" data-name="fireboy and watergirl" title="Fireboy and Watergirl">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(176,72%,52%) 0%,hsl(221,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Fireboy and Watergirl</span>
-      </a>
-      <a class="card" href="/games-web/fireboyandwatergirl2.html" target="_blank" rel="noopener" data-name="fireboy and watergirl 2" title="Fireboy and Watergirl 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(258,72%,52%) 0%,hsl(303,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Fireboy and Watergirl 2</span>
-      </a>
-      <a class="card" href="/games-web/fireboyandwatergirl3.html" target="_blank" rel="noopener" data-name="fireboy and watergirl 3" title="Fireboy and Watergirl 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(259,72%,52%) 0%,hsl(304,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Fireboy and Watergirl 3</span>
-      </a>
-      <a class="card" href="/games-web/fireboyandwatergirl4.html" target="_blank" rel="noopener" data-name="fireboy and watergirl 4" title="Fireboy and Watergirl 4">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(260,72%,52%) 0%,hsl(305,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Fireboy and Watergirl 4</span>
-      </a>
-      <a class="card" href="/games-web/flappybird.html" target="_blank" rel="noopener" data-name="flappy bird" title="Flappy Bird">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(107,72%,52%) 0%,hsl(152,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Flappy Bird</span>
-      </a>
-      <a class="card" href="/games-web/floodrunner2.html" target="_blank" rel="noopener" data-name="flood runner 2" title="Flood Runner 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(228,72%,52%) 0%,hsl(273,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Flood Runner 2</span>
-      </a>
-      <a class="card" href="/games-web/floodrunner3.html" target="_blank" rel="noopener" data-name="flood runner 3" title="Flood Runner 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(229,72%,52%) 0%,hsl(274,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Flood Runner 3</span>
-      </a>
-      <a class="card" href="/games-web/floodrunner4.html" target="_blank" rel="noopener" data-name="flood runner 4" title="Flood Runner 4">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(230,72%,52%) 0%,hsl(275,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Flood Runner 4</span>
-      </a>
-      <a class="card" href="/games-web/fnaf.html" target="_blank" rel="noopener" data-name="fnaf" title="FNAF">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(253,72%,52%) 0%,hsl(298,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">FNAF</span>
-      </a>
-      <a class="card" href="/games-web/fnaf4.html" target="_blank" rel="noopener" data-name="fnaf 4" title="FNAF 4">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(97,72%,52%) 0%,hsl(142,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">FNAF 4</span>
-      </a>
-      <a class="card" href="/games-web/footballbros.html" target="_blank" rel="noopener" data-name="football bros" title="Football Bros">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(207,72%,52%) 0%,hsl(252,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Football Bros</span>
-      </a>
-      <a class="card" href="/games-web/footballlegends.html" target="_blank" rel="noopener" data-name="football legends" title="Football Legends">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(267,72%,52%) 0%,hsl(312,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Football Legends</span>
-      </a>
-      <a class="card" href="/games-web/freerider3.html" target="_blank" rel="noopener" data-name="free rider 3" title="Free Rider 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(73,72%,52%) 0%,hsl(118,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Free Rider 3</span>
-      </a>
-      <a class="card" href="/games-web/fruitninja.html" target="_blank" rel="noopener" data-name="fruit ninja" title="Fruit Ninja">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(270,72%,52%) 0%,hsl(315,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Fruit Ninja</span>
-      </a>
-      <a class="card" href="/games-web/funnybattle.html" target="_blank" rel="noopener" data-name="funny battle" title="Funny Battle">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(174,72%,52%) 0%,hsl(219,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Funny Battle</span>
-      </a>
-      <a class="card" href="/games-web/funnybattle2.html" target="_blank" rel="noopener" data-name="funny battle 2" title="Funny Battle 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(136,72%,52%) 0%,hsl(181,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">F</span></span>
-        <span class="label">Funny Battle 2</span>
-      </a>
-      <a class="card" href="/games-web/geometrydash.html" target="_blank" rel="noopener" data-name="geometry dash" title="Geometry Dash">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(240,72%,52%) 0%,hsl(285,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">G</span></span>
-        <span class="label">Geometry Dash</span>
-      </a>
-      <a class="card" href="/games-web/getontop.html" target="_blank" rel="noopener" data-name="get on top" title="Get On Top">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(158,72%,52%) 0%,hsl(203,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">G</span></span>
-        <span class="label">Get On Top</span>
-      </a>
-      <a class="card" href="/games-web/googlebaseball.html" target="_blank" rel="noopener" data-name="google baseball" title="Google Baseball">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(287,72%,52%) 0%,hsl(332,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">G</span></span>
-        <span class="label">Google Baseball</span>
-      </a>
-      <a class="card" href="/games-web/googledino.html" target="_blank" rel="noopener" data-name="chrome dino" title="Chrome Dino">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(132,72%,52%) 0%,hsl(177,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">C</span></span>
-        <span class="label">Chrome Dino</span>
-      </a>
-      <a class="card" href="/games-web/guesstheiranswer.html" target="_blank" rel="noopener" data-name="guess their answer" title="Guess Their Answer">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(5,72%,52%) 0%,hsl(50,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">G</span></span>
-        <span class="label">Guess Their Answer</span>
-      </a>
-      <a class="card" href="/games-web/hanger2.html" target="_blank" rel="noopener" data-name="hanger 2" title="Hanger 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(169,72%,52%) 0%,hsl(214,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">H</span></span>
-        <span class="label">Hanger 2</span>
-      </a>
-      <a class="card" href="/games-web/happywheels.html" target="_blank" rel="noopener" data-name="happy wheels" title="Happy Wheels">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(112,72%,52%) 0%,hsl(157,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">H</span></span>
-        <span class="label">Happy Wheels</span>
-      </a>
-      <a class="card" href="/games-web/helixjump.html" target="_blank" rel="noopener" data-name="helix jump" title="Helix Jump">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(80,72%,52%) 0%,hsl(125,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">H</span></span>
-        <span class="label">Helix Jump</span>
-      </a>
-      <a class="card" href="/games-web/hillclimbracinglite.html" target="_blank" rel="noopener" data-name="hill climb racing lite" title="Hill Climb Racing Lite">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(230,72%,52%) 0%,hsl(275,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">H</span></span>
-        <span class="label">Hill Climb Racing Lite</span>
-      </a>
-      <a class="card" href="/games-web/holeio.html" target="_blank" rel="noopener" data-name="hole.io" title="Hole.io">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(84,72%,52%) 0%,hsl(129,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">H</span></span>
-        <span class="label">Hole.io</span>
-      </a>
-      <a class="card" href="/games-web/houseofhazards.html" target="_blank" rel="noopener" data-name="house of hazards" title="House of Hazards">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(280,72%,52%) 0%,hsl(325,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">H</span></span>
-        <span class="label">House of Hazards</span>
-      </a>
-      <a class="card" href="/games-web/hoverracerdrive.html" target="_blank" rel="noopener" data-name="hover racer drive" title="Hover Racer Drive">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(319,72%,52%) 0%,hsl(4,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">H</span></span>
-        <span class="label">Hover Racer Drive</span>
-      </a>
-      <a class="card" href="/games-web/idlebreakout.html" target="_blank" rel="noopener" data-name="idle breakout" title="Idle Breakout">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(43,72%,52%) 0%,hsl(88,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">I</span></span>
-        <span class="label">Idle Breakout</span>
-      </a>
-      <a class="card" href="/games-web/Indev.html" target="_blank" rel="noopener" data-name="eaglercraft indev" title="Eaglercraft Indev">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(154,72%,52%) 0%,hsl(199,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">E</span></span>
-        <span class="label">Eaglercraft Indev</span>
-      </a>
-      <a class="card" href="/games-web/ironsnout.html" target="_blank" rel="noopener" data-name="iron snout" title="Iron Snout">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(347,72%,52%) 0%,hsl(32,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">I</span></span>
-        <span class="label">Iron Snout</span>
-      </a>
-      <a class="card" href="/games-web/jetpackjoyride.html" target="_blank" rel="noopener" data-name="jetpack joyride" title="Jetpack Joyride">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(174,72%,52%) 0%,hsl(219,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">J</span></span>
-        <span class="label">Jetpack Joyride</span>
-      </a>
-      <a class="card" href="/games-web/johnnytrigger.html" target="_blank" rel="noopener" data-name="johnny trigger" title="Johnny Trigger">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(246,72%,52%) 0%,hsl(291,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">J</span></span>
-        <span class="label">Johnny Trigger</span>
-      </a>
-      <a class="card" href="/games-web/jumpingshell.html" target="_blank" rel="noopener" data-name="jumping shell" title="Jumping Shell">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(36,72%,52%) 0%,hsl(81,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">J</span></span>
-        <span class="label">Jumping Shell</span>
-      </a>
-      <a class="card" href="/games-web/karatebros.html" target="_blank" rel="noopener" data-name="karate bros" title="Karate Bros">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(78,72%,52%) 0%,hsl(123,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">K</span></span>
-        <span class="label">Karate Bros</span>
-      </a>
-      <a class="card" href="/games-web/learntofly.html" target="_blank" rel="noopener" data-name="learn to fly" title="Learn to Fly">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(98,72%,52%) 0%,hsl(143,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">L</span></span>
-        <span class="label">Learn to Fly</span>
-      </a>
-      <a class="card" href="/games-web/learntofly2.html" target="_blank" rel="noopener" data-name="learn to fly 2" title="Learn to Fly 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(180,72%,52%) 0%,hsl(225,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">L</span></span>
-        <span class="label">Learn to Fly 2</span>
-      </a>
-      <a class="card" href="/games-web/learntoflyidle.html" target="_blank" rel="noopener" data-name="learn to fly idle" title="Learn to Fly Idle">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(122,72%,52%) 0%,hsl(167,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">L</span></span>
-        <span class="label">Learn to Fly Idle</span>
-      </a>
-      <a class="card" href="/games-web/leveldevil.html" target="_blank" rel="noopener" data-name="level devil" title="Level Devil">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(76,72%,52%) 0%,hsl(121,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">L</span></span>
-        <span class="label">Level Devil</span>
-      </a>
-      <a class="card" href="/games-web/melonplayground.html" target="_blank" rel="noopener" data-name="melon playground" title="Melon Playground">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(160,72%,52%) 0%,hsl(205,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Melon Playground</span>
-      </a>
-      <a class="card" href="/games-web/mergeroundracers.html" target="_blank" rel="noopener" data-name="merge round racers" title="Merge Round Racers">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(68,72%,52%) 0%,hsl(113,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Merge Round Racers</span>
-      </a>
-      <a class="card" href="/games-web/minesweeper.html" target="_blank" rel="noopener" data-name="minesweeper" title="Minesweeper">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(166,72%,52%) 0%,hsl(211,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Minesweeper</span>
-      </a>
-      <a class="card" href="/games-web/monstertracks.html" target="_blank" rel="noopener" data-name="monster tracks" title="Monster Tracks">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(342,72%,52%) 0%,hsl(27,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Monster Tracks</span>
-      </a>
-      <a class="card" href="/games-web/motox3m2.html" target="_blank" rel="noopener" data-name="moto x3m 2" title="Moto X3M 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(145,72%,52%) 0%,hsl(190,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Moto X3M 2</span>
-      </a>
-      <a class="card" href="/games-web/motox3m3.html" target="_blank" rel="noopener" data-name="moto x3m 3" title="Moto X3M 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(146,72%,52%) 0%,hsl(191,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Moto X3M 3</span>
-      </a>
-      <a class="card" href="/games-web/motox3mpoolparty.html" target="_blank" rel="noopener" data-name="moto x3m pool party" title="Moto X3M Pool Party">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(315,72%,52%) 0%,hsl(0,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Moto X3M Pool Party</span>
-      </a>
-      <a class="card" href="/games-web/motox3mspookyland.html" target="_blank" rel="noopener" data-name="moto x3m spooky land" title="Moto X3M Spooky Land">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(255,72%,52%) 0%,hsl(300,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Moto X3M Spooky Land</span>
-      </a>
-      <a class="card" href="/games-web/motox3mwinter.html" target="_blank" rel="noopener" data-name="moto x3m winter" title="Moto X3M Winter">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(38,72%,52%) 0%,hsl(83,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">M</span></span>
-        <span class="label">Moto X3M Winter</span>
-      </a>
-      <a class="card" href="/games-web/noobminer.html" target="_blank" rel="noopener" data-name="noob miner" title="Noob Miner">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(307,72%,52%) 0%,hsl(352,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">N</span></span>
-        <span class="label">Noob Miner</span>
-      </a>
-      <a class="card" href="/games-web/oppositeday.html" target="_blank" rel="noopener" data-name="opposite day" title="Opposite Day">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(179,72%,52%) 0%,hsl(224,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">O</span></span>
-        <span class="label">Opposite Day</span>
-      </a>
-      <a class="card" href="/games-web/ovo.html" target="_blank" rel="noopener" data-name="ovo" title="OvO">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(96,72%,52%) 0%,hsl(141,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">O</span></span>
-        <span class="label">OvO</span>
-      </a>
-      <a class="card" href="/games-web/ovo2.html" target="_blank" rel="noopener" data-name="ovo 2" title="OvO 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(58,72%,52%) 0%,hsl(103,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">O</span></span>
-        <span class="label">OvO 2</span>
-      </a>
-      <a class="card" href="/games-web/pacman.html" target="_blank" rel="noopener" data-name="pac man" title="Pac Man">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(172,72%,52%) 0%,hsl(217,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Pac Man</span>
-      </a>
-      <a class="card" href="/games-web/papasburgeria.html" target="_blank" rel="noopener" data-name="papa&#x27;s burgeria" title="Papa&#x27;s Burgeria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(39,72%,52%) 0%,hsl(84,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Burgeria</span>
-      </a>
-      <a class="card" href="/games-web/papascheeseria.html" target="_blank" rel="noopener" data-name="papa&#x27;s cheeseria" title="Papa&#x27;s Cheeseria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(337,72%,52%) 0%,hsl(22,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Cheeseria</span>
-      </a>
-      <a class="card" href="/games-web/papascupcakeria.html" target="_blank" rel="noopener" data-name="papa&#x27;s cupcakeria" title="Papa&#x27;s Cupcakeria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(118,72%,52%) 0%,hsl(163,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Cupcakeria</span>
-      </a>
-      <a class="card" href="/games-web/papasdonuteria.html" target="_blank" rel="noopener" data-name="papa&#x27;s donuteria" title="Papa&#x27;s Donuteria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(101,72%,52%) 0%,hsl(146,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Donuteria</span>
-      </a>
-      <a class="card" href="/games-web/papasfreezeria.html" target="_blank" rel="noopener" data-name="papa&#x27;s freezeria" title="Papa&#x27;s Freezeria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(57,72%,52%) 0%,hsl(102,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Freezeria</span>
-      </a>
-      <a class="card" href="/games-web/papashotdoggeria.html" target="_blank" rel="noopener" data-name="papa&#x27;s hot doggeria" title="Papa&#x27;s Hot Doggeria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(205,72%,52%) 0%,hsl(250,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Hot Doggeria</span>
-      </a>
-      <a class="card" href="/games-web/papaspancakeria.html" target="_blank" rel="noopener" data-name="papa&#x27;s pancakeria" title="Papa&#x27;s Pancakeria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(199,72%,52%) 0%,hsl(244,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Pancakeria</span>
-      </a>
-      <a class="card" href="/games-web/papaspastaria.html" target="_blank" rel="noopener" data-name="papa&#x27;s pastaria" title="Papa&#x27;s Pastaria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(13,72%,52%) 0%,hsl(58,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Pastaria</span>
-      </a>
-      <a class="card" href="/games-web/papaspizzeria.html" target="_blank" rel="noopener" data-name="papa&#x27;s pizzeria" title="Papa&#x27;s Pizzeria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(8,72%,52%) 0%,hsl(53,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Pizzeria</span>
-      </a>
-      <a class="card" href="/games-web/papastacomia.html" target="_blank" rel="noopener" data-name="papa&#x27;s taco mia" title="Papa&#x27;s Taco Mia">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(104,72%,52%) 0%,hsl(149,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Taco Mia</span>
-      </a>
-      <a class="card" href="/games-web/papaswingeria.html" target="_blank" rel="noopener" data-name="papa&#x27;s wingeria" title="Papa&#x27;s Wingeria">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(74,72%,52%) 0%,hsl(119,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Papa&#x27;s Wingeria</span>
-      </a>
-      <a class="card" href="/games-web/parkingfury.html" target="_blank" rel="noopener" data-name="parking fury" title="Parking Fury">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(30,72%,52%) 0%,hsl(75,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Parking Fury</span>
-      </a>
-      <a class="card" href="/games-web/parkingfury2.html" target="_blank" rel="noopener" data-name="parking fury 2" title="Parking Fury 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(352,72%,52%) 0%,hsl(37,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Parking Fury 2</span>
-      </a>
-      <a class="card" href="/games-web/parkingfury3.html" target="_blank" rel="noopener" data-name="parking fury 3" title="Parking Fury 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(353,72%,52%) 0%,hsl(38,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Parking Fury 3</span>
-      </a>
-      <a class="card" href="/games-web/picosschool.html" target="_blank" rel="noopener" data-name="pico&#x27;s school" title="Pico&#x27;s School">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(267,72%,52%) 0%,hsl(312,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Pico&#x27;s School</span>
-      </a>
-      <a class="card" href="/games-web/pingpongchaos.html" target="_blank" rel="noopener" data-name="ping pong chaos" title="Ping Pong Chaos">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(70,72%,52%) 0%,hsl(115,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Ping Pong Chaos</span>
-      </a>
-      <a class="card" href="/games-web/pixelspeedrun.html" target="_blank" rel="noopener" data-name="pixel speedrun" title="Pixel Speedrun">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(334,72%,52%) 0%,hsl(19,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Pixel Speedrun</span>
-      </a>
-      <a class="card" href="/games-web/plantsvszombies.html" target="_blank" rel="noopener" data-name="plants vs. zombies" title="Plants vs. Zombies">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(198,72%,52%) 0%,hsl(243,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Plants vs. Zombies</span>
-      </a>
-      <a class="card" href="/games-web/plonky.html" target="_blank" rel="noopener" data-name="plonky" title="Plonky">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(217,72%,52%) 0%,hsl(262,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Plonky</span>
-      </a>
-      <a class="card" href="/games-web/polytrack.html" target="_blank" rel="noopener" data-name="polytrack" title="Polytrack">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(263,72%,52%) 0%,hsl(308,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Polytrack</span>
-      </a>
-      <a class="card" href="/games-web/poorbunny.html" target="_blank" rel="noopener" data-name="poor bunny" title="Poor Bunny">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(192,72%,52%) 0%,hsl(237,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Poor Bunny</span>
-      </a>
-      <a class="card" href="/games-web/pou.html" target="_blank" rel="noopener" data-name="pou" title="Pou">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(158,72%,52%) 0%,hsl(203,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">P</span></span>
-        <span class="label">Pou</span>
-      </a>
-      <a class="card" href="/games-web/ragdollhit.html" target="_blank" rel="noopener" data-name="ragdoll hit" title="Ragdoll Hit">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(254,72%,52%) 0%,hsl(299,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Ragdoll Hit</span>
-      </a>
-      <a class="card" href="/games-web/ragdollsoccer.html" target="_blank" rel="noopener" data-name="ragdoll soccer" title="Ragdoll Soccer">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(118,72%,52%) 0%,hsl(163,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Ragdoll Soccer</span>
-      </a>
-      <a class="card" href="/games-web/redball4vol1.html" target="_blank" rel="noopener" data-name="red ball 4 vol. 1" title="Red Ball 4 Vol. 1">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(42,72%,52%) 0%,hsl(87,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Red Ball 4 Vol. 1</span>
-      </a>
-      <a class="card" href="/games-web/redball4vol2.html" target="_blank" rel="noopener" data-name="red ball 4 vol. 2" title="Red Ball 4 Vol. 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(43,72%,52%) 0%,hsl(88,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Red Ball 4 Vol. 2</span>
-      </a>
-      <a class="card" href="/games-web/redball4vol3.html" target="_blank" rel="noopener" data-name="red ball 4 vol. 3" title="Red Ball 4 Vol. 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(44,72%,52%) 0%,hsl(89,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Red Ball 4 Vol. 3</span>
-      </a>
-      <a class="card" href="/games-web/retrobowl.html" target="_blank" rel="noopener" data-name="retro bowl" title="Retro Bowl">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(180,72%,52%) 0%,hsl(225,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Retro Bowl</span>
-      </a>
-      <a class="card" href="/games-web/retrobowlcollege.html" target="_blank" rel="noopener" data-name="retro bowl college" title="Retro Bowl College">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(131,72%,52%) 0%,hsl(176,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Retro Bowl College</span>
-      </a>
-      <a class="card" href="/games-web/retrohighway.html" target="_blank" rel="noopener" data-name="retro highway" title="Retro Highway">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(347,72%,52%) 0%,hsl(32,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Retro Highway</span>
-      </a>
-      <a class="card" href="/games-web/retropingpong.html" target="_blank" rel="noopener" data-name="retro ping pong" title="Retro Ping Pong">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(100,72%,52%) 0%,hsl(145,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Retro Ping Pong</span>
-      </a>
-      <a class="card" href="/games-web/riddleschool.html" target="_blank" rel="noopener" data-name="riddle school" title="Riddle School">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(284,72%,52%) 0%,hsl(329,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Riddle School</span>
-      </a>
-      <a class="card" href="/games-web/riddleschool2.html" target="_blank" rel="noopener" data-name="riddle school 2" title="Riddle School 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(6,72%,52%) 0%,hsl(51,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Riddle School 2</span>
-      </a>
-      <a class="card" href="/games-web/riddleschool3.html" target="_blank" rel="noopener" data-name="riddle school 3" title="Riddle School 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(7,72%,52%) 0%,hsl(52,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Riddle School 3</span>
-      </a>
-      <a class="card" href="/games-web/riddleschool4.html" target="_blank" rel="noopener" data-name="riddle school 4" title="Riddle School 4">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(8,72%,52%) 0%,hsl(53,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Riddle School 4</span>
-      </a>
-      <a class="card" href="/games-web/rooftopsnipers2.html" target="_blank" rel="noopener" data-name="rooftop snipers 2" title="Rooftop Snipers 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(279,72%,52%) 0%,hsl(324,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Rooftop Snipers 2</span>
-      </a>
-      <a class="card" href="/games-web/run.html" target="_blank" rel="noopener" data-name="run" title="Run">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(99,72%,52%) 0%,hsl(144,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Run</span>
-      </a>
-      <a class="card" href="/games-web/run2.html" target="_blank" rel="noopener" data-name="run 2" title="Run 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(61,72%,52%) 0%,hsl(106,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Run 2</span>
-      </a>
-      <a class="card" href="/games-web/run3.html" target="_blank" rel="noopener" data-name="run 3" title="Run 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(62,72%,52%) 0%,hsl(107,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">R</span></span>
-        <span class="label">Run 3</span>
-      </a>
-      <a class="card" href="/games-web/sandgame.html" target="_blank" rel="noopener" data-name="sand game" title="Sand Game">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(350,72%,52%) 0%,hsl(35,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Sand Game</span>
-      </a>
-      <a class="card" href="/games-web/shortlife.html" target="_blank" rel="noopener" data-name="short life" title="Short Life">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(344,72%,52%) 0%,hsl(29,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Short Life</span>
-      </a>
-      <a class="card" href="/games-web/slope2player.html" target="_blank" rel="noopener" data-name="slope 2 player" title="Slope 2 Player">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(140,72%,52%) 0%,hsl(185,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Slope 2 Player</span>
-      </a>
-      <a class="card" href="/games-web/slowroads.html" target="_blank" rel="noopener" data-name="slow roads" title="Slow Roads">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(28,72%,52%) 0%,hsl(73,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Slow Roads</span>
-      </a>
-      <a class="card" href="/games-web/sm64.html" target="_blank" rel="noopener" data-name="super mario 64" title="Super Mario 64">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(151,72%,52%) 0%,hsl(196,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Super Mario 64</span>
-      </a>
-      <a class="card" href="/games-web/snowballio.html" target="_blank" rel="noopener" data-name="snowball.io" title="Snowball.io">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(346,72%,52%) 0%,hsl(31,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Snowball.io</span>
-      </a>
-      <a class="card" href="/games-web/soccerbros.html" target="_blank" rel="noopener" data-name="soccer bros" title="Soccer Bros">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(355,72%,52%) 0%,hsl(40,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Soccer Bros</span>
-      </a>
-      <a class="card" href="/games-web/spacebarclicker.html" target="_blank" rel="noopener" data-name="spacebar clicker" title="Spacebar Clicker">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(154,72%,52%) 0%,hsl(199,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Spacebar Clicker</span>
-      </a>
-      <a class="card" href="/games-web/spaceiskey.html" target="_blank" rel="noopener" data-name="space is key" title="Space is Key">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(203,72%,52%) 0%,hsl(248,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Space is Key</span>
-      </a>
-      <a class="card" href="/games-web/spaceiskey2.html" target="_blank" rel="noopener" data-name="space is key 2" title="Space is Key 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(285,72%,52%) 0%,hsl(330,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Space is Key 2</span>
-      </a>
-      <a class="card" href="/games-web/spacewaves.html" target="_blank" rel="noopener" data-name="space waves" title="Space Waves">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(232,72%,52%) 0%,hsl(277,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Space Waves</span>
-      </a>
-      <a class="card" href="/games-web/speedstars.html" target="_blank" rel="noopener" data-name="speed stars" title="Speed Stars">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(184,72%,52%) 0%,hsl(229,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Speed Stars</span>
-      </a>
-      <a class="card" href="/games-web/sprunki.html" target="_blank" rel="noopener" data-name="sprunki" title="Sprunki">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(268,72%,52%) 0%,hsl(313,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Sprunki</span>
-      </a>
-      <a class="card" href="/games-web/stack.html" target="_blank" rel="noopener" data-name="stack" title="Stack">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(352,72%,52%) 0%,hsl(37,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Stack</span>
-      </a>
-      <a class="card" href="/games-web/stacktris.html" target="_blank" rel="noopener" data-name="stacktris" title="Stacktris">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(112,72%,52%) 0%,hsl(157,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Stacktris</span>
-      </a>
-      <a class="card" href="/games-web/stateio.html" target="_blank" rel="noopener" data-name="state.io" title="State.io">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(115,72%,52%) 0%,hsl(160,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">State.io</span>
-      </a>
-      <a class="card" href="/games-web/stickarchersbattle.html" target="_blank" rel="noopener" data-name="stick archers battle" title="Stick Archers Battle">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(120,72%,52%) 0%,hsl(165,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Stick Archers Battle</span>
-      </a>
-      <a class="card" href="/games-web/stickfighter.html" target="_blank" rel="noopener" data-name="stick fighter" title="Stick Fighter">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(325,72%,52%) 0%,hsl(10,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Stick Fighter</span>
-      </a>
-      <a class="card" href="/games-web/stickmanhook.html" target="_blank" rel="noopener" data-name="stickman hook" title="Stickman Hook">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(89,72%,52%) 0%,hsl(134,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Stickman Hook</span>
-      </a>
-      <a class="card" href="/games-web/stickmerge.html" target="_blank" rel="noopener" data-name="stick merge" title="Stick Merge">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(48,72%,52%) 0%,hsl(93,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Stick Merge</span>
-      </a>
-      <a class="card" href="/games-web/superliquidsoccer.html" target="_blank" rel="noopener" data-name="super liquid soccer" title="Super Liquid Soccer">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(104,72%,52%) 0%,hsl(149,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">S</span></span>
-        <span class="label">Super Liquid Soccer</span>
-      </a>
-      <a class="card" href="/games-web/tabletennisworldtour.html" target="_blank" rel="noopener" data-name="table tennis world tour" title="Table Tennis World Tour">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(25,72%,52%) 0%,hsl(70,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Table Tennis World Tour</span>
-      </a>
-      <a class="card" href="/games-web/tag.html" target="_blank" rel="noopener" data-name="tag" title="Tag">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(314,72%,52%) 0%,hsl(359,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Tag</span>
-      </a>
-      <a class="card" href="/games-web/templeofboom.html" target="_blank" rel="noopener" data-name="temple of boom" title="Temple of Boom">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(89,72%,52%) 0%,hsl(134,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Temple of Boom</span>
-      </a>
-      <a class="card" href="/games-web/territorialio.html" target="_blank" rel="noopener" data-name="territorial.io" title="Territorial.io">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(111,72%,52%) 0%,hsl(156,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Territorial.io</span>
-      </a>
-      <a class="card" href="/games-web/theimpossiblequiz.html" target="_blank" rel="noopener" data-name="the impossible quiz" title="The Impossible Quiz">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(25,72%,52%) 0%,hsl(70,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">The Impossible Quiz</span>
-      </a>
-      <a class="card" href="/games-web/theimpossiblequiz2.html" target="_blank" rel="noopener" data-name="the impossible quiz 2" title="The Impossible Quiz 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(227,72%,52%) 0%,hsl(272,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">The Impossible Quiz 2</span>
-      </a>
-      <a class="card" href="/games-web/thereisnog.html" target="_blank" rel="noopener" data-name="there is no game" title="There Is No Game">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(95,72%,52%) 0%,hsl(140,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">There Is No Game</span>
-      </a>
-      <a class="card" href="/games-web/thisistheonlylevel.html" target="_blank" rel="noopener" data-name="this is the only level" title="This Is The Only Level">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(195,72%,52%) 0%,hsl(240,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">This Is The Only Level</span>
-      </a>
-      <a class="card" href="/games-web/thisistheonlyleveltoo.html" target="_blank" rel="noopener" data-name="this is the only level too" title="This Is The Only Level Too">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(263,72%,52%) 0%,hsl(308,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">This Is The Only Level Too</span>
-      </a>
-      <a class="card" href="/games-web/timeshooter2.html" target="_blank" rel="noopener" data-name="time shooter 2" title="Time Shooter 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(323,72%,52%) 0%,hsl(8,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Time Shooter 2</span>
-      </a>
-      <a class="card" href="/games-web/tinyfishing.html" target="_blank" rel="noopener" data-name="tiny fishing" title="Tiny Fishing">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(114,72%,52%) 0%,hsl(159,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Tiny Fishing</span>
-      </a>
-      <a class="card" href="/games-web/trapthecat.html" target="_blank" rel="noopener" data-name="trap the cat" title="Trap the Cat">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(292,72%,52%) 0%,hsl(337,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Trap the Cat</span>
-      </a>
-      <a class="card" href="/games-web/triviacrack.html" target="_blank" rel="noopener" data-name="trivia crack" title="Trivia Crack">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(149,72%,52%) 0%,hsl(194,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Trivia Crack</span>
-      </a>
-      <a class="card" href="/games-web/tubejumpers.html" target="_blank" rel="noopener" data-name="tube jumpers" title="Tube Jumpers">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(244,72%,52%) 0%,hsl(289,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Tube Jumpers</span>
-      </a>
-      <a class="card" href="/games-web/tunnelrush.html" target="_blank" rel="noopener" data-name="tunnel rush" title="Tunnel Rush">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(0,72%,52%) 0%,hsl(45,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">T</span></span>
-        <span class="label">Tunnel Rush</span>
-      </a>
-      <a class="card" href="/games-web/unicyclehero.html" target="_blank" rel="noopener" data-name="unicycle hero" title="Unicycle Hero">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(28,72%,52%) 0%,hsl(73,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">U</span></span>
-        <span class="label">Unicycle Hero</span>
-      </a>
-      <a class="card" href="/games-web/vex4.html" target="_blank" rel="noopener" data-name="vex 4" title="Vex 4">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(61,72%,52%) 0%,hsl(106,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">V</span></span>
-        <span class="label">Vex 4</span>
-      </a>
-      <a class="card" href="/games-web/vex5.html" target="_blank" rel="noopener" data-name="vex 5" title="Vex 5">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(62,72%,52%) 0%,hsl(107,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">V</span></span>
-        <span class="label">Vex 5</span>
-      </a>
-      <a class="card" href="/games-web/vexx3m.html" target="_blank" rel="noopener" data-name="vex x3m" title="Vex X3M">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(195,72%,52%) 0%,hsl(240,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">V</span></span>
-        <span class="label">Vex X3M</span>
-      </a>
-      <a class="card" href="/games-web/vexx3m2.html" target="_blank" rel="noopener" data-name="vex x3m 2" title="Vex X3M 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(157,72%,52%) 0%,hsl(202,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">V</span></span>
-        <span class="label">Vex X3M 2</span>
-      </a>
-      <a class="card" href="/games-web/volleyrandom.html" target="_blank" rel="noopener" data-name="volley random" title="Volley Random">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(46,72%,52%) 0%,hsl(91,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">V</span></span>
-        <span class="label">Volley Random</span>
-      </a>
-      <a class="card" href="/games-web/webecomewhatwebehold.html" target="_blank" rel="noopener" data-name="we become what we behold" title="We Become What We Behold">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(255,72%,52%) 0%,hsl(300,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">We Become What We Behold</span>
-      </a>
-      <a class="card" href="/games-web/wheeliebike.html" target="_blank" rel="noopener" data-name="wheelie bike" title="Wheelie Bike">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(98,72%,52%) 0%,hsl(143,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">Wheelie Bike</span>
-      </a>
-      <a class="card" href="/games-web/wheely.html" target="_blank" rel="noopener" data-name="wheely" title="Wheely">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(262,72%,52%) 0%,hsl(307,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">Wheely</span>
-      </a>
-      <a class="card" href="/games-web/wheely2.html" target="_blank" rel="noopener" data-name="wheely 2" title="Wheely 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(104,72%,52%) 0%,hsl(149,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">Wheely 2</span>
-      </a>
-      <a class="card" href="/games-web/wheely3.html" target="_blank" rel="noopener" data-name="wheely 3" title="Wheely 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(105,72%,52%) 0%,hsl(150,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">Wheely 3</span>
-      </a>
-      <a class="card" href="/games-web/wheely6.html" target="_blank" rel="noopener" data-name="wheely 6" title="Wheely 6">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(108,72%,52%) 0%,hsl(153,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">Wheely 6</span>
-      </a>
-      <a class="card" href="/games-web/wheely8.html" target="_blank" rel="noopener" data-name="wheely 8" title="Wheely 8">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(110,72%,52%) 0%,hsl(155,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">Wheely 8</span>
-      </a>
-      <a class="card" href="/games-web/wordleunlimited.html" target="_blank" rel="noopener" data-name="wordle unlimited" title="Wordle Unlimited">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(92,72%,52%) 0%,hsl(137,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">Wordle Unlimited</span>
-      </a>
-      <a class="card" href="/games-web/worldshardestgame.html" target="_blank" rel="noopener" data-name="world&#x27;s hardest game" title="World&#x27;s Hardest Game">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(121,72%,52%) 0%,hsl(166,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">World&#x27;s Hardest Game</span>
-      </a>
-      <a class="card" href="/games-web/worldshardestgame2.html" target="_blank" rel="noopener" data-name="world&#x27;s hardest game 2" title="World&#x27;s Hardest Game 2">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(323,72%,52%) 0%,hsl(8,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">World&#x27;s Hardest Game 2</span>
-      </a>
-      <a class="card" href="/games-web/worldshardestgame3.html" target="_blank" rel="noopener" data-name="world&#x27;s hardest game 3" title="World&#x27;s Hardest Game 3">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(324,72%,52%) 0%,hsl(9,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">World&#x27;s Hardest Game 3</span>
-      </a>
-      <a class="card" href="/games-web/wrestlebros.html" target="_blank" rel="noopener" data-name="wrestle bros" title="Wrestle Bros">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(40,72%,52%) 0%,hsl(85,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">W</span></span>
-        <span class="label">Wrestle Bros</span>
-      </a>
-      <a class="card" href="/games-web/zombierush.html" target="_blank" rel="noopener" data-name="zombie rush" title="Zombie Rush">
-        <span class="icon" style="background:linear-gradient(135deg,hsl(314,72%,52%) 0%,hsl(359,80%,38%) 100%)"><span class="sheen"></span><span class="glyph">Z</span></span>
-        <span class="label">Zombie Rush</span>
-      </a>
-  </div>
-  <p class="empty" id="empty">没有找到匹配的游戏</p>
+  <div id="grid" class="grid"></div>
+  <div id="empty" class="empty"><div class="big">🕹️</div><div>No games match your search.</div></div>
 </main>
+<footer>Game Hub · <span id="footcount"></span> HTML5 games</footer>
 <script>
-(function(){
-  var input=document.getElementById('search'),
-      cards=Array.prototype.slice.call(document.querySelectorAll('.card')),
-      shown=document.getElementById('shown'),
-      shownWrap=document.getElementById('shown-wrap'),
-      empty=document.getElementById('empty'),
-      grid=document.getElementById('grid'),
-      total=cards.length;
-  function filter(){
-    var q=input.value.trim().toLowerCase(), n=0;
-    cards.forEach(function(c){
-      var hit=!q||c.getAttribute('data-name').indexOf(q)!==-1;
-      c.style.display=hit?'':'none';
-      if(hit)n++;
-    });
-    shown.textContent=n;
-    shownWrap.style.display=q?'':'none';
-    empty.style.display=n?'none':'block';
-    grid.style.display=n?'':'none';
+var GAMES = [{"f":"1.5.html","n":"Minecraft 1.5.2"},{"f":"1.8.html","n":"Minecraft 1.8.8"},{"f":"12minibattles.html","n":"12 Minibattles"},{"f":"1on1soccer.html","n":"1 On 1 Soccer"},{"f":"1on1tennis.html","n":"1 On 1 Tennis"},{"f":"2048.html","n":"2048"},{"f":"2048cupcakes.html","n":"2048 Cupcakes"},{"f":"8ballclassic.html","n":"8 Ballclassic"},{"f":"agariolite.html","n":"Solo Agario"},{"f":"ageofwar.html","n":"Ageofwar"},{"f":"ageofwar2.html","n":"Ageofwar 2"},{"f":"agesofconflict.html","n":"Agesofconflict"},{"f":"Alpha_1.2.6.html","n":"Minecraft Alpha 1.2.6"},{"f":"amongus.html","n":"Amongus"},{"f":"angrybirds.html","n":"Angrybirds"},{"f":"angrybirdsspace.html","n":"Angrybirdsspace"},{"f":"awesometanks.html","n":"Awesometanks"},{"f":"awesometanks2.html","n":"Awesometanks 2"},{"f":"backrooms.html","n":"Backrooms"},{"f":"baconmaydie.html","n":"Baconmaydie"},{"f":"badicecream.html","n":"Badicecream"},{"f":"badicecream2.html","n":"Badicecream 2"},{"f":"badicecream3.html","n":"Badicecream 3"},{"f":"badpiggies.html","n":"Badpiggies"},{"f":"baseballbros.html","n":"Baseballbros"},{"f":"basketballlegends.html","n":"Basketballlegends"},{"f":"basketballstars.html","n":"Basketballstars"},{"f":"basketbros.html","n":"Basketbros"},{"f":"basketrandom.html","n":"Basket Random"},{"f":"Beta_1.3.html","n":"Minecraft Beta 1.3"},{"f":"blockysnakes.html","n":"Blockysnakes"},{"f":"bloonsTD.html","n":"Bloons Td"},{"f":"bloonsTD2.html","n":"Bloons Td 2"},{"f":"bloonsTD3.html","n":"Bloons Td 3"},{"f":"bloonsTD4.html","n":"Bloons Td 4"},{"f":"bloonsTD5.html","n":"Bloons Td 5"},{"f":"bloxorz.html","n":"Bloxorz"},{"f":"blumgiracers.html","n":"Blumgiracers"},{"f":"blumgirocket.html","n":"Blumgirocket"},{"f":"bobtherobber.html","n":"Bobtherobber"},{"f":"bobtherobber2.html","n":"Bobtherobber 2"},{"f":"bobtherobber5.html","n":"Bobtherobber 5"},{"f":"breakingthebank.html","n":"Breakingthebank"},{"f":"bubbleshooter.html","n":"Bubbleshooter"},{"f":"candycrush.html","n":"Candycrush"},{"f":"capybaraclicker.html","n":"Capybaraclicker"},{"f":"cardrawing.html","n":"Cardrawing"},{"f":"carkingarena.html","n":"Carkingarena"},{"f":"chess.html","n":"Chess"},{"f":"choppyorc.html","n":"Choppyorc"},{"f":"circloO.html","n":"Circlo O"},{"f":"circloO2.html","n":"Circlo O 2"},{"f":"clashofvikings.html","n":"Clashofvikings"},{"f":"cleanupio.html","n":"Cleanupio"},{"f":"clusterrush.html","n":"Cluster Rush"},{"f":"crazycars.html","n":"Crazycars"},{"f":"crazymotorcycle.html","n":"Crazymotorcycle"},{"f":"dadish.html","n":"Dadish"},{"f":"dadish2.html","n":"Dadish 2"},{"f":"dadish3.html","n":"Dadish 3"},{"f":"deathrun3D.html","n":"Deathrun 3 D"},{"f":"doodlejump.html","n":"Doodlejump"},{"f":"drawclimber.html","n":"Drawclimber"},{"f":"ducklife.html","n":"Ducklife"},{"f":"ducklife2.html","n":"Ducklife 2"},{"f":"ducklife3.html","n":"Ducklife 3"},{"f":"ducklife4.html","n":"Ducklife 4"},{"f":"ducklife5.html","n":"Ducklife 5"},{"f":"ducklingsio.html","n":"Ducklingsio"},{"f":"eagleride.html","n":"Eagleride"},{"f":"earntodie.html","n":"Earntodie"},{"f":"earntodie2.html","n":"Earntodie 2"},{"f":"eggycar.html","n":"Eggycar"},{"f":"escapingtheprison.html","n":"Escapingtheprison"},{"f":"evilglitch.html","n":"Evil Glitch"},{"f":"fancypantsadventure.html","n":"Fancypantsadventure"},{"f":"fancypantsadventure2.html","n":"Fancypantsadventure 2"},{"f":"fireboyandwatergirl.html","n":"Fireboyandwatergirl"},{"f":"fireboyandwatergirl2.html","n":"Fireboyandwatergirl 2"},{"f":"fireboyandwatergirl3.html","n":"Fireboyandwatergirl 3"},{"f":"fireboyandwatergirl4.html","n":"Fireboyandwatergirl 4"},{"f":"flappybird.html","n":"Flappy Bird"},{"f":"floodrunner2.html","n":"Floodrunner 2"},{"f":"floodrunner3.html","n":"Floodrunner 3"},{"f":"floodrunner4.html","n":"Floodrunner 4"},{"f":"fnaf.html","n":"Fnaf"},{"f":"fnaf4.html","n":"FNAF-4"},{"f":"footballbros.html","n":"Football Bros"},{"f":"footballlegends.html","n":"Footballlegends"},{"f":"freerider3.html","n":"Freerider 3"},{"f":"fruitninja.html","n":"Fruitninja"},{"f":"funnybattle.html","n":"Funnybattle"},{"f":"funnybattle2.html","n":"Funnybattle 2"},{"f":"geometrydash.html","n":"Geometry Dash"},{"f":"getontop.html","n":"Getontop"},{"f":"googlebaseball.html","n":"Googlebaseball"},{"f":"googledino.html","n":"Chrome Dino"},{"f":"guesstheiranswer.html","n":"Guesstheiranswer"},{"f":"hanger2.html","n":"Hanger 2"},{"f":"happywheels.html","n":"Happywheels"},{"f":"helixjump.html","n":"Helixjump"},{"f":"hillclimbracinglite.html","n":"Hillclimbracinglite"},{"f":"holeio.html","n":"Holeio"},{"f":"houseofhazards.html","n":"Houseofhazards"},{"f":"hoverracerdrive.html","n":"Hoverracerdrive"},{"f":"idlebreakout.html","n":"Idlebreakout"},{"f":"Indev.html","n":"Minecraft Indev"},{"f":"ironsnout.html","n":"Ironsnout"},{"f":"jetpackjoyride.html","n":"Jetpackjoyride"},{"f":"johnnytrigger.html","n":"Johnnytrigger"},{"f":"jumpingshell.html","n":"Jumpingshell"},{"f":"karatebros.html","n":"Karatebros"},{"f":"learntofly.html","n":"Learntofly"},{"f":"learntofly2.html","n":"Learntofly 2"},{"f":"learntoflyidle.html","n":"Learntoflyidle"},{"f":"leveldevil.html","n":"Level Devil"},{"f":"melonplayground.html","n":"Melonplayground"},{"f":"mergeroundracers.html","n":"Mergeroundracers"},{"f":"minesweeper.html","n":"Minesweeper"},{"f":"monstertracks.html","n":"Monstertracks"},{"f":"motox3m2.html","n":"Motox 3 M 2"},{"f":"motox3m3.html","n":"Motox 3 M 3"},{"f":"motox3mpoolparty.html","n":"Motox 3 Mpoolparty"},{"f":"motox3mspookyland.html","n":"Motox 3 Mspookyland"},{"f":"motox3mwinter.html","n":"Motox 3 Mwinter"},{"f":"noobminer.html","n":"Noob Miner"},{"f":"oppositeday.html","n":"Oppositeday"},{"f":"ovo.html","n":"OvO"},{"f":"ovo2.html","n":"OvO 2"},{"f":"pacman.html","n":"Pac Man"},{"f":"papasburgeria.html","n":"Papasburgeria"},{"f":"papascheeseria.html","n":"Papascheeseria"},{"f":"papascupcakeria.html","n":"Papascupcakeria"},{"f":"papasdonuteria.html","n":"Papasdonuteria"},{"f":"papasfreezeria.html","n":"Papasfreezeria"},{"f":"papashotdoggeria.html","n":"Papashotdoggeria"},{"f":"papaspancakeria.html","n":"Papaspancakeria"},{"f":"papaspastaria.html","n":"Papaspastaria"},{"f":"papaspizzeria.html","n":"Papaspizzeria"},{"f":"papastacomia.html","n":"Papastacomia"},{"f":"papaswingeria.html","n":"Papaswingeria"},{"f":"parkingfury.html","n":"Parkingfury"},{"f":"parkingfury2.html","n":"Parkingfury 2"},{"f":"parkingfury3.html","n":"Parkingfury 3"},{"f":"picosschool.html","n":"Picosschool"},{"f":"pingpongchaos.html","n":"Pingpongchaos"},{"f":"pixelspeedrun.html","n":"Pixel Speedrun"},{"f":"plantsvszombies.html","n":"Plantsvszombies"},{"f":"plonky.html","n":"Plonky"},{"f":"polytrack.html","n":"Polytrack"},{"f":"poorbunny.html","n":"Poorbunny"},{"f":"pou.html","n":"Pou"},{"f":"ragdollhit.html","n":"Ragdollhit"},{"f":"ragdollsoccer.html","n":"Ragdollsoccer"},{"f":"redball4vol1.html","n":"Redball 4 Vol 1"},{"f":"redball4vol2.html","n":"Redball 4 Vol 2"},{"f":"redball4vol3.html","n":"Redball 4 Vol 3"},{"f":"retrobowl.html","n":"Retrobowl"},{"f":"retrobowlcollege.html","n":"Retrobowlcollege"},{"f":"retrohighway.html","n":"Retrohighway"},{"f":"retropingpong.html","n":"Retro-Ping-Pong"},{"f":"riddleschool.html","n":"Riddleschool"},{"f":"riddleschool2.html","n":"Riddleschool 2"},{"f":"riddleschool3.html","n":"Riddleschool 3"},{"f":"riddleschool4.html","n":"Riddleschool 4"},{"f":"rooftopsnipers2.html","n":"Rooftop Snipers 2"},{"f":"run.html","n":"Run"},{"f":"run2.html","n":"Run 2"},{"f":"run3.html","n":"Run 3"},{"f":"sandgame.html","n":"Sand Game"},{"f":"shortlife.html","n":"Shortlife"},{"f":"slope2player.html","n":"Slope 2 Player"},{"f":"slowroads.html","n":"Slowroads"},{"f":"sm64.html","n":"Super Mario 64"},{"f":"snowballio.html","n":"Snowballio"},{"f":"soccerbros.html","n":"Soccerbros"},{"f":"spacebarclicker.html","n":"SPACEBAR CLICKER"},{"f":"spaceiskey.html","n":"Spaceiskey"},{"f":"spaceiskey2.html","n":"Spaceiskey 2"},{"f":"spacewaves.html","n":"Space Waves"},{"f":"speedstars.html","n":"Speedstars"},{"f":"sprunki.html","n":"Sprunki"},{"f":"stack.html","n":"Stack"},{"f":"stacktris.html","n":"Stacktris"},{"f":"stateio.html","n":"Stateio"},{"f":"stickarchersbattle.html","n":"Stickarchersbattle"},{"f":"stickfighter.html","n":"Stickfighter"},{"f":"stickmanhook.html","n":"Stickman Hook"},{"f":"stickmerge.html","n":"Stickmerge"},{"f":"superliquidsoccer.html","n":"Superliquidsoccer"},{"f":"tabletennisworldtour.html","n":"Tabletennisworldtour"},{"f":"tag.html","n":"Tag"},{"f":"templeofboom.html","n":"Templeofboom"},{"f":"territorialio.html","n":"Territorialio"},{"f":"theimpossiblequiz.html","n":"Theimpossiblequiz"},{"f":"theimpossiblequiz2.html","n":"Theimpossiblequiz 2"},{"f":"thereisnog.html","n":"There Is No Game"},{"f":"thisistheonlylevel.html","n":"Thisistheonlylevel"},{"f":"thisistheonlyleveltoo.html","n":"Thisistheonlyleveltoo"},{"f":"timeshooter2.html","n":"Timeshooter 2"},{"f":"tinyfishing.html","n":"Tinyfishing"},{"f":"trapthecat.html","n":"Trapthecat"},{"f":"triviacrack.html","n":"Triviacrack"},{"f":"tubejumpers.html","n":"Tubejumpers"},{"f":"tunnelrush.html","n":"Tunnelrush"},{"f":"unicyclehero.html","n":"Unicyclehero"},{"f":"vex4.html","n":"Vex 4"},{"f":"vex5.html","n":"Vex 5"},{"f":"vexx3m.html","n":"Vex X3M"},{"f":"vexx3m2.html","n":"Vex X3M 2"},{"f":"volleyrandom.html","n":"Volleyrandom"},{"f":"webecomewhatwebehold.html","n":"Webecomewhatwebehold"},{"f":"wheeliebike.html","n":"Wheeliebike"},{"f":"wheely.html","n":"Wheely"},{"f":"wheely2.html","n":"Wheely 2"},{"f":"wheely3.html","n":"Wheely 3"},{"f":"wheely6.html","n":"Wheely 6"},{"f":"wheely8.html","n":"Wheely 8"},{"f":"wordleunlimited.html","n":"Wordleunlimited"},{"f":"worldshardestgame.html","n":"Worldshardestgame"},{"f":"worldshardestgame2.html","n":"Worldshardestgame 2"},{"f":"worldshardestgame3.html","n":"Worldshardestgame 3"},{"f":"wrestlebros.html","n":"Wrestlebros"},{"f":"zombierush.html","n":"Zombierush"}];
+// Deterministic SailfishOS-style gradient per game name
+function hashStr(s){var h=0,i;for(i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return Math.abs(h);}
+function iconStyle(name){
+  var h=hashStr(name),hue=h%360,hue2=(hue+40+(h>>8)%50)%360;
+  return "background:linear-gradient(135deg,hsl("+hue+",72%,58%) 0%,hsl("+hue2+",70%,44%) 100%);";
+}
+function glyph(name){
+  var w=name.replace(/[^A-Za-z0-9 ]/g," ").trim().split(/ +/).filter(Boolean);
+  if(!w.length)return "?";
+  if(/^[0-9]/.test(name))return name.replace(/[^0-9A-Za-z]/g,"").slice(0,3).toUpperCase();
+  if(w.length>1)return (w[0][0]+w[1][0]).toUpperCase();
+  return w[0].slice(0,2).toUpperCase();
+}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+var grid=document.getElementById("grid"),shownEl=document.getElementById("shown"),
+    totalEl=document.getElementById("total"),emptyEl=document.getElementById("empty"),
+    searchEl=document.getElementById("search"),clearBtn=document.getElementById("clear");
+
+var frag=document.createDocumentFragment(),cards=[];
+GAMES.forEach(function(g){
+  var a=document.createElement("a");
+  a.className="card";
+  a.href="/games-web/"+encodeURIComponent(g.f);
+  a.title=g.n;
+  a.innerHTML='<div class="icon" style="'+iconStyle(g.n)+'"><span>'+esc(glyph(g.n))+'</span></div>'+
+              '<div class="name">'+esc(g.n)+'</div>';
+  frag.appendChild(a);
+  cards.push({el:a,key:g.n.toLowerCase()});
+});
+grid.appendChild(frag);
+totalEl.textContent=GAMES.length;
+shownEl.textContent=GAMES.length;
+document.getElementById("footcount").textContent=GAMES.length;
+
+function filter(){
+  var q=searchEl.value.trim().toLowerCase(),n=0;
+  clearBtn.style.display=q?"flex":"none";
+  for(var i=0;i<cards.length;i++){
+    var show=!q||cards[i].key.indexOf(q)!==-1;
+    cards[i].el.classList.toggle("hidden",!show);
+    if(show)n++;
   }
-  input.addEventListener('input',filter);
-  filter();
-})();
+  shownEl.textContent=n;
+  emptyEl.style.display=n?"none":"block";
+  grid.style.display=n?"":"none";
+}
+searchEl.addEventListener("input",filter);
+clearBtn.addEventListener("click",function(){searchEl.value="";filter();searchEl.focus();});
 </script>
 </body>
 </html>
