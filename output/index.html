@@ -3,827 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>离线 HTML 游戏汇总（小于 10MB）</title>
+<title>游戏大厅 | gmicroul.github.io</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-    background: #f0f2f5;
-    color: #333;
-    line-height: 1.6;
-  }
-  .container { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; }
-  header {
-    background: linear-gradient(135deg, #4a6cf7, #7b5cf0);
-    color: #fff;
-    border-radius: 12px;
-    padding: 32px 28px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 16px rgba(74, 108, 247, .25);
-  }
-  header h1 { font-size: 26px; margin-bottom: 8px; }
-  header p { font-size: 14px; opacity: .92; }
-  .stats {
-    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;
-  }
-  .stat {
-    background: rgba(255,255,255,.15);
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-size: 14px;
-  }
-  .stat strong { font-size: 20px; display: block; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,.06);
-  }
-  thead th {
-    background: #4a6cf7;
-    color: #fff;
-    text-align: left;
-    padding: 12px 14px;
-    font-size: 14px;
-    white-space: nowrap;
-  }
-  tbody td { padding: 10px 14px; border-top: 1px solid #eef0f3; font-size: 14px; }
-  tbody tr:hover { background: #f6f8ff; }
-  td.num { color: #999; width: 48px; }
-  td.file { color: #888; font-family: Consolas, monospace; font-size: 12px; word-break: break-all; }
-  td.size { color: #666; white-space: nowrap; text-align: right; }
-  a { color: #4a6cf7; text-decoration: none; font-weight: 500; }
-  a:hover { text-decoration: underline; }
-  footer { text-align: center; color: #999; font-size: 13px; margin-top: 28px; }
-  footer a { color: #888; }
+:root{
+  --bg0:#0b1220; --bg1:#101a2e; --card:rgba(255,255,255,.06);
+  --card-hover:rgba(255,255,255,.12); --border:rgba(255,255,255,.10);
+  --text:#eef3fb; --dim:#8ea2c0; --accent:#1fd6c1; --accent2:#5aa9ff;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;
+  background:linear-gradient(160deg,var(--bg0),var(--bg1) 55%,#0d1f33);
+  background-attachment:fixed;color:var(--text);min-height:100vh;
+}
+/* ambient glow, Sailfish-style ambience */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(600px 400px at 15% -5%, rgba(31,214,193,.14), transparent 60%),
+    radial-gradient(700px 500px at 90% 10%, rgba(90,169,255,.12), transparent 60%),
+    radial-gradient(500px 500px at 50% 110%, rgba(150,90,255,.10), transparent 60%);
+}
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:24px 20px 64px}
+header{padding:28px 0 8px;text-align:center}
+h1{
+  font-size:clamp(26px,4.5vw,40px);font-weight:800;letter-spacing:.5px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.subtitle{color:var(--dim);margin-top:8px;font-size:14px}
+.toolbar{
+  position:sticky;top:0;z-index:10;display:flex;gap:14px;align-items:center;
+  flex-wrap:wrap;justify-content:center;
+  padding:14px 0;margin-top:14px;
+  background:linear-gradient(180deg,rgba(11,18,32,.92),rgba(11,18,32,.75));
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.search-box{position:relative;flex:1 1 280px;max-width:460px}
+.search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--dim);fill:none;stroke-width:2}
+#search{
+  width:100%;padding:12px 16px 12px 40px;border-radius:24px;
+  border:1px solid var(--border);background:var(--card);color:var(--text);
+  font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;
+}
+#search::placeholder{color:var(--dim)}
+#search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(31,214,193,.18)}
+.count{
+  font-size:13px;color:var(--dim);white-space:nowrap;
+  padding:8px 14px;border:1px solid var(--border);border-radius:20px;background:var(--card);
+}
+.count b{color:var(--accent);font-weight:700}
+.grid{
+  display:grid;gap:16px;margin-top:22px;
+  grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+}
+@media(min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:20px}}
+.card{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:18px 10px 14px;border-radius:18px;text-decoration:none;color:var(--text);
+  background:var(--card);border:1px solid var(--border);
+  transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.card:hover,.card:focus-visible{
+  transform:translateY(-4px);background:var(--card-hover);
+  border-color:rgba(31,214,193,.45);box-shadow:0 10px 30px rgba(0,0,0,.35);outline:none;
+}
+.card:active{transform:translateY(-1px) scale(.98)}
+/* SailfishOS-style icon: flat rounded square, ambient gradient, white monogram, subtle top glow */
+.icon{
+  width:64px;height:64px;border-radius:22%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:26px;color:#fff;letter-spacing:.5px;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+  position:relative;overflow:hidden;flex-shrink:0;
+  box-shadow:0 4px 12px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.icon::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 45%);
+  pointer-events:none;
+}
+.name{
+  font-size:13px;font-weight:600;text-align:center;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  word-break:break-word;max-width:100%;
+}
+.empty{color:var(--dim);text-align:center;padding:60px 0;font-size:15px;display:none}
+footer{margin-top:48px;text-align:center;color:var(--dim);font-size:12px}
+@media(max-width:480px){
+  .wrap{padding:16px 14px 48px}
+  .icon{width:56px;height:56px;font-size:22px}
+  .grid{gap:12px;grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
   <header>
-    <h1>离线 HTML 游戏汇总</h1>
-    <p>数据来源：GitHub 仓库 CoolDude2349/Offline-HTML-Games-Pack 的 offline 目录。本页汇总了所有小于 10MB 的 HTML 游戏文件，点击游戏名称即可跳转到 GitHub 上对应的文件页面。</p>
-    <div class="stats">
-      <div class="stat"><strong>124</strong>符合条件的小游戏</div>
-      <div class="stat"><strong>&lt; 10 MB</strong>文件大小筛选条件</div>
-    </div>
+    <h1>&#127918; 游戏大厅</h1>
+    <p class="subtitle">HTML5 Games &middot; gmicroul.github.io</p>
   </header>
-  <table>
-    <thead>
-      <tr><th>#</th><th>游戏名称</th><th>文件名</th><th style="text-align:right">大小</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="num">1</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/1on1soccer.html" target="_blank" rel="noopener noreferrer">1on1soccer</a></td>
-        <td class="file">1on1soccer.html</td>
-        <td class="size">6.87 MB</td>
-      </tr>
-      <tr>
-        <td class="num">2</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/1on1tennis.html" target="_blank" rel="noopener noreferrer">1on1tennis</a></td>
-        <td class="file">1on1tennis.html</td>
-        <td class="size">7.32 MB</td>
-      </tr>
-      <tr>
-        <td class="num">3</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/2048.html" target="_blank" rel="noopener noreferrer">2048</a></td>
-        <td class="file">2048.html</td>
-        <td class="size">45.3 KB</td>
-      </tr>
-      <tr>
-        <td class="num">4</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/2048cupcakes.html" target="_blank" rel="noopener noreferrer">2048cupcakes</a></td>
-        <td class="file">2048cupcakes.html</td>
-        <td class="size">2.48 MB</td>
-      </tr>
-      <tr>
-        <td class="num">5</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/8ballclassic.html" target="_blank" rel="noopener noreferrer">8ballclassic</a></td>
-        <td class="file">8ballclassic.html</td>
-        <td class="size">8.41 MB</td>
-      </tr>
-      <tr>
-        <td class="num">6</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/agariolite.html" target="_blank" rel="noopener noreferrer">agariolite</a></td>
-        <td class="file">agariolite.html</td>
-        <td class="size">105.0 KB</td>
-      </tr>
-      <tr>
-        <td class="num">7</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Alpha_1.2.6.html" target="_blank" rel="noopener noreferrer">Alpha_1.2.6</a></td>
-        <td class="file">Alpha_1.2.6.html</td>
-        <td class="size">8.22 MB</td>
-      </tr>
-      <tr>
-        <td class="num">8</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/amongus.html" target="_blank" rel="noopener noreferrer">amongus</a></td>
-        <td class="file">amongus.html</td>
-        <td class="size">7.51 MB</td>
-      </tr>
-      <tr>
-        <td class="num">9</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/awesometanks.html" target="_blank" rel="noopener noreferrer">awesometanks</a></td>
-        <td class="file">awesometanks.html</td>
-        <td class="size">9.37 MB</td>
-      </tr>
-      <tr>
-        <td class="num">10</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/baconmaydie.html" target="_blank" rel="noopener noreferrer">baconmaydie</a></td>
-        <td class="file">baconmaydie.html</td>
-        <td class="size">5.85 MB</td>
-      </tr>
-      <tr>
-        <td class="num">11</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream.html" target="_blank" rel="noopener noreferrer">badicecream</a></td>
-        <td class="file">badicecream.html</td>
-        <td class="size">8.79 MB</td>
-      </tr>
-      <tr>
-        <td class="num">12</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream2.html" target="_blank" rel="noopener noreferrer">badicecream2</a></td>
-        <td class="file">badicecream2.html</td>
-        <td class="size">4.11 MB</td>
-      </tr>
-      <tr>
-        <td class="num">13</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badicecream3.html" target="_blank" rel="noopener noreferrer">badicecream3</a></td>
-        <td class="file">badicecream3.html</td>
-        <td class="size">4.83 MB</td>
-      </tr>
-      <tr>
-        <td class="num">14</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/badpiggies.html" target="_blank" rel="noopener noreferrer">badpiggies</a></td>
-        <td class="file">badpiggies.html</td>
-        <td class="size">9.54 MB</td>
-      </tr>
-      <tr>
-        <td class="num">15</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/basketballlegends.html" target="_blank" rel="noopener noreferrer">basketballlegends</a></td>
-        <td class="file">basketballlegends.html</td>
-        <td class="size">7.76 MB</td>
-      </tr>
-      <tr>
-        <td class="num">16</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/basketrandom.html" target="_blank" rel="noopener noreferrer">basketrandom</a></td>
-        <td class="file">basketrandom.html</td>
-        <td class="size">4.82 MB</td>
-      </tr>
-      <tr>
-        <td class="num">17</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Beta_1.3.html" target="_blank" rel="noopener noreferrer">Beta_1.3</a></td>
-        <td class="file">Beta_1.3.html</td>
-        <td class="size">4.30 MB</td>
-      </tr>
-      <tr>
-        <td class="num">18</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD.html" target="_blank" rel="noopener noreferrer">bloonsTD</a></td>
-        <td class="file">bloonsTD.html</td>
-        <td class="size">7.16 MB</td>
-      </tr>
-      <tr>
-        <td class="num">19</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD2.html" target="_blank" rel="noopener noreferrer">bloonsTD2</a></td>
-        <td class="file">bloonsTD2.html</td>
-        <td class="size">7.49 MB</td>
-      </tr>
-      <tr>
-        <td class="num">20</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloonsTD3.html" target="_blank" rel="noopener noreferrer">bloonsTD3</a></td>
-        <td class="file">bloonsTD3.html</td>
-        <td class="size">8.26 MB</td>
-      </tr>
-      <tr>
-        <td class="num">21</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bloxorz.html" target="_blank" rel="noopener noreferrer">bloxorz</a></td>
-        <td class="file">bloxorz.html</td>
-        <td class="size">9.37 MB</td>
-      </tr>
-      <tr>
-        <td class="num">22</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/blumgiracers.html" target="_blank" rel="noopener noreferrer">blumgiracers</a></td>
-        <td class="file">blumgiracers.html</td>
-        <td class="size">4.83 MB</td>
-      </tr>
-      <tr>
-        <td class="num">23</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/blumgirocket.html" target="_blank" rel="noopener noreferrer">blumgirocket</a></td>
-        <td class="file">blumgirocket.html</td>
-        <td class="size">3.47 MB</td>
-      </tr>
-      <tr>
-        <td class="num">24</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/bubbleshooter.html" target="_blank" rel="noopener noreferrer">bubbleshooter</a></td>
-        <td class="file">bubbleshooter.html</td>
-        <td class="size">6.75 MB</td>
-      </tr>
-      <tr>
-        <td class="num">25</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/candycrush.html" target="_blank" rel="noopener noreferrer">candycrush</a></td>
-        <td class="file">candycrush.html</td>
-        <td class="size">4.32 MB</td>
-      </tr>
-      <tr>
-        <td class="num">26</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/chess.html" target="_blank" rel="noopener noreferrer">chess</a></td>
-        <td class="file">chess.html</td>
-        <td class="size">6.59 MB</td>
-      </tr>
-      <tr>
-        <td class="num">27</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/choppyorc.html" target="_blank" rel="noopener noreferrer">choppyorc</a></td>
-        <td class="file">choppyorc.html</td>
-        <td class="size">3.55 MB</td>
-      </tr>
-      <tr>
-        <td class="num">28</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/circloO.html" target="_blank" rel="noopener noreferrer">circloO</a></td>
-        <td class="file">circloO.html</td>
-        <td class="size">3.15 MB</td>
-      </tr>
-      <tr>
-        <td class="num">29</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/circloO2.html" target="_blank" rel="noopener noreferrer">circloO2</a></td>
-        <td class="file">circloO2.html</td>
-        <td class="size">5.57 MB</td>
-      </tr>
-      <tr>
-        <td class="num">30</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/clashofvikings.html" target="_blank" rel="noopener noreferrer">clashofvikings</a></td>
-        <td class="file">clashofvikings.html</td>
-        <td class="size">3.61 MB</td>
-      </tr>
-      <tr>
-        <td class="num">31</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish.html" target="_blank" rel="noopener noreferrer">dadish</a></td>
-        <td class="file">dadish.html</td>
-        <td class="size">8.46 MB</td>
-      </tr>
-      <tr>
-        <td class="num">32</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish2.html" target="_blank" rel="noopener noreferrer">dadish2</a></td>
-        <td class="file">dadish2.html</td>
-        <td class="size">8.53 MB</td>
-      </tr>
-      <tr>
-        <td class="num">33</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/dadish3.html" target="_blank" rel="noopener noreferrer">dadish3</a></td>
-        <td class="file">dadish3.html</td>
-        <td class="size">5.91 MB</td>
-      </tr>
-      <tr>
-        <td class="num">34</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/deathrun3D.html" target="_blank" rel="noopener noreferrer">deathrun3D</a></td>
-        <td class="file">deathrun3D.html</td>
-        <td class="size">8.05 MB</td>
-      </tr>
-      <tr>
-        <td class="num">35</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/doodlejump.html" target="_blank" rel="noopener noreferrer">doodlejump</a></td>
-        <td class="file">doodlejump.html</td>
-        <td class="size">412.7 KB</td>
-      </tr>
-      <tr>
-        <td class="num">36</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/drawclimber.html" target="_blank" rel="noopener noreferrer">drawclimber</a></td>
-        <td class="file">drawclimber.html</td>
-        <td class="size">1.75 MB</td>
-      </tr>
-      <tr>
-        <td class="num">37</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklife.html" target="_blank" rel="noopener noreferrer">ducklife</a></td>
-        <td class="file">ducklife.html</td>
-        <td class="size">8.12 MB</td>
-      </tr>
-      <tr>
-        <td class="num">38</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklife2.html" target="_blank" rel="noopener noreferrer">ducklife2</a></td>
-        <td class="file">ducklife2.html</td>
-        <td class="size">8.91 MB</td>
-      </tr>
-      <tr>
-        <td class="num">39</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ducklingsio.html" target="_blank" rel="noopener noreferrer">ducklingsio</a></td>
-        <td class="file">ducklingsio.html</td>
-        <td class="size">9.54 MB</td>
-      </tr>
-      <tr>
-        <td class="num">40</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/eggycar.html" target="_blank" rel="noopener noreferrer">eggycar</a></td>
-        <td class="file">eggycar.html</td>
-        <td class="size">6.47 MB</td>
-      </tr>
-      <tr>
-        <td class="num">41</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/evilglitch.html" target="_blank" rel="noopener noreferrer">evilglitch</a></td>
-        <td class="file">evilglitch.html</td>
-        <td class="size">32.3 KB</td>
-      </tr>
-      <tr>
-        <td class="num">42</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fancypantsadventure.html" target="_blank" rel="noopener noreferrer">fancypantsadventure</a></td>
-        <td class="file">fancypantsadventure.html</td>
-        <td class="size">8.68 MB</td>
-      </tr>
-      <tr>
-        <td class="num">43</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl.html" target="_blank" rel="noopener noreferrer">fireboyandwatergirl</a></td>
-        <td class="file">fireboyandwatergirl.html</td>
-        <td class="size">8.85 MB</td>
-      </tr>
-      <tr>
-        <td class="num">44</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl2.html" target="_blank" rel="noopener noreferrer">fireboyandwatergirl2</a></td>
-        <td class="file">fireboyandwatergirl2.html</td>
-        <td class="size">9.27 MB</td>
-      </tr>
-      <tr>
-        <td class="num">45</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl3.html" target="_blank" rel="noopener noreferrer">fireboyandwatergirl3</a></td>
-        <td class="file">fireboyandwatergirl3.html</td>
-        <td class="size">9.05 MB</td>
-      </tr>
-      <tr>
-        <td class="num">46</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fireboyandwatergirl4.html" target="_blank" rel="noopener noreferrer">fireboyandwatergirl4</a></td>
-        <td class="file">fireboyandwatergirl4.html</td>
-        <td class="size">8.79 MB</td>
-      </tr>
-      <tr>
-        <td class="num">47</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/flappybird.html" target="_blank" rel="noopener noreferrer">flappybird</a></td>
-        <td class="file">flappybird.html</td>
-        <td class="size">4.14 MB</td>
-      </tr>
-      <tr>
-        <td class="num">48</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/floodrunner2.html" target="_blank" rel="noopener noreferrer">floodrunner2</a></td>
-        <td class="file">floodrunner2.html</td>
-        <td class="size">8.83 MB</td>
-      </tr>
-      <tr>
-        <td class="num">49</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/footballlegends.html" target="_blank" rel="noopener noreferrer">footballlegends</a></td>
-        <td class="file">footballlegends.html</td>
-        <td class="size">3.48 MB</td>
-      </tr>
-      <tr>
-        <td class="num">50</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/freerider3.html" target="_blank" rel="noopener noreferrer">freerider3</a></td>
-        <td class="file">freerider3.html</td>
-        <td class="size">7.80 MB</td>
-      </tr>
-      <tr>
-        <td class="num">51</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/fruitninja.html" target="_blank" rel="noopener noreferrer">fruitninja</a></td>
-        <td class="file">fruitninja.html</td>
-        <td class="size">8.02 MB</td>
-      </tr>
-      <tr>
-        <td class="num">52</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/getontop.html" target="_blank" rel="noopener noreferrer">getontop</a></td>
-        <td class="file">getontop.html</td>
-        <td class="size">1.49 MB</td>
-      </tr>
-      <tr>
-        <td class="num">53</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/googlebaseball.html" target="_blank" rel="noopener noreferrer">googlebaseball</a></td>
-        <td class="file">googlebaseball.html</td>
-        <td class="size">2.81 MB</td>
-      </tr>
-      <tr>
-        <td class="num">54</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/googledino.html" target="_blank" rel="noopener noreferrer">googledino</a></td>
-        <td class="file">googledino.html</td>
-        <td class="size">113.2 KB</td>
-      </tr>
-      <tr>
-        <td class="num">55</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/hanger2.html" target="_blank" rel="noopener noreferrer">hanger2</a></td>
-        <td class="file">hanger2.html</td>
-        <td class="size">3.35 MB</td>
-      </tr>
-      <tr>
-        <td class="num">56</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/hillclimbracinglite.html" target="_blank" rel="noopener noreferrer">hillclimbracinglite</a></td>
-        <td class="file">hillclimbracinglite.html</td>
-        <td class="size">8.34 MB</td>
-      </tr>
-      <tr>
-        <td class="num">57</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/idlebreakout.html" target="_blank" rel="noopener noreferrer">idlebreakout</a></td>
-        <td class="file">idlebreakout.html</td>
-        <td class="size">1.96 MB</td>
-      </tr>
-      <tr>
-        <td class="num">58</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/Indev.html" target="_blank" rel="noopener noreferrer">Indev</a></td>
-        <td class="file">Indev.html</td>
-        <td class="size">1.09 MB</td>
-      </tr>
-      <tr>
-        <td class="num">59</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ironsnout.html" target="_blank" rel="noopener noreferrer">ironsnout</a></td>
-        <td class="file">ironsnout.html</td>
-        <td class="size">5.68 MB</td>
-      </tr>
-      <tr>
-        <td class="num">60</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/johnnytrigger.html" target="_blank" rel="noopener noreferrer">johnnytrigger</a></td>
-        <td class="file">johnnytrigger.html</td>
-        <td class="size">1.36 MB</td>
-      </tr>
-      <tr>
-        <td class="num">61</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/jumpingshell.html" target="_blank" rel="noopener noreferrer">jumpingshell</a></td>
-        <td class="file">jumpingshell.html</td>
-        <td class="size">3.10 MB</td>
-      </tr>
-      <tr>
-        <td class="num">62</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/learntofly.html" target="_blank" rel="noopener noreferrer">learntofly</a></td>
-        <td class="file">learntofly.html</td>
-        <td class="size">7.62 MB</td>
-      </tr>
-      <tr>
-        <td class="num">63</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/leveldevil.html" target="_blank" rel="noopener noreferrer">leveldevil</a></td>
-        <td class="file">leveldevil.html</td>
-        <td class="size">6.49 MB</td>
-      </tr>
-      <tr>
-        <td class="num">64</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/mergeroundracers.html" target="_blank" rel="noopener noreferrer">mergeroundracers</a></td>
-        <td class="file">mergeroundracers.html</td>
-        <td class="size">4.79 MB</td>
-      </tr>
-      <tr>
-        <td class="num">65</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/minesweeper.html" target="_blank" rel="noopener noreferrer">minesweeper</a></td>
-        <td class="file">minesweeper.html</td>
-        <td class="size">1.17 MB</td>
-      </tr>
-      <tr>
-        <td class="num">66</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/monstertracks.html" target="_blank" rel="noopener noreferrer">monstertracks</a></td>
-        <td class="file">monstertracks.html</td>
-        <td class="size">3.34 MB</td>
-      </tr>
-      <tr>
-        <td class="num">67</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3m2.html" target="_blank" rel="noopener noreferrer">motox3m2</a></td>
-        <td class="file">motox3m2.html</td>
-        <td class="size">9.38 MB</td>
-      </tr>
-      <tr>
-        <td class="num">68</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mpoolparty.html" target="_blank" rel="noopener noreferrer">motox3mpoolparty</a></td>
-        <td class="file">motox3mpoolparty.html</td>
-        <td class="size">4.87 MB</td>
-      </tr>
-      <tr>
-        <td class="num">69</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mspookyland.html" target="_blank" rel="noopener noreferrer">motox3mspookyland</a></td>
-        <td class="file">motox3mspookyland.html</td>
-        <td class="size">5.67 MB</td>
-      </tr>
-      <tr>
-        <td class="num">70</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/motox3mwinter.html" target="_blank" rel="noopener noreferrer">motox3mwinter</a></td>
-        <td class="file">motox3mwinter.html</td>
-        <td class="size">7.62 MB</td>
-      </tr>
-      <tr>
-        <td class="num">71</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/noobminer.html" target="_blank" rel="noopener noreferrer">noobminer</a></td>
-        <td class="file">noobminer.html</td>
-        <td class="size">2.48 MB</td>
-      </tr>
-      <tr>
-        <td class="num">72</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/oppositeday.html" target="_blank" rel="noopener noreferrer">oppositeday</a></td>
-        <td class="file">oppositeday.html</td>
-        <td class="size">161.5 KB</td>
-      </tr>
-      <tr>
-        <td class="num">73</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ovo.html" target="_blank" rel="noopener noreferrer">ovo</a></td>
-        <td class="file">ovo.html</td>
-        <td class="size">6.93 MB</td>
-      </tr>
-      <tr>
-        <td class="num">74</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/ovo2.html" target="_blank" rel="noopener noreferrer">ovo2</a></td>
-        <td class="file">ovo2.html</td>
-        <td class="size">2.30 MB</td>
-      </tr>
-      <tr>
-        <td class="num">75</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/pacman.html" target="_blank" rel="noopener noreferrer">pacman</a></td>
-        <td class="file">pacman.html</td>
-        <td class="size">3.21 MB</td>
-      </tr>
-      <tr>
-        <td class="num">76</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury.html" target="_blank" rel="noopener noreferrer">parkingfury</a></td>
-        <td class="file">parkingfury.html</td>
-        <td class="size">6.57 MB</td>
-      </tr>
-      <tr>
-        <td class="num">77</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury2.html" target="_blank" rel="noopener noreferrer">parkingfury2</a></td>
-        <td class="file">parkingfury2.html</td>
-        <td class="size">8.17 MB</td>
-      </tr>
-      <tr>
-        <td class="num">78</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/parkingfury3.html" target="_blank" rel="noopener noreferrer">parkingfury3</a></td>
-        <td class="file">parkingfury3.html</td>
-        <td class="size">8.42 MB</td>
-      </tr>
-      <tr>
-        <td class="num">79</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/picosschool.html" target="_blank" rel="noopener noreferrer">picosschool</a></td>
-        <td class="file">picosschool.html</td>
-        <td class="size">9.11 MB</td>
-      </tr>
-      <tr>
-        <td class="num">80</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/pixelspeedrun.html" target="_blank" rel="noopener noreferrer">pixelspeedrun</a></td>
-        <td class="file">pixelspeedrun.html</td>
-        <td class="size">1.05 MB</td>
-      </tr>
-      <tr>
-        <td class="num">81</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/plonky.html" target="_blank" rel="noopener noreferrer">plonky</a></td>
-        <td class="file">plonky.html</td>
-        <td class="size">5.13 MB</td>
-      </tr>
-      <tr>
-        <td class="num">82</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/polytrack.html" target="_blank" rel="noopener noreferrer">polytrack</a></td>
-        <td class="file">polytrack.html</td>
-        <td class="size">6.84 MB</td>
-      </tr>
-      <tr>
-        <td class="num">83</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/poorbunny.html" target="_blank" rel="noopener noreferrer">poorbunny</a></td>
-        <td class="file">poorbunny.html</td>
-        <td class="size">5.69 MB</td>
-      </tr>
-      <tr>
-        <td class="num">84</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrobowl.html" target="_blank" rel="noopener noreferrer">retrobowl</a></td>
-        <td class="file">retrobowl.html</td>
-        <td class="size">6.92 MB</td>
-      </tr>
-      <tr>
-        <td class="num">85</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrobowlcollege.html" target="_blank" rel="noopener noreferrer">retrobowlcollege</a></td>
-        <td class="file">retrobowlcollege.html</td>
-        <td class="size">7.84 MB</td>
-      </tr>
-      <tr>
-        <td class="num">86</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retrohighway.html" target="_blank" rel="noopener noreferrer">retrohighway</a></td>
-        <td class="file">retrohighway.html</td>
-        <td class="size">4.73 MB</td>
-      </tr>
-      <tr>
-        <td class="num">87</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/retropingpong.html" target="_blank" rel="noopener noreferrer">retropingpong</a></td>
-        <td class="file">retropingpong.html</td>
-        <td class="size">3.36 MB</td>
-      </tr>
-      <tr>
-        <td class="num">88</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/riddleschool.html" target="_blank" rel="noopener noreferrer">riddleschool</a></td>
-        <td class="file">riddleschool.html</td>
-        <td class="size">7.29 MB</td>
-      </tr>
-      <tr>
-        <td class="num">89</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/riddleschool2.html" target="_blank" rel="noopener noreferrer">riddleschool2</a></td>
-        <td class="file">riddleschool2.html</td>
-        <td class="size">8.39 MB</td>
-      </tr>
-      <tr>
-        <td class="num">90</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/run.html" target="_blank" rel="noopener noreferrer">run</a></td>
-        <td class="file">run.html</td>
-        <td class="size">8.48 MB</td>
-      </tr>
-      <tr>
-        <td class="num">91</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/run2.html" target="_blank" rel="noopener noreferrer">run2</a></td>
-        <td class="file">run2.html</td>
-        <td class="size">7.72 MB</td>
-      </tr>
-      <tr>
-        <td class="num">92</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/sandgame.html" target="_blank" rel="noopener noreferrer">sandgame</a></td>
-        <td class="file">sandgame.html</td>
-        <td class="size">58.8 KB</td>
-      </tr>
-      <tr>
-        <td class="num">93</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/slope2player.html" target="_blank" rel="noopener noreferrer">slope2player</a></td>
-        <td class="file">slope2player.html</td>
-        <td class="size">9.80 MB</td>
-      </tr>
-      <tr>
-        <td class="num">94</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/sm64.html" target="_blank" rel="noopener noreferrer">sm64</a></td>
-        <td class="file">sm64.html</td>
-        <td class="size">7.99 MB</td>
-      </tr>
-      <tr>
-        <td class="num">95</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spacebarclicker.html" target="_blank" rel="noopener noreferrer">spacebarclicker</a></td>
-        <td class="file">spacebarclicker.html</td>
-        <td class="size">106.1 KB</td>
-      </tr>
-      <tr>
-        <td class="num">96</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spaceiskey.html" target="_blank" rel="noopener noreferrer">spaceiskey</a></td>
-        <td class="file">spaceiskey.html</td>
-        <td class="size">7.87 MB</td>
-      </tr>
-      <tr>
-        <td class="num">97</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/spaceiskey2.html" target="_blank" rel="noopener noreferrer">spaceiskey2</a></td>
-        <td class="file">spaceiskey2.html</td>
-        <td class="size">9.69 MB</td>
-      </tr>
-      <tr>
-        <td class="num">98</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stack.html" target="_blank" rel="noopener noreferrer">stack</a></td>
-        <td class="file">stack.html</td>
-        <td class="size">613.8 KB</td>
-      </tr>
-      <tr>
-        <td class="num">99</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stacktris.html" target="_blank" rel="noopener noreferrer">stacktris</a></td>
-        <td class="file">stacktris.html</td>
-        <td class="size">3.57 MB</td>
-      </tr>
-      <tr>
-        <td class="num">100</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stateio.html" target="_blank" rel="noopener noreferrer">stateio</a></td>
-        <td class="file">stateio.html</td>
-        <td class="size">4.48 MB</td>
-      </tr>
-      <tr>
-        <td class="num">101</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickarchersbattle.html" target="_blank" rel="noopener noreferrer">stickarchersbattle</a></td>
-        <td class="file">stickarchersbattle.html</td>
-        <td class="size">4.25 MB</td>
-      </tr>
-      <tr>
-        <td class="num">102</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickfighter.html" target="_blank" rel="noopener noreferrer">stickfighter</a></td>
-        <td class="file">stickfighter.html</td>
-        <td class="size">5.76 MB</td>
-      </tr>
-      <tr>
-        <td class="num">103</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickmanhook.html" target="_blank" rel="noopener noreferrer">stickmanhook</a></td>
-        <td class="file">stickmanhook.html</td>
-        <td class="size">4.39 MB</td>
-      </tr>
-      <tr>
-        <td class="num">104</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/stickmerge.html" target="_blank" rel="noopener noreferrer">stickmerge</a></td>
-        <td class="file">stickmerge.html</td>
-        <td class="size">7.90 MB</td>
-      </tr>
-      <tr>
-        <td class="num">105</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tabletennisworldtour.html" target="_blank" rel="noopener noreferrer">tabletennisworldtour</a></td>
-        <td class="file">tabletennisworldtour.html</td>
-        <td class="size">3.74 MB</td>
-      </tr>
-      <tr>
-        <td class="num">106</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tag.html" target="_blank" rel="noopener noreferrer">tag</a></td>
-        <td class="file">tag.html</td>
-        <td class="size">4.00 MB</td>
-      </tr>
-      <tr>
-        <td class="num">107</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/templeofboom.html" target="_blank" rel="noopener noreferrer">templeofboom</a></td>
-        <td class="file">templeofboom.html</td>
-        <td class="size">6.05 MB</td>
-      </tr>
-      <tr>
-        <td class="num">108</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/territorialio.html" target="_blank" rel="noopener noreferrer">territorialio</a></td>
-        <td class="file">territorialio.html</td>
-        <td class="size">1.34 MB</td>
-      </tr>
-      <tr>
-        <td class="num">109</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thereisnog.html" target="_blank" rel="noopener noreferrer">thereisnog</a></td>
-        <td class="file">thereisnog.html</td>
-        <td class="size">6.45 MB</td>
-      </tr>
-      <tr>
-        <td class="num">110</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thisistheonlylevel.html" target="_blank" rel="noopener noreferrer">thisistheonlylevel</a></td>
-        <td class="file">thisistheonlylevel.html</td>
-        <td class="size">8.25 MB</td>
-      </tr>
-      <tr>
-        <td class="num">111</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/thisistheonlyleveltoo.html" target="_blank" rel="noopener noreferrer">thisistheonlyleveltoo</a></td>
-        <td class="file">thisistheonlyleveltoo.html</td>
-        <td class="size">8.94 MB</td>
-      </tr>
-      <tr>
-        <td class="num">112</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/tinyfishing.html" target="_blank" rel="noopener noreferrer">tinyfishing</a></td>
-        <td class="file">tinyfishing.html</td>
-        <td class="size">2.34 MB</td>
-      </tr>
-      <tr>
-        <td class="num">113</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/trapthecat.html" target="_blank" rel="noopener noreferrer">trapthecat</a></td>
-        <td class="file">trapthecat.html</td>
-        <td class="size">74.6 KB</td>
-      </tr>
-      <tr>
-        <td class="num">114</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/triviacrack.html" target="_blank" rel="noopener noreferrer">triviacrack</a></td>
-        <td class="file">triviacrack.html</td>
-        <td class="size">2.53 MB</td>
-      </tr>
-      <tr>
-        <td class="num">115</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/unicyclehero.html" target="_blank" rel="noopener noreferrer">unicyclehero</a></td>
-        <td class="file">unicyclehero.html</td>
-        <td class="size">2.45 MB</td>
-      </tr>
-      <tr>
-        <td class="num">116</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/vexx3m.html" target="_blank" rel="noopener noreferrer">vexx3m</a></td>
-        <td class="file">vexx3m.html</td>
-        <td class="size">9.78 MB</td>
-      </tr>
-      <tr>
-        <td class="num">117</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/volleyrandom.html" target="_blank" rel="noopener noreferrer">volleyrandom</a></td>
-        <td class="file">volleyrandom.html</td>
-        <td class="size">3.67 MB</td>
-      </tr>
-      <tr>
-        <td class="num">118</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/webecomewhatwebehold.html" target="_blank" rel="noopener noreferrer">webecomewhatwebehold</a></td>
-        <td class="file">webecomewhatwebehold.html</td>
-        <td class="size">7.67 MB</td>
-      </tr>
-      <tr>
-        <td class="num">119</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/wheeliebike.html" target="_blank" rel="noopener noreferrer">wheeliebike</a></td>
-        <td class="file">wheeliebike.html</td>
-        <td class="size">2.04 MB</td>
-      </tr>
-      <tr>
-        <td class="num">120</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/wordleunlimited.html" target="_blank" rel="noopener noreferrer">wordleunlimited</a></td>
-        <td class="file">wordleunlimited.html</td>
-        <td class="size">180.2 KB</td>
-      </tr>
-      <tr>
-        <td class="num">121</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame.html" target="_blank" rel="noopener noreferrer">worldshardestgame</a></td>
-        <td class="file">worldshardestgame.html</td>
-        <td class="size">7.44 MB</td>
-      </tr>
-      <tr>
-        <td class="num">122</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame2.html" target="_blank" rel="noopener noreferrer">worldshardestgame2</a></td>
-        <td class="file">worldshardestgame2.html</td>
-        <td class="size">9.51 MB</td>
-      </tr>
-      <tr>
-        <td class="num">123</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/worldshardestgame3.html" target="_blank" rel="noopener noreferrer">worldshardestgame3</a></td>
-        <td class="file">worldshardestgame3.html</td>
-        <td class="size">8.27 MB</td>
-      </tr>
-      <tr>
-        <td class="num">124</td>
-        <td><a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/zombierush.html" target="_blank" rel="noopener noreferrer">zombierush</a></td>
-        <td class="file">zombierush.html</td>
-        <td class="size">2.70 MB</td>
-      </tr>
-    </tbody>
-  </table>
-  <footer>
-    链接均指向 <a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack/tree/master/offline" target="_blank" rel="noopener noreferrer">Offline-HTML-Games-Pack</a> 仓库中对应的游戏文件。
-  </footer>
+  <div class="toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      <input id="search" type="search" placeholder="搜索游戏..." autocomplete="off">
+    </div>
+    <div class="count">共 <b id="count">0</b> 款游戏</div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">没有找到匹配的游戏</div>
+  <footer>Deployed on GitHub Pages &middot; gmicroul.github.io</footer>
 </div>
+<script>
+var GAMES = [{"n":"1.5","u":"/games-web/1.5.html"},{"n":"1.8","u":"/games-web/1.8.html"},{"n":"12Minibattles","u":"/games-web/12minibattles.html"},{"n":"1On1Soccer","u":"/games-web/1on1soccer.html"},{"n":"1On1Tennis","u":"/games-web/1on1tennis.html"},{"n":"2048","u":"/games-web/2048.html"},{"n":"2048Cupcakes","u":"/games-web/2048cupcakes.html"},{"n":"8Ballclassic","u":"/games-web/8ballclassic.html"},{"n":"Alpha 1.2.6","u":"/games-web/Alpha_1.2.6.html"},{"n":"Eaglercraft Launcher | Beta 1.3 Offline","u":"/games-web/Beta_1.3.html"},{"n":"Eaglercraft Launcher | Indev Offline","u":"/games-web/Indev.html"},{"n":"Solo Agario","u":"/games-web/agariolite.html"},{"n":"Ageofwar","u":"/games-web/ageofwar.html"},{"n":"Ageofwar2","u":"/games-web/ageofwar2.html"},{"n":"Agesofconflict","u":"/games-web/agesofconflict.html"},{"n":"Amongus","u":"/games-web/amongus.html"},{"n":"Angrybirds","u":"/games-web/angrybirds.html"},{"n":"Angrybirdsspace","u":"/games-web/angrybirdsspace.html"},{"n":"Awesometanks","u":"/games-web/awesometanks.html"},{"n":"Awesometanks2","u":"/games-web/awesometanks2.html"},{"n":"Backrooms","u":"/games-web/backrooms.html"},{"n":"Baconmaydie","u":"/games-web/baconmaydie.html"},{"n":"Badicecream","u":"/games-web/badicecream.html"},{"n":"Badicecream2","u":"/games-web/badicecream2.html"},{"n":"Badicecream3","u":"/games-web/badicecream3.html"},{"n":"Badpiggies","u":"/games-web/badpiggies.html"},{"n":"Baseballbros","u":"/games-web/baseballbros.html"},{"n":"Basketballlegends","u":"/games-web/basketballlegends.html"},{"n":"Basketballstars","u":"/games-web/basketballstars.html"},{"n":"Basketbros","u":"/games-web/basketbros.html"},{"n":"Basketrandom","u":"/games-web/basketrandom.html"},{"n":"Blockysnakes","u":"/games-web/blockysnakes.html"},{"n":"Bloonstd","u":"/games-web/bloonsTD.html"},{"n":"Bloonstd2","u":"/games-web/bloonsTD2.html"},{"n":"Bloonstd3","u":"/games-web/bloonsTD3.html"},{"n":"Bloonstd4","u":"/games-web/bloonsTD4.html"},{"n":"Bloonstd5","u":"/games-web/bloonsTD5.html"},{"n":"Bloxorz","u":"/games-web/bloxorz.html"},{"n":"Blumgiracers","u":"/games-web/blumgiracers.html"},{"n":"Blumgirocket","u":"/games-web/blumgirocket.html"},{"n":"Bobtherobber","u":"/games-web/bobtherobber.html"},{"n":"Bobtherobber2","u":"/games-web/bobtherobber2.html"},{"n":"Bobtherobber5","u":"/games-web/bobtherobber5.html"},{"n":"Breakingthebank","u":"/games-web/breakingthebank.html"},{"n":"Bubbleshooter","u":"/games-web/bubbleshooter.html"},{"n":"Candycrush","u":"/games-web/candycrush.html"},{"n":"Capybaraclicker","u":"/games-web/capybaraclicker.html"},{"n":"Cardrawing","u":"/games-web/cardrawing.html"},{"n":"Carkingarena","u":"/games-web/carkingarena.html"},{"n":"Chess","u":"/games-web/chess.html"},{"n":"Choppyorc","u":"/games-web/choppyorc.html"},{"n":"Circloo","u":"/games-web/circloO.html"},{"n":"Circloo2","u":"/games-web/circloO2.html"},{"n":"Clashofvikings","u":"/games-web/clashofvikings.html"},{"n":"Cleanupio","u":"/games-web/cleanupio.html"},{"n":"Cluster Rush","u":"/games-web/clusterrush.html"},{"n":"Crazycars","u":"/games-web/crazycars.html"},{"n":"Crazymotorcycle","u":"/games-web/crazymotorcycle.html"},{"n":"Dadish","u":"/games-web/dadish.html"},{"n":"Dadish2","u":"/games-web/dadish2.html"},{"n":"Dadish3","u":"/games-web/dadish3.html"},{"n":"Deathrun3D","u":"/games-web/deathrun3D.html"},{"n":"Doodlejump","u":"/games-web/doodlejump.html"},{"n":"Drawclimber","u":"/games-web/drawclimber.html"},{"n":"Ducklife","u":"/games-web/ducklife.html"},{"n":"Ducklife2","u":"/games-web/ducklife2.html"},{"n":"Ducklife3","u":"/games-web/ducklife3.html"},{"n":"Ducklife4","u":"/games-web/ducklife4.html"},{"n":"Ducklife5","u":"/games-web/ducklife5.html"},{"n":"Ducklingsio","u":"/games-web/ducklingsio.html"},{"n":"Eagleride","u":"/games-web/eagleride.html"},{"n":"Earntodie","u":"/games-web/earntodie.html"},{"n":"Earntodie2","u":"/games-web/earntodie2.html"},{"n":"Eggycar","u":"/games-web/eggycar.html"},{"n":"Escapingtheprison","u":"/games-web/escapingtheprison.html"},{"n":"Evil Glitch","u":"/games-web/evilglitch.html"},{"n":"Fancypantsadventure","u":"/games-web/fancypantsadventure.html"},{"n":"Fancypantsadventure2","u":"/games-web/fancypantsadventure2.html"},{"n":"Fireboyandwatergirl","u":"/games-web/fireboyandwatergirl.html"},{"n":"Fireboyandwatergirl2","u":"/games-web/fireboyandwatergirl2.html"},{"n":"Fireboyandwatergirl3","u":"/games-web/fireboyandwatergirl3.html"},{"n":"Fireboyandwatergirl4","u":"/games-web/fireboyandwatergirl4.html"},{"n":"Flappy Bird","u":"/games-web/flappybird.html"},{"n":"Floodrunner2","u":"/games-web/floodrunner2.html"},{"n":"Floodrunner3","u":"/games-web/floodrunner3.html"},{"n":"Floodrunner4","u":"/games-web/floodrunner4.html"},{"n":"Fnaf","u":"/games-web/fnaf.html"},{"n":"FNAF-4","u":"/games-web/fnaf4.html"},{"n":"FOOTBALL BROS! | Official Site","u":"/games-web/footballbros.html"},{"n":"Footballlegends","u":"/games-web/footballlegends.html"},{"n":"Freerider3","u":"/games-web/freerider3.html"},{"n":"Fruitninja","u":"/games-web/fruitninja.html"},{"n":"Funnybattle","u":"/games-web/funnybattle.html"},{"n":"Funnybattle2","u":"/games-web/funnybattle2.html"},{"n":"Geometry Dash","u":"/games-web/geometrydash.html"},{"n":"Getontop","u":"/games-web/getontop.html"},{"n":"Googlebaseball","u":"/games-web/googlebaseball.html"},{"n":"Dinosaur Game Chrome","u":"/games-web/googledino.html"},{"n":"Guesstheiranswer","u":"/games-web/guesstheiranswer.html"},{"n":"Hanger2","u":"/games-web/hanger2.html"},{"n":"Happywheels","u":"/games-web/happywheels.html"},{"n":"Helixjump","u":"/games-web/helixjump.html"},{"n":"Hillclimbracinglite","u":"/games-web/hillclimbracinglite.html"},{"n":"Holeio","u":"/games-web/holeio.html"},{"n":"Houseofhazards","u":"/games-web/houseofhazards.html"},{"n":"Hoverracerdrive","u":"/games-web/hoverracerdrive.html"},{"n":"Idlebreakout","u":"/games-web/idlebreakout.html"},{"n":"Ironsnout","u":"/games-web/ironsnout.html"},{"n":"Jetpackjoyride","u":"/games-web/jetpackjoyride.html"},{"n":"Johnnytrigger","u":"/games-web/johnnytrigger.html"},{"n":"Jumpingshell","u":"/games-web/jumpingshell.html"},{"n":"Karatebros","u":"/games-web/karatebros.html"},{"n":"Learntofly","u":"/games-web/learntofly.html"},{"n":"Learntofly2","u":"/games-web/learntofly2.html"},{"n":"Learntoflyidle","u":"/games-web/learntoflyidle.html"},{"n":"Level Devil","u":"/games-web/leveldevil.html"},{"n":"Melonplayground","u":"/games-web/melonplayground.html"},{"n":"Mergeroundracers","u":"/games-web/mergeroundracers.html"},{"n":"Minesweeper","u":"/games-web/minesweeper.html"},{"n":"Monstertracks","u":"/games-web/monstertracks.html"},{"n":"Motox3M2","u":"/games-web/motox3m2.html"},{"n":"Motox3M3","u":"/games-web/motox3m3.html"},{"n":"Motox3Mpoolparty","u":"/games-web/motox3mpoolparty.html"},{"n":"Motox3Mspookyland","u":"/games-web/motox3mspookyland.html"},{"n":"Motox3Mwinter","u":"/games-web/motox3mwinter.html"},{"n":"Noob Miner","u":"/games-web/noobminer.html"},{"n":"Oppositeday","u":"/games-web/oppositeday.html"},{"n":"Ovo","u":"/games-web/ovo.html"},{"n":"OvO 2","u":"/games-web/ovo2.html"},{"n":"Pac Man","u":"/games-web/pacman.html"},{"n":"Papasburgeria","u":"/games-web/papasburgeria.html"},{"n":"Papascheeseria","u":"/games-web/papascheeseria.html"},{"n":"Papascupcakeria","u":"/games-web/papascupcakeria.html"},{"n":"Papasdonuteria","u":"/games-web/papasdonuteria.html"},{"n":"Papasfreezeria","u":"/games-web/papasfreezeria.html"},{"n":"Papashotdoggeria","u":"/games-web/papashotdoggeria.html"},{"n":"Papaspancakeria","u":"/games-web/papaspancakeria.html"},{"n":"Papaspastaria","u":"/games-web/papaspastaria.html"},{"n":"Papaspizzeria","u":"/games-web/papaspizzeria.html"},{"n":"Papastacomia","u":"/games-web/papastacomia.html"},{"n":"Papaswingeria","u":"/games-web/papaswingeria.html"},{"n":"Parkingfury","u":"/games-web/parkingfury.html"},{"n":"Parkingfury2","u":"/games-web/parkingfury2.html"},{"n":"Parkingfury3","u":"/games-web/parkingfury3.html"},{"n":"Picosschool","u":"/games-web/picosschool.html"},{"n":"Pingpongchaos","u":"/games-web/pingpongchaos.html"},{"n":"Pixel Speedrun","u":"/games-web/pixelspeedrun.html"},{"n":"Plantsvszombies","u":"/games-web/plantsvszombies.html"},{"n":"Plonky","u":"/games-web/plonky.html"},{"n":"Polytrack","u":"/games-web/polytrack.html"},{"n":"Poorbunny","u":"/games-web/poorbunny.html"},{"n":"Pou","u":"/games-web/pou.html"},{"n":"Ragdollhit","u":"/games-web/ragdollhit.html"},{"n":"Ragdollsoccer","u":"/games-web/ragdollsoccer.html"},{"n":"Redball4Vol1","u":"/games-web/redball4vol1.html"},{"n":"Redball4Vol2","u":"/games-web/redball4vol2.html"},{"n":"Redball4Vol3","u":"/games-web/redball4vol3.html"},{"n":"Retrobowl","u":"/games-web/retrobowl.html"},{"n":"Retrobowlcollege","u":"/games-web/retrobowlcollege.html"},{"n":"Retrohighway","u":"/games-web/retrohighway.html"},{"n":"Retro-Ping-Pong","u":"/games-web/retropingpong.html"},{"n":"Riddleschool","u":"/games-web/riddleschool.html"},{"n":"Riddleschool2","u":"/games-web/riddleschool2.html"},{"n":"Riddleschool3","u":"/games-web/riddleschool3.html"},{"n":"Riddleschool4","u":"/games-web/riddleschool4.html"},{"n":"Rooftop Snipers 2","u":"/games-web/rooftopsnipers2.html"},{"n":"Run","u":"/games-web/run.html"},{"n":"Run2","u":"/games-web/run2.html"},{"n":"Run3","u":"/games-web/run3.html"},{"n":"Sand","u":"/games-web/sandgame.html"},{"n":"Shortlife","u":"/games-web/shortlife.html"},{"n":"Slope2Player","u":"/games-web/slope2player.html"},{"n":"Slowroads","u":"/games-web/slowroads.html"},{"n":"Super Mario 64","u":"/games-web/sm64.html"},{"n":"Snowballio","u":"/games-web/snowballio.html"},{"n":"Soccerbros","u":"/games-web/soccerbros.html"},{"n":"SPACEBAR CLICKER","u":"/games-web/spacebarclicker.html"},{"n":"Spaceiskey","u":"/games-web/spaceiskey.html"},{"n":"Spaceiskey2","u":"/games-web/spaceiskey2.html"},{"n":"Space Waves","u":"/games-web/spacewaves.html"},{"n":"Speedstars","u":"/games-web/speedstars.html"},{"n":"Sprunki","u":"/games-web/sprunki.html"},{"n":"Stack","u":"/games-web/stack.html"},{"n":"Stacktris","u":"/games-web/stacktris.html"},{"n":"Stateio","u":"/games-web/stateio.html"},{"n":"Stickarchersbattle","u":"/games-web/stickarchersbattle.html"},{"n":"Stickfighter","u":"/games-web/stickfighter.html"},{"n":"Stickman Hook","u":"/games-web/stickmanhook.html"},{"n":"Stickmerge","u":"/games-web/stickmerge.html"},{"n":"Superliquidsoccer","u":"/games-web/superliquidsoccer.html"},{"n":"Tabletennisworldtour","u":"/games-web/tabletennisworldtour.html"},{"n":"Tag","u":"/games-web/tag.html"},{"n":"Templeofboom","u":"/games-web/templeofboom.html"},{"n":"Territorialio","u":"/games-web/territorialio.html"},{"n":"Theimpossiblequiz","u":"/games-web/theimpossiblequiz.html"},{"n":"Theimpossiblequiz2","u":"/games-web/theimpossiblequiz2.html"},{"n":"Thereisnog","u":"/games-web/thereisnog.html"},{"n":"Thisistheonlylevel","u":"/games-web/thisistheonlylevel.html"},{"n":"Thisistheonlyleveltoo","u":"/games-web/thisistheonlyleveltoo.html"},{"n":"Timeshooter2","u":"/games-web/timeshooter2.html"},{"n":"Tinyfishing","u":"/games-web/tinyfishing.html"},{"n":"Trapthecat","u":"/games-web/trapthecat.html"},{"n":"Triviacrack","u":"/games-web/triviacrack.html"},{"n":"Tubejumpers","u":"/games-web/tubejumpers.html"},{"n":"Tunnelrush","u":"/games-web/tunnelrush.html"},{"n":"Unicyclehero","u":"/games-web/unicyclehero.html"},{"n":"Vex4","u":"/games-web/vex4.html"},{"n":"Vex5","u":"/games-web/vex5.html"},{"n":"Vexx3M","u":"/games-web/vexx3m.html"},{"n":"Vexx3M2","u":"/games-web/vexx3m2.html"},{"n":"Volleyrandom","u":"/games-web/volleyrandom.html"},{"n":"Webecomewhatwebehold","u":"/games-web/webecomewhatwebehold.html"},{"n":"Wheeliebike","u":"/games-web/wheeliebike.html"},{"n":"Wheely","u":"/games-web/wheely.html"},{"n":"Wheely2","u":"/games-web/wheely2.html"},{"n":"Wheely3","u":"/games-web/wheely3.html"},{"n":"Wheely6","u":"/games-web/wheely6.html"},{"n":"Wheely8","u":"/games-web/wheely8.html"},{"n":"Wordleunlimited","u":"/games-web/wordleunlimited.html"},{"n":"Worldshardestgame","u":"/games-web/worldshardestgame.html"},{"n":"Worldshardestgame2","u":"/games-web/worldshardestgame2.html"},{"n":"Worldshardestgame3","u":"/games-web/worldshardestgame3.html"},{"n":"Wrestlebros","u":"/games-web/wrestlebros.html"},{"n":"Zombierush","u":"/games-web/zombierush.html"}];
+
+/* Deterministic SailfishOS-style ambient gradient per game name */
+var PALETTES = [
+  ["#1fd6c1","#0e8f9e"], ["#5aa9ff","#2b5fc7"], ["#ff7a59","#d63c3c"],
+  ["#b98bff","#6a3fd4"], ["#ffd257","#e08a00"], ["#4fe08a","#0f9d58"],
+  ["#ff6fb1","#c2255c"], ["#59d4ff","#1478a8"], ["#ffa24f","#cc5200"],
+  ["#8be04f","#3d9a00"], ["#ff5c5c","#a31f1f"], ["#7c8cff","#3341b8"]
+];
+function hashStr(s){var h=0,i;for(i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
+function initials(name){
+  var parts=name.replace(/[^\w\s\u4e00-\u9fff-]/g," ").trim().split(/\s+/).filter(Boolean);
+  if(!parts.length) return "?";
+  if(parts.length===1){
+    var w=parts[0];
+    return /^[\u4e00-\u9fff]/.test(w) ? w.charAt(0) : w.slice(0,2).toUpperCase();
+  }
+  return (parts[0].charAt(0)+parts[1].charAt(0)).toUpperCase();
+}
+
+var grid=document.getElementById("grid"),
+    countEl=document.getElementById("count"),
+    emptyEl=document.getElementById("empty"),
+    searchEl=document.getElementById("search");
+
+function buildCard(g){
+  var a=document.createElement("a");
+  a.className="card";a.href=g.u;a.title=g.n;
+  a.setAttribute("data-name",g.n.toLowerCase());
+  var p=PALETTES[hashStr(g.n)%PALETTES.length];
+  var ic=document.createElement("div");
+  ic.className="icon";
+  ic.style.background="linear-gradient(150deg,"+p[0]+","+p[1]+")";
+  ic.textContent=initials(g.n);
+  var nm=document.createElement("div");
+  nm.className="name";nm.textContent=g.n;
+  a.appendChild(ic);a.appendChild(nm);
+  return a;
+}
+
+var frag=document.createDocumentFragment();
+GAMES.forEach(function(g){frag.appendChild(buildCard(g));});
+grid.appendChild(frag);
+
+function applyFilter(){
+  var q=searchEl.value.trim().toLowerCase(),visible=0;
+  var cards=grid.children;
+  for(var i=0;i<cards.length;i++){
+    var show=!q||cards[i].getAttribute("data-name").indexOf(q)!==-1;
+    cards[i].style.display=show?"":"none";
+    if(show)visible++;
+  }
+  countEl.textContent=visible;
+  emptyEl.style.display=visible?"none":"block";
+}
+searchEl.addEventListener("input",applyFilter);
+applyFilter();
+</script>
 </body>
 </html>
