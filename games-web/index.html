@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>游戏大厅 | gmicroul.github.io</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --bg-elevated: #161b22;
+      --bg-card: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79b8ff;
+      --accent-dim: #1f426b;
+      --success: #3fb950;
+      --danger: #f85149;
+      --shadow: rgba(0,0,0,0.4);
+      --radius: 12px;
+      --transition: 0.2s ease;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f8fa;
+        --bg-elevated: #ffffff;
+        --bg-card: #ffffff;
+        --border: #d0d7de;
+        --text: #24292f;
+        --text-muted: #656d76;
+        --accent: #0969da;
+        --accent-hover: #0860ca;
+        --accent-dim: #d0e8ff;
+        --shadow: rgba(0,0,0,0.1);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Layout */
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #a371f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .stat-value.accent {
+      color: var(--accent);
+    }
+
+    /* Search */
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      font-size: 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .clear-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .clear-btn.visible { display: flex; }
+
+    /* Grid */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    @media (min-width: 480px) {
+      .games-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+    }
+
+    @media (min-width: 768px) {
+      .games-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    }
+
+    @media (min-width: 1024px) {
+      .games-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    }
+
+    @media (min-width: 1400px) {
+      .games-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    }
+
+    /* Game Card */
+    .game-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 24px var(--shadow);
+    }
+
+    .game-card:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    .card-icon {
+      aspect-ratio: 16/9;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: inherit;
+      opacity: 0.15;
+    }
+
+    .card-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    .card-icon .letter {
+      z-index: 1;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      user-select: none;
+    }
+
+    .card-content {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-meta {
+      margin-top: auto;
+      padding-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-arrow {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      transition: transform var(--transition), color var(--transition);
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    .game-card:hover .card-arrow {
+      transform: translateX(4px);
+      color: var(--accent);
+    }
+
+    /* Empty State */
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+
+    .empty-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .empty-desc {
+      max-width: 320px;
+    }
+
+    /* Loading */
+    .loading {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Footer */
+    .footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer a:hover { text-decoration: underline; }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* High contrast */
+    @media (prefers-contrast: high) {
+      :root { --border: var(--text); }
+      .game-card:hover { border-width: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-top">
+        <a href="/" class="logo" aria-label="返回首页">
+          <div class="logo-icon" aria-hidden="true">🎮</div>
+          <span class="logo-text">游戏大厅</span>
+        </a>
+        <div class="stats" aria-live="polite">
+          <span class="stat-item">共 <span class="stat-value accent" id="total-count">0</span> 款游戏</span>
+          <span class="stat-item">显示 <span class="stat-value" id="visible-count">0</span> 款</span>
+        </div>
+      </div>
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="M21 21l-4.35-4.35"></path>
+        </svg>
+        <input 
+          type="search" 
+          class="search-input" 
+          id="search-input" 
+          placeholder="搜索游戏名称..." 
+          aria-label="搜索游戏"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button class="clear-btn" id="clear-btn" aria-label="清空搜索" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div class="games-grid" id="games-grid" role="list" aria-label="游戏列表">
+        <div class="loading" id="loading" aria-hidden="true">
+          <div class="spinner" aria-hidden="true"></div>
+          <span>加载游戏列表...</span>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>部署于 <a href="https://github.com/gmicroul/gmicroul.github.io" target="_blank" rel="noopener">GitHub Pages</a> · 游戏文件托管于 <code>/games-web/</code> 目录</p>
+    </footer>
+  </div>
+
+<script>
+(function() {
+  'use strict';
+
+  // Game data embedded directly
+  const GAMES = [
+    {"file":"1.5.html","title":"1.5"},
+    {"file":"1.8.html","title":"School"},
+    {"file":"12minibattles.html","title":"12Minibattles"},
+    {"file":"1on1soccer.html","title":"1On1Soccer"},
+    {"file":"1on1tennis.html","title":"1On1Tennis"},
+    {"file":"2048.html","title":"2048"},
+    {"file":"2048cupcakes.html","title":"2048Cupcakes"},
+    {"file":"8ballclassic.html","title":"8Ballclassic"},
+    {"file":"Alpha_1.2.6.html","title":"Alpha 1.2.6"},
+    {"file":"Beta_1.3.html","title":"Beta 1.3"},
+    {"file":"Indev.html","title":"Indev"},
+    {"file":"agariolite.html","title":"Agariolite"},
+    {"file":"ageofwar.html","title":"Ageofwar"},
+    {"file":"ageofwar2.html","title":"Ageofwar2"},
+    {"file":"agesofconflict.html","title":"Agesofconflict"},
+    {"file":"amongus.html","title":"Amongus"},
+    {"file":"angrybirds.html","title":"Angrybirds"},
+    {"file":"angrybirdsspace.html","title":"Angrybirdsspace"},
+    {"file":"awesometanks.html","title":"Awesometanks"},
+    {"file":"awesometanks2.html","title":"Awesometanks2"},
+    {"file":"backrooms.html","title":"Backrooms"},
+    {"file":"baconmaydie.html","title":"Baconmaydie"},
+    {"file":"badicecream.html","title":"Badicecream"},
+    {"file":"badicecream2.html","title":"Badicecream2"},
+    {"file":"badicecream3.html","title":"Badicecream3"},
+    {"file":"badpiggies.html","title":"Badpiggies"},
+    {"file":"baseballbros.html","title":"Baseballbros"},
+    {"file":"basketballlegends.html","title":"Basketballlegends"},
+    {"file":"basketballstars.html","title":"Basketballstars"},
+    {"file":"basketbros.html","title":"Basketbros"},
+    {"file":"basketrandom.html","title":"Basketrandom"},
+    {"file":"blockysnakes.html","title":"Blockysnakes"},
+    {"file":"bloonsTD.html","title":"Bloonstd"},
+    {"file":"bloonsTD2.html","title":"Bloonstd2"},
+    {"file":"bloonsTD3.html","title":"Bloonstd3"},
+    {"file":"bloonsTD4.html","title":"Bloonstd4"},
+    {"file":"bloonsTD5.html","title":"Bloonstd5"},
+    {"file":"bloxorz.html","title":"Bloxorz"},
+    {"file":"blumgiracers.html","title":"Blumgiracers"},
+    {"file":"blumgirocket.html","title":"Blumgirocket"},
+    {"file":"bobtherobber.html","title":"Bobtherobber"},
+    {"file":"bobtherobber2.html","title":"Bobtherobber2"},
+    {"file":"bobtherobber5.html","title":"Bobtherobber5"},
+    {"file":"breakingthebank.html","title":"Breakingthebank"},
+    {"file":"bubbleshooter.html","title":"Bubbleshooter"},
+    {"file":"candycrush.html","title":"Candycrush"},
+    {"file":"capybaraclicker.html","title":"Capybaraclicker"},
+    {"file":"cardrawing.html","title":"Cardrawing"},
+    {"file":"carkingarena.html","title":"Carkingarena"},
+    {"file":"chess.html","title":"Chess"},
+    {"file":"choppyorc.html","title":"Choppyorc"},
+    {"file":"circloO.html","title":"Circloo"},
+    {"file":"circloO2.html","title":"Circloo2"},
+    {"file":"clashofvikings.html","title":"Clashofvikings"},
+    {"file":"cleanupio.html","title":"Cleanupio"},
+    {"file":"clusterrush.html","title":"Clusterrush"},
+    {"file":"crazycars.html","title":"Crazycars"},
+    {"file":"crazymotorcycle.html","title":"Crazymotorcycle"},
+    {"file":"dadish.html","title":"Dadish"},
+    {"file":"dadish2.html","title":"Dadish2"},
+    {"file":"dadish3.html","title":"Dadish3"},
+    {"file":"deathrun3D.html","title":"Deathrun3D"},
+    {"file":"doodlejump.html","title":"Doodlejump"},
+    {"file":"drawclimber.html","title":"Drawclimber"},
+    {"file":"ducklife.html","title":"Ducklife"},
+    {"file":"ducklife2.html","title":"Ducklife2"},
+    {"file":"ducklife3.html","title":"Ducklife3"},
+    {"file":"ducklife4.html","title":"Ducklife4"},
+    {"file":"ducklife5.html","title":"Ducklife5"},
+    {"file":"ducklingsio.html","title":"Ducklingsio"},
+    {"file":"eagleride.html","title":"Eagleride"},
+    {"file":"earntodie.html","title":"Earntodie"},
+    {"file":"earntodie2.html","title":"Earntodie2"},
+    {"file":"eggycar.html","title":"Eggycar"},
+    {"file":"escapingtheprison.html","title":"Escapingtheprison"},
+    {"file":"evilglitch.html","title":"Evilglitch"},
+    {"file":"fancypantsadventure.html","title":"Fancypantsadventure"},
+    {"file":"fancypantsadventure2.html","title":"Fancypantsadventure2"},
+    {"file":"fireboyandwatergirl.html","title":"Fireboyandwatergirl"},
+    {"file":"fireboyandwatergirl2.html","title":"Fireboyandwatergirl2"},
+    {"file":"fireboyandwatergirl3.html","title":"Fireboyandwatergirl3"},
+    {"file":"fireboyandwatergirl4.html","title":"Fireboyandwatergirl4"},
+    {"file":"flappybird.html","title":"Flappybird"},
+    {"file":"floodrunner2.html","title":"Floodrunner2"},
+    {"file":"floodrunner3.html","title":"Floodrunner3"},
+    {"file":"floodrunner4.html","title":"Floodrunner4"},
+    {"file":"fnaf.html","title":"Fnaf"},
+    {"file":"fnaf4.html","title":"Fnaf4"},
+    {"file":"footballbros.html","title":"Footballbros"},
+    {"file":"footballlegends.html","title":"Footballlegends"},
+    {"file":"freerider3.html","title":"Freerider3"},
+    {"file":"fruitninja.html","title":"Fruitninja"},
+    {"file":"funnybattle.html","title":"Funnybattle"},
+    {"file":"funnybattle2.html","title":"Funnybattle2"},
+    {"file":"geometrydash.html","title":"Geometrydash"},
+    {"file":"getontop.html","title":"Getontop"},
+    {"file":"googlebaseball.html","title":"Googlebaseball"},
+    {"file":"googledino.html","title":"Googledino"},
+    {"file":"guesstheiranswer.html","title":"Guesstheiranswer"},
+    {"file":"hanger2.html","title":"Hanger2"},
+    {"file":"happywheels.html","title":"Happywheels"},
+    {"file":"helixjump.html","title":"Helixjump"},
+    {"file":"hillclimbracinglite.html","title":"Hillclimbracinglite"},
+    {"file":"holeio.html","title":"Holeio"},
+    {"file":"houseofhazards.html","title":"Houseofhazards"},
+    {"file":"hoverracerdrive.html","title":"Hoverracerdrive"},
+    {"file":"idlebreakout.html","title":"Idlebreakout"},
+    {"file":"ironsnout.html","title":"Ironsnout"},
+    {"file":"jetpackjoyride.html","title":"Jetpackjoyride"},
+    {"file":"johnnytrigger.html","title":"Johnnytrigger"},
+    {"file":"jumpingshell.html","title":"Jumpingshell"},
+    {"file":"karatebros.html","title":"Karatebros"},
+    {"file":"learntofly.html","title":"Learntofly"},
+    {"file":"learntofly2.html","title":"Learntofly2"},
+    {"file":"learntoflyidle.html","title":"Learntoflyidle"},
+    {"file":"leveldevil.html","title":"Leveldevil"},
+    {"file":"melonplayground.html","title":"Melonplayground"},
+    {"file":"mergeroundracers.html","title":"Mergeroundracers"},
+    {"file":"minesweeper.html","title":"Minesweeper"},
+    {"file":"monstertracks.html","title":"Monstertracks"},
+    {"file":"motox3m2.html","title":"Motox3m2"},
+    {"file":"motox3m3.html","title":"Motox3m3"},
+    {"file":"motox3mpoolparty.html","title":"Motox3Mpoolparty"},
+    {"file":"motox3mspookyland.html","title":"Motox3mspookyland"},
+    {"file":"motox3mwinter.html","title":"Motox3mwinter"},
+    {"file":"noobminer.html","title":"Noobminer"},
+    {"file":"oppositeday.html","title":"Oppositeday"},
+    {"file":"ovo.html","title":"Ovo"},
+    {"file":"ovo2.html","title":"Ovo2"},
+    {"file":"pacman.html","title":"Pacman"},
+    {"file":"papasburgeria.html","title":"Papasburgeria"},
+    {"file":"papascheeseria.html","title":"Papascheeseria"},
+    {"file":"papascupcakeria.html","title":"Papascupcakeria"},
+    {"file":"papasdonuteria.html","title":"Papasdonuteria"},
+    {"file":"papasfreezeria.html","title":"Papasfreezeria"},
+    {"file":"papashotdoggeria.html","title":"Papashotdoggeria"},
+    {"file":"papaspancakeria.html","title":"Papaspancakeria"},
+    {"file":"papaspastaria.html","title":"Papaspastaria"},
+    {"file":"papaspizzeria.html","title":"Papaspizzeria"},
+    {"file":"papastacomia.html","title":"Papastacomia"},
+    {"file":"papaswingeria.html","title":"Papaswingeria"},
+    {"file":"parkingfury.html","title":"Parkingfury"},
+    {"file":"parkingfury2.html","title":"Parkingfury2"},
+    {"file":"parkingfury3.html","title":"Parkingfury3"},
+    {"file":"picosschool.html","title":"Picosschool"},
+    {"file":"pingpongchaos.html","title":"Pingpongchaos"},
+    {"file":"pixelspeedrun.html","title":"Pixelspeedrun"},
+    {"file":"plantsvszombies.html","title":"Plantsvszombies"},
+    {"file":"plonky.html","title":"Plonky"},
+    {"file":"polytrack.html","title":"Polytrack"},
+    {"file":"poorbunny.html","title":"Poorbunny"},
+    {"file":"pou.html","title":"Pou"},
+    {"file":"ragdollhit.html","title":"Ragdollhit"},
+    {"file":"ragdollsoccer.html","title":"Ragdollsoccer"},
+    {"file":"redball4vol1.html","title":"Redball4vol1"},
+    {"file":"redball4vol2.html","title":"Redball4vol2"},
+    {"file":"redball4vol3.html","title":"Redball4vol3"},
+    {"file":"retrobowl.html","title":"Retrobowl"},
+    {"file":"retrobowlcollege.html","title":"Retrobowlcollege"},
+    {"file":"retrohighway.html","title":"Retrohighway"},
+    {"file":"retropingpong.html","title":"Retropingpong"},
+    {"file":"riddleschool.html","title":"Riddleschool"},
+    {"file":"riddleschool2.html","title":"Riddleschool2"},
+    {"file":"riddleschool3.html","title":"Riddleschool3"},
+    {"file":"riddleschool4.html","title":"Riddleschool4"},
+    {"file":"rooftopsnipers2.html","title":"Rooftopsnipers2"},
+    {"file":"run.html","title":"Run"},
+    {"file":"run2.html","title":"Run2"},
+    {"file":"run3.html","title":"Run3"},
+    {"file":"sandgame.html","title":"Sandgame"},
+    {"file":"shortlife.html","title":"Shortlife"},
+    {"file":"slope2player.html","title":"Slope2player"},
+    {"file":"slowroads.html","title":"Slowroads"},
+    {"file":"sm64.html","title":"Sm64"},
+    {"file":"snowballio.html","title":"Snowballio"},
+    {"file":"soccerbros.html","title":"Soccerbros"},
+    {"file":"spacebarclicker.html","title":"Spacebarclicker"},
+    {"file":"spaceiskey.html","title":"Spaceiskey"},
+    {"file":"spaceiskey2.html","title":"Spaceiskey2"},
+    {"file":"spacewaves.html","title":"Spacewaves"},
+    {"file":"speedstars.html","title":"Speedstars"},
+    {"file":"sprunki.html","title":"Sprunki"},
+    {"file":"stack.html","title":"Stack"},
+    {"file":"stacktris.html","title":"Stacktris"},
+    {"file":"stateio.html","title":"Stateio"},
+    {"file":"stickarchersbattle.html","title":"Stickarchersbattle"},
+    {"file":"stickfighter.html","title":"Stickfighter"},
+    {"file":"stickmanhook.html","title":"Stickmanhook"},
+    {"file":"stickmerge.html","title":"Stickmerge"},
+    {"file":"superliquidsoccer.html","title":"Superliquidsoccer"},
+    {"file":"tabletennisworldtour.html","title":"Tabletennisworldtour"},
+    {"file":"tag.html","title":"Tag"},
+    {"file":"templeofboom.html","title":"Templeofboom"},
+    {"file":"territorialio.html","title":"Territorialio"},
+    {"file":"theimpossiblequiz.html","title":"Theimpossiblequiz"},
+    {"file":"theimpossiblequiz2.html","title":"Theimpossiblequiz2"},
+    {"file":"thereisnog.html","title":"Thereisnog"},
+    {"file":"thisistheonlylevel.html","title":"Thisistheonlylevel"},
+    {"file":"thisistheonlyleveltoo.html","title":"Thisistheonlyleveltoo"},
+    {"file":"timeshooter2.html","title":"Timeshooter2"},
+    {"file":"tinyfishing.html","title":"Tinyfishing"},
+    {"file":"trapthecat.html","title":"Trapthecat"},
+    {"file":"triviacrack.html","title":"Triviacrack"},
+    {"file":"tubejumpers.html","title":"Tubejumpers"},
+    {"file":"tunnelrush.html","title":"Tunnelrush"},
+    {"file":"unicyclehero.html","title":"Unicyclehero"},
+    {"file":"vex4.html","title":"Vex4"},
+    {"file":"vex5.html","title":"Vex5"},
+    {"file":"vexx3m.html","title":"Vexx3m"},
+    {"file":"vexx3m2.html","title":"Vexx3m2"},
+    {"file":"volleyrandom.html","title":"Volleyrandom"},
+    {"file":"webecomewhatwebehold.html","title":"Webecomewhatwebehold"},
+    {"file":"wheeliebike.html","title":"Wheeliebike"},
+    {"file":"wheely.html","title":"Wheely"},
+    {"file":"wheely2.html","title":"Wheely2"},
+    {"file":"wheely3.html","title":"Wheely3"},
+    {"file":"wheely6.html","title":"Wheely6"},
+    {"file":"wheely8.html","title":"Wheely8"},
+    {"file":"wordleunlimited.html","title":"Wordleunlimited"},
+    {"file":"worldshardestgame.html","title":"Worldshardestgame"},
+    {"file":"worldshardestgame2.html","title":"Worldshardestgame2"},
+    {"file":"worldshardestgame3.html","title":"Worldshardestgame3"},
+    {"file":"wrestlebros.html","title":"Wrestlebros"},
+    {"file":"zombierush.html","title":"Zombierush"}
+  ];
+
+  // Deterministic color generation from string
+  function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = (hash % 360 + 360) % 360;
+    const s = 55 + (hash % 25);
+    const l = 35 + (hash % 15);
+    return `hsl(${h}, ${s}%, ${l}%)`;
+  }
+
+  // Get first letter for icon
+  function getFirstLetter(title) {
+    const match = title.match(/[A-Za-z0-9]/);
+    return match ? match[0].toUpperCase() : '?';
+  }
+
+  // Create game card element
+  function createCard(game) {
+    const link = document.createElement('a');
+    link.className = 'game-card';
+    link.role = 'listitem';
+    link.href = '/games-web/' + game.file;
+    link.setAttribute('data-title', game.title.toLowerCase());
+    link.tabIndex = 0;
+    
+    const color = stringToColor(game.title);
+    const letter = getFirstLetter(game.title);
+    
+    link.innerHTML = `
+      <div class="card-icon" style="background: ${color};" aria-hidden="true">
+        <span class="letter">${letter}</span>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">${escapeHtml(game.title)}</h3>
+        <div class="card-meta">
+          <span>点击游玩</span>
+          <svg class="card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"></path>
+          </svg>
+        </div>
+      </div>
+    `;
+    
+    return link;
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Render all games
+  function renderGames(games) {
+    const grid = document.getElementById('games-grid');
+    const loading = document.getElementById('loading');
+    
+    if (loading) loading.remove();
+    
+    if (games.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" role="status">
+          <div class="empty-icon" aria-hidden="true">🔍</div>
+          <h3 class="empty-title">未找到匹配的游戏</h3>
+          <p class="empty-desc">尝试使用不同的关键词搜索，或清空搜索框查看所有游戏。</p>
+        </div>
+      `;
+      return;
+    }
+    
+    const fragment = document.createDocumentFragment();
+    games.forEach(game => {
+      fragment.appendChild(createCard(game));
+    });
+    grid.appendChild(fragment);
+  }
+
+  // Filter games
+  function filterGames(query) {
+    const lowerQuery = query.toLowerCase().trim();
+    const cards = document.querySelectorAll('.game-card');
+    let visible = 0;
+    
+    cards.forEach(card => {
+      const title = card.getAttribute('data-title');
+      const matches = !lowerQuery || title.includes(lowerQuery);
+      card.style.display = matches ? 'flex' : 'none';
+      if (matches) visible++;
+    });
+    
+    // Show/hide empty state
+    let emptyState = document.querySelector('.empty-state');
+    if (visible === 0 && lowerQuery) {
+      if (!emptyState) {
+        const grid = document.getElementById('games-grid');
+        emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.role = 'status';
+        emptyState.innerHTML = `
+          <div class="empty-icon" aria-hidden="true">🔍</div>
+          <h3 class="empty-title">未找到匹配的游戏</h3>
+          <p class="empty-desc">尝试使用不同的关键词搜索，或清空搜索框查看所有游戏。</p>
+        `;
+        grid.appendChild(emptyState);
+      }
+    } else if (emptyState) {
+      emptyState.remove();
+    }
+    
+    updateCounts(visible);
+  }
+
+  function updateCounts(visible) {
+    document.getElementById('visible-count').textContent = visible;
+    document.getElementById('total-count').textContent = GAMES.length;
+  }
+
+  // Debounce function
+  function debounce(fn, delay) {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  // Initialize
+  function init() {
+    // Initial render
+    renderGames(GAMES);
+    updateCounts(GAMES.length);
+    
+    // Search input handler
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('clear-btn');
+    
+    const handleSearch = debounce((e) => {
+      const query = e.target.value;
+      filterGames(query);
+      clearBtn.classList.toggle('visible', query.length > 0);
+    }, 100);
+    
+    searchInput.addEventListener('input', handleSearch);
+    
+    // Clear button
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      filterGames('');
+      clearBtn.classList.remove('visible');
+      searchInput.focus();
+    });
+    
+    // Clear on Escape
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        filterGames('');
+        clearBtn.classList.remove('visible');
+        searchInput.blur();
+      }
+    });
+    
+    // Keyboard navigation for cards
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const target = e.target.closest('.game-card');
+        if (target && document.activeElement === target) {
+          e.preventDefault();
+          window.location.href = target.href;
+        }
+      }
+    });
+  }
+
+  // Run when DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
