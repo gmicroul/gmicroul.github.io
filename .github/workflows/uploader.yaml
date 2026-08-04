@@ -1,4 +1,4 @@
-name: Hermes Games uploader
+name: Hermes Games Navigation Generator
 
 
 on:
@@ -35,33 +35,24 @@ jobs:
 
 
 
-    - name: Download Offline HTML Games Pack
+    - name: Scan games-web
 
       run: |
 
-        git clone --depth=1 \
-          https://github.com/gmicroul/Offline-HTML-Games-Pack.git games-pack
+        echo "Scan games-web html files"
+
+        COUNT=$(find games-web -name "*.html" | wc -l)
+
+        echo "Games count: $COUNT"
 
 
-        mkdir -p Games-Offline
+        if [ "$COUNT" -lt 1 ]; then
 
+          echo "No html games found"
 
-        cp -r games-pack/offline/* Games-Offline/
+          exit 1
 
-
-        rm -rf games-pack
-
-
-        echo "Remove files larger than 25MB"
-
-
-        find Games-Offline -type f -size +25M -print -delete
-
-
-        echo "Remaining files:"
-
-        find Games-Offline -type f | wc -l
-
+        fi
 
 
 
@@ -77,7 +68,6 @@ jobs:
 
 
 
-
     - name: Prepare output
 
       run: |
@@ -87,7 +77,6 @@ jobs:
         mkdir -p output
 
         chmod 777 output
-
 
 
 
@@ -127,39 +116,108 @@ jobs:
           /opt/hermes-agent/gmicroul.github.io
 
 
-          已经存在 Games-Offline。
-
+          任务：
 
           扫描：
 
-          Games-Offline/
+          games-web/
+
+
+          里面所有HTML游戏文件。
 
 
           生成：
 
-          Games-Offline/index.html
+          output/index.html
+
+
+          这是一个HTML5游戏导航主页。
 
 
           要求：
 
-          - 汇总所有HTML游戏
-          - 提取title
-          - 自动生成图标
-          - 搜索功能
-          - 响应式布局
+
+          1. 扫描所有：
+
+          games-web/*.html
 
 
-          完成后复制：
+          2. 自动读取每个HTML：
 
-          Games-Offline/index.html
+          - 提取title标签作为游戏名称
+
+          - 如果没有title，使用文件名生成名称
 
 
-          到：
+          3. 每个游戏生成一个卡片：
+
+
+          包含：
+
+          - 游戏图标
+
+          - 游戏名称
+
+          - 打开按钮
+
+
+          4. 图标规则：
+
+          优先寻找：
+
+          games-web同目录下：
+
+          favicon
+
+          icon
+
+          png
+
+          jpg
+
+          webp
+
+
+          如果不存在：
+
+          自动生成彩色字母图标。
+
+
+          5. 页面要求：
+
+          - 图标网格布局
+
+          - 响应式设计
+
+          - 手机和电脑适配
+
+          - CSS内置
+
+          - 无外部依赖
+
+
+          6. 添加搜索：
+
+          可以按照游戏名称实时过滤。
+
+
+          7. 游戏链接：
+
+          使用相对路径：
+
+          games-web/文件名.html
+
+
+          8. 不修改：
+
+          games-web
+
+          其它目录
+
+
+          9. 完成后确认：
 
           output/index.html
-
-
-          不删除其它文件。
 
 
           "
@@ -167,8 +225,7 @@ jobs:
 
 
 
-
-    - name: Verify files
+    - name: Verify output
 
       run: |
 
@@ -178,15 +235,12 @@ jobs:
         ls -lah output
 
 
-
         test -f output/index.html
 
 
-
-        COUNT=$(find Games-Offline -name "*.html" | wc -l)
+        COUNT=$(find games-web -name "*.html" | wc -l)
 
         echo "Games count: $COUNT"
-
 
 
         if [ "$COUNT" -lt 1 ]; then
@@ -194,7 +248,6 @@ jobs:
           exit 1
 
         fi
-
 
 
 
@@ -219,9 +272,7 @@ jobs:
         git config core.compression 0
 
 
-
-        git add Games-Offline output/index.html
-
+        git add output/index.html
 
 
         if git diff --cached --quiet; then
@@ -233,10 +284,8 @@ jobs:
         fi
 
 
-
         git commit \
-          -m "Update Hermes Games Offline"
-
+          -m "Update Hermes games navigation"
 
 
         git push \
