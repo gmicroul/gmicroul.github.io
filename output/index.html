@@ -1,700 +1,529 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Hub - GitHub Pages 游戏导航</title>
-<style>
-:root {
-  --bg: #0a0f14;
-  --bg-elevated: #111820;
-  --fg: #e8ecf0;
-  --fg-muted: #8a93a0;
-  --accent: #19a7ce;
-  --accent-dim: #0e7c8c;
-  --sea-green: #2ebd85;
-  --sea-green-dim: #15966b;
-  --coral: #f0544f;
-  --orange: #f59b23;
-  --yellow: #ffd34e;
-  --card-bg: rgba(17, 24, 32, 0.85);
-  --card-border: rgba(25, 167, 206, 0.15);
-  --shadow: rgba(20, 40, 60, 0.35);
-  --shadow-strong: rgba(20, 40, 60, 0.5);
-  --gradient-primary: linear-gradient(135deg, #0e7c8c 0%, #19a7ce 50%, #4fc3f7 100%);
-  --gradient-green: linear-gradient(135deg, #15966b 0%, #2ebd85 50%, #4fc3f7 100%);
-  --gradient-warm: linear-gradient(135deg, #f0544f 0%, #f59b23 50%, #ffd34e 100%);
-  --gradient-purple: linear-gradient(135deg, #c56cd6 0%, #e85d9e 100%);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { font-size: 16px; -webkit-text-size-adjust: 100%; }
-
-body {
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  line-height: 1.5;
-  overflow-x: hidden;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: 
-    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(25, 167, 206, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(46, 189, 133, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(25, 167, 206, 0.03) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-header {
-  position: relative;
-  z-index: 10;
-  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
-  text-align: center;
-  border-bottom: 1px solid var(--card-border);
-  background: linear-gradient(180deg, rgba(17, 24, 32, 0.95) 0%, transparent 100%);
-}
-
-header h1 {
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-}
-
-header p {
-  color: var(--fg-muted);
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.search-container {
-  position: relative;
-  z-index: 10;
-  max-width: 640px;
-  margin: 0 auto clamp(1rem, 3vw, 2rem);
-  padding: 0 clamp(1rem, 4vw, 3rem);
-}
-
-.search-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 16px;
-  width: 22px;
-  height: 22px;
-  color: var(--fg-muted);
-  pointer-events: none;
-  flex-shrink: 0;
-}
-
-#searchInput {
-  width: 100%;
-  padding: 14px 20px 14px 54px;
-  font-size: 1rem;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  color: var(--fg);
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  backdrop-filter: blur(10px);
-}
-
-#searchInput::placeholder { color: var(--fg-muted); opacity: 0.7; }
-
-#searchInput:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(25, 167, 206, 0.15), 0 8px 32px var(--shadow);
-  background: var(--bg-elevated);
-}
-
-#searchInput:focus + .search-icon { color: var(--accent); }
-
-.stats {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  color: var(--fg-muted);
-  font-size: 0.875rem;
-  margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
-  padding: 0 clamp(1rem, 4vw, 3rem);
-}
-
-.stats strong { color: var(--accent); font-weight: 600; }
-
-main {
-  position: relative;
-  z-index: 10;
-  padding: 0 clamp(1rem, 4vw, 3rem) clamp(2rem, 5vw, 4rem);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: clamp(12px, 2.5vw, 20px);
-  max-width: 1600px;
-  margin: 0 auto;
-}
-
-@media (max-width: 480px) {
-  .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-  .grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-  .grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
-}
-
-@media (min-width: 1025px) and (max-width: 1400px) {
-  .grid { grid-template-columns: repeat(5, 1fr); gap: 18px; }
-}
-
-@media (min-width: 1401px) {
-  .grid { grid-template-columns: repeat(6, 1fr); gap: 20px; }
-}
-
-.card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  padding: clamp(14px, 2.5vw, 20px) clamp(10px, 2vw, 14px);
-  backdrop-filter: blur(12px);
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), 
-              box-shadow 0.25s ease, 
-              border-color 0.25s ease;
-  overflow: hidden;
-  min-height: 180px;
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(25, 167, 206, 0.05) 0%, transparent 50%, rgba(46, 189, 133, 0.03) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.card:hover {
-  transform: translateY(-6px) scale(1.02);
-  border-color: rgba(25, 167, 206, 0.4);
-  box-shadow: 0 20px 48px var(--shadow-strong), 0 8px 24px var(--shadow);
-}
-
-.card:hover::before { opacity: 1; }
-
-.card:focus-visible {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(25, 167, 206, 0.25), 0 12px 32px var(--shadow);
-}
-
-.icon-wrapper {
-  position: relative;
-  width: clamp(72px, 14vw, 96px);
-  height: clamp(72px, 14vw, 96px);
-  margin-bottom: clamp(10px, 2vw, 14px);
-  flex-shrink: 0;
-  filter: drop-shadow(0 8px 24px var(--shadow)) drop-shadow(0 4px 12px var(--shadow));
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
-}
-
-.card:hover .icon-wrapper { transform: scale(1.08) rotate(-2deg); filter: drop-shadow(0 12px 32px var(--shadow-strong)) drop-shadow(0 6px 16px var(--shadow)); }
-
-.leaf-icon {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.card-title {
-  font-size: clamp(0.8rem, 1.8vw, 0.95rem);
-  font-weight: 600;
-  text-align: center;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-  transition: color 0.2s ease;
-}
-
-.card:hover .card-title { color: var(--accent); }
-
-.hidden { display: none !important; }
-
-.no-results {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 4rem 2rem;
-  color: var(--fg-muted);
-}
-
-.no-results svg { width: 80px; height: 80px; margin-bottom: 1rem; opacity: 0.5; }
-
-.no-results h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--fg); }
-
-footer {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  padding: 2rem;
-  color: var(--fg-muted);
-  font-size: 0.8rem;
-  border-top: 1px solid var(--card-border);
-  background: linear-gradient(0deg, rgba(10, 15, 20, 0.95) 0%, transparent 100%);
-}
-
-footer a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
-footer a:hover { color: var(--sea-green); text-decoration: underline; }
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.card { animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-
-.card:nth-child(1) { animation-delay: 0ms; }
-.card:nth-child(2) { animation-delay: 30ms; }
-.card:nth-child(3) { animation-delay: 60ms; }
-.card:nth-child(4) { animation-delay: 90ms; }
-.card:nth-child(5) { animation-delay: 120ms; }
-.card:nth-child(6) { animation-delay: 150ms; }
-.card:nth-child(7) { animation-delay: 180ms; }
-.card:nth-child(8) { animation-delay: 210ms; }
-.card:nth-child(9) { animation-delay: 240ms; }
-.card:nth-child(10) { animation-delay: 270ms; }
-.card:nth-child(11) { animation-delay: 300ms; }
-.card:nth-child(12) { animation-delay: 330ms; }
-
-@media (prefers-reduced-motion: reduce) {
-  .card { animation: none; }
-  .card:hover, .icon-wrapper { transition: none; }
-}
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(25, 167, 206, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(25, 167, 206, 0); }
-}
-
-.search-wrapper:focus-within { animation: pulse 2s infinite; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0E7C8C">
+  <title>游戏大厅 · Game Hub</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0f14;
+      --bg-elevated: #111820;
+      --bg-card: #151d28;
+      --fg: #e8edf2;
+      --fg-muted: #7a8a9a;
+      --accent: #19A7CE;
+      --accent-dim: #19A7CE40;
+      --accent-strong: #4FC3F7;
+      --sea-deep: #0E7C8C;
+      --sea-green: #2EBD85;
+      --coral: #F0544F;
+      --orange: #F59B23;
+      --yellow: #FFD34E;
+      --purple-pink: #C56CD6;
+      --stroke: #233040;
+      --stroke-strong: #2d3d4f;
+      --shadow: rgba(20,40,60,0.25);
+      --shadow-strong: rgba(20,40,60,0.4);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --transition: 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f0f4f8;
+        --bg-elevated: #ffffff;
+        --bg-card: #f8fafc;
+        --fg: #1a2330;
+        --fg-muted: #5a6a7a;
+        --accent: #0E7C8C;
+        --accent-dim: #0E7C8C30;
+        --accent-strong: #15966B;
+        --stroke: #d0d8e0;
+        --stroke-strong: #b8c4d0;
+        --shadow: rgba(20,40,60,0.12);
+        --shadow-strong: rgba(20,40,60,0.2);
+      }
+    }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    /* Background atmosphere */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, var(--accent-dim) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, #2EBD8520 0%, transparent 55%),
+        radial-gradient(ellipse 40% 30% at 50% 50%, var(--purple-pink)15 0%, transparent 70%),
+        var(--bg);
+      pointer-events: none;
+    }
+    /* Layout */
+    .app { max-width: 1400px; margin: 0 auto; padding: 24px 16px 40px; }
+    /* Header */
+    .header { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; margin-bottom: 28px; }
+    .header-main { flex: 1; min-width: 200px; }
+    .title {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--accent-strong), var(--accent), var(--sea-green));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1.15;
+    }
+    .subtitle { color: var(--fg-muted); font-size: 0.95rem; margin-top: 4px; }
+    .stats { display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.85rem; color: var(--fg-muted); }
+    .stat { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-elevated); border: 1px solid var(--stroke); border-radius: 100px; }
+    .stat strong { color: var(--fg); font-size: 1rem; }
+    /* Search */
+    .search-wrapper { position: relative; flex: 1; min-width: 220px; max-width: 480px; }
+    .search-input {
+      width: 100%; padding: 14px 18px 14px 48px;
+      font-size: 1rem; color: var(--fg);
+      background: var(--bg-elevated);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius-md);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      outline: none;
+    }
+    .search-input::placeholder { color: var(--fg-muted); }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); background: var(--bg-card); }
+    .search-icon {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      width: 20px; height: 20px; stroke: var(--fg-muted); pointer-events: none;
+      transition: stroke var(--transition);
+    }
+    .search-input:focus + .search-icon { stroke: var(--accent); }
+    .clear-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 28px; border: none; background: transparent;
+      color: var(--fg-muted); cursor: pointer; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: all var(--transition);
+    }
+    .search-input:not(:placeholder-shown) + .search-icon + .clear-btn,
+    .search-input:focus + .search-icon + .clear-btn { opacity: 1; pointer-events: auto; }
+    .clear-btn:hover { background: var(--accent-dim); color: var(--accent); }
+    /* Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    @media (min-width: 480px) { .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } }
+    @media (min-width: 768px) { .grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); } }
+    @media (min-width: 1024px) { .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } }
+    @media (min-width: 1400px) { .grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
+    /* Card */
+    .card {
+      display: block; text-decoration: none; color: inherit;
+      background: var(--bg-card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+      position: relative;
+    }
+    .card::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+      pointer-events: none; opacity: 0; transition: opacity var(--transition);
+    }
+    .card:hover { transform: translateY(-6px); border-color: var(--accent); box-shadow: 0 20px 40px -15px var(--shadow-strong); }
+    .card:hover::before { opacity: 1; }
+    .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .card-icon-wrapper {
+      aspect-ratio: 1 / 1;
+      background: linear-gradient(135deg, var(--icon-bg-start), var(--icon-bg-end));
+      position: relative;
+      overflow: hidden;
+    }
+    .card-icon-wrapper::after {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .card-icon { width: 100%; height: 100%; display: block; }
+    .card-content { padding: 14px 12px 16px; }
+    .card-title {
+      font-size: 0.875rem; font-weight: 600; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      min-height: 2.7em;
+    }
+    .card-hidden { display: none !important; }
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 60px 24px; text-align: center; color: var(--fg-muted);
+      background: var(--bg-card); border: 1px dashed var(--stroke); border-radius: var(--radius-lg);
+    }
+    .empty-icon { width: 64px; height: 64px; stroke: var(--fg-muted); margin-bottom: 16px; opacity: 0.6; }
+    .empty-title { font-size: 1.1rem; font-weight: 600; color: var(--fg); margin-bottom: 6px; }
+    .empty-desc { font-size: 0.9rem; max-width: 320px; }
+    /* Footer */
+    .footer { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--stroke); text-align: center; color: var(--fg-muted); font-size: 0.8rem; }
+    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--stroke-strong); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
+  </style>
 </head>
 <body>
-<header>
-  <h1>Game Hub</h1>
-  <p>224 款精选网页游戏，即点即玩，无需下载</p>
-</header>
-
-<div class="search-container">
-  <div class="search-wrapper">
-    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
-    <input type="search" id="searchInput" placeholder="搜索游戏名称..." autocomplete="off" spellcheck="false" aria-label="搜索游戏">
-  </div>
-</div>
-
-<div class="stats" id="stats">共 <strong>224</strong> 款游戏</div>
-
-<main>
-  <div class="grid" id="grid"></div>
-  <div class="no-results hidden" id="noResults">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      <line x1="9" y1="9" x2="15" y2="15"></line>
-      <line x1="15" y1="9" x2="9" y2="15"></line>
-    </svg>
-    <h3>未找到匹配的游戏</h3>
-    <p>尝试更换关键词或清空搜索框</p>
-  </div>
-</main>
-
-<footer>
-  <p>托管于 <a href="https://github.com/gmicroul/gmicroul.github.io" target="_blank" rel="noopener">GitHub Pages</a> · 游戏来源于公开网络资源</p>
-</footer>
-
-<script>
-const games = [
-{"title":"12Minibattles","url":"/games-web/12minibattles.html"},
-{"title":"1On1Soccer","url":"/games-web/1on1soccer.html"},
-{"title":"1On1Tennis","url":"/games-web/1on1tennis.html"},
-{"title":"2048","url":"/games-web/2048.html"},
-{"title":"2048Cupcakes","url":"/games-web/2048cupcakes.html"},
-{"title":"8Ballclassic","url":"/games-web/8ballclassic.html"},
-{"title":"Ageofwar","url":"/games-web/ageofwar.html"},
-{"title":"Ageofwar2","url":"/games-web/ageofwar2.html"},
-{"title":"Agesofconflict","url":"/games-web/agesofconflict.html"},
-{"title":"Alpha 1.2.6","url":"/games-web/Alpha_1.2.6.html"},
-{"title":"Amongus","url":"/games-web/amongus.html"},
-{"title":"Angrybirds","url":"/games-web/angrybirds.html"},
-{"title":"Angrybirdsspace","url":"/games-web/angrybirdsspace.html"},
-{"title":"Awesometanks","url":"/games-web/awesometanks.html"},
-{"title":"Awesometanks2","url":"/games-web/awesometanks2.html"},
-{"title":"Backrooms","url":"/games-web/backrooms.html"},
-{"title":"Baconmaydie","url":"/games-web/baconmaydie.html"},
-{"title":"Badicecream","url":"/games-web/badicecream.html"},
-{"title":"Badicecream2","url":"/games-web/badicecream2.html"},
-{"title":"Badicecream3","url":"/games-web/badicecream3.html"},
-{"title":"Badpiggies","url":"/games-web/badpiggies.html"},
-{"title":"Baseballbros","url":"/games-web/baseballbros.html"},
-{"title":"Basketballlegends","url":"/games-web/basketballlegends.html"},
-{"title":"Basketballstars","url":"/games-web/basketballstars.html"},
-{"title":"Basketbros","url":"/games-web/basketbros.html"},
-{"title":"Blockysnakes","url":"/games-web/blockysnakes.html"},
-{"title":"Bloonstd","url":"/games-web/bloonsTD.html"},
-{"title":"Bloonstd2","url":"/games-web/bloonsTD2.html"},
-{"title":"Bloonstd3","url":"/games-web/bloonsTD3.html"},
-{"title":"Bloonstd4","url":"/games-web/bloonsTD4.html"},
-{"title":"Bloonstd5","url":"/games-web/bloonsTD5.html"},
-{"title":"Bloxorz","url":"/games-web/bloxorz.html"},
-{"title":"Blumgiracers","url":"/games-web/blumgiracers.html"},
-{"title":"Blumgirocket","url":"/games-web/blumgirocket.html"},
-{"title":"Bobtherobber","url":"/games-web/bobtherobber.html"},
-{"title":"Bobtherobber2","url":"/games-web/bobtherobber2.html"},
-{"title":"Bobtherobber5","url":"/games-web/bobtherobber5.html"},
-{"title":"Breakingthebank","url":"/games-web/breakingthebank.html"},
-{"title":"Bubbleshooter","url":"/games-web/bubbleshooter.html"},
-{"title":"Candycrush","url":"/games-web/candycrush.html"},
-{"title":"Capybaraclicker","url":"/games-web/capybaraclicker.html"},
-{"title":"Cardrawing","url":"/games-web/cardrawing.html"},
-{"title":"Carkingarena","url":"/games-web/carkingarena.html"},
-{"title":"Chess","url":"/games-web/chess.html"},
-{"title":"Choppyorc","url":"/games-web/choppyorc.html"},
-{"title":"Circloo","url":"/games-web/circloO.html"},
-{"title":"Circloo2","url":"/games-web/circloO2.html"},
-{"title":"Clashofvikings","url":"/games-web/clashofvikings.html"},
-{"title":"Basketrandom","url":"/games-web/basketrandom.html"},
-{"title":"Cleanupio","url":"/games-web/cleanupio.html"},
-{"title":"Cluster Rush","url":"/games-web/clusterrush.html"},
-{"title":"Crazycars","url":"/games-web/crazycars.html"},
-{"title":"Crazymotorcycle","url":"/games-web/crazymotorcycle.html"},
-{"title":"Dadish","url":"/games-web/dadish.html"},
-{"title":"Dadish2","url":"/games-web/dadish2.html"},
-{"title":"Dadish3","url":"/games-web/dadish3.html"},
-{"title":"Deathrun3D","url":"/games-web/deathrun3D.html"},
-{"title":"Dinosaur Game Chrome","url":"/games-web/googledino.html"},
-{"title":"Drawclimber","url":"/games-web/drawclimber.html"},
-{"title":"Ducklife","url":"/games-web/ducklife.html"},
-{"title":"Ducklife2","url":"/games-web/ducklife2.html"},
-{"title":"Ducklife3","url":"/games-web/ducklife3.html"},
-{"title":"Ducklife4","url":"/games-web/ducklife4.html"},
-{"title":"Ducklife5","url":"/games-web/ducklife5.html"},
-{"title":"Ducklingsio","url":"/games-web/ducklingsio.html"},
-{"title":"Eaglercraft Launcher | Beta 1.3 Offline","url":"/games-web/Beta_1.3.html"},
-{"title":"Eaglercraft Launcher | Indev Offline","url":"/games-web/Indev.html"},
-{"title":"Eagleride","url":"/games-web/eagleride.html"},
-{"title":"Earntodie","url":"/games-web/earntodie.html"},
-{"title":"Earntodie2","url":"/games-web/earntodie2.html"},
-{"title":"Eggycar","url":"/games-web/eggycar.html"},
-{"title":"Escapingtheprison","url":"/games-web/escapingtheprison.html"},
-{"title":"Evil Glitch","url":"/games-web/evilglitch.html"},
-{"title":"Fancypantsadventure","url":"/games-web/fancypantsadventure.html"},
-{"title":"Fancypantsadventure2","url":"/games-web/fancypantsadventure2.html"},
-{"title":"Fireboyandwatergirl","url":"/games-web/fireboyandwatergirl.html"},
-{"title":"Fireboyandwatergirl2","url":"/games-web/fireboyandwatergirl2.html"},
-{"title":"Fireboyandwatergirl3","url":"/games-web/fireboyandwatergirl3.html"},
-{"title":"Fireboyandwatergirl4","url":"/games-web/fireboyandwatergirl4.html"},
-{"title":"Flappy Bird","url":"/games-web/flappybird.html"},
-{"title":"Floodrunner2","url":"/games-web/floodrunner2.html"},
-{"title":"Floodrunner3","url":"/games-web/floodrunner3.html"},
-{"title":"Floodrunner4","url":"/games-web/floodrunner4.html"},
-{"title":"Fnaf","url":"/games-web/fnaf.html"},
-{"title":"FNAF-4","url":"/games-web/fnaf4.html"},
-{"title":"FOOTBALL BROS! | Official Site","url":"/games-web/footballbros.html"},
-{"title":"Footballlegends","url":"/games-web/footballlegends.html"},
-{"title":"Freerider3","url":"/games-web/freerider3.html"},
-{"title":"Fruitninja","url":"/games-web/fruitninja.html"},
-{"title":"Funnybattle","url":"/games-web/funnybattle.html"},
-{"title":"Funnybattle2","url":"/games-web/funnybattle2.html"},
-{"title":"Geometry Dash","url":"/games-web/geometrydash.html"},
-{"title":"Getontop","url":"/games-web/getontop.html"},
-{"title":"Googlebaseball","url":"/games-web/googlebaseball.html"},
-{"title":"Guesstheiranswer","url":"/games-web/guesstheiranswer.html"},
-{"title":"Hanger2","url":"/games-web/hanger2.html"},
-{"title":"Happywheels","url":"/games-web/happywheels.html"},
-{"title":"Helixjump","url":"/games-web/helixjump.html"},
-{"title":"Hillclimbracinglite","url":"/games-web/hillclimbracinglite.html"},
-{"title":"Holeio","url":"/games-web/holeio.html"},
-{"title":"Houseofhazards","url":"/games-web/houseofhazards.html"},
-{"title":"Hoverracerdrive","url":"/games-web/hoverracerdrive.html"},
-{"title":"Idlebreakout","url":"/games-web/idlebreakout.html"},
-{"title":"Ironsnout","url":"/games-web/ironsnout.html"},
-{"title":"Jetpackjoyride","url":"/games-web/jetpackjoyride.html"},
-{"title":"Johnnytrigger","url":"/games-web/johnnytrigger.html"},
-{"title":"Jump","url":"/games-web/doodlejump.html"},
-{"title":"Jumping Shell","url":"/games-web/jumpingshell.html"},
-{"title":"Karatebros","url":"/games-web/karatebros.html"},
-{"title":"Learntofly","url":"/games-web/learntofly.html"},
-{"title":"Learntofly2","url":"/games-web/learntofly2.html"},
-{"title":"Learntoflyidle","url":"/games-web/learntoflyidle.html"},
-{"title":"Level Devil","url":"/games-web/leveldevil.html"},
-{"title":"Melonplayground","url":"/games-web/melonplayground.html"},
-{"title":"Mergeroundracers","url":"/games-web/mergeroundracers.html"},
-{"title":"Minesweeper","url":"/games-web/minesweeper.html"},
-{"title":"Monstertracks","url":"/games-web/monstertracks.html"},
-{"title":"Motox3M2","url":"/games-web/motox3m2.html"},
-{"title":"Motox3M3","url":"/games-web/motox3m3.html"},
-{"title":"Motox3Mpoolparty","url":"/games-web/motox3mpoolparty.html"},
-{"title":"Motox3Mspookyland","url":"/games-web/motox3mspookyland.html"},
-{"title":"Motox3Mwinter","url":"/games-web/motox3mwinter.html"},
-{"title":"My Drive - Google Drive","url":"/games-web/1.5.html"},
-{"title":"Noob Miner","url":"/games-web/noobminer.html"},
-{"title":"Oppositeday","url":"/games-web/oppositeday.html"},
-{"title":"OvO 2","url":"/games-web/ovo2.html"},
-{"title":"OvOfw","url":"/games-web/ovo.html"},
-{"title":"Pac Man","url":"/games-web/pacman.html"},
-{"title":"Papasburgeria","url":"/games-web/papasburgeria.html"},
-{"title":"Papascheeseria","url":"/games-web/papascheeseria.html"},
-{"title":"Papascupcakeria","url":"/games-web/papascupcakeria.html"},
-{"title":"Papasdonuteria","url":"/games-web/papasdonuteria.html"},
-{"title":"Papasfreezeria","url":"/games-web/papasfreezeria.html"},
-{"title":"Papashotdoggeria","url":"/games-web/papashotdoggeria.html"},
-{"title":"Papaspancakeria","url":"/games-web/papaspancakeria.html"},
-{"title":"Papaspastaria","url":"/games-web/papaspastaria.html"},
-{"title":"Papaspizzeria","url":"/games-web/papaspizzeria.html"},
-{"title":"Papastacomia","url":"/games-web/papastacomia.html"},
-{"title":"Papaswingeria","url":"/games-web/papaswingeria.html"},
-{"title":"Parkingfury","url":"/games-web/parkingfury.html"},
-{"title":"Parkingfury2","url":"/games-web/parkingfury2.html"},
-{"title":"Parkingfury3","url":"/games-web/parkingfury3.html"},
-{"title":"Picosschool","url":"/games-web/picosschool.html"},
-{"title":"Pingpongchaos","url":"/games-web/pingpongchaos.html"},
-{"title":"Pixel Speedrun","url":"/games-web/pixelspeedrun.html"},
-{"title":"Plantsvszombies","url":"/games-web/plantsvszombies.html"},
-{"title":"Plonky","url":"/games-web/plonky.html"},
-{"title":"Polytrack","url":"/games-web/polytrack.html"},
-{"title":"Poorbunny","url":"/games-web/poorbunny.html"},
-{"title":"Pou","url":"/games-web/pou.html"},
-{"title":"Ragdollhit","url":"/games-web/ragdollhit.html"},
-{"title":"Ragdollsoccer","url":"/games-web/ragdollsoccer.html"},
-{"title":"Redball4Vol1","url":"/games-web/redball4vol1.html"},
-{"title":"Redball4Vol2","url":"/games-web/redball4vol2.html"},
-{"title":"Redball4Vol3","url":"/games-web/redball4vol3.html"},
-{"title":"Retro-Ping-Pong","url":"/games-web/retropingpong.html"},
-{"title":"Retrobowl","url":"/games-web/retrobowl.html"},
-{"title":"Retrobowlcollege","url":"/games-web/retrobowlcollege.html"},
-{"title":"Retrohighway","url":"/games-web/retrohighway.html"},
-{"title":"Riddleschool","url":"/games-web/riddleschool.html"},
-{"title":"Riddleschool2","url":"/games-web/riddleschool2.html"},
-{"title":"Riddleschool3","url":"/games-web/riddleschool3.html"},
-{"title":"Riddleschool4","url":"/games-web/riddleschool4.html"},
-{"title":"Rooftop Snipers 2","url":"/games-web/rooftopsnipers2.html"},
-{"title":"Run","url":"/games-web/run.html"},
-{"title":"Run2","url":"/games-web/run2.html"},
-{"title":"Run3","url":"/games-web/run3.html"},
-{"title":"Sand","url":"/games-web/sandgame.html"},
-{"title":"School","url":"/games-web/1.8.html"},
-{"title":"Shortlife","url":"/games-web/shortlife.html"},
-{"title":"Slope2Player","url":"/games-web/slope2player.html"},
-{"title":"Slowroads","url":"/games-web/slowroads.html"},
-{"title":"Snowballio","url":"/games-web/snowballio.html"},
-{"title":"Soccerbros","url":"/games-web/soccerbros.html"},
-{"title":"Solo Agario","url":"/games-web/agariolite.html"},
-{"title":"Space Waves","url":"/games-web/spacewaves.html"},
-{"title":"SPACEBAR CLICKER","url":"/games-web/spacebarclicker.html"},
-{"title":"Spaceiskey","url":"/games-web/spaceiskey.html"},
-{"title":"Spaceiskey2","url":"/games-web/spaceiskey2.html"},
-{"title":"Speedstars","url":"/games-web/speedstars.html"},
-{"title":"Sprunki","url":"/games-web/sprunki.html"},
-{"title":"Stack","url":"/games-web/stack.html"},
-{"title":"Stacktris","url":"/games-web/stacktris.html"},
-{"title":"Stateio","url":"/games-web/stateio.html"},
-{"title":"Stickarchersbattle","url":"/games-web/stickarchersbattle.html"},
-{"title":"Stickfighter","url":"/games-web/stickfighter.html"},
-{"title":"Stickman Hook","url":"/games-web/stickmanhook.html"},
-{"title":"Stickmerge","url":"/games-web/stickmerge.html"},
-{"title":"Super Mario 64","url":"/games-web/sm64.html"},
-{"title":"Superliquidsoccer","url":"/games-web/superliquidsoccer.html"},
-{"title":"Tabletennisworldtour","url":"/games-web/tabletennisworldtour.html"},
-{"title":"Tag","url":"/games-web/tag.html"},
-{"title":"Templeofboom","url":"/games-web/templeofboom.html"},
-{"title":"Territorialio","url":"/games-web/territorialio.html"},
-{"title":"Theimpossiblequiz","url":"/games-web/theimpossiblequiz.html"},
-{"title":"Theimpossiblequiz2","url":"/games-web/theimpossiblequiz2.html"},
-{"title":"Thereisnog","url":"/games-web/thereisnog.html"},
-{"title":"Thisistheonlylevel","url":"/games-web/thisistheonlylevel.html"},
-{"title":"Thisistheonlyleveltoo","url":"/games-web/thisistheonlyleveltoo.html"},
-{"title":"Timeshooter2","url":"/games-web/timeshooter2.html"},
-{"title":"Tinyfishing","url":"/games-web/tinyfishing.html"},
-{"title":"Trapthecat","url":"/games-web/trapthecat.html"},
-{"title":"Triviacrack","url":"/games-web/triviacrack.html"},
-{"title":"Tubejumpers","url":"/games-web/tubejumpers.html"},
-{"title":"Tunnelrush","url":"/games-web/tunnelrush.html"},
-{"title":"Unicyclehero","url":"/games-web/unicyclehero.html"},
-{"title":"Vex4","url":"/games-web/vex4.html"},
-{"title":"Vex5","url":"/games-web/vex5.html"},
-{"title":"Vexx3M","url":"/games-web/vexx3m.html"},
-{"title":"Vexx3M2","url":"/games-web/vexx3m2.html"},
-{"title":"Volleyrandom","url":"/games-web/volleyrandom.html"},
-{"title":"Webecomewhatwebehold","url":"/games-web/webecomewhatwebehold.html"},
-{"title":"Wheeliebike","url":"/games-web/wheeliebike.html"},
-{"title":"Wheely","url":"/games-web/wheely.html"},
-{"title":"Wheely2","url":"/games-web/wheely2.html"},
-{"title":"Wheely3","url":"/games-web/wheely3.html"},
-{"title":"Wheely6","url":"/games-web/wheely6.html"},
-{"title":"Wheely8","url":"/games-web/wheely8.html"},
-{"title":"Wordleunlimited","url":"/games-web/wordleunlimited.html"},
-{"title":"Worldshardestgame","url":"/games-web/worldshardestgame.html"},
-{"title":"Worldshardestgame2","url":"/games-web/worldshardestgame2.html"},
-{"title":"Worldshardestgame3","url":"/games-web/worldshardestgame3.html"},
-{"title":"Wrestlebros","url":"/games-web/wrestlebros.html"},
-{"title":"Zombierush","url":"/games-web/zombierush.html"}
-];
-
-const grid = document.getElementById('grid');
-const searchInput = document.getElementById('searchInput');
-const stats = document.getElementById('stats');
-const noResults = document.getElementById('noResults');
-
-const gradients = [
-  'linear-gradient(135deg, #0e7c8c 0%, #19a7ce 50%, #4fc3f7 100%)',
-  'linear-gradient(135deg, #15966b 0%, #2ebd85 50%, #4fc3f7 100%)',
-  'linear-gradient(135deg, #0e7c8c 0%, #19a7ce 40%, #2ebd85 100%)',
-  'linear-gradient(135deg, #19a7ce 0%, #4fc3f7 50%, #2ebd85 100%)',
-  'linear-gradient(135deg, #15966b 0%, #19a7ce 50%, #0e7c8c 100%)',
-  'linear-gradient(135deg, #0e7c8c 0%, #15966b 50%, #2ebd85 100%)',
-  'linear-gradient(135deg, #19a7ce 0%, #0e7c8c 50%, #15966b 100%)',
-  'linear-gradient(135deg, #2ebd85 0%, #19a7ce 50%, #0e7c8c 100%)'
-];
-
-const accentColors = ['#19a7ce', '#2ebd85', '#4fc3f7', '#15966b', '#0e7c8c'];
-
-function hashString(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
-function generateLeafIcon(title, index) {
-  const h = hashString(title + index);
-  const gradient = gradients[h % gradients.length];
-  const accent = accentColors[h % accentColors.length];
-  const rotate = (index % 2 === 1) ? 90 : 0;
-  const rotateStr = rotate ? ` transform="rotate(${rotate} 256 256)"` : '';
-  
-  return `<svg class="leaf-icon" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"${rotateStr}>
-  <defs>
-    <linearGradient id="grad-${index}" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="${gradient.split(',')[0].split('(')[1].trim()}"/>
-      <stop offset="50%" stop-color="${gradient.split(',')[1].split('%')[0].trim()}%"/>
-      <stop offset="100%" stop-color="${gradient.split(',')[2].split(')')[0].trim()}"/>
-    </linearGradient>
-    <linearGradient id="shine-${index}" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="shadow-${index}" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#14283c" flood-opacity="0.3"/>
-    </filter>
-  </defs>
-  <g filter="url(#shadow-${index})">
-    <path d="M256 16 C123.7 16 16 123.7 16 256 C16 388.3 123.7 496 256 496 C388.3 496 496 388.3 496 256 C496 123.7 388.3 16 256 16 Z" 
-          fill="url(#grad-${index})" stroke="none"/>
-    <path d="M256 16 C256 16 256 256 256 256 C256 256 16 256 16 256 C16 256 256 496 256 496 C256 496 496 256 496 256 C496 256 256 16 256 16 Z"
-          fill="none" stroke="url(#shine-${index})" stroke-width="2" stroke-linecap="round"/>
-    <circle cx="340" cy="172" r="12" fill="#ffffff" opacity="0.25"/>
-    <circle cx="355" cy="160" r="5" fill="#ffffff" opacity="0.4"/>
-  </g>
-</svg>`;
-}
-
-function renderGames(list) {
-  grid.innerHTML = '';
-  if (list.length === 0) {
-    noResults.classList.remove('hidden');
-    stats.textContent = `共 ${games.length} 款游戏 · 筛选结果 0 款`;
-    return;
-  }
-  noResults.classList.add('hidden');
-  stats.textContent = `共 ${games.length} 款游戏 · 显示 ${list.length} 款`;
-  
-  list.forEach((game, i) => {
-    const card = document.createElement('a');
-    card.className = 'card';
-    card.href = game.url;
-    card.target = '_blank';
-    card.rel = 'noopener noreferrer';
-    card.innerHTML = `
-      <div class="icon-wrapper">
-        ${generateLeafIcon(game.title, i)}
+  <div class="app">
+    <header class="header">
+      <div class="header-main">
+        <h1 class="title">游戏大厅</h1>
+        <p class="subtitle">225 款游戏 · 即点即玩</p>
       </div>
-      <div class="card-title">${escapeHtml(game.title)}</div>
-    `;
-    grid.appendChild(card);
-  });
-}
+      <div class="stats" id="stats">
+        <span class="stat">总计 <strong id="total-count">225</strong> 款</span>
+        <span class="stat">显示 <strong id="visible-count">225</strong> 款</span>
+      </div>
+      <div class="search-wrapper">
+        <input type="search" class="search-input" id="search" placeholder="搜索游戏..." aria-label="搜索游戏">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="16" y1="16" x2="21" y2="21"></line></svg>
+        <button class="clear-btn" id="clearBtn" aria-label="清空搜索"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+    </header>
+    <main>
+      <div class="grid" id="grid"></div>
+      <div class="empty-state card-hidden" id="emptyState">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="16" y1="16" x2="21" y2="21"></line><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+        <p class="empty-title">未找到游戏</p>
+        <p class="empty-desc">尝试更换关键词或清空搜索</p>
+      </div>
+    </main>
+    <footer class="footer">
+      <p>游戏来源：<a href="/games-web/" target="_blank" rel="noopener">games-web</a> · 部署于 GitHub Pages</p>
+    </footer>
+  </div>
 
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
+  <script>
+    // Game data embedded directly
+    const GAMES = [{"filename":"12minibattles.html","title":"12Minibattles","url":"/games-web/12minibattles.html"},{"filename":"1on1soccer.html","title":"1On1Soccer","url":"/games-web/1on1soccer.html"},{"filename":"1on1tennis.html","title":"1On1Tennis","url":"/games-web/1on1tennis.html"},{"filename":"2048.html","title":"2048","url":"/games-web/2048.html"},{"filename":"2048cupcakes.html","title":"2048Cupcakes","url":"/games-web/2048cupcakes.html"},{"filename":"8ballclassic.html","title":"8Ballclassic","url":"/games-web/8ballclassic.html"},{"filename":"ageofwar.html","title":"Ageofwar","url":"/games-web/ageofwar.html"},{"filename":"ageofwar2.html","title":"Ageofwar2","url":"/games-web/ageofwar2.html"},{"filename":"agesofconflict.html","title":"Agesofconflict","url":"/games-web/agesofconflict.html"},{"filename":"Alpha_1.2.6.html","title":"Alpha 1.2.6","url":"/games-web/Alpha_1.2.6.html"},{"filename":"amongus.html","title":"Amongus","url":"/games-web/amongus.html"},{"filename":"angrybirds.html","title":"Angrybirds","url":"/games-web/angrybirds.html"},{"filename":"angrybirdsspace.html","title":"Angrybirdsspace","url":"/games-web/angrybirdsspace.html"},{"filename":"awesometanks.html","title":"Awesometanks","url":"/games-web/awesometanks.html"},{"filename":"awesometanks2.html","title":"Awesometanks2","url":"/games-web/awesometanks2.html"},{"filename":"backrooms.html","title":"Backrooms","url":"/games-web/backrooms.html"},{"filename":"baconmaydie.html","title":"Baconmaydie","url":"/games-web/baconmaydie.html"},{"filename":"badicecream.html","title":"Badicecream","url":"/games-web/badicecream.html"},{"filename":"badicecream2.html","title":"Badicecream2","url":"/games-web/badicecream2.html"},{"filename":"badicecream3.html","title":"Badicecream3","url":"/games-web/badicecream3.html"},{"filename":"badpiggies.html","title":"Badpiggies","url":"/games-web/badpiggies.html"},{"filename":"baseballbros.html","title":"Baseballbros","url":"/games-web/baseballbros.html"},{"filename":"basketballlegends.html","title":"Basketballlegends","url":"/games-web/basketballlegends.html"},{"filename":"basketballstars.html","title":"Basketballstars","url":"/games-web/basketballstars.html"},{"filename":"basketbros.html","title":"Basketbros","url":"/games-web/basketbros.html"},{"filename":"blockysnakes.html","title":"Blockysnakes","url":"/games-web/blockysnakes.html"},{"filename":"bloonsTD.html","title":"Bloonstd","url":"/games-web/bloonsTD.html"},{"filename":"bloonsTD2.html","title":"Bloonstd2","url":"/games-web/bloonsTD2.html"},{"filename":"bloonsTD3.html","title":"Bloonstd3","url":"/games-web/bloonsTD3.html"},{"filename":"bloonsTD4.html","title":"Bloonstd4","url":"/games-web/bloonsTD4.html"},{"filename":"bloonsTD5.html","title":"Bloonstd5","url":"/games-web/bloonsTD5.html"},{"filename":"bloxorz.html","title":"Bloxorz","url":"/games-web/bloxorz.html"},{"filename":"blumgiracers.html","title":"Blumgiracers","url":"/games-web/blumgiracers.html"},{"filename":"blumgirocket.html","title":"Blumgirocket","url":"/games-web/blumgirocket.html"},{"filename":"bobtherobber.html","title":"Bobtherobber","url":"/games-web/bobtherobber.html"},{"filename":"bobtherobber2.html","title":"Bobtherobber2","url":"/games-web/bobtherobber2.html"},{"filename":"bobtherobber5.html","title":"Bobtherobber5","url":"/games-web/bobtherobber5.html"},{"filename":"breakingthebank.html","title":"Breakingthebank","url":"/games-web/breakingthebank.html"},{"filename":"bubbleshooter.html","title":"Bubbleshooter","url":"/games-web/bubbleshooter.html"},{"filename":"candycrush.html","title":"Candycrush","url":"/games-web/candycrush.html"},{"filename":"capybaraclicker.html","title":"Capybaraclicker","url":"/games-web/capybaraclicker.html"},{"filename":"cardrawing.html","title":"Cardrawing","url":"/games-web/cardrawing.html"},{"filename":"carkingarena.html","title":"Carkingarena","url":"/games-web/carkingarena.html"},{"filename":"chess.html","title":"Chess","url":"/games-web/chess.html"},{"filename":"choppyorc.html","title":"Choppyorc","url":"/games-web/choppyorc.html"},{"filename":"circloO.html","title":"Circloo","url":"/games-web/circloO.html"},{"filename":"circloO2.html","title":"Circloo2","url":"/games-web/circloO2.html"},{"filename":"clashofvikings.html","title":"Clashofvikings","url":"/games-web/clashofvikings.html"},{"filename":"basketrandom.html","title":"Class","url":"/games-web/basketrandom.html"},{"filename":"cleanupio.html","title":"Cleanupio","url":"/games-web/cleanupio.html"},{"filename":"clusterrush.html","title":"Cluster Rush","url":"/games-web/clusterrush.html"},{"filename":"crazycars.html","title":"Crazycars","url":"/games-web/crazycars.html"},{"filename":"crazymotorcycle.html","title":"Crazymotorcycle","url":"/games-web/crazymotorcycle.html"},{"filename":"dadish.html","title":"Dadish","url":"/games-web/dadish.html"},{"filename":"dadish2.html","title":"Dadish2","url":"/games-web/dadish2.html"},{"filename":"dadish3.html","title":"Dadish3","url":"/games-web/dadish3.html"},{"filename":"deathrun3D.html","title":"Deathrun3D","url":"/games-web/deathrun3D.html"},{"filename":"googledino.html","title":"Dinosaur Game Chrome","url":"/games-web/googledino.html"},{"filename":"drawclimber.html","title":"Drawclimber","url":"/games-web/drawclimber.html"},{"filename":"ducklife.html","title":"Ducklife","url":"/games-web/ducklife.html"},{"filename":"ducklife2.html","title":"Ducklife2","url":"/games-web/ducklife2.html"},{"filename":"ducklife3.html","title":"Ducklife3","url":"/games-web/ducklife3.html"},{"filename":"ducklife4.html","title":"Ducklife4","url":"/games-web/ducklife4.html"},{"filename":"ducklife5.html","title":"Ducklife5","url":"/games-web/ducklife5.html"},{"filename":"ducklingsio.html","title":"Ducklingsio","url":"/games-web/ducklingsio.html"},{"filename":"Beta_1.3.html","title":"Eaglercraft Launcher | Beta 1.3 Offline","url":"/games-web/Beta_1.3.html"},{"filename":"Indev.html","title":"Eaglercraft Launcher | Indev Offline","url":"/games-web/Indev.html"},{"filename":"eagleride.html","title":"Eagleride","url":"/games-web/eagleride.html"},{"filename":"earntodie.html","title":"Earntodie","url":"/games-web/earntodie.html"},{"filename":"earntodie2.html","title":"Earntodie2","url":"/games-web/earntodie2.html"},{"filename":"eggycar.html","title":"Eggycar","url":"/games-web/eggycar.html"},{"filename":"escapingtheprison.html","title":"Escapingtheprison","url":"/games-web/escapingtheprison.html"},{"filename":"evilglitch.html","title":"Evil Glitch","url":"/games-web/evilglitch.html"},{"filename":"fancypantsadventure.html","title":"Fancypantsadventure","url":"/games-web/fancypantsadventure.html"},{"filename":"fancypantsadventure2.html","title":"Fancypantsadventure2","url":"/games-web/fancypantsadventure2.html"},{"filename":"fireboyandwatergirl.html","title":"Fireboyandwatergirl","url":"/games-web/fireboyandwatergirl.html"},{"filename":"fireboyandwatergirl2.html","title":"Fireboyandwatergirl2","url":"/games-web/fireboyandwatergirl2.html"},{"filename":"fireboyandwatergirl3.html","title":"Fireboyandwatergirl3","url":"/games-web/fireboyandwatergirl3.html"},{"filename":"fireboyandwatergirl4.html","title":"Fireboyandwatergirl4","url":"/games-web/fireboyandwatergirl4.html"},{"filename":"flappybird.html","title":"Flappy Bird","url":"/games-web/flappybird.html"},{"filename":"floodrunner2.html","title":"Floodrunner2","url":"/games-web/floodrunner2.html"},{"filename":"floodrunner3.html","title":"Floodrunner3","url":"/games-web/floodrunner3.html"},{"filename":"floodrunner4.html","title":"Floodrunner4","url":"/games-web/floodrunner4.html"},{"filename":"fnaf.html","title":"Fnaf","url":"/games-web/fnaf.html"},{"filename":"fnaf4.html","title":"FNAF-4","url":"/games-web/fnaf4.html"},{"filename":"footballbros.html","title":"FOOTBALL BROS! | Official Site","url":"/games-web/footballbros.html"},{"filename":"footballlegends.html","title":"Footballlegends","url":"/games-web/footballlegends.html"},{"filename":"freerider3.html","title":"Freerider3","url":"/games-web/freerider3.html"},{"filename":"fruitninja.html","title":"Fruitninja","url":"/games-web/fruitninja.html"},{"filename":"funnybattle.html","title":"Funnybattle","url":"/games-web/funnybattle.html"},{"filename":"funnybattle2.html","title":"Funnybattle2","url":"/games-web/funnybattle2.html"},{"filename":"geometrydash.html","title":"Geometry Dash","url":"/games-web/geometrydash.html"},{"filename":"getontop.html","title":"Getontop","url":"/games-web/getontop.html"},{"filename":"googlebaseball.html","title":"Googlebaseball","url":"/games-web/googlebaseball.html"},{"filename":"guesstheiranswer.html","title":"Guesstheiranswer","url":"/games-web/guesstheiranswer.html"},{"filename":"hanger2.html","title":"Hanger2","url":"/games-web/hanger2.html"},{"filename":"happywheels.html","title":"Happywheels","url":"/games-web/happywheels.html"},{"filename":"helixjump.html","title":"Helixjump","url":"/games-web/helixjump.html"},{"filename":"hillclimbracinglite.html","title":"Hillclimbracinglite","url":"/games-web/hillclimbracinglite.html"},{"filename":"holeio.html","title":"Holeio","url":"/games-web/holeio.html"},{"filename":"houseofhazards.html","title":"Houseofhazards","url":"/games-web/houseofhazards.html"},{"filename":"hoverracerdrive.html","title":"Hoverracerdrive","url":"/games-web/hoverracerdrive.html"},{"filename":"idlebreakout.html","title":"Idlebreakout","url":"/games-web/idlebreakout.html"},{"filename":"ironsnout.html","title":"Ironsnout","url":"/games-web/ironsnout.html"},{"filename":"jetpackjoyride.html","title":"Jetpackjoyride","url":"/games-web/jetpackjoyride.html"},{"filename":"johnnytrigger.html","title":"Johnnytrigger","url":"/games-web/johnnytrigger.html"},{"filename":"doodlejump.html","title":"Jump","url":"/games-web/doodlejump.html"},{"filename":"jumpingshell.html","title":"Jumping Shell","url":"/games-web/jumpingshell.html"},{"filename":"karatebros.html","title":"Karatebros","url":"/games-web/karatebros.html"},{"filename":"learntofly.html","title":"Learntofly","url":"/games-web/learntofly.html"},{"filename":"learntofly2.html","title":"Learntofly2","url":"/games-web/learntofly2.html"},{"filename":"learntoflyidle.html","title":"Learntoflyidle","url":"/games-web/learntoflyidle.html"},{"filename":"leveldevil.html","title":"Level Devil","url":"/games-web/leveldevil.html"},{"filename":"melonplayground.html","title":"Melonplayground","url":"/games-web/melonplayground.html"},{"filename":"mergeroundracers.html","title":"Mergeroundracers","url":"/games-web/mergeroundracers.html"},{"filename":"minesweeper.html","title":"Minesweeper","url":"/games-web/minesweeper.html"},{"filename":"monstertracks.html","title":"Monstertracks","url":"/games-web/monstertracks.html"},{"filename":"motox3m2.html","title":"Motox3M2","url":"/games-web/motox3m2.html"},{"filename":"motox3m3.html","title":"Motox3M3","url":"/games-web/motox3m3.html"},{"filename":"motox3mpoolparty.html","title":"Motox3Mpoolparty","url":"/games-web/motox3mpoolparty.html"},{"filename":"motox3mspookyland.html","title":"Motox3Mspookyland","url":"/games-web/motox3mspookyland.html"},{"filename":"motox3mwinter.html","title":"Motox3Mwinter","url":"/games-web/motox3mwinter.html"},{"filename":"1.5.html","title":"My Drive - Google Drive","url":"/games-web/1.5.html"},{"filename":"noobminer.html","title":"Noob Miner","url":"/games-web/noobminer.html"},{"filename":"oppositeday.html","title":"Oppositeday","url":"/games-web/oppositeday.html"},{"filename":"ovo2.html","title":"OvO 2","url":"/games-web/ovo2.html"},{"filename":"ovo.html","title":"OvOfw","url":"/games-web/ovo.html"},{"filename":"pacman.html","title":"Pac Man","url":"/games-web/pacman.html"},{"filename":"papasburgeria.html","title":"Papasburgeria","url":"/games-web/papasburgeria.html"},{"filename":"papascheeseria.html","title":"Papascheeseria","url":"/games-web/papascheeseria.html"},{"filename":"papascupcakeria.html","title":"Papascupcakeria","url":"/games-web/papascupcakeria.html"},{"filename":"papasdonuteria.html","title":"Papasdonuteria","url":"/games-web/papasdonuteria.html"},{"filename":"papasfreezeria.html","title":"Papasfreezeria","url":"/games-web/papasfreezeria.html"},{"filename":"papashotdoggeria.html","title":"Papashotdoggeria","url":"/games-web/papashotdoggeria.html"},{"filename":"papaspancakeria.html","title":"Papaspancakeria","url":"/games-web/papaspancakeria.html"},{"filename":"papaspastaria.html","title":"Papaspastaria","url":"/games-web/papaspastaria.html"},{"filename":"papaspizzeria.html","title":"Papaspizzeria","url":"/games-web/papaspizzeria.html"},{"filename":"papastacomia.html","title":"Papastacomia","url":"/games-web/papastacomia.html"},{"filename":"papaswingeria.html","title":"Papaswingeria","url":"/games-web/papaswingeria.html"},{"filename":"parkingfury.html","title":"Parkingfury","url":"/games-web/parkingfury.html"},{"filename":"parkingfury2.html","title":"Parkingfury2","url":"/games-web/parkingfury2.html"},{"filename":"parkingfury3.html","title":"Parkingfury3","url":"/games-web/parkingfury3.html"},{"filename":"picosschool.html","title":"Picosschool","url":"/games-web/picosschool.html"},{"filename":"pingpongchaos.html","title":"Pingpongchaos","url":"/games-web/pingpongchaos.html"},{"filename":"pixelspeedrun.html","title":"Pixel Speedrun","url":"/games-web/pixelspeedrun.html"},{"filename":"plantsvszombies.html","title":"Plantsvszombies","url":"/games-web/plantsvszombies.html"},{"filename":"plonky.html","title":"Plonky","url":"/games-web/plonky.html"},{"filename":"polytrack.html","title":"Polytrack","url":"/games-web/polytrack.html"},{"filename":"poorbunny.html","title":"Poorbunny","url":"/games-web/poorbunny.html"},{"filename":"pou.html","title":"Pou","url":"/games-web/pou.html"},{"filename":"ragdollhit.html","title":"Ragdollhit","url":"/games-web/ragdollhit.html"},{"filename":"ragdollsoccer.html","title":"Ragdollsoccer","url":"/games-web/ragdollsoccer.html"},{"filename":"redball4vol1.html","title":"Redball4Vol1","url":"/games-web/redball4vol1.html"},{"filename":"redball4vol2.html","title":"Redball4Vol2","url":"/games-web/redball4vol2.html"},{"filename":"redball4vol3.html","title":"Redball4Vol3","url":"/games-web/redball4vol3.html"},{"filename":"retropingpong.html","title":"Retro-Ping-Pong","url":"/games-web/retropingpong.html"},{"filename":"retrobowl.html","title":"Retrobowl","url":"/games-web/retrobowl.html"},{"filename":"retrobowlcollege.html","title":"Retrobowlcollege","url":"/games-web/retrobowlcollege.html"},{"filename":"retrohighway.html","title":"Retrohighway","url":"/games-web/retrohighway.html"},{"filename":"riddleschool.html","title":"Riddleschool","url":"/games-web/riddleschool.html"},{"filename":"riddleschool2.html","title":"Riddleschool2","url":"/games-web/riddleschool2.html"},{"filename":"riddleschool3.html","title":"Riddleschool3","url":"/games-web/riddleschool3.html"},{"filename":"riddleschool4.html","title":"Riddleschool4","url":"/games-web/riddleschool4.html"},{"filename":"rooftopsnipers2.html","title":"Rooftop Snipers 2","url":"/games-web/rooftopsnipers2.html"},{"filename":"run.html","title":"Run","url":"/games-web/run.html"},{"filename":"run2.html","title":"Run2","url":"/games-web/run2.html"},{"filename":"run3.html","title":"Run3","url":"/games-web/run3.html"},{"filename":"sandgame.html","title":"Sand","url":"/games-web/sandgame.html"},{"filename":"1.8.html","title":"School","url":"/games-web/1.8.html"},{"filename":"shortlife.html","title":"Shortlife","url":"/games-web/shortlife.html"},{"filename":"slope2player.html","title":"Slope2Player","url":"/games-web/slope2player.html"},{"filename":"slowroads.html","title":"Slowroads","url":"/games-web/slowroads.html"},{"filename":"snowballio.html","title":"Snowballio","url":"/games-web/snowballio.html"},{"filename":"soccerbros.html","title":"Soccerbros","url":"/games-web/soccerbros.html"},{"filename":"agariolite.html","title":"Solo Agario","url":"/games-web/agariolite.html"},{"filename":"spacewaves.html","title":"Space Waves","url":"/games-web/spacewaves.html"},{"filename":"spacebarclicker.html","title":"SPACEBAR CLICKER","url":"/games-web/spacebarclicker.html"},{"filename":"spaceiskey.html","title":"Spaceiskey","url":"/games-web/spaceiskey.html"},{"filename":"spaceiskey2.html","title":"Spaceiskey2","url":"/games-web/spaceiskey2.html"},{"filename":"speedstars.html","title":"Speedstars","url":"/games-web/speedstars.html"},{"filename":"sprunki.html","title":"Sprunki","url":"/games-web/sprunki.html"},{"filename":"stack.html","title":"Stack","url":"/games-web/stack.html"},{"filename":"stacktris.html","title":"Stacktris","url":"/games-web/stacktris.html"},{"filename":"stateio.html","title":"Stateio","url":"/games-web/stateio.html"},{"filename":"stickarchersbattle.html","title":"Stickarchersbattle","url":"/games-web/stickarchersbattle.html"},{"filename":"stickfighter.html","title":"Stickfighter","url":"/games-web/stickfighter.html"},{"filename":"stickmanhook.html","title":"Stickman Hook","url":"/games-web/stickmanhook.html"},{"filename":"stickmerge.html","title":"Stickmerge","url":"/games-web/stickmerge.html"},{"filename":"sm64.html","title":"Super Mario 64","url":"/games-web/sm64.html"},{"filename":"superliquidsoccer.html","title":"Superliquidsoccer","url":"/games-web/superliquidsoccer.html"},{"filename":"tabletennisworldtour.html","title":"Tabletennisworldtour","url":"/games-web/tabletennisworldtour.html"},{"filename":"tag.html","title":"Tag","url":"/games-web/tag.html"},{"filename":"templeofboom.html","title":"Templeofboom","url":"/games-web/templeofboom.html"},{"filename":"territorialio.html","title":"Territorialio","url":"/games-web/territorialio.html"},{"filename":"theimpossiblequiz.html","title":"Theimpossiblequiz","url":"/games-web/theimpossiblequiz.html"},{"filename":"theimpossiblequiz2.html","title":"Theimpossiblequiz2","url":"/games-web/theimpossiblequiz2.html"},{"filename":"thereisnog.html","title":"Thereisnog","url":"/games-web/thereisnog.html"},{"filename":"thisistheonlylevel.html","title":"Thisistheonlylevel","url":"/games-web/thisistheonlylevel.html"},{"filename":"thisistheonlyleveltoo.html","title":"Thisistheonlyleveltoo","url":"/games-web/thisistheonlyleveltoo.html"},{"filename":"timeshooter2.html","title":"Timeshooter2","url":"/games-web/timeshooter2.html"},{"filename":"tinyfishing.html","title":"Tinyfishing","url":"/games-web/tinyfishing.html"},{"filename":"trapthecat.html","title":"Trapthecat","url":"/games-web/trapthecat.html"},{"filename":"triviacrack.html","title":"Triviacrack","url":"/games-web/triviacrack.html"},{"filename":"tubejumpers.html","title":"Tubejumpers","url":"/games-web/tubejumpers.html"},{"filename":"tunnelrush.html","title":"Tunnelrush","url":"/games-web/tunnelrush.html"},{"filename":"unicyclehero.html","title":"Unicyclehero","url":"/games-web/unicyclehero.html"},{"filename":"vex4.html","title":"Vex4","url":"/games-web/vex4.html"},{"filename":"vex5.html","title":"Vex5","url":"/games-web/vex5.html"},{"filename":"vexx3m.html","title":"Vexx3M","url":"/games-web/vexx3m.html"},{"filename":"vexx3m2.html","title":"Vexx3M2","url":"/games-web/vexx3m2.html"},{"filename":"volleyrandom.html","title":"Volleyrandom","url":"/games-web/volleyrandom.html"},{"filename":"webecomewhatwebehold.html","title":"Webecomewhatwebehold","url":"/games-web/webecomewhatwebehold.html"},{"filename":"wheeliebike.html","title":"Wheeliebike","url":"/games-web/wheeliebike.html"},{"filename":"wheely.html","title":"Wheely","url":"/games-web/wheely.html"},{"filename":"wheely2.html","title":"Wheely2","url":"/games-web/wheely2.html"},{"filename":"wheely3.html","title":"Wheely3","url":"/games-web/wheely3.html"},{"filename":"wheely6.html","title":"Wheely6","url":"/games-web/wheely6.html"},{"filename":"wheely8.html","title":"Wheely8","url":"/games-web/wheely8.html"},{"filename":"wordleunlimited.html","title":"Wordleunlimited","url":"/games-web/wordleunlimited.html"},{"filename":"worldshardestgame.html","title":"Worldshardestgame","url":"/games-web/worldshardestgame.html"},{"filename":"worldshardestgame2.html","title":"Worldshardestgame2","url":"/games-web/worldshardestgame2.html"},{"filename":"worldshardestgame3.html","title":"Worldshardestgame3","url":"/games-web/worldshardestgame3.html"},{"filename":"wrestlebros.html","title":"Wrestlebros","url":"/games-web/wrestlebros.html"},{"filename":"zombierush.html","title":"Zombierush","url":"/games-web/zombierush.html"},{"filename":"index.html","title":"游戏大厅 · Game Hub","url":"/games-web/index.html"}];
 
-function filterGames(query) {
-  const q = query.trim().toLowerCase();
-  if (!q) return games;
-  return games.filter(g => g.title.toLowerCase().includes(q));
-}
+    // SailfishOS-style icon generator
+    const ICON_PALETTES = [
+      { start: "#0E7C8C", end: "#15966B" },     // Deep teal → Deep green
+      { start: "#19A7CE", end: "#2EBD85" },     // Cyan → Sea green
+      { start: "#4FC3F7", end: "#19A7CE" },     // Sky blue → Cyan
+      { start: "#0E7C8C", end: "#0E7C8C" },     // Solid deep teal
+      { start: "#15966B", end: "#2EBD85" },     // Deep green → Sea green
+      { start: "#F0544F", end: "#C56CD6" },     // Coral → Purple-pink
+      { start: "#F59B23", end: "#FFD34E" },     // Orange → Yellow
+      { start: "#C56CD6", end: "#E85D9E" },     // Purple-pink gradient
+      { start: "#19A7CE", end: "#0E7C8C" },     // Cyan → Deep teal
+      { start: "#2EBD85", end: "#15966B" },     // Sea green → Deep green
+    ];
 
-let debounceTimer;
-searchInput.addEventListener('input', (e) => {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    const filtered = filterGames(e.target.value);
-    renderGames(filtered);
-  }, 80);
-});
+    const ICON_SHAPES = [
+      // Circle / concentric (focus, time, lens, play, celestial)
+      (ctx, size, fg) => {
+        const cx = size/2, cy = size/2, r = size*0.32;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+        // inner cutout for some
+        if (Math.random() > 0.5) {
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.beginPath(); ctx.arc(cx, cy, r*0.45, 0, Math.PI*2); ctx.fill();
+          ctx.globalCompositeOperation = 'source-over';
+        }
+      },
+      // Squircle (rounded rect with continuous curvature)
+      (ctx, size, fg) => {
+        const r = size*0.26, inset = size*0.18;
+        const w = size - inset*2, h = size - inset*2;
+        const cr = Math.min(w,h)*0.55;
+        ctx.beginPath();
+        ctx.moveTo(inset + cr, inset);
+        ctx.lineTo(inset + w - cr, inset);
+        ctx.bezierCurveTo(inset + w, inset, inset + w, inset, inset + w, inset + cr);
+        ctx.lineTo(inset + w, inset + h - cr);
+        ctx.bezierCurveTo(inset + w, inset + h, inset + w, inset + h, inset + w - cr, inset + h);
+        ctx.lineTo(inset + cr, inset + h);
+        ctx.bezierCurveTo(inset, inset + h, inset, inset + h, inset, inset + h - cr);
+        ctx.lineTo(inset, inset + cr);
+        ctx.bezierCurveTo(inset, inset, inset, inset, inset + cr, inset);
+        ctx.closePath(); ctx.fill();
+        // Cutout
+        if (Math.random() > 0.4) {
+          ctx.globalCompositeOperation = 'destination-out';
+          const icr = cr*0.5;
+          const ii = inset + (w - w*0.6)/2;
+          const iw = w*0.6, ih = h*0.6;
+          ctx.beginPath();
+          ctx.moveTo(ii + icr, ii);
+          ctx.lineTo(ii + iw - icr, ii);
+          ctx.bezierCurveTo(ii + iw, ii, ii + iw, ii, ii + iw, ii + icr);
+          ctx.lineTo(ii + iw, ii + ih - icr);
+          ctx.bezierCurveTo(ii + iw, ii + ih, ii + iw, ii + ih, ii + iw - icr, ii + ih);
+          ctx.lineTo(ii + icr, ii + ih);
+          ctx.bezierCurveTo(ii, ii + ih, ii, ii + ih, ii, ii + ih - icr);
+          ctx.lineTo(ii, ii + icr);
+          ctx.bezierCurveTo(ii, ii, ii, ii, ii + icr, ii);
+          ctx.closePath(); ctx.fill();
+          ctx.globalCompositeOperation = 'source-over';
+        }
+      },
+      // Organic blob (droplet/leaf/comma/arch)
+      (ctx, size, fg) => {
+        const cx = size/2, cy = size/2;
+        const baseR = size*0.28;
+        ctx.beginPath();
+        // Asymmetric blob using bezier curves
+        const pts = 6;
+        for (let i=0; i<pts; i++) {
+          const angle = (i/pts)*Math.PI*2 - Math.PI/2;
+          const variance = 0.75 + Math.random()*0.4;
+          const r = baseR * variance;
+          const x = cx + Math.cos(angle)*r;
+          const y = cy + Math.sin(angle)*r;
+          if (i===0) ctx.moveTo(x,y);
+          else {
+            const prevAngle = ((i-1)/pts)*Math.PI*2 - Math.PI/2;
+            const px = cx + Math.cos(prevAngle)*baseR*(0.75+Math.random()*0.4);
+            const py = cy + Math.sin(prevAngle)*baseR*(0.75+Math.random()*0.4);
+            const cpx = (px+x)/2 + (Math.random()-0.5)*size*0.1;
+            const cpy = (py+y)/2 + (Math.random()-0.5)*size*0.1;
+            ctx.quadraticCurveTo(cpx, cpy, x, y);
+          }
+        }
+        ctx.closePath(); ctx.fill();
+      },
+      // Play triangle (cutout from circle/squircle)
+      (ctx, size, fg) => {
+        const cx = size/2, cy = size/2, r = size*0.35;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+        ctx.globalCompositeOperation = 'destination-out';
+        const tr = r*0.55;
+        ctx.beginPath();
+        ctx.moveTo(cx - tr*0.6, cy - tr);
+        ctx.lineTo(cx - tr*0.6, cy + tr);
+        ctx.lineTo(cx + tr*0.8, cy);
+        ctx.closePath(); ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+      },
+      // Gamepad cross (cutout)
+      (ctx, size, fg) => {
+        const cx = size/2, cy = size/2, r = size*0.32;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+        ctx.globalCompositeOperation = 'destination-out';
+        const barW = size*0.08, barL = r*1.6;
+        // Vertical
+        ctx.roundRect(cx - barW/2, cy - barL/2, barW, barL, barW/2);
+        ctx.fill();
+        // Horizontal
+        ctx.roundRect(cx - barL/2, cy - barW/2, barL, barW, barW/2);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+      },
+      // Pixel block cluster
+      (ctx, size, fg) => {
+        const block = size*0.11, gap = size*0.025;
+        const start = size/2 - (block*2 + gap);
+        for (let y=0; y<3; y++) {
+          for (let x=0; x<3; x++) {
+            if (Math.random() > 0.25) {
+              ctx.fillRect(start + x*(block+gap), start + y*(block+gap), block, block);
+            }
+          }
+        }
+      },
+      // Arrow/pointer (cutout from circle)
+      (ctx, size, fg) => {
+        const cx = size/2, cy = size/2, r = size*0.34;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+        ctx.globalCompositeOperation = 'destination-out';
+        const ah = r*1.1, aw = r*0.7;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - ah/2);
+        ctx.lineTo(cx - aw/2, cy + ah/3);
+        ctx.lineTo(cx - aw/6, cy + ah/3);
+        ctx.lineTo(cx - aw/6, cy + ah/2);
+        ctx.lineTo(cx + aw/6, cy + ah/2);
+        ctx.lineTo(cx + aw/6, cy + ah/3);
+        ctx.lineTo(cx + aw/2, cy + ah/3);
+        ctx.closePath(); ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+      },
+      // Concentric rings
+      (ctx, size, fg) => {
+        const cx = size/2, cy = size/2;
+        for (let i=3; i>=1; i--) {
+          const r = size*0.14*i;
+          ctx.lineWidth = size*0.035;
+          ctx.strokeStyle = fg;
+          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+        }
+        // Center dot
+        ctx.fillStyle = fg;
+        ctx.beginPath(); ctx.arc(cx, cy, size*0.045, 0, Math.PI*2); ctx.fill();
+      },
+      // Hexagon-ish (squircle variant)
+      (ctx, size, fg) => {
+        const cx = size/2, cy = size/2, r = size*0.3;
+        ctx.beginPath();
+        for (let i=0; i<6; i++) {
+          const a = (i/6)*Math.PI*2 - Math.PI/6;
+          const x = cx + Math.cos(a)*r;
+          const y = cy + Math.sin(a)*r;
+          if (i===0) ctx.moveTo(x,y);
+          else ctx.lineTo(x,y);
+        }
+        ctx.closePath(); ctx.fill();
+      },
+      // Speech bubble (organic)
+      (ctx, size, fg) => {
+        const cx = size/2, cy = size*0.52;
+        ctx.beginPath();
+        // Main bubble
+        const r = size*0.28;
+        ctx.moveTo(cx, cy + r*0.8);
+        ctx.quadraticCurveTo(cx - r*0.3, cy + r*1.1, cx - r*0.2, cy + r*0.6);
+        ctx.bezierCurveTo(cx - r, cy + r*0.3, cx - r, cy - r*0.5, cx - r*0.3, cy - r);
+        ctx.bezierCurveTo(cx - r*0.1, cy - r*1.1, cx + r*0.1, cy - r*1.1, cx + r*0.3, cy - r);
+        ctx.bezierCurveTo(cx + r, cy - r*0.5, cx + r, cy + r*0.3, cx + r*0.3, cy + r*0.6);
+        ctx.quadraticCurveTo(cx + r*0.2, cy + r*1.1, cx, cy + r*0.8);
+        ctx.closePath(); ctx.fill();
+      }
+    ];
 
-searchInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    searchInput.value = '';
-    searchInput.blur();
-    renderGames(games);
-  }
-});
+    // Deterministic hash for consistent icon per game
+    function hashStr(str) {
+      let h = 0;
+      for (let i=0; i<str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h |= 0; }
+      return Math.abs(h);
+    }
 
-renderGames(games);
+    function generateIconSvg(game, index) {
+      const palette = ICON_PALETTES[index % ICON_PALETTES.length];
+      const shapeFn = ICON_SHAPES[hashStr(game.title) % ICON_SHAPES.length];
+      const size = 512;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      grad.addColorStop(0, palette.start);
+      grad.addColorStop(1, palette.end);
+      ctx.fillStyle = grad;
+      // Clip to rounded square (squircle mask)
+      const cr = size * 0.26;
+      ctx.beginPath();
+      ctx.moveTo(cr, 0);
+      ctx.lineTo(size - cr, 0);
+      ctx.bezierCurveTo(size, 0, size, 0, size, cr);
+      ctx.lineTo(size, size - cr);
+      ctx.bezierCurveTo(size, size, size, size, size - cr, size);
+      ctx.lineTo(cr, size);
+      ctx.bezierCurveTo(0, size, 0, size, 0, size - cr);
+      ctx.lineTo(0, cr);
+      ctx.bezierCurveTo(0, 0, 0, 0, cr, 0);
+      ctx.closePath();
+      ctx.clip();
+      ctx.fillRect(0, 0, size, size);
+      // Draw shape in white (foreground)
+      ctx.fillStyle = '#FFFFFF';
+      shapeFn(ctx, size, '#FFFFFF');
+      // Subtle highlight overlay
+      const hl = ctx.createRadialGradient(size*0.25, size*0.25, 0, size*0.3, size*0.3, size*0.6);
+      hl.addColorStop(0, 'rgba(255,255,255,0.18)');
+      hl.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.fillStyle = hl;
+      ctx.fillRect(0, 0, size, size);
+      ctx.globalCompositeOperation = 'source-over';
+      // Soft shadow
+      ctx.shadowColor = 'rgba(20,40,60,0.25)';
+      ctx.shadowBlur = size*0.08;
+      ctx.shadowOffsetX = size*0.015;
+      ctx.shadowOffsetY = size*0.03;
+      // Convert to data URL
+      return canvas.toDataURL('image/png');
+    }
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
-}
-</script>
+    // Pre-generate all icons (with caching via sessionStorage)
+    function getIconDataUrl(game, index) {
+      const cacheKey = `icon_${game.filename}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) return cached;
+      const dataUrl = generateIconSvg(game, index);
+      try { sessionStorage.setItem(cacheKey, dataUrl); } catch(e) {}
+      return dataUrl;
+    }
+
+    // Render cards
+    const grid = document.getElementById('grid');
+    const emptyState = document.getElementById('emptyState');
+    const totalCount = document.getElementById('total-count');
+    const visibleCount = document.getElementById('visible-count');
+    const searchInput = document.getElementById('search');
+    const clearBtn = document.getElementById('clearBtn');
+
+    totalCount.textContent = GAMES.length;
+
+    function render(filter = '') {
+      const term = filter.trim().toLowerCase();
+      let visible = 0;
+      grid.innerHTML = '';
+      GAMES.forEach((game, i) => {
+        if (term && !game.title.toLowerCase().includes(term)) return;
+        visible++;
+        const iconUrl = getIconDataUrl(game, i);
+        const card = document.createElement('a');
+        card.className = 'card';
+        card.href = game.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.setAttribute('aria-label', game.title);
+        const palette = ICON_PALETTES[i % ICON_PALETTES.length];
+        card.innerHTML = `
+          <div class="card-icon-wrapper" style="--icon-bg-start:${palette.start};--icon-bg-end:${palette.end};">
+            <img class="card-icon" src="${iconUrl}" alt="" loading="lazy" decoding="async">
+          </div>
+          <div class="card-content">
+            <h2 class="card-title">${escapeHtml(game.title)}</h2>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      visibleCount.textContent = visible;
+      emptyState.classList.toggle('card-hidden', visible > 0);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, c => ({'&':'&','<':'<','>':'>','"':'"',"'":'''}[c]));
+    }
+
+    // Search handling
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => render(e.target.value), 80);
+    });
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchInput.focus();
+      render('');
+    });
+
+    // Initial render
+    render();
+  </script>
 </body>
 </html>
