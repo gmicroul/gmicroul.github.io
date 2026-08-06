@@ -5,593 +5,1212 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>游戏大厅 · Game Hub</title>
 <style>
+:root {
+  --bg: #0a0f1a;
+  --bg-elevated: #111827;
+  --bg-card: #151d2e;
+  --border: #1e293b;
+  --border-hover: #2d3a4f;
+  --text: #e8edf3;
+  --text-muted: #8b9ab8;
+  --text-dim: #5a6a85;
+  --accent: #19a7ce;
+  --accent-glow: rgba(25, 167, 206, 0.4);
+  --accent-warm: #f0544f;
+  --success: #2ebd85;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --shadow-hover: 0 16px 48px rgba(0,0,0,0.5);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+
+@media (max-width: 640px) { html { font-size: 14px; } }
+@media (min-width: 1200px) { html { font-size: 17px; } }
+@media (min-width: 1600px) { html { font-size: 18px; } }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.background::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(25,167,206,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(46,189,133,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(14,124,140,0.04) 0%, transparent 40%);
+  animation: drift 30s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-2%, 2%) rotate(1deg); }
+}
+
+.background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.03), transparent),
+    radial-gradient(1px 1px at 40px 70px, rgba(25,167,206,0.02), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(46,189,133,0.02), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.015), transparent);
+  background-size: 200px 150px;
+  animation: stars 60s linear infinite;
+}
+
+@keyframes stars {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-150px); }
+}
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0e7c8c 0%, #19a7ce 50%, #2ebd85 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(25,167,206,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.logo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.logo svg {
+  width: 28px;
+  height: 28px;
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  z-index: 1;
+}
+
+h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff 0%, #a5b8d0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.search-wrapper {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.875rem 1.25rem 0.875rem 3rem;
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  transition: var(--transition);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-dim);
+}
+
+.search-input:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card);
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-dim);
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.search-input:focus + .search-icon {
+  stroke: var(--accent);
+}
+
+.clear-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+
+.clear-btn:hover {
+  background: var(--bg-card);
+  color: var(--accent-warm);
+}
+
+.clear-btn.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.clear-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 1.125rem;
+}
+
+.stat-label {
+  color: var(--text-dim);
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.25rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .games-grid { grid-template-columns: repeat(2, 1fr); gap: 0.875rem; }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .games-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .games-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1025px) and (max-width: 1400px) {
+  .games-grid { grid-template-columns: repeat(6, 1fr); }
+}
+
+@media (min-width: 1401px) {
+  .games-grid { grid-template-columns: repeat(8, 1fr); }
+}
+
+.game-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+.game-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card-icon {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--icon-bg, var(--bg-elevated));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.card-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.card-icon svg,
+.card-icon canvas,
+.card-icon img {
+  width: 68%;
+  height: 68%;
+  max-width: 96px;
+  max-height: 96px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  transition: var(--transition);
+}
+
+.game-card:hover .card-icon svg,
+.game-card:hover .card-icon canvas,
+.game-card:hover .card-icon img {
+  transform: scale(1.05);
+}
+
+.card-content {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 72px;
+}
+
+.card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.card-play {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, #0e7c8c 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+  transition: var(--transition);
+  box-shadow: 0 4px 16px rgba(25,167,206,0.4);
+}
+
+.card-play svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin-left: 2px;
+}
+
+.game-card:hover .card-play {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.card-play:hover {
+  box-shadow: 0 6px 24px rgba(25,167,206,0.5);
+  transform: scale(1.08);
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state svg {
+  width: 80px;
+  height: 80px;
+  stroke: var(--text-dim);
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 1.125rem;
+  max-width: 300px;
+}
+
+.footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.875rem;
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.footer a:hover {
+  color: var(--success);
+  text-decoration: underline;
+}
+
+/* SailfishOS-style icon generation */
+.icon-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .background::before { animation: none; }
+  .background::after { animation: none; }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
   :root {
-    --bg1: #06222C;
-    --bg2: #0A3A47;
-    --card: #0E3240;
-    --card-hover: #145062;
-    --text: #EAF6F8;
-    --dim: #8FB6C0;
-    --accent: #4FC3F7;
-    --accent2: #2EBD85;
-    --stroke-width: 6%;
+    --border: #4a5a6f;
+    --text-muted: #b0c0d8;
   }
-  
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  html {
-    scroll-behavior: smooth;
-  }
-  
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 100%);
-    background-attachment: fixed;
-    color: var(--text);
-    min-height: 100vh;
-  }
-  
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    background: rgba(6, 34, 44, .82);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(79, 195, 247, .18);
-    padding: 14px 20px;
-  }
-  
-  .bar {
-    max-width: 1280px;
-    margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: .5px;
-  }
-  
-  .logo svg {
-    width: 34px;
-    height: 34px;
-    flex: none;
-  }
-  
-  .logo em {
-    font-style: normal;
-    background: linear-gradient(120deg, #4FC3F7, #2EBD85);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  
-  .count {
-    font-size: 13px;
-    color: var(--dim);
-    background: rgba(79, 195, 247, .10);
-    border: 1px solid rgba(79, 195, 247, .25);
-    padding: 4px 12px;
-    border-radius: 999px;
-    white-space: nowrap;
-  }
-  
-  .search {
-    margin-left: auto;
-    flex: 1;
-    min-width: 180px;
-    max-width: 420px;
-    position: relative;
-  }
-  
-  .search input {
-    width: 100%;
-    padding: 10px 16px 10px 40px;
-    border-radius: 999px;
-    border: 1px solid rgba(79, 195, 247, .30);
-    background: rgba(14, 50, 64, .85);
-    color: var(--text);
-    font-size: 15px;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-  }
-  
-  .search input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(79, 195, 247, .18);
-  }
-  
-  .search input::placeholder {
-    color: var(--dim);
-  }
-  
-  .search svg {
-    position: absolute;
-    left: 13px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    stroke: var(--dim);
-    fill: none;
-    stroke-width: 2.4;
-    stroke-linecap: round;
-    pointer-events: none;
-  }
-  
-  main {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 24px 20px 60px;
-  }
-  
-  .grid {
-    display: grid;
-    gap: 18px 14px;
-    grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-  }
-  
-  @media (min-width: 600px) {
-    .grid {
-      grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-      gap: 22px 18px;
-    }
-  }
-  
-  @media (min-width: 1000px) {
-    .grid {
-      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-      gap: 26px 22px;
-    }
-  }
-  
-  .card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 16px 8px 14px;
-    border-radius: 18px;
-    text-decoration: none;
-    color: var(--text);
-    background: linear-gradient(150deg, rgba(20, 60, 76, .55), rgba(10, 42, 54, .55));
-    border: 1px solid rgba(79, 195, 247, .10);
-    transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
-  }
-  
-  .card:hover,
-  .card:focus-visible {
-    transform: translateY(-5px);
-    background: linear-gradient(150deg, rgba(24, 72, 90, .75), rgba(14, 52, 66, .75));
-    border-color: rgba(79, 195, 247, .45);
-    box-shadow: 0 12px 28px rgba(4, 18, 24, .45);
-    outline: none;
-  }
-  
-  .icon {
-    width: 78%;
-    max-width: 112px;
-    aspect-ratio: 1/1;
-  }
-  
-  .icon svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    filter: drop-shadow(0 8px 16px rgba(20, 40, 60, .30));
-  }
-  
-  .card:hover .icon svg {
-    filter: drop-shadow(0 12px 22px rgba(20, 40, 60, .40));
-  }
-  
-  .name {
-    font-size: 13px;
-    font-weight: 600;
-    text-align: center;
-    line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-word;
-    min-height: 2.7em;
-  }
-  
-  .empty {
-    display: none;
-    text-align: center;
-    color: var(--dim);
-    padding: 70px 0;
-    font-size: 16px;
-  }
-  
-  footer {
-    text-align: center;
-    color: var(--dim);
-    font-size: 12px;
-    padding: 0 0 30px;
-    opacity: .7;
-  }
-  
-  /* SailfishOS-style icon generation */
-  /* Base leaf shape: square 512, inscribed circle radius 512, 
-     remove TL and BR quadrants, keep BL and TR sharp */
+  .game-card { border-width: 2px; }
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="bar">
-    <div class="logo">
-      <svg viewBox="0 0 512 512" aria-hidden="true">
-        <defs>
-          <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#5FD3FB"/><stop offset="1" stop-color="#0E7C8C"/>
-          </linearGradient>
-          <mask id="hm">
-            <path d="M277.1 0 L512 0 L512 234.9 A512 512 0 0 0 234.9 512 L0 512 L0 277.1 A512 512 0 0 0 277.1 0 Z" fill="#fff"/>
-            <path d="M150 350 L150 162 L196 162 L196 252 L316 162 L374 162 L246 258 L380 350 L320 350 L212 268 L196 268 L196 350 Z" fill="#000"/>
-          </mask>
-        </defs>
-        <g transform="translate(46 46) scale(0.82)">
-          <path d="M277.1 0 L512 0 L512 234.9 A512 512 0 0 0 234.9 512 L0 512 L0 277.1 A512 512 0 0 0 277.1 0 Z" fill="url(#hg)" mask="url(#hm)"/>
-        </g>
+<div class="background" aria-hidden="true"></div>
+
+<div class="container">
+  <header class="header">
+    <div class="header-content">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          <path d="M8 12l3 3 7-7" stroke-width="3"/>
+        </svg>
+      </div>
+      <h1>游戏大厅</h1>
+      <p class="subtitle">225 款精选网页游戏 · 即点即玩</p>
+    </div>
+
+    <div class="search-wrapper">
+      <input
+        type="search"
+        class="search-input"
+        id="searchInput"
+        placeholder="搜索游戏名称..."
+        autocomplete="off"
+        aria-label="搜索游戏"
+      >
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
       </svg>
-      <span>游戏<em>大厅</em></span>
+      <button class="clear-btn" id="clearBtn" aria-label="清空搜索" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
     </div>
-    <span class="count" id="count"></span>
-    <div class="search">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-      <input id="q" type="search" placeholder="搜索游戏… / Search games" autocomplete="off" aria-label="搜索游戏">
+
+    <div class="stats" aria-live="polite">
+      <div class="stat-item">
+        <span class="stat-value" id="visibleCount">225</span>
+        <span class="stat-label">款游戏</span>
+      </div>
+      <div class="stat-item" style="color: var(--border);">|</div>
+      <div class="stat-item">
+        <span class="stat-value" id="totalCount">225</span>
+        <span class="stat-label">总计</span>
+      </div>
     </div>
-  </div>
-</header>
-<main>
-  <div class="grid" id="grid"></div>
-  <div class="empty" id="empty">没有找到匹配的游戏 / No games found</div>
-</main>
-<footer>Game Hub · 224 games</footer>
+  </header>
+
+  <main>
+    <div class="games-grid" id="gamesGrid" role="list" aria-label="游戏列表">
+      <!-- Games will be injected here -->
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display:none;" aria-live="polite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+        <path d="M8 8l6 6"/>
+        <path d="M14 8l-6 6"/>
+      </svg>
+      <p>没有找到匹配的游戏<br>尝试调整搜索关键词</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据来源: <a href="/games-web/" target="_blank" rel="noopener">/games-web/</a> · 共 225 款游戏</p>
+    <p style="margin-top: 0.5rem;">GitHub Pages 部署 · 无需服务器</p>
+  </footer>
+</div>
+
 <script>
-(function() {
-"use strict";
-
-var GAMES = [
-  {"n":"Google Drive","f":"1.5.html"},
-  {"n":"Eaglercraft 1.8","f":"1.8.html"},
-  {"n":"12Minibattles","f":"12minibattles.html"},
-  {"n":"1On1Soccer","f":"1on1soccer.html"},
-  {"n":"1On1Tennis","f":"1on1tennis.html"},
-  {"n":"2048","f":"2048.html"},
-  {"n":"2048Cupcakes","f":"2048cupcakes.html"},
-  {"n":"8Ballclassic","f":"8ballclassic.html"},
-  {"n":"Eaglercraft Alpha 1.2.6","f":"Alpha_1.2.6.html"},
-  {"n":"Eaglercraft Beta 1.3","f":"Beta_1.3.html"},
-  {"n":"Eaglercraft Indev","f":"Indev.html"},
-  {"n":"Solo Agario","f":"agariolite.html"},
-  {"n":"Ageofwar","f":"ageofwar.html"},
-  {"n":"Ageofwar2","f":"ageofwar2.html"},
-  {"n":"Agesofconflict","f":"agesofconflict.html"},
-  {"n":"Amongus","f":"amongus.html"},
-  {"n":"Angrybirds","f":"angrybirds.html"},
-  {"n":"Angrybirdsspace","f":"angrybirdsspace.html"},
-  {"n":"Awesometanks","f":"awesometanks.html"},
-  {"n":"Awesometanks2","f":"awesometanks2.html"},
-  {"n":"Backrooms","f":"backrooms.html"},
-  {"n":"Baconmaydie","f":"baconmaydie.html"},
-  {"n":"Badicecream","f":"badicecream.html"},
-  {"n":"Badicecream2","f":"badicecream2.html"},
-  {"n":"Badicecream3","f":"badicecream3.html"},
-  {"n":"Badpiggies","f":"badpiggies.html"},
-  {"n":"Baseballbros","f":"baseballbros.html"},
-  {"n":"Basketballlegends","f":"basketballlegends.html"},
-  {"n":"Basketballstars","f":"basketballstars.html"},
-  {"n":"Basketbros","f":"basketbros.html"},
-  {"n":"Basket Random","f":"basketrandom.html"},
-  {"n":"Blockysnakes","f":"blockysnakes.html"},
-  {"n":"Bloonstd","f":"bloonsTD.html"},
-  {"n":"Bloonstd2","f":"bloonsTD2.html"},
-  {"n":"Bloonstd3","f":"bloonsTD3.html"},
-  {"n":"Bloonstd4","f":"bloonsTD4.html"},
-  {"n":"Bloonstd5","f":"bloonsTD5.html"},
-  {"n":"Bloxorz","f":"bloxorz.html"},
-  {"n":"Blumgiracers","f":"blumgiracers.html"},
-  {"n":"Blumgirocket","f":"blumgirocket.html"},
-  {"n":"Bobtherobber","f":"bobtherobber.html"},
-  {"n":"Bobtherobber2","f":"bobtherobber2.html"},
-  {"n":"Bobtherobber5","f":"bobtherobber5.html"},
-  {"n":"Breakingthebank","f":"breakingthebank.html"},
-  {"n":"Bubbleshooter","f":"bubbleshooter.html"},
-  {"n":"Candycrush","f":"candycrush.html"},
-  {"n":"Capybaraclicker","f":"capybaraclicker.html"},
-  {"n":"Cardrawing","f":"cardrawing.html"},
-  {"n":"Carkingarena","f":"carkingarena.html"},
-  {"n":"Chess","f":"chess.html"},
-  {"n":"Choppyorc","f":"choppyorc.html"},
-  {"n":"Circloo","f":"circloO.html"},
-  {"n":"Circloo2","f":"circloO2.html"},
-  {"n":"Clashofvikings","f":"clashofvikings.html"},
-  {"n":"Cleanupio","f":"cleanupio.html"},
-  {"n":"Cluster Rush","f":"clusterrush.html"},
-  {"n":"Crazycars","f":"crazycars.html"},
-  {"n":"Crazymotorcycle","f":"crazymotorcycle.html"},
-  {"n":"Dadish","f":"dadish.html"},
-  {"n":"Dadish2","f":"dadish2.html"},
-  {"n":"Dadish3","f":"dadish3.html"},
-  {"n":"Deathrun3D","f":"deathrun3D.html"},
-  {"n":"Doodle Jump","f":"doodlejump.html"},
-  {"n":"Ducklife","f":"ducklife.html"},
-  {"n":"Ducklife2","f":"ducklife2.html"},
-  {"n":"Ducklife3","f":"ducklife3.html"},
-  {"n":"Ducklife4","f":"ducklife4.html"},
-  {"n":"Ducklife5","f":"ducklife5.html"},
-  {"n":"Ducklingsio","f":"ducklingsio.html"},
-  {"n":"Eagleride","f":"eagleride.html"},
-  {"n":"Earntodie","f":"earntodie.html"},
-  {"n":"Earntodie2","f":"earntodie2.html"},
-  {"n":"Eggycar","f":"eggycar.html"},
-  {"n":"Escapingtheprison","f":"escapingtheprison.html"},
-  {"n":"Evil Glitch","f":"evilglitch.html"},
-  {"n":"Fancypantsadventure","f":"fancypantsadventure.html"},
-  {"n":"Fancypantsadventure2","f":"fancypantsadventure2.html"},
-  {"n":"Fireboyandwatergirl","f":"fireboyandwatergirl.html"},
-  {"n":"Fireboyandwatergirl2","f":"fireboyandwatergirl2.html"},
-  {"n":"Fireboyandwatergirl3","f":"fireboyandwatergirl3.html"},
-  {"n":"Fireboyandwatergirl4","f":"fireboyandwatergirl4.html"},
-  {"n":"Flappy Bird","f":"flappybird.html"},
-  {"n":"Floodrunner2","f":"floodrunner2.html"},
-  {"n":"Floodrunner3","f":"floodrunner3.html"},
-  {"n":"Floodrunner4","f":"floodrunner4.html"},
-  {"n":"Fnaf","f":"fnaf.html"},
-  {"n":"FNAF-4","f":"fnaf4.html"},
-  {"n":"FOOTBALL BROS!","f":"footballbros.html"},
-  {"n":"Footballlegends","f":"footballlegends.html"},
-  {"n":"Freerider3","f":"freerider3.html"},
-  {"n":"Fruitninja","f":"fruitninja.html"},
-  {"n":"Funnybattle","f":"funnybattle.html"},
-  {"n":"Funnybattle2","f":"funnybattle2.html"},
-  {"n":"Geometry Dash","f":"geometrydash.html"},
-  {"n":"Getontop","f":"getontop.html"},
-  {"n":"Google Baseball","f":"googlebaseball.html"},
-  {"n":"Chrome Dino","f":"googledino.html"},
-  {"n":"Guesstheiranswer","f":"guesstheiranswer.html"},
-  {"n":"Hanger2","f":"hanger2.html"},
-  {"n":"Happywheels","f":"happywheels.html"},
-  {"n":"Helixjump","f":"helixjump.html"},
-  {"n":"Hillclimbracinglite","f":"hillclimbracinglite.html"},
-  {"n":"Holeio","f":"holeio.html"},
-  {"n":"Houseofhazards","f":"houseofhazards.html"},
-  {"n":"Hoverracerdrive","f":"hoverracerdrive.html"},
-  {"n":"Idlebreakout","f":"idlebreakout.html"},
-  {"n":"Ironsnout","f":"ironsnout.html"},
-  {"n":"Jetpackjoyride","f":"jetpackjoyride.html"},
-  {"n":"Johnnytrigger","f":"johnnytrigger.html"},
-  {"n":"Jumping Shell","f":"jumpingshell.html"},
-  {"n":"Karatebros","f":"karatebros.html"},
-  {"n":"Learntofly","f":"learntofly.html"},
-  {"n":"Learntofly2","f":"learntofly2.html"},
-  {"n":"Learntoflyidle","f":"learntoflyidle.html"},
-  {"n":"Level Devil","f":"leveldevil.html"},
-  {"n":"Melonplayground","f":"melonplayground.html"},
-  {"n":"Mergeroundracers","f":"mergeroundracers.html"},
-  {"n":"Minesweeper","f":"minesweeper.html"},
-  {"n":"Monstertracks","f":"monstertracks.html"},
-  {"n":"Motox3M2","f":"motox3m2.html"},
-  {"n":"Motox3M3","f":"motox3m3.html"},
-  {"n":"Motox3Mpoolparty","f":"motox3mpoolparty.html"},
-  {"n":"Motox3Mspookyland","f":"motox3mspookyland.html"},
-  {"n":"Motox3Mwinter","f":"motox3mwinter.html"},
-  {"n":"Noob Miner","f":"noobminer.html"},
-  {"n":"Oppositeday","f":"oppositeday.html"},
-  {"n":"OvOfw","f":"ovo.html"},
-  {"n":"OvO 2","f":"ovo2.html"},
-  {"n":"Pac Man","f":"pacman.html"},
-  {"n":"Papasburgeria","f":"papasburgeria.html"},
-  {"n":"Papascheeseria","f":"papascheeseria.html"},
-  {"n":"Papascupcakeria","f":"papascupcakeria.html"},
-  {"n":"Papasdonuteria","f":"papasdonuteria.html"},
-  {"n":"Papasfreezeria","f":"papasfreezeria.html"},
-  {"n":"Papashotdoggeria","f":"papashotdoggeria.html"},
-  {"n":"Papaspancakeria","f":"papaspancakeria.html"},
-  {"n":"Papaspastaria","f":"papaspastaria.html"},
-  {"n":"Papaspizzeria","f":"papaspizzeria.html"},
-  {"n":"Papastacomia","f":"papastacomia.html"},
-  {"n":"Papaswingeria","f":"papaswingeria.html"},
-  {"n":"Parkingfury","f":"parkingfury.html"},
-  {"n":"Parkingfury2","f":"parkingfury2.html"},
-  {"n":"Parkingfury3","f":"parkingfury3.html"},
-  {"n":"Picosschool","f":"picosschool.html"},
-  {"n":"Pingpongchaos","f":"pingpongchaos.html"},
-  {"n":"Pixel Speedrun","f":"pixelspeedrun.html"},
-  {"n":"Plantsvszombies","f":"plantsvszombies.html"},
-  {"n":"Plonky","f":"plonky.html"},
-  {"n":"Polytrack","f":"polytrack.html"},
-  {"n":"Poorbunny","f":"poorbunny.html"},
-  {"n":"Pou","f":"pou.html"},
-  {"n":"Ragdollhit","f":"ragdollhit.html"},
-  {"n":"Ragdollsoccer","f":"ragdollsoccer.html"},
-  {"n":"Redball4Vol1","f":"redball4vol1.html"},
-  {"n":"Redball4Vol2","f":"redball4vol2.html"},
-  {"n":"Redball4Vol3","f":"redball4vol3.html"},
-  {"n":"Retrobowl","f":"retrobowl.html"},
-  {"n":"Retrobowlcollege","f":"retrobowlcollege.html"},
-  {"n":"Retrohighway","f":"retrohighway.html"},
-  {"n":"Retro Ping Pong","f":"retropingpong.html"},
-  {"n":"Riddleschool","f":"riddleschool.html"},
-  {"n":"Riddleschool2","f":"riddleschool2.html"},
-  {"n":"Riddleschool3","f":"riddleschool3.html"},
-  {"n":"Riddleschool4","f":"riddleschool4.html"},
-  {"n":"Rooftop Snipers 2","f":"rooftopsnipers2.html"},
-  {"n":"Run","f":"run.html"},
-  {"n":"Run2","f":"run2.html"},
-  {"n":"Run3","f":"run3.html"},
-  {"n":"Sand","f":"sandgame.html"},
-  {"n":"Shortlife","f":"shortlife.html"},
-  {"n":"Slope2Player","f":"slope2player.html"},
-  {"n":"Slowroads","f":"slowroads.html"},
-  {"n":"Super Mario 64","f":"sm64.html"},
-  {"n":"Snowballio","f":"snowballio.html"},
-  {"n":"Soccerbros","f":"soccerbros.html"},
-  {"n":"Spacebar Clicker","f":"spacebarclicker.html"},
-  {"n":"Space Is Key","f":"spaceiskey.html"},
-  {"n":"Space Is Key 2","f":"spaceiskey2.html"},
-  {"n":"Space Waves","f":"spacewaves.html"},
-  {"n":"Speedstars","f":"speedstars.html"},
-  {"n":"Sprunki","f":"sprunki.html"},
-  {"n":"Stack","f":"stack.html"},
-  {"n":"Stacktris","f":"stacktris.html"},
-  {"n":"Stateio","f":"stateio.html"},
-  {"n":"Stickarchersbattle","f":"stickarchersbattle.html"},
-  {"n":"Stickfighter","f":"stickfighter.html"},
-  {"n":"Stickman Hook","f":"stickmanhook.html"},
-  {"n":"Stickmerge","f":"stickmerge.html"},
-  {"n":"Superliquidsoccer","f":"superliquidsoccer.html"},
-  {"n":"Tabletennisworldtour","f":"tabletennisworldtour.html"},
-  {"n":"Tag","f":"tag.html"},
-  {"n":"Templeofboom","f":"templeofboom.html"},
-  {"n":"Territorialio","f":"territorialio.html"},
-  {"n":"The Impossible Quiz","f":"theimpossiblequiz.html"},
-  {"n":"The Impossible Quiz 2","f":"theimpossiblequiz2.html"},
-  {"n":"There Is No Game","f":"thereisnog.html"},
-  {"n":"This Is The Only Level","f":"thisistheonlylevel.html"},
-  {"n":"This Is The Only Level Too","f":"thisistheonlyleveltoo.html"},
-  {"n":"Timeshooter2","f":"timeshooter2.html"},
-  {"n":"Tinyfishing","f":"tinyfishing.html"},
-  {"n":"Trapthecat","f":"trapthecat.html"},
-  {"n":"Triviacrack","f":"triviacrack.html"},
-  {"n":"Tubejumpers","f":"tubejumpers.html"},
-  {"n":"Tunnelrush","f":"tunnelrush.html"},
-  {"n":"Unicyclehero","f":"unicyclehero.html"},
-  {"n":"Vex4","f":"vex4.html"},
-  {"n":"Vex5","f":"vex5.html"},
-  {"n":"Vexx3M","f":"vexx3m.html"},
-  {"n":"Vexx3M2","f":"vexx3m2.html"},
-  {"n":"Volleyrandom","f":"volleyrandom.html"},
-  {"n":"We Become What We Behold","f":"webecomewhatwebehold.html"},
-  {"n":"Wheeliebike","f":"wheeliebike.html"},
-  {"n":"Wheely","f":"wheely.html"},
-  {"n":"Wheely2","f":"wheely2.html"},
-  {"n":"Wheely3","f":"wheely3.html"},
-  {"n":"Wheely6","f":"wheely6.html"},
-  {"n":"Wheely8","f":"wheely8.html"},
-  {"n":"Wordleunlimited","f":"wordleunlimited.html"},
-  {"n":"Worldshardestgame","f":"worldshardestgame.html"},
-  {"n":"Worldshardestgame2","f":"worldshardestgame2.html"},
-  {"n":"Worldshardestgame3","f":"worldshardestgame3.html"},
-  {"n":"Wrestlebros","f":"wrestlebros.html"},
-  {"n":"Zombierush","f":"zombierush.html"}
+// Game data embedded directly
+const GAMES = [
+  {"filename":"12minibattles.html","title":"12Minibattles"},
+  {"filename":"1on1soccer.html","title":"1On1Soccer"},
+  {"filename":"1on1tennis.html","title":"1On1Tennis"},
+  {"filename":"2048.html","title":"2048"},
+  {"filename":"2048cupcakes.html","title":"2048Cupcakes"},
+  {"filename":"8ballclassic.html","title":"8Ballclassic"},
+  {"filename":"ageofwar.html","title":"Ageofwar"},
+  {"filename":"ageofwar2.html","title":"Ageofwar2"},
+  {"filename":"agesofconflict.html","title":"Agesofconflict"},
+  {"filename":"Alpha_1.2.6.html","title":"Alpha 1.2.6"},
+  {"filename":"amongus.html","title":"Amongus"},
+  {"filename":"angrybirds.html","title":"Angrybirds"},
+  {"filename":"angrybirdsspace.html","title":"Angrybirdsspace"},
+  {"filename":"awesometanks.html","title":"Awesometanks"},
+  {"filename":"awesometanks2.html","title":"Awesometanks2"},
+  {"filename":"backrooms.html","title":"Backrooms"},
+  {"filename":"baconmaydie.html","title":"Baconmaydie"},
+  {"filename":"badicecream.html","title":"Badicecream"},
+  {"filename":"badicecream2.html","title":"Badicecream2"},
+  {"filename":"badicecream3.html","title":"Badicecream3"},
+  {"filename":"badpiggies.html","title":"Badpiggies"},
+  {"filename":"baseballbros.html","title":"Baseballbros"},
+  {"filename":"basketballlegends.html","title":"Basketballlegends"},
+  {"filename":"basketballstars.html","title":"Basketballstars"},
+  {"filename":"basketbros.html","title":"Basketbros"},
+  {"filename":"blockysnakes.html","title":"Blockysnakes"},
+  {"filename":"bloonsTD.html","title":"Bloonstd"},
+  {"filename":"bloonsTD2.html","title":"Bloonstd2"},
+  {"filename":"bloonsTD3.html","title":"Bloonstd3"},
+  {"filename":"bloonsTD4.html","title":"Bloonstd4"},
+  {"filename":"bloonsTD5.html","title":"Bloonstd5"},
+  {"filename":"bloxorz.html","title":"Bloxorz"},
+  {"filename":"blumgiracers.html","title":"Blumgiracers"},
+  {"filename":"blumgirocket.html","title":"Blumgirocket"},
+  {"filename":"bobtherobber.html","title":"Bobtherobber"},
+  {"filename":"bobtherobber2.html","title":"Bobtherobber2"},
+  {"filename":"bobtherobber5.html","title":"Bobtherobber5"},
+  {"filename":"breakingthebank.html","title":"Breakingthebank"},
+  {"filename":"bubbleshooter.html","title":"Bubbleshooter"},
+  {"filename":"candycrush.html","title":"Candycrush"},
+  {"filename":"capybaraclicker.html","title":"Capybaraclicker"},
+  {"filename":"cardrawing.html","title":"Cardrawing"},
+  {"filename":"carkingarena.html","title":"Carkingarena"},
+  {"filename":"chess.html","title":"Chess"},
+  {"filename":"choppyorc.html","title":"Choppyorc"},
+  {"filename":"circloO.html","title":"Circloo"},
+  {"filename":"circloO2.html","title":"Circloo2"},
+  {"filename":"clashofvikings.html","title":"Clashofvikings"},
+  {"filename":"basketrandom.html","title":"Class"},
+  {"filename":"cleanupio.html","title":"Cleanupio"},
+  {"filename":"clusterrush.html","title":"Cluster Rush"},
+  {"filename":"crazycars.html","title":"Crazycars"},
+  {"filename":"crazymotorcycle.html","title":"Crazymotorcycle"},
+  {"filename":"dadish.html","title":"Dadish"},
+  {"filename":"dadish2.html","title":"Dadish2"},
+  {"filename":"dadish3.html","title":"Dadish3"},
+  {"filename":"deathrun3D.html","title":"Deathrun3D"},
+  {"filename":"googledino.html","title":"Dinosaur Game Chrome"},
+  {"filename":"drawclimber.html","title":"Drawclimber"},
+  {"filename":"ducklife.html","title":"Ducklife"},
+  {"filename":"ducklife2.html","title":"Ducklife2"},
+  {"filename":"ducklife3.html","title":"Ducklife3"},
+  {"filename":"ducklife4.html","title":"Ducklife4"},
+  {"filename":"ducklife5.html","title":"Ducklife5"},
+  {"filename":"ducklingsio.html","title":"Ducklingsio"},
+  {"filename":"Beta_1.3.html","title":"Eaglercraft Launcher | Beta 1.3 Offline"},
+  {"filename":"Indev.html","title":"Eaglercraft Launcher | Indev Offline"},
+  {"filename":"eagleride.html","title":"Eagleride"},
+  {"filename":"earntodie.html","title":"Earntodie"},
+  {"filename":"earntodie2.html","title":"Earntodie2"},
+  {"filename":"eggycar.html","title":"Eggycar"},
+  {"filename":"escapingtheprison.html","title":"Escapingtheprison"},
+  {"filename":"evilglitch.html","title":"Evil Glitch"},
+  {"filename":"fancypantsadventure.html","title":"Fancypantsadventure"},
+  {"filename":"fancypantsadventure2.html","title":"Fancypantsadventure2"},
+  {"filename":"fireboyandwatergirl.html","title":"Fireboyandwatergirl"},
+  {"filename":"fireboyandwatergirl2.html","title":"Fireboyandwatergirl2"},
+  {"filename":"fireboyandwatergirl3.html","title":"Fireboyandwatergirl3"},
+  {"filename":"fireboyandwatergirl4.html","title":"Fireboyandwatergirl4"},
+  {"filename":"flappybird.html","title":"Flappy Bird"},
+  {"filename":"floodrunner2.html","title":"Floodrunner2"},
+  {"filename":"floodrunner3.html","title":"Floodrunner3"},
+  {"filename":"floodrunner4.html","title":"Floodrunner4"},
+  {"filename":"fnaf.html","title":"Fnaf"},
+  {"filename":"fnaf4.html","title":"FNAF-4"},
+  {"filename":"footballbros.html","title":"FOOTBALL BROS! | Official Site"},
+  {"filename":"footballlegends.html","title":"Footballlegends"},
+  {"filename":"freerider3.html","title":"Freerider3"},
+  {"filename":"fruitninja.html","title":"Fruitninja"},
+  {"filename":"funnybattle.html","title":"Funnybattle"},
+  {"filename":"funnybattle2.html","title":"Funnybattle2"},
+  {"filename":"geometrydash.html","title":"Geometry Dash"},
+  {"filename":"getontop.html","title":"Getontop"},
+  {"filename":"googlebaseball.html","title":"Googlebaseball"},
+  {"filename":"guesstheiranswer.html","title":"Guesstheiranswer"},
+  {"filename":"hanger2.html","title":"Hanger2"},
+  {"filename":"happywheels.html","title":"Happywheels"},
+  {"filename":"helixjump.html","title":"Helixjump"},
+  {"filename":"hillclimbracinglite.html","title":"Hillclimbracinglite"},
+  {"filename":"holeio.html","title":"Holeio"},
+  {"filename":"houseofhazards.html","title":"Houseofhazards"},
+  {"filename":"hoverracerdrive.html","title":"Hoverracerdrive"},
+  {"filename":"idlebreakout.html","title":"Idlebreakout"},
+  {"filename":"ironsnout.html","title":"Ironsnout"},
+  {"filename":"jetpackjoyride.html","title":"Jetpackjoyride"},
+  {"filename":"johnnytrigger.html","title":"Johnnytrigger"},
+  {"filename":"doodlejump.html","title":"Jump"},
+  {"filename":"jumpingshell.html","title":"Jumping Shell"},
+  {"filename":"karatebros.html","title":"Karatebros"},
+  {"filename":"learntofly.html","title":"Learntofly"},
+  {"filename":"learntofly2.html","title":"Learntofly2"},
+  {"filename":"learntoflyidle.html","title":"Learntoflyidle"},
+  {"filename":"leveldevil.html","title":"Level Devil"},
+  {"filename":"melonplayground.html","title":"Melonplayground"},
+  {"filename":"mergeroundracers.html","title":"Mergeroundracers"},
+  {"filename":"minesweeper.html","title":"Minesweeper"},
+  {"filename":"monstertracks.html","title":"Monstertracks"},
+  {"filename":"motox3m2.html","title":"Motox3M2"},
+  {"filename":"motox3m3.html","title":"Motox3M3"},
+  {"filename":"motox3mpoolparty.html","title":"Motox3Mpoolparty"},
+  {"filename":"motox3mspookyland.html","title":"Motox3Mspookyland"},
+  {"filename":"motox3mwinter.html","title":"Motox3Mwinter"},
+  {"filename":"1.5.html","title":"My Drive - Google Drive"},
+  {"filename":"noobminer.html","title":"Noob Miner"},
+  {"filename":"oppositeday.html","title":"Oppositeday"},
+  {"filename":"ovo2.html","title":"OvO 2"},
+  {"filename":"ovo.html","title":"OvOfw"},
+  {"filename":"pacman.html","title":"Pac Man"},
+  {"filename":"papasburgeria.html","title":"Papasburgeria"},
+  {"filename":"papascheeseria.html","title":"Papascheeseria"},
+  {"filename":"papascupcakeria.html","title":"Papascupcakeria"},
+  {"filename":"papasdonuteria.html","title":"Papasdonuteria"},
+  {"filename":"papasfreezeria.html","title":"Papasfreezeria"},
+  {"filename":"papashotdoggeria.html","title":"Papashotdoggeria"},
+  {"filename":"papaspancakeria.html","title":"Papaspancakeria"},
+  {"filename":"papaspastaria.html","title":"Papaspastaria"},
+  {"filename":"papaspizzeria.html","title":"Papaspizzeria"},
+  {"filename":"papastacomia.html","title":"Papastacomia"},
+  {"filename":"papaswingeria.html","title":"Papaswingeria"},
+  {"filename":"parkingfury.html","title":"Parkingfury"},
+  {"filename":"parkingfury2.html","title":"Parkingfury2"},
+  {"filename":"parkingfury3.html","title":"Parkingfury3"},
+  {"filename":"picosschool.html","title":"Picosschool"},
+  {"filename":"pingpongchaos.html","title":"Pingpongchaos"},
+  {"filename":"pixelspeedrun.html","title":"Pixel Speedrun"},
+  {"filename":"plantsvszombies.html","title":"Plantsvszombies"},
+  {"filename":"plonky.html","title":"Plonky"},
+  {"filename":"polytrack.html","title":"Polytrack"},
+  {"filename":"poorbunny.html","title":"Poorbunny"},
+  {"filename":"pou.html","title":"Pou"},
+  {"filename":"ragdollhit.html","title":"Ragdollhit"},
+  {"filename":"ragdollsoccer.html","title":"Ragdollsoccer"},
+  {"filename":"redball4vol1.html","title":"Redball4Vol1"},
+  {"filename":"redball4vol2.html","title":"Redball4Vol2"},
+  {"filename":"redball4vol3.html","title":"Redball4Vol3"},
+  {"filename":"retropingpong.html","title":"Retro-Ping-Pong"},
+  {"filename":"retrobowl.html","title":"Retrobowl"},
+  {"filename":"retrobowlcollege.html","title":"Retrobowlcollege"},
+  {"filename":"retrohighway.html","title":"Retrohighway"},
+  {"filename":"riddleschool.html","title":"Riddleschool"},
+  {"filename":"riddleschool2.html","title":"Riddleschool2"},
+  {"filename":"riddleschool3.html","title":"Riddleschool3"},
+  {"filename":"riddleschool4.html","title":"Riddleschool4"},
+  {"filename":"rooftopsnipers2.html","title":"Rooftop Snipers 2"},
+  {"filename":"run.html","title":"Run"},
+  {"filename":"run2.html","title":"Run2"},
+  {"filename":"run3.html","title":"Run3"},
+  {"filename":"sandgame.html","title":"Sand"},
+  {"filename":"1.8.html","title":"School"},
+  {"filename":"shortlife.html","title":"Shortlife"},
+  {"filename":"slope2player.html","title":"Slope2Player"},
+  {"filename":"slowroads.html","title":"Slowroads"},
+  {"filename":"snowballio.html","title":"Snowballio"},
+  {"filename":"soccerbros.html","title":"Soccerbros"},
+  {"filename":"agariolite.html","title":"Solo Agario"},
+  {"filename":"spacewaves.html","title":"Space Waves"},
+  {"filename":"spacebarclicker.html","title":"SPACEBAR CLICKER"},
+  {"filename":"spaceiskey.html","title":"Spaceiskey"},
+  {"filename":"spaceiskey2.html","title":"Spaceiskey2"},
+  {"filename":"speedstars.html","title":"Speedstars"},
+  {"filename":"sprunki.html","title":"Sprunki"},
+  {"filename":"stack.html","title":"Stack"},
+  {"filename":"stacktris.html","title":"Stacktris"},
+  {"filename":"stateio.html","title":"Stateio"},
+  {"filename":"stickarchersbattle.html","title":"Stickarchersbattle"},
+  {"filename":"stickfighter.html","title":"Stickfighter"},
+  {"filename":"stickmanhook.html","title":"Stickman Hook"},
+  {"filename":"stickmerge.html","title":"Stickmerge"},
+  {"filename":"sm64.html","title":"Super Mario 64"},
+  {"filename":"superliquidsoccer.html","title":"Superliquidsoccer"},
+  {"filename":"tabletennisworldtour.html","title":"Tabletennisworldtour"},
+  {"filename":"tag.html","title":"Tag"},
+  {"filename":"templeofboom.html","title":"Templeofboom"},
+  {"filename":"territorialio.html","title":"Territorialio"},
+  {"filename":"theimpossiblequiz.html","title":"Theimpossiblequiz"},
+  {"filename":"theimpossiblequiz2.html","title":"Theimpossiblequiz2"},
+  {"filename":"thereisnog.html","title":"Thereisnog"},
+  {"filename":"thisistheonlylevel.html","title":"Thisistheonlylevel"},
+  {"filename":"thisistheonlyleveltoo.html","title":"Thisistheonlyleveltoo"},
+  {"filename":"timeshooter2.html","title":"Timeshooter2"},
+  {"filename":"tinyfishing.html","title":"Tinyfishing"},
+  {"filename":"trapthecat.html","title":"Trapthecat"},
+  {"filename":"triviacrack.html","title":"Triviacrack"},
+  {"filename":"tubejumpers.html","title":"Tubejumpers"},
+  {"filename":"tunnelrush.html","title":"Tunnelrush"},
+  {"filename":"unicyclehero.html","title":"Unicyclehero"},
+  {"filename":"vex4.html","title":"Vex4"},
+  {"filename":"vex5.html","title":"Vex5"},
+  {"filename":"vexx3m.html","title":"Vexx3M"},
+  {"filename":"vexx3m2.html","title":"Vexx3M2"},
+  {"filename":"volleyrandom.html","title":"Volleyrandom"},
+  {"filename":"webecomewhatwebehold.html","title":"Webecomewhatwebehold"},
+  {"filename":"wheeliebike.html","title":"Wheeliebike"},
+  {"filename":"wheely.html","title":"Wheely"},
+  {"filename":"wheely2.html","title":"Wheely2"},
+  {"filename":"wheely3.html","title":"Wheely3"},
+  {"filename":"wheely6.html","title":"Wheely6"},
+  {"filename":"wheely8.html","title":"Wheely8"},
+  {"filename":"wordleunlimited.html","title":"Wordleunlimited"},
+  {"filename":"worldshardestgame.html","title":"Worldshardestgame"},
+  {"filename":"worldshardestgame2.html","title":"Worldshardestgame2"},
+  {"filename":"worldshardestgame3.html","title":"Worldshardestgame3"},
+  {"filename":"wrestlebros.html","title":"Wrestlebros"},
+  {"filename":"zombierush.html","title":"Zombierush"},
+  {"filename":"index.html","title":"游戏大厅 · Game Hub"}
 ];
 
-/* SailfishOS leaf shape: square 512, inscribed circle radius 512,
-   remove TL and BR quadrants, keep BL and TR sharp */
-var LEAF = "M277.1 0 L512 0 L512 234.9 A512 512 0 0 0 234.9 512 L0 512 L0 277.1 A512 512 0 0 0 277.1 0 Z";
-
-/* Ocean palette (>=60% of set) + sparse warm accents */
-var PALETTE = [
-  {a:"#2FA8C9", b:"#0E7C8C"},
-  {a:"#4FC3F7", b:"#19A7CE"},
-  {a:"#7FD6FB", b:"#4FC3F7"},
-  {a:"#4EDCA0", b:"#2EBD85"},
-  {a:"#2EBD85", b:"#15966B"},
-  {a:"#2FA8C9", b:"#0E7C8C"},
-  {a:"#4FC3F7", b:"#19A7CE"},
-  {a:"#4EDCA0", b:"#2EBD85"},
-  {a:"#FB8A7E", b:"#F0544F"},
-  {a:"#FDB95F", b:"#F59B23"},
-  {a:"#FFE083", b:"#FFD34E"},
-  {a:"#C56CD6", b:"#E85D9E"}
+// SailfishOS-style color palette
+const PALETTES = [
+  // Ocean theme (primary)
+  { bg: ['#0e7c8c', '#15966b'], fg: '#ffffff', accent: '#4fc3f7' },
+  { bg: ['#19a7ce', '#0e7c8c'], fg: '#ffffff', accent: '#2ebd85' },
+  { bg: ['#4fc3f7', '#19a7ce'], fg: '#ffffff', accent: '#0e7c8c' },
+  { bg: ['#2ebd85', '#15966b'], fg: '#ffffff', accent: '#4fc3f7' },
+  { bg: ['#15966b', '#0e7c8c'], fg: '#ffffff', accent: '#2ebd85' },
+  // Warm accents
+  { bg: ['#f0544f', '#c56cd6'], fg: '#ffffff', accent: '#ffd34e' },
+  { bg: ['#f59b23', '#f0544f'], fg: '#ffffff', accent: '#ffd34e' },
+  { bg: ['#c56cd6', '#e85d9e'], fg: '#ffffff', accent: '#4fc3f7' },
+  // Deep variants
+  { bg: ['#0a5c6b', '#0e7c8c'], fg: '#f5f7f7', accent: '#4fc3f7' },
+  { bg: ['#0d6b4f', '#15966b'], fg: '#f5f7f7', accent: '#2ebd85' },
+  { bg: ['#1a7a8a', '#108c7c'], fg: '#ffffff', accent: '#4fc3f7' },
+  { bg: ['#148568', '#1c9d7a'], fg: '#ffffff', accent: '#2ebd85' },
 ];
 
-function hash(s) {
-  var h = 0, i;
-  for (i = 0; i < s.length; i++) {
-    h = (h * 31 + s.charCodeAt(i)) >>> 0;
+// Shape templates for SailfishOS-style icons
+const SHAPES = [
+  // Circle / concentric circles
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, r = size * 0.35;
+    // Outer ring
+    ctx.strokeStyle = fg;
+    ctx.lineWidth = size * 0.07;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    // Inner dot
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.25, 0, Math.PI * 2);
+    ctx.fill();
+  },
+  // Squircle with cutout
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, s = size * 0.52;
+    const r = s * 0.28;
+    drawSquircle(ctx, cx - s/2, cy - s/2, s, r, fg);
+    // Cutout circle
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(cx, cy, s * 0.22, 0, Math.PI * 2);
+    ctx.fill();
+  },
+  // Organic droplet
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, s = size * 0.48;
+    drawDroplet(ctx, cx, cy, s, fg);
+    // Highlight
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.ellipse(cx - s*0.1, cy - s*0.15, s*0.12, s*0.08, -0.5, 0, Math.PI*2);
+    ctx.fill();
+  },
+  // Play triangle in circle
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, r = size * 0.35;
+    ctx.fillStyle = fg;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    // Triangle cutout
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = '#000';
+    const tr = r * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - tr*0.5, cy - tr*0.866);
+    ctx.lineTo(cx - tr*0.5, cy + tr*0.866);
+    ctx.lineTo(cx + tr, cy);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    // Accent dot
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(cx + r*0.5, cy - r*0.5, r*0.15, 0, Math.PI*2);
+    ctx.fill();
+  },
+  // Concentric rings
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2;
+    ctx.strokeStyle = fg;
+    ctx.lineWidth = size * 0.05;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * (0.22 + i * 0.1), 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+  },
+  // Squircle with cross cutout
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, s = size * 0.52;
+    const r = s * 0.28;
+    drawSquircle(ctx, cx - s/2, cy - s/2, s, r, fg);
+    // Cross cutout
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = '#000';
+    const bar = s * 0.12;
+    const len = s * 0.45;
+    ctx.beginPath();
+    ctx.roundRect(cx - bar/2, cy - len/2, bar, len, bar/2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect(cx - len/2, cy - bar/2, len, bar, bar/2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+  },
+  // Organic leaf
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, s = size * 0.5;
+    drawLeaf(ctx, cx, cy, s, fg);
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.ellipse(cx + s*0.1, cy - s*0.1, s*0.1, s*0.06, 0.3, 0, Math.PI*2);
+    ctx.fill();
+  },
+  // Rounded square with center circle
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, s = size * 0.56;
+    const r = s * 0.25;
+    ctx.fillStyle = fg;
+    ctx.beginPath();
+    ctx.roundRect(cx - s/2, cy - s/2, s, s, r);
+    ctx.fill();
+    // Circle cutout
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(cx, cy, s * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(cx, cy, s * 0.1, 0, Math.PI * 2);
+    ctx.fill();
+  },
+  // Three dots organic
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, s = size * 0.5;
+    drawDroplet(ctx, cx, cy, s, fg);
+    ctx.fillStyle = accent;
+    for (let i = 0; i < 3; i++) {
+      const angle = -Math.PI/2 + i * Math.PI/3;
+      const dx = Math.cos(angle) * s * 0.25;
+      const dy = Math.sin(angle) * s * 0.25;
+      ctx.beginPath();
+      ctx.arc(cx + dx, cy + dy, s * 0.07, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  },
+  // Arrow in squircle
+  (ctx, size, fg, accent) => {
+    const cx = size/2, cy = size/2, s = size * 0.52;
+    const r = s * 0.28;
+    drawSquircle(ctx, cx - s/2, cy - s/2, s, r, fg);
+    // Arrow cutout
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = '#000';
+    const a = s * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(cx - a*0.6, cy);
+    ctx.lineTo(cx + a*0.2, cy - a*0.6);
+    ctx.lineTo(cx + a*0.2, cy - a*0.2);
+    ctx.lineTo(cx + a*0.8, cy - a*0.2);
+    ctx.lineTo(cx + a*0.8, cy + a*0.2);
+    ctx.lineTo(cx + a*0.2, cy + a*0.2);
+    ctx.lineTo(cx + a*0.2, cy + a*0.6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(cx - s*0.2, cy - s*0.2, s*0.1, 0, Math.PI*2);
+    ctx.fill();
+  },
+];
+
+function drawSquircle(ctx, x, y, w, r, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, w, r);
+  ctx.fill();
+}
+
+function drawDroplet(ctx, cx, cy, size, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  const r = size * 0.5;
+  ctx.moveTo(cx, cy - r);
+  ctx.bezierCurveTo(
+    cx + r * 0.9, cy - r * 0.3,
+    cx + r * 0.9, cy + r * 0.3,
+    cx, cy + r
+  );
+  ctx.bezierCurveTo(
+    cx - r * 0.9, cy + r * 0.3,
+    cx - r * 0.9, cy - r * 0.3,
+    cx, cy - r
+  );
+  ctx.fill();
+}
+
+function drawLeaf(ctx, cx, cy, size, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  const r = size * 0.5;
+  ctx.moveTo(cx, cy - r);
+  ctx.bezierCurveTo(
+    cx + r * 1.1, cy - r * 0.2,
+    cx + r * 0.8, cy + r * 0.8,
+    cx, cy + r
+  );
+  ctx.bezierCurveTo(
+    cx - r * 0.5, cy + r * 0.5,
+    cx - r * 0.5, cy - r * 0.5,
+    cx, cy - r
+  );
+  ctx.fill();
+}
+
+// Deterministic hash for consistent assignment
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
   }
-  return h;
+  return Math.abs(hash);
 }
 
-function letter(name) {
-  var m = /[A-Za-z0-9\u4e00-\u9fff]/.exec(name);
-  return m ? m[0].toUpperCase() : "?";
+function getIconData(title) {
+  const h = hashString(title);
+  const palette = PALETTES[h % PALETTES.length];
+  const shape = SHAPES[h % SHAPES.length];
+  const shapeIndex = h % SHAPES.length;
+  return { palette, shape, shapeIndex };
 }
 
-function iconSVG(g, i) {
-  var c = PALETTE[hash(g.f) % PALETTE.length];
-  var L = letter(g.n);
-  var rot = (i % 2 === 1) ? " rotate(90 256 256)" : "";
-  
-  return '<svg viewBox="0 0 512 512" role="img" aria-label="' + g.n.replace(/"/g, "") + '">' +
-    '<defs>' +
-    '<linearGradient id="g' + i + '" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0" stop-color="' + c.a + '"/><stop offset="1" stop-color="' + c.b + '"/>' +
-    '</linearGradient>' +
-    '<mask id="m' + i + '">' +
-    '<path d="' + LEAF + '" fill="#fff"/>' +
-    '<text x="256" y="256" text-anchor="middle" dominant-baseline="central" ' +
-    'font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="235" font-weight="800" fill="#000">' + L + '</text>' +
-    '</mask>' +
-    '<clipPath id="c' + i + '"><path d="' + LEAF + '"/></clipPath>' +
-    '</defs>' +
-    '<g transform="translate(46 46) scale(0.82)">' +
-    (rot ? '<g transform="' + rot.trim() + '">' : '<g>') +
-    '<path d="' + LEAF + '" fill="url(#g' + i + ')" mask="url(#m' + i + ')"/>' +
-    '<g clip-path="url(#c' + i + ')">' +
-    '<ellipse cx="140" cy="105" rx="180" ry="95" fill="#ffffff" opacity="0.16" transform="rotate(-25 140 105)"/>' +
-    '</g>' +
-    '</g></g></svg>';
+function generateIconCanvas(title, size = 256) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  const { palette, shape } = getIconData(title);
+  const [bg1, bg2] = palette.bg;
+
+  // Background gradient (120-150 degrees, light source top-left)
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  grad.addColorStop(0, bg1);
+  grad.addColorStop(1, bg2);
+  ctx.fillStyle = grad;
+
+  // Draw base shape (squircle container)
+  const containerSize = size * 0.9;
+  const containerX = (size - containerSize) / 2;
+  const containerR = containerSize * 0.25;
+  ctx.beginPath();
+  ctx.roundRect(containerX, containerX, containerSize, containerSize, containerR);
+  ctx.fill();
+
+  // Subtle inner glow (top-left highlight)
+  const highlight = ctx.createLinearGradient(0, 0, size * 0.6, size * 0.6);
+  highlight.addColorStop(0, 'rgba(255,255,255,0.08)');
+  highlight.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = highlight;
+  ctx.beginPath();
+  ctx.roundRect(containerX, containerX, containerSize, containerSize, containerR);
+  ctx.fill();
+
+  // Draw the symbol (negative space / cutout approach)
+  shape(ctx, size, palette.fg, palette.accent);
+
+  // Subtle shadow (drop shadow simulation)
+  ctx.shadowColor = 'rgba(20,40,60,0.2)';
+  ctx.shadowBlur = size * 0.04;
+  ctx.shadowOffsetX = size * 0.01;
+  ctx.shadowOffsetY = size * 0.02;
+
+  return canvas;
 }
 
-var grid = document.getElementById("grid");
-var cards = [];
+function createGameCard(game) {
+  const card = document.createElement('a');
+  card.href = `/games-web/${game.filename}`;
+  card.className = 'game-card';
+  card.setAttribute('role', 'listitem');
+  card.setAttribute('data-title', game.title.toLowerCase());
 
-GAMES.forEach(function(g, i) {
-  var a = document.createElement("a");
-  a.className = "card";
-  a.href = "/games-web/" + encodeURIComponent(g.f);
-  a.target = "_blank";
-  a.rel = "noopener";
-  a.innerHTML = '<span class="icon">' + iconSVG(g, i) + '</span><span class="name"></span>';
-  a.querySelector(".name").textContent = g.n;
-  grid.appendChild(a);
-  cards.push({el: a, name: g.n.toLowerCase()});
-});
+  const iconData = getIconData(game.title);
+  const [bg1] = iconData.palette.bg;
+  card.style.setProperty('--icon-bg', bg1);
 
-var countEl = document.getElementById("count");
-var emptyEl = document.getElementById("empty");
-var total = GAMES.length;
+  const canvas = generateIconCanvas(game.title, 256);
 
-function setCount(n) {
-  countEl.textContent = n + " / " + total + " 款游戏";
+  card.innerHTML = `
+    <div class="card-icon" aria-hidden="true"></div>
+    <div class="card-content">
+      <span class="card-title">${escapeHtml(game.title)}</span>
+    </div>
+    <button class="card-play" aria-label="玩 ${escapeHtml(game.title)}" tabindex="-1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21"/>
+      </svg>
+    </button>
+  `;
+
+  const iconContainer = card.querySelector('.card-icon');
+  iconContainer.appendChild(canvas);
+
+  return card;
 }
 
-setCount(total);
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 
-var q = document.getElementById("q");
-q.addEventListener("input", function() {
-  var v = q.value.trim().toLowerCase();
-  var shown = 0;
-  cards.forEach(function(c) {
-    var hit = !v || c.name.indexOf(v) !== -1;
-    c.el.style.display = hit ? "" : "none";
-    if (hit) shown++;
+function renderGames(games) {
+  const grid = document.getElementById('gamesGrid');
+  const emptyState = document.getElementById('emptyState');
+  grid.innerHTML = '';
+
+  if (games.length === 0) {
+    grid.style.display = 'none';
+    emptyState.style.display = 'flex';
+    return;
+  }
+
+  grid.style.display = 'grid';
+  emptyState.style.display = 'none';
+
+  const fragment = document.createDocumentFragment();
+  games.forEach((game, index) => {
+    const card = createGameCard(game);
+    card.style.animationDelay = `${Math.min(index * 0.01, 0.3)}s`;
+    fragment.appendChild(card);
   });
-  setCount(shown);
-  emptyEl.style.display = shown ? "none" : "block";
+  grid.appendChild(fragment);
+}
+
+function filterGames(query) {
+  const normalized = query.toLowerCase().trim();
+  if (!normalized) return GAMES;
+  return GAMES.filter(g => g.title.toLowerCase().includes(normalized));
+}
+
+function updateStats(visible, total) {
+  document.getElementById('visibleCount').textContent = visible;
+  document.getElementById('totalCount').textContent = total;
+}
+
+// Initialize
+const searchInput = document.getElementById('searchInput');
+const clearBtn = document.getElementById('clearBtn');
+
+renderGames(GAMES);
+updateStats(GAMES.length, GAMES.length);
+
+searchInput.addEventListener('input', (e) => {
+  const query = e.target.value;
+  const filtered = filterGames(query);
+  renderGames(filtered);
+  updateStats(filtered.length, GAMES.length);
+  clearBtn.classList.toggle('visible', query.length > 0);
 });
 
-})();
+clearBtn.addEventListener('click', () => {
+  searchInput.value = '';
+  searchInput.focus();
+  renderGames(GAMES);
+  updateStats(GAMES.length, GAMES.length);
+  clearBtn.classList.remove('visible');
+});
+
+searchInput.addEventListener('focus', () => {
+  if (searchInput.value) clearBtn.classList.add('visible');
+});
+
+searchInput.addEventListener('blur', () => {
+  setTimeout(() => clearBtn.classList.remove('visible'), 200);
+});
+
+// Keyboard shortcut: / to focus search
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== searchInput) {
+    e.preventDefault();
+    searchInput.focus();
+  }
+  if (e.key === 'Escape') {
+    searchInput.blur();
+    clearBtn.classList.remove('visible');
+  }
+});
+
+// Touch-friendly: prevent zoom on input focus (iOS)
+if ('ontouchstart' in window) {
+  const viewport = document.querySelector('meta[name=viewport]');
+  if (viewport) viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+}
 </script>
 </body>
 </html>
