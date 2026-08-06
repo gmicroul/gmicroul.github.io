@@ -1,32 +1,26 @@
-name: Hermes Phone-News Generator
+name: Hermes Games Navigation Generator
 
 
 on:
 
   workflow_dispatch:
+  
+#  schedule:
 
- # schedule:
-
- #   - cron: "0 */3 * * *"
-
-
+#    - cron: "0 */2 * * *"
 
 permissions:
 
   contents: write
 
 
-
 jobs:
 
-
   build:
-
 
     runs-on: ubuntu-latest
 
     timeout-minutes: 30
-
 
 
     steps:
@@ -40,6 +34,31 @@ jobs:
 
         fetch-depth: 0
 
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+    - name: Check games-web
+
+      run: |
+
+        if [ ! -d "games-web" ]; then
+          echo "games-web directory not found"
+          exit 1
+        fi
+
+
+        COUNT=$(find games-web -type f -name "*.html" | wc -l)
+
+
+        echo "HTML games: $COUNT"
+
+
+        if [ "$COUNT" -lt 1 ]; then
+          echo "No games found"
+          exit 1
+        fi
+
 
 
     - name: Build Hermes Docker image
@@ -52,7 +71,7 @@ jobs:
 
 
 
-    - name: Prepare output directory
+    - name: Prepare output
 
       run: |
 
@@ -78,100 +97,344 @@ jobs:
       run: |
 
 
-        echo "=================="
-
-        echo "Running Hermes..."
-
-        date
-
-
-
         timeout 25m docker run \
           --rm \
           --user root \
           -e OPENAI_API_KEY \
           -e OPENAI_BASE_URL \
           -e OPENAI_MODEL \
-          -v "$PWD/output:/output" \
+          -v "$PWD:/opt/hermes-agent/gmicroul.github.io" \
           hermes-agent \
           "
 
 
-          不要搜索大于一个月发布的产品。不要停下来问（一次都不能停）。你自己想办法完成输出。
+          不要询问。
+
+          不要执行git操作。
 
 
-          生成一个真实的中文 2026年AI前沿快讯的 HTML 页面。
+          当前仓库：
+
+          /opt/hermes-agent/gmicroul.github.io
 
 
-          要求：
+
+          你的任务：
+
+          为 GitHub Pages 生成 HTML5 游戏导航主页。图标参照sailfishos的图标风格如下要求：
+          == 1. 画布与网格 ==
+          - 图标容器：正方形，建议 512×512 基准（导出 192/128/86/48 等多档）。
+          - 内容安全区：图形主体占容器 78%–86%，四周保留光学留白，不要顶满外框。
+          - 笔画粗细统一：全套装订一个基准笔画宽（约容器边长的 6%–8%）。
+          - 符号一律视觉居中（按光学重心微调，非机械居中）。
+
+          == 2. 三大母形（全套只从这里派生） ==
+          - 圆形 / 同心圆：用于聚焦、时间、镜头、播放、天体类语义。
+          - 超椭圆 squircle：圆角矩形底版，用连续曲率（贝塞尔近似），不用普通 border-radius 的生硬圆角；圆角半径约边长 22%–30%。
+          - 有机流线形：水滴 / 叶片 / 逗号 / 拱顶，单轴不对称曲线，用于电话、气泡、信封顶等"生命感"图标。
+
+          == 3. 构造工艺 ==
+          - 负形切割优先：前景符号用留白从底色块中"挖"出（mask / clipPath / fill-rule:evenodd），不用 stroke 描边。
+          - 全部端点圆头：指针、横线、加减号、听筒两端统一 round cap / round join。
+          - 裁切遮罩：局部图形可贴近或轻微超出底版边界，用 clip 裁切制造动感。
+          - 每枚图标 1 个主色块 + 1 个负形符号 + 最多 1 个点缀色，总数 2–4 色。
+          - 外轮廓剪影必须互不相同：同屏缩小到 24px 仍能凭轮廓区分。
+
+          == 4. 配色（参考 hex，可按品牌微调） ==
+          - 主色系（海洋感，占全套 60% 以上）：
+            深青 #0E7C8C / 青 #19A7CE / 天蓝 #4FC3F7 / 海绿 #2EBD85 / 深绿 #15966B
+          - 功能强调暖色（少量使用）：
+            珊瑚红 #F0544F / 橙 #F59B23 / 明黄 #FFD34E / 紫粉渐变 #C56CD6→#E85D9E
+          - 前景符号色：白 #FFFFFF 或米白 #F5F7F7；深色底上用纯白。
+          - 点缀色举例：气泡内三点用紫红 #B03A6B，镜头感光点用红绿蓝三色小圆。
+          - 单图标内用同色系深浅渐变，不跨色相；明度高、饱和中高，避免荧光刺眼。
+
+          == 5. 光影 ==
+          - 光源固定：左上，全套统一。
+          - 线性渐变角度：120°–150°，明度变化柔和（L 值差 8%–15%）。
+          - 球面元素（镜头、地球、钟表）用轻微径向渐变：中心偏左上亮 10%。
+          - 投影：低透明蓝黑 rgba(20,40,60,0.15–0.25)，大模糊小偏移；或 45° 柔和长投影（扁平长影风格），全套二选一，不混用。
+          - 高光：玻璃/水面元素加 1 处小面积半透明白色叠层即可，不做写实反光。
+          - 禁用：粗黑描边、硬边内阴影、金属/拟物纹理、真实透视。
+
+          == 6. 一致性检查清单（逐条过） ==
+          [ ] 外形属于三大母形之一
+          [ ] 剪影与同屏其他图标不重复
+          [ ] 负形实现，无描边
+          [ ] 端点全部圆头，笔画宽度与全套一致
+          [ ] 颜色 ≤4 个，主色优先海洋系
+          [ ] 渐变方向 120°–150°，光源左上
+          [ ] 阴影方案全套统一
+          [ ] 24px 缩放下仍可识别
+          [ ] 安全区内、光学居中
+
+          == 7. 图标外形是先画正方形，然后在正方形里面中心点画一个半径为正方形边长的一半的最大的内圆，这样就圆和正方形就切割了四部分（左上/左下/右上/右下），然后随机去除一个或多个切割出来的部分。这样就新图标就出来了，后面对图标的摆放，单数正常摆放，双数旋转90度。
 
 
-          1. 把汇总的内容以HTML5形式写入以下文件：
 
-          /output/index.html
+          扫描目录：
 
-
-          2. 必须是完整 HTML5 页面。
+          /opt/hermes-agent/gmicroul.github.io/games-web/
 
 
-          3. 内容必须来自真实来源。
+
+          生成文件：
+
+          /opt/hermes-agent/gmicroul.github.io/output/index.html
 
 
-          4. 使用中文。
 
 
-          5. 不要修改或删除其它文件。
 
-          6. 生成的文件在https://g.aisword.top/sandbox/share/AdjTiMA1zvi5qAdPf7jpIwNL5q9FWAUNXllq9KkcNCY的页面点击提交上传，这个你要一定自己去想法提交，别推给我提交。
+          ===== 重要路径规则 =====
+
+
+          GitHub Pages 地址：
+
+          https://gmicroul.github.io/
+
+
+
+          output/index.html 部署后：
+
+          https://gmicroul.github.io/output/index.html
+
+
+
+          games-web 游戏地址：
+
+          https://gmicroul.github.io/games-web/文件名.html
+
+
+
+
+          所有游戏链接必须使用绝对根路径。
+
+
+
+          正确示例：
+
+          /games-web/granny.html
+
+
+
+          禁止生成：
+
+          games-web/granny.html
+
+          ./games-web/granny.html
+
+          ../games-web/granny.html
+
+          /output/games-web/granny.html
+
+
+
+
+
+          ===== 游戏扫描 =====
+
+
+          扫描所有：
+
+          games-web/**/*.html
+
+
+
+          每个游戏：
+
+          读取HTML文件。
+
+
+          提取：
+
+          <title>
+
+          作为游戏名称。
+
+
+
+          如果没有title：
+
+          根据文件名生成名称。
+
+
+
+
+          ===== 图标 =====
+
+
+          每个游戏生成卡片图标。
+
+
+          优先寻找同目录资源：
+
+          favicon.ico
+
+          icon.png
+
+          icon.jpg
+
+          icon.webp
+
+          *.png
+
+          *.jpg
+
+          *.webp
+
+
+
+          如果不存在：
+
+          使用CSS生成随机字母占位图标。
+
+
+
+          不允许引用外部图片。
+
+
+
+          ===== 页面要求 =====
+
+
+          生成现代游戏大厅风格。
+
+
+
+          必须包含：
+
+
+          1. 响应式网格布局
+
+
+          2. 手机适配
+
+
+          3. 电脑适配
+
+
+          4. 搜索框
+
+
+          5. 实时过滤游戏
+
+
+          6. 游戏数量统计
+
+
+          7. 点击卡片打开游戏
+
+
+
+
+          ===== 技术限制 =====
+
+
+          index.html必须独立运行。
+
+
+
+          所有：
+
+          CSS
+
+          JavaScript
+
+
+
+          必须直接写入index.html。
+
+
+
+          禁止：
+
+          外部CDN
+
+          外部JS
+
+          外部CSS
+
+
+
+
+          ===== 安全规则 =====
+
+
+          不修改：
+
+          games-web/
+
+
+
+          不删除：
+
+          任何仓库文件
+
+
+
+          不执行：
+
+          git命令
+
+
+
+          只生成：
+
+          output/index.html
+
+
+
+
+          ===== 完成检查 =====
+
+
+          确认：
+
+          output/index.html
+
+          存在。
+
+
+
+          如果成功：
+
+          退出。
+
 
 
           "
 
 
 
-        echo "Hermes finished"
 
-        date
-
-
-
-
-
-    - name: Fix Hermes output permission
+    - name: Verify generated files
 
       run: |
 
 
-        echo "Fix output permission"
-
-
-        sudo chown -R $USER:$USER output
-
-
-        sudo chmod -R u+rwX,go+rX output
-
+        echo "===== Output ====="
 
         ls -lah output
 
 
+        test -f output/index.html
 
 
 
-    - name: Verify Hermes output
+        SIZE=$(du -h output/index.html | awk '{print $1}')
 
-      run: |
-
-
-        echo "===== output ====="
-
-
-        ls -lah output
+        echo "index.html size: $SIZE"
 
 
 
-        if [ ! -f output/index.html ]; then
+        COUNT=$(find games-web -type f -name "*.html" | wc -l)
 
-          echo "ERROR: output/index.html missing"
+        echo "Games count: $COUNT"
+
+
+
+        if [ "$COUNT" -lt 1 ]; then
 
           exit 1
 
@@ -179,50 +442,21 @@ jobs:
 
 
 
-        SIZE=$(wc -c < output/index.html)
 
 
-        echo "SIZE=$SIZE"
+    - name: Commit and push
 
+      env:
 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-        if [ "$SIZE" -lt 1000 ]; then
-
-          echo "ERROR: index.html too small"
-
-          cat output/index.html
-
-          exit 1
-
-        fi
-
-
-
-        echo "===== Preview ====="
-
-
-        head -50 output/index.html
-
-
-
-
-
-    - name: Commit only Hermes page
 
       run: |
 
 
         git config user.name "github-actions[bot]"
 
-
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-
-
-        echo "===== Git status ====="
-
-
-        git status
 
 
 
@@ -241,8 +475,10 @@ jobs:
 
 
         git commit \
-          -m "Update Hermes generated news"
+          -m "Update Hermes games navigation"
 
 
 
-        git push origin HEAD:${GITHUB_REF_NAME}
+        git push \
+          https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git \
+          HEAD:${GITHUB_REF_NAME}
