@@ -1,299 +1,706 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Hub - gmicroul.github.io</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: #000;
-            color: #fff;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px 0;
-        }
-        
-        h1 {
-            font-size: clamp(1.8rem, 5vw, 3rem);
-            font-weight: 700;
-            background: linear-gradient(135deg, #5FD0F5, #FFD8E0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-        }
-        
-        .search-container {
-            margin-bottom: 25px;
-            position: relative;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        #searchInput {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 1rem;
-            border: 2px solid #333;
-            border-radius: 50px;
-            background: #111;
-            color: #fff;
-            outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        
-        #searchInput:focus {
-            border-color: #5FD0F5;
-            box-shadow: 0 0 0 3px rgba(95, 208, 245, 0.2);
-        }
-        
-        #searchInput::placeholder {
-            color: #666;
-        }
-        
-        .stats {
-            text-align: center;
-            color: #888;
-            font-size: 0.95rem;
-            margin-bottom: 25px;
-        }
-        
-        .stats span {
-            color: #5FD0F5;
-            font-weight: 600;
-        }
-        
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 20px;
-        }
-        
-        .game-card {
-            background: #111;
-            border-radius: 16px;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid #222;
-        }
-        
-        .game-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-            border-color: #333;
-        }
-        
-        .game-card:focus-visible {
-            outline: 2px solid #5FD0F5;
-            outline-offset: 2px;
-        }
-        
-        .game-icon {
-            width: 100%;
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .game-icon svg {
-            width: 100%;
-            height: 100%;
-            max-width: 120px;
-            max-height: 120px;
-        }
-        
-        .game-info {
-            padding: 14px 12px;
-            text-align: center;
-        }
-        
-        .game-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 15px 10px;
-            }
-            
-            .games-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                gap: 15px;
-            }
-            
-            .game-info {
-                padding: 12px 10px;
-            }
-            
-            .game-title {
-                font-size: 0.8rem;
-            }
-        }
-        
-        @media (min-width: 1200px) {
-            .games-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏大厅 · Game Hub</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --bg: #000000;
+  --fg: #FFFFFF;
+  --muted: #666666;
+  --accent-blue: #5FD0F5;
+  --accent-pink: #FFD8E0;
+  --card-bg: rgba(255,255,255,0.03);
+  --card-border: rgba(255,255,255,0.08);
+  --search-bg: rgba(255,255,255,0.05);
+  --search-border: rgba(255,255,255,0.12);
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  padding: 24px 16px 40px;
+}
+
+/* ===== Header ===== */
+.header {
+  max-width: 1400px;
+  margin: 0 auto 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 4px;
+}
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.title-row h1 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #5FD0F5 0%, #FFD8E0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.count-badge {
+  font-size: 0.875rem;
+  color: var(--muted);
+  white-space: nowrap;
+  padding: 4px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+  background: var(--card-bg);
+}
+
+/* ===== Search ===== */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+}
+.search-wrapper svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  stroke: var(--muted);
+  pointer-events: none;
+}
+#searchInput {
+  width: 100%;
+  padding: 12px 16px 12px 48px;
+  font-size: 1rem;
+  color: var(--fg);
+  background: var(--search-bg);
+  border: 1px solid var(--search-border);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+#searchInput::placeholder { color: var(--muted); }
+#searchInput:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(95, 208, 245, 0.15);
+  background: rgba(255,255,255,0.07);
+}
+#clearSearch {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: none;
+  border-radius: 50%;
+  transition: color 0.2s, background 0.2s;
+}
+#clearSearch:hover { color: var(--fg); background: rgba(255,255,255,0.1); }
+#clearSearch svg { width: 18px; height: 18px; stroke: currentColor; }
+
+/* ===== Grid ===== */
+.grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 18px;
+  padding: 0 4px;
+}
+
+/* ===== Card ===== */
+.card {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  transition: transform 0.18s cubic-bezier(0.2, 0, 0, 1),
+              border-color 0.18s,
+              box-shadow 0.18s,
+              background 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(95,208,245,0.06) 0%, rgba(255,216,224,0.06) 100%);
+  opacity: 0;
+  transition: opacity 0.18s;
+  pointer-events: none;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(95, 208, 245, 0.4);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(95,208,245,0.2);
+  background: rgba(255,255,255,0.05);
+}
+.card:hover::before { opacity: 1; }
+.card:focus-visible {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(95, 208, 245, 0.3);
+}
+
+/* ===== Icon Container ===== */
+.icon-wrap {
+  width: 86px;
+  height: 86px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* ===== SailfishOS-style Icons (CSS Generated) ===== */
+/* Odd index: blue gradient, no rotation */
+/* Even index: pink gradient, rotated 90deg, text color special for 'I' */
+
+.icon-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Base shape path for all icons */
+.icon-shape {
+  /* The path is defined inline in SVG */
+}
+
+/* Odd cards (1,3,5...) - Blue */
+.card:nth-child(odd) .icon-bg { fill: url(#gradBlue); }
+.card:nth-child(odd) .icon-highlight { fill: url(#highlightBlue); }
+.card:nth-child(odd) .icon-text { fill: #FFFFFF; }
+
+/* Even cards (2,4,6...) - Pink, rotated */
+.card:nth-child(even) .icon-bg { fill: url(#gradPink); }
+.card:nth-child(even) .icon-highlight { fill: url(#highlightPink); }
+.card:nth-child(even) .icon-group { transform: rotate(90deg); transform-origin: 43px 47px; }
+.card:nth-child(even) .icon-text {
+  fill: #FFFFFF;
+  transform: rotate(-90deg);
+  transform-origin: 43px 47px;
+}
+/* Special case: even cards starting with 'I' get pink-purple text */
+.card:nth-child(even)[data-first-letter="I"] .icon-text { fill: #E85D9E; }
+
+/* ===== Card Title ===== */
+.card-title {
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.25;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--fg);
+}
+
+/* ===== Hidden State (for search filtering) ===== */
+.card.hidden { display: none !important; }
+
+/* ===== No Results ===== */
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+/* ===== Footer ===== */
+.footer {
+  max-width: 1400px;
+  margin: 40px auto 0;
+  padding: 24px 16px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--card-border);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+  body { padding: 16px 12px 32px; }
+  .header { margin-bottom: 20px; }
+  .grid { gap: 14px; }
+  .card { padding: 14px 10px; gap: 8px; }
+  .icon-wrap { width: 76px; height: 76px; }
+  .card-title { font-size: 0.72rem; }
+}
+
+@media (max-width: 400px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  .card, .card::before, #searchInput, #clearSearch { transition: none; }
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Game Hub</h1>
-        </header>
-        
-        <div class="search-container">
-            <input type="search" id="searchInput" placeholder="搜索游戏..." autocomplete="off" aria-label="搜索游戏">
-        </div>
-        
-        <div class="stats">
-            共 <span id="gameCount">0</span> 款游戏
-        </div>
-        
-        <div class="games-grid" id="gamesGrid">
-            <!-- Games will be inserted here -->
-        </div>
-    </div>
 
-    <script>
-        // Game data embedded directly
-        const games = [{"filename": "12minibattles.html", "title": "12Minibattles", "url": "/games-web/12minibattles.html", "icon": null}, {"filename": "1on1soccer.html", "title": "1On1Soccer", "url": "/games-web/1on1soccer.html", "icon": null}, {"filename": "1on1tennis.html", "title": "1On1Tennis", "url": "/games-web/1on1tennis.html", "icon": null}, {"filename": "2048.html", "title": "2048", "url": "/games-web/2048.html", "icon": null}, {"filename": "2048cupcakes.html", "title": "2048Cupcakes", "url": "/games-web/2048cupcakes.html", "icon": null}, {"filename": "8ballclassic.html", "title": "8Ballclassic", "url": "/games-web/8ballclassic.html", "icon": null}, {"filename": "ageofwar.html", "title": "Ageofwar", "url": "/games-web/ageofwar.html", "icon": null}, {"filename": "ageofwar2.html", "title": "Ageofwar2", "url": "/games-web/ageofwar2.html", "icon": null}, {"filename": "agesofconflict.html", "title": "Agesofconflict", "url": "/games-web/agesofconflict.html", "icon": null}, {"filename": "Alpha_1.2.6.html", "title": "Alpha 1.2.6", "url": "/games-web/Alpha_1.2.6.html", "icon": null}, {"filename": "amongus.html", "title": "Amongus", "url": "/games-web/amongus.html", "icon": null}, {"filename": "angrybirds.html", "title": "Angrybirds", "url": "/games-web/angrybirds.html", "icon": null}, {"filename": "angrybirdsspace.html", "title": "Angrybirdsspace", "url": "/games-web/angrybirdsspace.html", "icon": null}, {"filename": "awesometanks.html", "title": "Awesometanks", "url": "/games-web/awesometanks.html", "icon": null}, {"filename": "awesometanks2.html", "title": "Awesometanks2", "url": "/games-web/awesometanks2.html", "icon": null}, {"filename": "backrooms.html", "title": "Backrooms", "url": "/games-web/backrooms.html", "icon": null}, {"filename": "baconmaydie.html", "title": "Baconmaydie", "url": "/games-web/baconmaydie.html", "icon": null}, {"filename": "badicecream.html", "title": "Badicecream", "url": "/games-web/badicecream.html", "icon": null}, {"filename": "badicecream2.html", "title": "Badicecream2", "url": "/games-web/badicecream2.html", "icon": null}, {"filename": "badicecream3.html", "title": "Badicecream3", "url": "/games-web/badicecream3.html", "icon": null}, {"filename": "badpiggies.html", "title": "Badpiggies", "url": "/games-web/badpiggies.html", "icon": null}, {"filename": "baseballbros.html", "title": "Baseballbros", "url": "/games-web/baseballbros.html", "icon": null}, {"filename": "basketballlegends.html", "title": "Basketballlegends", "url": "/games-web/basketballlegends.html", "icon": null}, {"filename": "basketballstars.html", "title": "Basketballstars", "url": "/games-web/basketballstars.html", "icon": null}, {"filename": "basketbros.html", "title": "Basketbros", "url": "/games-web/basketbros.html", "icon": null}, {"filename": "blockysnakes.html", "title": "Blockysnakes", "url": "/games-web/blockysnakes.html", "icon": null}, {"filename": "bloonsTD.html", "title": "Bloonstd", "url": "/games-web/bloonsTD.html", "icon": null}, {"filename": "bloonsTD2.html", "title": "Bloonstd2", "url": "/games-web/bloonsTD2.html", "icon": null}, {"filename": "bloonsTD3.html", "title": "Bloonstd3", "url": "/games-web/bloonsTD3.html", "icon": null}, {"filename": "bloonsTD4.html", "title": "Bloonstd4", "url": "/games-web/bloonsTD4.html", "icon": null}, {"filename": "bloonsTD5.html", "title": "Bloonstd5", "url": "/games-web/bloonsTD5.html", "icon": null}, {"filename": "bloxorz.html", "title": "Bloxorz", "url": "/games-web/bloxorz.html", "icon": null}, {"filename": "blumgiracers.html", "title": "Blumgiracers", "url": "/games-web/blumgiracers.html", "icon": null}, {"filename": "blumgirocket.html", "title": "Blumgirocket", "url": "/games-web/blumgirocket.html", "icon": null}, {"filename": "bobtherobber.html", "title": "Bobtherobber", "url": "/games-web/bobtherobber.html", "icon": null}, {"filename": "bobtherobber2.html", "title": "Bobtherobber2", "url": "/games-web/bobtherobber2.html", "icon": null}, {"filename": "bobtherobber5.html", "title": "Bobtherobber5", "url": "/games-web/bobtherobber5.html", "icon": null}, {"filename": "breakingthebank.html", "title": "Breakingthebank", "url": "/games-web/breakingthebank.html", "icon": null}, {"filename": "bubbleshooter.html", "title": "Bubbleshooter", "url": "/games-web/bubbleshooter.html", "icon": null}, {"filename": "candycrush.html", "title": "Candycrush", "url": "/games-web/candycrush.html", "icon": null}, {"filename": "capybaraclicker.html", "title": "Capybaraclicker", "url": "/games-web/capybaraclicker.html", "icon": null}, {"filename": "cardrawing.html", "title": "Cardrawing", "url": "/games-web/cardrawing.html", "icon": null}, {"filename": "carkingarena.html", "title": "Carkingarena", "url": "/games-web/carkingarena.html", "icon": null}, {"filename": "chess.html", "title": "Chess", "url": "/games-web/chess.html", "icon": null}, {"filename": "choppyorc.html", "title": "Choppyorc", "url": "/games-web/choppyorc.html", "icon": null}, {"filename": "circloO.html", "title": "Circloo", "url": "/games-web/circloO.html", "icon": null}, {"filename": "circloO2.html", "title": "Circloo2", "url": "/games-web/circloO2.html", "icon": null}, {"filename": "clashofvikings.html", "title": "Clashofvikings", "url": "/games-web/clashofvikings.html", "icon": null}, {"filename": "basketrandom.html", "title": "Class", "url": "/games-web/basketrandom.html", "icon": null}, {"filename": "cleanupio.html", "title": "Cleanupio", "url": "/games-web/cleanupio.html", "icon": null}, {"filename": "clusterrush.html", "title": "Cluster Rush", "url": "/games-web/clusterrush.html", "icon": null}, {"filename": "crazycars.html", "title": "Crazycars", "url": "/games-web/crazycars.html", "icon": null}, {"filename": "crazymotorcycle.html", "title": "Crazymotorcycle", "url": "/games-web/crazymotorcycle.html", "icon": null}, {"filename": "dadish.html", "title": "Dadish", "url": "/games-web/dadish.html", "icon": null}, {"filename": "dadish2.html", "title": "Dadish2", "url": "/games-web/dadish2.html", "icon": null}, {"filename": "dadish3.html", "title": "Dadish3", "url": "/games-web/dadish3.html", "icon": null}, {"filename": "deathrun3D.html", "title": "Deathrun3D", "url": "/games-web/deathrun3D.html", "icon": null}, {"filename": "googledino.html", "title": "Dinosaur Game Chrome", "url": "/games-web/googledino.html", "icon": null}, {"filename": "drawclimber.html", "title": "Drawclimber", "url": "/games-web/drawclimber.html", "icon": null}, {"filename": "ducklife.html", "title": "Ducklife", "url": "/games-web/ducklife.html", "icon": null}, {"filename": "ducklife2.html", "title": "Ducklife2", "url": "/games-web/ducklife2.html", "icon": null}, {"filename": "ducklife3.html", "title": "Ducklife3", "url": "/games-web/ducklife3.html", "icon": null}, {"filename": "ducklife4.html", "title": "Ducklife4", "url": "/games-web/ducklife4.html", "icon": null}, {"filename": "ducklife5.html", "title": "Ducklife5", "url": "/games-web/ducklife5.html", "icon": null}, {"filename": "ducklingsio.html", "title": "Ducklingsio", "url": "/games-web/ducklingsio.html", "icon": null}, {"filename": "Beta_1.3.html", "title": "Eaglercraft Launcher | Beta 1.3 Offline", "url": "/games-web/Beta_1.3.html", "icon": null}, {"filename": "Indev.html", "title": "Eaglercraft Launcher | Indev Offline", "url": "/games-web/Indev.html", "icon": null}, {"filename": "eagleride.html", "title": "Eagleride", "url": "/games-web/eagleride.html", "icon": null}, {"filename": "earntodie.html", "title": "Earntodie", "url": "/games-web/earntodie.html", "icon": null}, {"filename": "earntodie2.html", "title": "Earntodie2", "url": "/games-web/earntodie2.html", "icon": null}, {"filename": "eggycar.html", "title": "Eggycar", "url": "/games-web/eggycar.html", "icon": null}, {"filename": "escapingtheprison.html", "title": "Escapingtheprison", "url": "/games-web/escapingtheprison.html", "icon": null}, {"filename": "evilglitch.html", "title": "Evil Glitch", "url": "/games-web/evilglitch.html", "icon": null}, {"filename": "fancypantsadventure.html", "title": "Fancypantsadventure", "url": "/games-web/fancypantsadventure.html", "icon": null}, {"filename": "fancypantsadventure2.html", "title": "Fancypantsadventure2", "url": "/games-web/fancypantsadventure2.html", "icon": null}, {"filename": "fireboyandwatergirl.html", "title": "Fireboyandwatergirl", "url": "/games-web/fireboyandwatergirl.html", "icon": null}, {"filename": "fireboyandwatergirl2.html", "title": "Fireboyandwatergirl2", "url": "/games-web/fireboyandwatergirl2.html", "icon": null}, {"filename": "fireboyandwatergirl3.html", "title": "Fireboyandwatergirl3", "url": "/games-web/fireboyandwatergirl3.html", "icon": null}, {"filename": "fireboyandwatergirl4.html", "title": "Fireboyandwatergirl4", "url": "/games-web/fireboyandwatergirl4.html", "icon": null}, {"filename": "flappybird.html", "title": "Flappy Bird", "url": "/games-web/flappybird.html", "icon": null}, {"filename": "floodrunner2.html", "title": "Floodrunner2", "url": "/games-web/floodrunner2.html", "icon": null}, {"filename": "floodrunner3.html", "title": "Floodrunner3", "url": "/games-web/floodrunner3.html", "icon": null}, {"filename": "floodrunner4.html", "title": "Floodrunner4", "url": "/games-web/floodrunner4.html", "icon": null}, {"filename": "fnaf.html", "title": "Fnaf", "url": "/games-web/fnaf.html", "icon": null}, {"filename": "fnaf4.html", "title": "FNAF-4", "url": "/games-web/fnaf4.html", "icon": null}, {"filename": "footballbros.html", "title": "FOOTBALL BROS! | Official Site", "url": "/games-web/footballbros.html", "icon": null}, {"filename": "footballlegends.html", "title": "Footballlegends", "url": "/games-web/footballlegends.html", "icon": null}, {"filename": "freerider3.html", "title": "Freerider3", "url": "/games-web/freerider3.html", "icon": null}, {"filename": "fruitninja.html", "title": "Fruitninja", "url": "/games-web/fruitninja.html", "icon": null}, {"filename": "funnybattle.html", "title": "Funnybattle", "url": "/games-web/funnybattle.html", "icon": null}, {"filename": "funnybattle2.html", "title": "Funnybattle2", "url": "/games-web/funnybattle2.html", "icon": null}, {"filename": "geometrydash.html", "title": "Geometry Dash", "url": "/games-web/geometrydash.html", "icon": null}, {"filename": "getontop.html", "title": "Getontop", "url": "/games-web/getontop.html", "icon": null}, {"filename": "googlebaseball.html", "title": "Googlebaseball", "url": "/games-web/googlebaseball.html", "icon": null}, {"filename": "guesstheiranswer.html", "title": "Guesstheiranswer", "url": "/games-web/guesstheiranswer.html", "icon": null}, {"filename": "hanger2.html", "title": "Hanger2", "url": "/games-web/hanger2.html", "icon": null}, {"filename": "happywheels.html", "title": "Happywheels", "url": "/games-web/happywheels.html", "icon": null}, {"filename": "helixjump.html", "title": "Helixjump", "url": "/games-web/helixjump.html", "icon": null}, {"filename": "hillclimbracinglite.html", "title": "Hillclimbracinglite", "url": "/games-web/hillclimbracinglite.html", "icon": null}, {"filename": "holeio.html", "title": "Holeio", "url": "/games-web/holeio.html", "icon": null}, {"filename": "houseofhazards.html", "title": "Houseofhazards", "url": "/games-web/houseofhazards.html", "icon": null}, {"filename": "hoverracerdrive.html", "title": "Hoverracerdrive", "url": "/games-web/hoverracerdrive.html", "icon": null}, {"filename": "idlebreakout.html", "title": "Idlebreakout", "url": "/games-web/idlebreakout.html", "icon": null}, {"filename": "ironsnout.html", "title": "Ironsnout", "url": "/games-web/ironsnout.html", "icon": null}, {"filename": "jetpackjoyride.html", "title": "Jetpackjoyride", "url": "/games-web/jetpackjoyride.html", "icon": null}, {"filename": "johnnytrigger.html", "title": "Johnnytrigger", "url": "/games-web/johnnytrigger.html", "icon": null}, {"filename": "doodlejump.html", "title": "Jump", "url": "/games-web/doodlejump.html", "icon": null}, {"filename": "jumpingshell.html", "title": "Jumping Shell", "url": "/games-web/jumpingshell.html", "icon": null}, {"filename": "karatebros.html", "title": "Karatebros", "url": "/games-web/karatebros.html", "icon": null}, {"filename": "learntofly.html", "title": "Learntofly", "url": "/games-web/learntofly.html", "icon": null}, {"filename": "learntofly2.html", "title": "Learntofly2", "url": "/games-web/learntofly2.html", "icon": null}, {"filename": "learntoflyidle.html", "title": "Learntoflyidle", "url": "/games-web/learntoflyidle.html", "icon": null}, {"filename": "leveldevil.html", "title": "Level Devil", "url": "/games-web/leveldevil.html", "icon": null}, {"filename": "melonplayground.html", "title": "Melonplayground", "url": "/games-web/melonplayground.html", "icon": null}, {"filename": "mergeroundracers.html", "title": "Mergeroundracers", "url": "/games-web/mergeroundracers.html", "icon": null}, {"filename": "minesweeper.html", "title": "Minesweeper", "url": "/games-web/minesweeper.html", "icon": null}, {"filename": "monstertracks.html", "title": "Monstertracks", "url": "/games-web/monstertracks.html", "icon": null}, {"filename": "motox3m2.html", "title": "Motox3M2", "url": "/games-web/motox3m2.html", "icon": null}, {"filename": "motox3m3.html", "title": "Motox3M3", "url": "/games-web/motox3m3.html", "icon": null}, {"filename": "motox3mpoolparty.html", "title": "Motox3Mpoolparty", "url": "/games-web/motox3mpoolparty.html", "icon": null}, {"filename": "motox3mspookyland.html", "title": "Motox3Mspookyland", "url": "/games-web/motox3mspookyland.html", "icon": null}, {"filename": "motox3mwinter.html", "title": "Motox3Mwinter", "url": "/games-web/motox3mwinter.html", "icon": null}, {"filename": "1.5.html", "title": "My Drive - Google Drive", "url": "/games-web/1.5.html", "icon": null}, {"filename": "noobminer.html", "title": "Noob Miner", "url": "/games-web/noobminer.html", "icon": null}, {"filename": "oppositeday.html", "title": "Oppositeday", "url": "/games-web/oppositeday.html", "icon": null}, {"filename": "ovo2.html", "title": "OvO 2", "url": "/games-web/ovo2.html", "icon": null}, {"filename": "ovo.html", "title": "OvOfw", "url": "/games-web/ovo.html", "icon": null}, {"filename": "pacman.html", "title": "Pac Man", "url": "/games-web/pacman.html", "icon": null}, {"filename": "papasburgeria.html", "title": "Papasburgeria", "url": "/games-web/papasburgeria.html", "icon": null}, {"filename": "papascheeseria.html", "title": "Papascheeseria", "url": "/games-web/papascheeseria.html", "icon": null}, {"filename": "papascupcakeria.html", "title": "Papascupcakeria", "url": "/games-web/papascupcakeria.html", "icon": null}, {"filename": "papasdonuteria.html", "title": "Papasdonuteria", "url": "/games-web/papasdonuteria.html", "icon": null}, {"filename": "papasfreezeria.html", "title": "Papasfreezeria", "url": "/games-web/papasfreezeria.html", "icon": null}, {"filename": "papashotdoggeria.html", "title": "Papashotdoggeria", "url": "/games-web/papashotdoggeria.html", "icon": null}, {"filename": "papaspancakeria.html", "title": "Papaspancakeria", "url": "/games-web/papaspancakeria.html", "icon": null}, {"filename": "papaspastaria.html", "title": "Papaspastaria", "url": "/games-web/papaspastaria.html", "icon": null}, {"filename": "papaspizzeria.html", "title": "Papaspizzeria", "url": "/games-web/papaspizzeria.html", "icon": null}, {"filename": "papastacomia.html", "title": "Papastacomia", "url": "/games-web/papastacomia.html", "icon": null}, {"filename": "papaswingeria.html", "title": "Papaswingeria", "url": "/games-web/papaswingeria.html", "icon": null}, {"filename": "parkingfury.html", "title": "Parkingfury", "url": "/games-web/parkingfury.html", "icon": null}, {"filename": "parkingfury2.html", "title": "Parkingfury2", "url": "/games-web/parkingfury2.html", "icon": null}, {"filename": "parkingfury3.html", "title": "Parkingfury3", "url": "/games-web/parkingfury3.html", "icon": null}, {"filename": "picosschool.html", "title": "Picosschool", "url": "/games-web/picosschool.html", "icon": null}, {"filename": "pingpongchaos.html", "title": "Pingpongchaos", "url": "/games-web/pingpongchaos.html", "icon": null}, {"filename": "pixelspeedrun.html", "title": "Pixel Speedrun", "url": "/games-web/pixelspeedrun.html", "icon": null}, {"filename": "plantsvszombies.html", "title": "Plantsvszombies", "url": "/games-web/plantsvszombies.html", "icon": null}, {"filename": "plonky.html", "title": "Plonky", "url": "/games-web/plonky.html", "icon": null}, {"filename": "polytrack.html", "title": "Polytrack", "url": "/games-web/polytrack.html", "icon": null}, {"filename": "poorbunny.html", "title": "Poorbunny", "url": "/games-web/poorbunny.html", "icon": null}, {"filename": "pou.html", "title": "Pou", "url": "/games-web/pou.html", "icon": null}, {"filename": "ragdollhit.html", "title": "Ragdollhit", "url": "/games-web/ragdollhit.html", "icon": null}, {"filename": "ragdollsoccer.html", "title": "Ragdollsoccer", "url": "/games-web/ragdollsoccer.html", "icon": null}, {"filename": "redball4vol1.html", "title": "Redball4Vol1", "url": "/games-web/redball4vol1.html", "icon": null}, {"filename": "redball4vol2.html", "title": "Redball4Vol2", "url": "/games-web/redball4vol2.html", "icon": null}, {"filename": "redball4vol3.html", "title": "Redball4Vol3", "url": "/games-web/redball4vol3.html", "icon": null}, {"filename": "retropingpong.html", "title": "Retro-Ping-Pong", "url": "/games-web/retropingpong.html", "icon": null}, {"filename": "retrobowl.html", "title": "Retrobowl", "url": "/games-web/retrobowl.html", "icon": null}, {"filename": "retrobowlcollege.html", "title": "Retrobowlcollege", "url": "/games-web/retrobowlcollege.html", "icon": null}, {"filename": "retrohighway.html", "title": "Retrohighway", "url": "/games-web/retrohighway.html", "icon": null}, {"filename": "riddleschool.html", "title": "Riddleschool", "url": "/games-web/riddleschool.html", "icon": null}, {"filename": "riddleschool2.html", "title": "Riddleschool2", "url": "/games-web/riddleschool2.html", "icon": null}, {"filename": "riddleschool3.html", "title": "Riddleschool3", "url": "/games-web/riddleschool3.html", "icon": null}, {"filename": "riddleschool4.html", "title": "Riddleschool4", "url": "/games-web/riddleschool4.html", "icon": null}, {"filename": "rooftopsnipers2.html", "title": "Rooftop Snipers 2", "url": "/games-web/rooftopsnipers2.html", "icon": null}, {"filename": "run.html", "title": "Run", "url": "/games-web/run.html", "icon": null}, {"filename": "run2.html", "title": "Run2", "url": "/games-web/run2.html", "icon": null}, {"filename": "run3.html", "title": "Run3", "url": "/games-web/run3.html", "icon": null}, {"filename": "sandgame.html", "title": "Sand", "url": "/games-web/sandgame.html", "icon": null}, {"filename": "1.8.html", "title": "School", "url": "/games-web/1.8.html", "icon": null}, {"filename": "shortlife.html", "title": "Shortlife", "url": "/games-web/shortlife.html", "icon": null}, {"filename": "slope2player.html", "title": "Slope2Player", "url": "/games-web/slope2player.html", "icon": null}, {"filename": "slowroads.html", "title": "Slowroads", "url": "/games-web/slowroads.html", "icon": null}, {"filename": "snowballio.html", "title": "Snowballio", "url": "/games-web/snowballio.html", "icon": null}, {"filename": "soccerbros.html", "title": "Soccerbros", "url": "/games-web/soccerbros.html", "icon": null}, {"filename": "agariolite.html", "title": "Solo Agario", "url": "/games-web/agariolite.html", "icon": null}, {"filename": "spacewaves.html", "title": "Space Waves", "url": "/games-web/spacewaves.html", "icon": null}, {"filename": "spacebarclicker.html", "title": "SPACEBAR CLICKER", "url": "/games-web/spacebarclicker.html", "icon": null}, {"filename": "spaceiskey.html", "title": "Spaceiskey", "url": "/games-web/spaceiskey.html", "icon": null}, {"filename": "spaceiskey2.html", "title": "Spaceiskey2", "url": "/games-web/spaceiskey2.html", "icon": null}, {"filename": "speedstars.html", "title": "Speedstars", "url": "/games-web/speedstars.html", "icon": null}, {"filename": "sprunki.html", "title": "Sprunki", "url": "/games-web/sprunki.html", "icon": null}, {"filename": "stack.html", "title": "Stack", "url": "/games-web/stack.html", "icon": null}, {"filename": "stacktris.html", "title": "Stacktris", "url": "/games-web/stacktris.html", "icon": null}, {"filename": "stateio.html", "title": "Stateio", "url": "/games-web/stateio.html", "icon": null}, {"filename": "stickarchersbattle.html", "title": "Stickarchersbattle", "url": "/games-web/stickarchersbattle.html", "icon": null}, {"filename": "stickfighter.html", "title": "Stickfighter", "url": "/games-web/stickfighter.html", "icon": null}, {"filename": "stickmanhook.html", "title": "Stickman Hook", "url": "/games-web/stickmanhook.html", "icon": null}, {"filename": "stickmerge.html", "title": "Stickmerge", "url": "/games-web/stickmerge.html", "icon": null}, {"filename": "sm64.html", "title": "Super Mario 64", "url": "/games-web/sm64.html", "icon": null}, {"filename": "superliquidsoccer.html", "title": "Superliquidsoccer", "url": "/games-web/superliquidsoccer.html", "icon": null}, {"filename": "tabletennisworldtour.html", "title": "Tabletennisworldtour", "url": "/games-web/tabletennisworldtour.html", "icon": null}, {"filename": "tag.html", "title": "Tag", "url": "/games-web/tag.html", "icon": null}, {"filename": "templeofboom.html", "title": "Templeofboom", "url": "/games-web/templeofboom.html", "icon": null}, {"filename": "territorialio.html", "title": "Territorialio", "url": "/games-web/territorialio.html", "icon": null}, {"filename": "theimpossiblequiz.html", "title": "Theimpossiblequiz", "url": "/games-web/theimpossiblequiz.html", "icon": null}, {"filename": "theimpossiblequiz2.html", "title": "Theimpossiblequiz2", "url": "/games-web/theimpossiblequiz2.html", "icon": null}, {"filename": "thereisnog.html", "title": "Thereisnog", "url": "/games-web/thereisnog.html", "icon": null}, {"filename": "thisistheonlylevel.html", "title": "Thisistheonlylevel", "url": "/games-web/thisistheonlylevel.html", "icon": null}, {"filename": "thisistheonlyleveltoo.html", "title": "Thisistheonlyleveltoo", "url": "/games-web/thisistheonlyleveltoo.html", "icon": null}, {"filename": "timeshooter2.html", "title": "Timeshooter2", "url": "/games-web/timeshooter2.html", "icon": null}, {"filename": "tinyfishing.html", "title": "Tinyfishing", "url": "/games-web/tinyfishing.html", "icon": null}, {"filename": "trapthecat.html", "title": "Trapthecat", "url": "/games-web/trapthecat.html", "icon": null}, {"filename": "triviacrack.html", "title": "Triviacrack", "url": "/games-web/triviacrack.html", "icon": null}, {"filename": "tubejumpers.html", "title": "Tubejumpers", "url": "/games-web/tubejumpers.html", "icon": null}, {"filename": "tunnelrush.html", "title": "Tunnelrush", "url": "/games-web/tunnelrush.html", "icon": null}, {"filename": "unicyclehero.html", "title": "Unicyclehero", "url": "/games-web/unicyclehero.html", "icon": null}, {"filename": "vex4.html", "title": "Vex4", "url": "/games-web/vex4.html", "icon": null}, {"filename": "vex5.html", "title": "Vex5", "url": "/games-web/vex5.html", "icon": null}, {"filename": "vexx3m.html", "title": "Vexx3M", "url": "/games-web/vexx3m.html", "icon": null}, {"filename": "vexx3m2.html", "title": "Vexx3M2", "url": "/games-web/vexx3m2.html", "icon": null}, {"filename": "volleyrandom.html", "title": "Volleyrandom", "url": "/games-web/volleyrandom.html", "icon": null}, {"filename": "webecomewhatwebehold.html", "title": "Webecomewhatwebehold", "url": "/games-web/webecomewhatwebehold.html", "icon": null}, {"filename": "wheeliebike.html", "title": "Wheeliebike", "url": "/games-web/wheeliebike.html", "icon": null}, {"filename": "wheely.html", "title": "Wheely", "url": "/games-web/wheely.html", "icon": null}, {"filename": "wheely2.html", "title": "Wheely2", "url": "/games-web/wheely2.html", "icon": null}, {"filename": "wheely3.html", "title": "Wheely3", "url": "/games-web/wheely3.html", "icon": null}, {"filename": "wheely6.html", "title": "Wheely6", "url": "/games-web/wheely6.html", "icon": null}, {"filename": "wheely8.html", "title": "Wheely8", "url": "/games-web/wheely8.html", "icon": null}, {"filename": "wordleunlimited.html", "title": "Wordleunlimited", "url": "/games-web/wordleunlimited.html", "icon": null}, {"filename": "worldshardestgame.html", "title": "Worldshardestgame", "url": "/games-web/worldshardestgame.html", "icon": null}, {"filename": "worldshardestgame2.html", "title": "Worldshardestgame2", "url": "/games-web/worldshardestgame2.html", "icon": null}, {"filename": "worldshardestgame3.html", "title": "Worldshardestgame3", "url": "/games-web/worldshardestgame3.html", "icon": null}, {"filename": "wrestlebros.html", "title": "Wrestlebros", "url": "/games-web/wrestlebros.html", "icon": null}, {"filename": "zombierush.html", "title": "Zombierush", "url": "/games-web/zombierush.html", "icon": null}];
+<!-- ===== Header ===== -->
+<header class="header">
+  <div class="title-row">
+    <h1>游戏大厅</h1>
+    <span class="count-badge" id="gameCount">共 225 款游戏</span>
+  </div>
+  <div class="search-wrapper">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input type="search" id="searchInput" placeholder="搜索游戏..." autocomplete="off" aria-label="搜索游戏">
+    <button type="button" id="clearSearch" aria-label="清除搜索" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+</header>
 
-        // Generate sailfishos-style icon SVG
-        function generateIcon(index, title) {
-            const isOdd = index % 2 === 0; // 0-based, so even index = 1st, 3rd, 5th...
-            const firstLetter = title.trim().charAt(0).toUpperCase();
-            const textColor = (firstLetter === 'I') ? '#E85D9E' : '#FFFFFF';
-            
-            if (isOdd) {
-                // Odd: rounded rect, gradient #5FD0F5 -> #3AA8D0, no rotation
-                const gradientId = `grad-odd-${index}`;
-                const highlightId = `highlight-odd-${index}`;
-                return `
-                    <svg viewBox="0 0 86 86" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#5FD0F5"/>
-                                <stop offset="100%" stop-color="#3AA8D0"/>
-                            </linearGradient>
-                            <radialGradient id="${highlightId}" cx="25%" cy="25%" r="60%">
-                                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
-                                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
-                            </radialGradient>
-                        </defs>
-                        <g transform="translate(0,-4)">
-                            <path d="M 1.7229995,4.3 H 43 c 23.583,0 42.7,19.118 42.7,42.7 v 41.277 c 0,0.786 -0.637,1.423 -1.423,1.423 H 43 C 19.417,89.7 0.2999995,70.582 0.2999995,47 V 5.723 c 0,-0.786 0.637,-1.423 1.423,-1.423 z" 
-                                  fill="url(#${gradientId})"/>
-                            <path d="M 1.7229995,4.3 H 43 c 23.583,0 42.7,19.118 42.7,42.7 v 41.277 c 0,0.786 -0.637,1.423 -1.423,1.423 H 43 C 19.417,89.7 0.2999995,70.582 0.2999995,47 V 5.723 c 0,-0.786 0.637,-1.423 1.423,-1.423 z" 
-                                  fill="url(#${highlightId})"/>
-                        </g>
-                        <text x="43" y="50" text-anchor="middle" dominant-baseline="central" 
-                              fill="${textColor}" font-family="system-ui, sans-serif" font-weight="bold" font-size="29">${firstLetter}</text>
-                    </svg>
-                `;
-            } else {
-                // Even: same shape, gradient #FFD8E0 -> #FFB0C4, rotated 90deg, text upright
-                const gradientId = `grad-even-${index}`;
-                const highlightId = `highlight-even-${index}`;
-                return `
-                    <svg viewBox="0 0 86 86" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#FFD8E0"/>
-                                <stop offset="100%" stop-color="#FFB0C4"/>
-                            </linearGradient>
-                            <radialGradient id="${highlightId}" cx="25%" cy="25%" r="60%">
-                                <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
-                                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
-                            </radialGradient>
-                        </defs>
-                        <g transform="rotate(90 43 47) translate(0,-4)">
-                            <path d="M 1.7229995,4.3 H 43 c 23.583,0 42.7,19.118 42.7,42.7 v 41.277 c 0,0.786 -0.637,1.423 -1.423,1.423 H 43 C 19.417,89.7 0.2999995,70.582 0.2999995,47 V 5.723 c 0,-0.786 0.637,-1.423 1.423,-1.423 z" 
-                                  fill="url(#${gradientId})"/>
-                            <path d="M 1.7229995,4.3 H 43 c 23.583,0 42.7,19.118 42.7,42.7 v 41.277 c 0,0.786 -0.637,1.423 -1.423,1.423 H 43 C 19.417,89.7 0.2999995,70.582 0.2999995,47 V 5.723 c 0,-0.786 0.637,-1.423 1.423,-1.423 z" 
-                                  fill="url(#${highlightId})"/>
-                        </g>
-                        <text x="43" y="50" text-anchor="middle" dominant-baseline="central" 
-                              fill="${textColor}" font-family="system-ui, sans-serif" font-weight="bold" font-size="29">${firstLetter}</text>
-                    </svg>
-                `;
-            }
-        }
+<!-- ===== Game Grid ===== -->
+<main class="grid" id="gameGrid" role="list" aria-label="游戏列表">
+<!-- Cards will be injected here by JS -->
+</main>
 
-        // Render games
-        function renderGames(filter = '') {
-            const grid = document.getElementById('gamesGrid');
-            const countEl = document.getElementById('gameCount');
-            
-            const filtered = games.filter(g => 
-                g.title.toLowerCase().includes(filter.toLowerCase())
-            );
-            
-            countEl.textContent = filtered.length;
-            
-            grid.innerHTML = filtered.map((game, idx) => `
-                <a href="${game.url}" class="game-card" target="_blank" rel="noopener noreferrer">
-                    <div class="game-icon">
-                        ${generateIcon(idx, game.title)}
-                    </div>
-                    <div class="game-info">
-                        <div class="game-title">${escapeHtml(game.title)}</div>
-                    </div>
-                </a>
-            `).join('');
-        }
+<!-- ===== No Results Message ===== -->
+<div class="no-results hidden" id="noResults" role="status" aria-live="polite">
+  没有找到匹配的游戏
+</div>
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+<!-- ===== Footer ===== -->
+<footer class="footer">
+  共 <span id="totalCount">225</span> 款游戏 · 数据来源: <a href="/games-web/" style="color:var(--accent-blue);text-decoration:none;">/games-web/</a> · 部署于 GitHub Pages
+</footer>
 
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        let searchTimeout;
-        
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                renderGames(e.target.value);
-            }, 100);
-        });
+<!-- ===== SVG Definitions (Gradients) ===== -->
+<svg style="position:absolute;width:0;height:0;" aria-hidden="true">
+  <defs>
+    <!-- Blue gradient for odd cards -->
+    <linearGradient id="gradBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5FD0F5"/>
+      <stop offset="100%" stop-color="#3AA8D0"/>
+    </linearGradient>
+    <radialGradient id="highlightBlue" cx="25%" cy="25%" r="60%" fx="25%" fy="25%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Pink gradient for even cards -->
+    <linearGradient id="gradPink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD8E0"/>
+      <stop offset="100%" stop-color="#FFB0C4"/>
+    </linearGradient>
+    <radialGradient id="highlightPink" cx="25%" cy="25%" r="60%" fx="25%" fy="25%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
 
-        // Initial render
-        renderGames();
-    </script>
+<!-- ===== JavaScript ===== -->
+<script>
+// ===== Game Data =====
+const GAMES = [
+  {"index":1,"name":"My Drive - Google Drive","path":"/games-web/1.5.html","letter":"M"},
+  {"index":2,"name":"School","path":"/games-web/1.8.html","letter":"S"},
+  {"index":3,"name":"12Minibattles","path":"/games-web/12minibattles.html","letter":"1"},
+  {"index":4,"name":"1On1Soccer","path":"/games-web/1on1soccer.html","letter":"1"},
+  {"index":5,"name":"1On1Tennis","path":"/games-web/1on1tennis.html","letter":"1"},
+  {"index":6,"name":"2048","path":"/games-web/2048.html","letter":"2"},
+  {"index":7,"name":"2048Cupcakes","path":"/games-web/2048cupcakes.html","letter":"2"},
+  {"index":8,"name":"8Ballclassic","path":"/games-web/8ballclassic.html","letter":"8"},
+  {"index":9,"name":"Alpha 1.2.6","path":"/games-web/Alpha_1.2.6.html","letter":"A"},
+  {"index":10,"name":"Eaglercraft Launcher | Beta 1.3 Offline","path":"/games-web/Beta_1.3.html","letter":"E"},
+  {"index":11,"name":"Eaglercraft Launcher | Indev Offline","path":"/games-web/Indev.html","letter":"E"},
+  {"index":12,"name":"Solo Agario","path":"/games-web/agariolite.html","letter":"S"},
+  {"index":13,"name":"Ageofwar","path":"/games-web/ageofwar.html","letter":"A"},
+  {"index":14,"name":"Ageofwar2","path":"/games-web/ageofwar2.html","letter":"A"},
+  {"index":15,"name":"Agesofconflict","path":"/games-web/agesofconflict.html","letter":"A"},
+  {"index":16,"name":"Amongus","path":"/games-web/amongus.html","letter":"A"},
+  {"index":17,"name":"Angrybirds","path":"/games-web/angrybirds.html","letter":"A"},
+  {"index":18,"name":"Angrybirdsspace","path":"/games-web/angrybirdsspace.html","letter":"A"},
+  {"index":19,"name":"Awesometanks","path":"/games-web/awesometanks.html","letter":"A"},
+  {"index":20,"name":"Awesometanks2","path":"/games-web/awesometanks2.html","letter":"A"},
+  {"index":21,"name":"Backrooms","path":"/games-web/backrooms.html","letter":"B"},
+  {"index":22,"name":"Baconmaydie","path":"/games-web/baconmaydie.html","letter":"B"},
+  {"index":23,"name":"Badicecream","path":"/games-web/badicecream.html","letter":"B"},
+  {"index":24,"name":"Badicecream2","path":"/games-web/badicecream2.html","letter":"B"},
+  {"index":25,"name":"Badicecream3","path":"/games-web/badicecream3.html","letter":"B"},
+  {"index":26,"name":"Badpiggies","path":"/games-web/badpiggies.html","letter":"B"},
+  {"index":27,"name":"Baseballbros","path":"/games-web/baseballbros.html","letter":"B"},
+  {"index":28,"name":"Basketballlegends","path":"/games-web/basketballlegends.html","letter":"B"},
+  {"index":29,"name":"Basketballstars","path":"/games-web/basketballstars.html","letter":"B"},
+  {"index":30,"name":"Basketbros","path":"/games-web/basketbros.html","letter":"B"},
+  {"index":31,"name":"Class","path":"/games-web/basketrandom.html","letter":"C"},
+  {"index":32,"name":"Blockysnakes","path":"/games-web/blockysnakes.html","letter":"B"},
+  {"index":33,"name":"Bloonstd","path":"/games-web/bloonsTD.html","letter":"B"},
+  {"index":34,"name":"Bloonstd2","path":"/games-web/bloonsTD2.html","letter":"B"},
+  {"index":35,"name":"Bloonstd3","path":"/games-web/bloonsTD3.html","letter":"B"},
+  {"index":36,"name":"Bloonstd4","path":"/games-web/bloonsTD4.html","letter":"B"},
+  {"index":37,"name":"Bloonstd5","path":"/games-web/bloonsTD5.html","letter":"B"},
+  {"index":38,"name":"Bloxorz","path":"/games-web/bloxorz.html","letter":"B"},
+  {"index":39,"name":"Blumgiracers","path":"/games-web/blumgiracers.html","letter":"B"},
+  {"index":40,"name":"Blumgirocket","path":"/games-web/blumgirocket.html","letter":"B"},
+  {"index":41,"name":"Bobtherobber","path":"/games-web/bobtherobber.html","letter":"B"},
+  {"index":42,"name":"Bobtherobber2","path":"/games-web/bobtherobber2.html","letter":"B"},
+  {"index":43,"name":"Bobtherobber5","path":"/games-web/bobtherobber5.html","letter":"B"},
+  {"index":44,"name":"Breakingthebank","path":"/games-web/breakingthebank.html","letter":"B"},
+  {"index":45,"name":"Bubbleshooter","path":"/games-web/bubbleshooter.html","letter":"B"},
+  {"index":46,"name":"Candycrush","path":"/games-web/candycrush.html","letter":"C"},
+  {"index":47,"name":"Capybaraclicker","path":"/games-web/capybaraclicker.html","letter":"C"},
+  {"index":48,"name":"Cardrawing","path":"/games-web/cardrawing.html","letter":"C"},
+  {"index":49,"name":"Carkingarena","path":"/games-web/carkingarena.html","letter":"C"},
+  {"index":50,"name":"Chess","path":"/games-web/chess.html","letter":"C"},
+  {"index":51,"name":"Choppyorc","path":"/games-web/choppyorc.html","letter":"C"},
+  {"index":52,"name":"Circloo","path":"/games-web/circloO.html","letter":"C"},
+  {"index":53,"name":"Circloo2","path":"/games-web/circloO2.html","letter":"C"},
+  {"index":54,"name":"Clashofvikings","path":"/games-web/clashofvikings.html","letter":"C"},
+  {"index":55,"name":"Cleanupio","path":"/games-web/cleanupio.html","letter":"C"},
+  {"index":56,"name":"Cluster Rush","path":"/games-web/clusterrush.html","letter":"C"},
+  {"index":57,"name":"Crazycars","path":"/games-web/crazycars.html","letter":"C"},
+  {"index":58,"name":"Crazymotorcycle","path":"/games-web/crazymotorcycle.html","letter":"C"},
+  {"index":59,"name":"Dadish","path":"/games-web/dadish.html","letter":"D"},
+  {"index":60,"name":"Dadish2","path":"/games-web/dadish2.html","letter":"D"},
+  {"index":61,"name":"Dadish3","path":"/games-web/dadish3.html","letter":"D"},
+  {"index":62,"name":"Deathrun3D","path":"/games-web/deathrun3D.html","letter":"D"},
+  {"index":63,"name":"Jump","path":"/games-web/doodlejump.html","letter":"J"},
+  {"index":64,"name":"Drawclimber","path":"/games-web/drawclimber.html","letter":"D"},
+  {"index":65,"name":"Ducklife","path":"/games-web/ducklife.html","letter":"D"},
+  {"index":66,"name":"Ducklife2","path":"/games-web/ducklife2.html","letter":"D"},
+  {"index":67,"name":"Ducklife3","path":"/games-web/ducklife3.html","letter":"D"},
+  {"index":68,"name":"Ducklife4","path":"/games-web/ducklife4.html","letter":"D"},
+  {"index":69,"name":"Ducklife5","path":"/games-web/ducklife5.html","letter":"D"},
+  {"index":70,"name":"Ducklingsio","path":"/games-web/ducklingsio.html","letter":"D"},
+  {"index":71,"name":"Eagleride","path":"/games-web/eagleride.html","letter":"E"},
+  {"index":72,"name":"Earntodie","path":"/games-web/earntodie.html","letter":"E"},
+  {"index":73,"name":"Earntodie2","path":"/games-web/earntodie2.html","letter":"E"},
+  {"index":74,"name":"Eggycar","path":"/games-web/eggycar.html","letter":"E"},
+  {"index":75,"name":"Escapingtheprison","path":"/games-web/escapingtheprison.html","letter":"E"},
+  {"index":76,"name":"Evil Glitch","path":"/games-web/evilglitch.html","letter":"E"},
+  {"index":77,"name":"Fancypantsadventure","path":"/games-web/fancypantsadventure.html","letter":"F"},
+  {"index":78,"name":"Fancypantsadventure2","path":"/games-web/fancypantsadventure2.html","letter":"F"},
+  {"index":79,"name":"Fireboyandwatergirl","path":"/games-web/fireboyandwatergirl.html","letter":"F"},
+  {"index":80,"name":"Fireboyandwatergirl2","path":"/games-web/fireboyandwatergirl2.html","letter":"F"},
+  {"index":81,"name":"Fireboyandwatergirl3","path":"/games-web/fireboyandwatergirl3.html","letter":"F"},
+  {"index":82,"name":"Fireboyandwatergirl4","path":"/games-web/fireboyandwatergirl4.html","letter":"F"},
+  {"index":83,"name":"Flappy Bird","path":"/games-web/flappybird.html","letter":"F"},
+  {"index":84,"name":"Floodrunner2","path":"/games-web/floodrunner2.html","letter":"F"},
+  {"index":85,"name":"Floodrunner3","path":"/games-web/floodrunner3.html","letter":"F"},
+  {"index":86,"name":"Floodrunner4","path":"/games-web/floodrunner4.html","letter":"F"},
+  {"index":87,"name":"Fnaf","path":"/games-web/fnaf.html","letter":"F"},
+  {"index":88,"name":"FNAF-4","path":"/games-web/fnaf4.html","letter":"F"},
+  {"index":89,"name":"FOOTBALL BROS! | Official Site","path":"/games-web/footballbros.html","letter":"F"},
+  {"index":90,"name":"Footballlegends","path":"/games-web/footballlegends.html","letter":"F"},
+  {"index":91,"name":"Freerider3","path":"/games-web/freerider3.html","letter":"F"},
+  {"index":92,"name":"Fruitninja","path":"/games-web/fruitninja.html","letter":"F"},
+  {"index":93,"name":"Funnybattle","path":"/games-web/funnybattle.html","letter":"F"},
+  {"index":94,"name":"Funnybattle2","path":"/games-web/funnybattle2.html","letter":"F"},
+  {"index":95,"name":"Geometry Dash","path":"/games-web/geometrydash.html","letter":"G"},
+  {"index":96,"name":"Getontop","path":"/games-web/getontop.html","letter":"G"},
+  {"index":97,"name":"Googlebaseball","path":"/games-web/googlebaseball.html","letter":"G"},
+  {"index":98,"name":"Dinosaur Game Chrome","path":"/games-web/googledino.html","letter":"D"},
+  {"index":99,"name":"Guesstheiranswer","path":"/games-web/guesstheiranswer.html","letter":"G"},
+  {"index":100,"name":"Hanger2","path":"/games-web/hanger2.html","letter":"H"},
+  {"index":101,"name":"Happywheels","path":"/games-web/happywheels.html","letter":"H"},
+  {"index":102,"name":"Helixjump","path":"/games-web/helixjump.html","letter":"H"},
+  {"index":103,"name":"Hillclimbracinglite","path":"/games-web/hillclimbracinglite.html","letter":"H"},
+  {"index":104,"name":"Holeio","path":"/games-web/holeio.html","letter":"H"},
+  {"index":105,"name":"Houseofhazards","path":"/games-web/houseofhazards.html","letter":"H"},
+  {"index":106,"name":"Hoverracerdrive","path":"/games-web/hoverracerdrive.html","letter":"H"},
+  {"index":107,"name":"Idlebreakout","path":"/games-web/idlebreakout.html","letter":"I"},
+  {"index":108,"name":"游戏大厅 · Game Hub","path":"/games-web/index.html","letter":"游"},
+  {"index":109,"name":"Ironsnout","path":"/games-web/ironsnout.html","letter":"I"},
+  {"index":110,"name":"Jetpackjoyride","path":"/games-web/jetpackjoyride.html","letter":"J"},
+  {"index":111,"name":"Johnnytrigger","path":"/games-web/johnnytrigger.html","letter":"J"},
+  {"index":112,"name":"Jumping Shell","path":"/games-web/jumpingshell.html","letter":"J"},
+  {"index":113,"name":"Karatebros","path":"/games-web/karatebros.html","letter":"K"},
+  {"index":114,"name":"Learntofly","path":"/games-web/learntofly.html","letter":"L"},
+  {"index":115,"name":"Learntofly2","path":"/games-web/learntofly2.html","letter":"L"},
+  {"index":116,"name":"Learntoflyidle","path":"/games-web/learntoflyidle.html","letter":"L"},
+  {"index":117,"name":"Level Devil","path":"/games-web/leveldevil.html","letter":"L"},
+  {"index":118,"name":"Melonplayground","path":"/games-web/melonplayground.html","letter":"M"},
+  {"index":119,"name":"Mergeroundracers","path":"/games-web/mergeroundracers.html","letter":"M"},
+  {"index":120,"name":"Minesweeper","path":"/games-web/minesweeper.html","letter":"M"},
+  {"index":121,"name":"Monstertracks","path":"/games-web/monstertracks.html","letter":"M"},
+  {"index":122,"name":"Motox3M2","path":"/games-web/motox3m2.html","letter":"M"},
+  {"index":123,"name":"Motox3M3","path":"/games-web/motox3m3.html","letter":"M"},
+  {"index":124,"name":"Motox3Mpoolparty","path":"/games-web/motox3mpoolparty.html","letter":"M"},
+  {"index":125,"name":"Motox3Mspookyland","path":"/games-web/motox3mspookyland.html","letter":"M"},
+  {"index":126,"name":"Motox3Mwinter","path":"/games-web/motox3mwinter.html","letter":"M"},
+  {"index":127,"name":"Noob Miner","path":"/games-web/noobminer.html","letter":"N"},
+  {"index":128,"name":"Oppositeday","path":"/games-web/oppositeday.html","letter":"O"},
+  {"index":129,"name":"OvOfw","path":"/games-web/ovo.html","letter":"O"},
+  {"index":130,"name":"OvO 2","path":"/games-web/ovo2.html","letter":"O"},
+  {"index":131,"name":"Pac Man","path":"/games-web/pacman.html","letter":"P"},
+  {"index":132,"name":"Papasburgeria","path":"/games-web/papasburgeria.html","letter":"P"},
+  {"index":133,"name":"Papascheeseria","path":"/games-web/papascheeseria.html","letter":"P"},
+  {"index":134,"name":"Papascupcakeria","path":"/games-web/papascupcakeria.html","letter":"P"},
+  {"index":135,"name":"Papasdonuteria","path":"/games-web/papasdonuteria.html","letter":"P"},
+  {"index":136,"name":"Papasfreezeria","path":"/games-web/papasfreezeria.html","letter":"P"},
+  {"index":137,"name":"Papashotdoggeria","path":"/games-web/papashotdoggeria.html","letter":"P"},
+  {"index":138,"name":"Papaspancakeria","path":"/games-web/papaspancakeria.html","letter":"P"},
+  {"index":139,"name":"Papaspastaria","path":"/games-web/papaspastaria.html","letter":"P"},
+  {"index":140,"name":"Papaspizzeria","path":"/games-web/papaspizzeria.html","letter":"P"},
+  {"index":141,"name":"Papastacomia","path":"/games-web/papastacomia.html","letter":"P"},
+  {"index":142,"name":"Papaswingeria","path":"/games-web/papaswingeria.html","letter":"P"},
+  {"index":143,"name":"Parkingfury","path":"/games-web/parkingfury.html","letter":"P"},
+  {"index":144,"name":"Parkingfury2","path":"/games-web/parkingfury2.html","letter":"P"},
+  {"index":145,"name":"Parkingfury3","path":"/games-web/parkingfury3.html","letter":"P"},
+  {"index":146,"name":"Picosschool","path":"/games-web/picosschool.html","letter":"P"},
+  {"index":147,"name":"Pingpongchaos","path":"/games-web/pingpongchaos.html","letter":"P"},
+  {"index":148,"name":"Pixel Speedrun","path":"/games-web/pixelspeedrun.html","letter":"P"},
+  {"index":149,"name":"Plantsvszombies","path":"/games-web/plantsvszombies.html","letter":"P"},
+  {"index":150,"name":"Plonky","path":"/games-web/plonky.html","letter":"P"},
+  {"index":151,"name":"Polytrack","path":"/games-web/polytrack.html","letter":"P"},
+  {"index":152,"name":"Poorbunny","path":"/games-web/poorbunny.html","letter":"P"},
+  {"index":153,"name":"Pou","path":"/games-web/pou.html","letter":"P"},
+  {"index":154,"name":"Ragdollhit","path":"/games-web/ragdollhit.html","letter":"R"},
+  {"index":155,"name":"Ragdollsoccer","path":"/games-web/ragdollsoccer.html","letter":"R"},
+  {"index":156,"name":"Redball4Vol1","path":"/games-web/redball4vol1.html","letter":"R"},
+  {"index":157,"name":"Redball4Vol2","path":"/games-web/redball4vol2.html","letter":"R"},
+  {"index":158,"name":"Redball4Vol3","path":"/games-web/redball4vol3.html","letter":"R"},
+  {"index":159,"name":"Retrobowl","path":"/games-web/retrobowl.html","letter":"R"},
+  {"index":160,"name":"Retrobowlcollege","path":"/games-web/retrobowlcollege.html","letter":"R"},
+  {"index":161,"name":"Retrohighway","path":"/games-web/retrohighway.html","letter":"R"},
+  {"index":162,"name":"Retro-Ping-Pong","path":"/games-web/retropingpong.html","letter":"R"},
+  {"index":163,"name":"Riddleschool","path":"/games-web/riddleschool.html","letter":"R"},
+  {"index":164,"name":"Riddleschool2","path":"/games-web/riddleschool2.html","letter":"R"},
+  {"index":165,"name":"Riddleschool3","path":"/games-web/riddleschool3.html","letter":"R"},
+  {"index":166,"name":"Riddleschool4","path":"/games-web/riddleschool4.html","letter":"R"},
+  {"index":167,"name":"Rooftop Snipers 2","path":"/games-web/rooftopsnipers2.html","letter":"R"},
+  {"index":168,"name":"Run","path":"/games-web/run.html","letter":"R"},
+  {"index":169,"name":"Run2","path":"/games-web/run2.html","letter":"R"},
+  {"index":170,"name":"Run3","path":"/games-web/run3.html","letter":"R"},
+  {"index":171,"name":"Sand","path":"/games-web/sandgame.html","letter":"S"},
+  {"index":172,"name":"Shortlife","path":"/games-web/shortlife.html","letter":"S"},
+  {"index":173,"name":"Slope2Player","path":"/games-web/slope2player.html","letter":"S"},
+  {"index":174,"name":"Slowroads","path":"/games-web/slowroads.html","letter":"S"},
+  {"index":175,"name":"Super Mario 64","path":"/games-web/sm64.html","letter":"S"},
+  {"index":176,"name":"Snowballio","path":"/games-web/snowballio.html","letter":"S"},
+  {"index":177,"name":"Soccerbros","path":"/games-web/soccerbros.html","letter":"S"},
+  {"index":178,"name":"SPACEBAR CLICKER","path":"/games-web/spacebarclicker.html","letter":"S"},
+  {"index":179,"name":"Spaceiskey","path":"/games-web/spaceiskey.html","letter":"S"},
+  {"index":180,"name":"Spaceiskey2","path":"/games-web/spaceiskey2.html","letter":"S"},
+  {"index":181,"name":"Space Waves","path":"/games-web/spacewaves.html","letter":"S"},
+  {"index":182,"name":"Speedstars","path":"/games-web/speedstars.html","letter":"S"},
+  {"index":183,"name":"Sprunki","path":"/games-web/sprunki.html","letter":"S"},
+  {"index":184,"name":"Stack","path":"/games-web/stack.html","letter":"S"},
+  {"index":185,"name":"Stacktris","path":"/games-web/stacktris.html","letter":"S"},
+  {"index":186,"name":"Stateio","path":"/games-web/stateio.html","letter":"S"},
+  {"index":187,"name":"Stickarchersbattle","path":"/games-web/stickarchersbattle.html","letter":"S"},
+  {"index":188,"name":"Stickfighter","path":"/games-web/stickfighter.html","letter":"S"},
+  {"index":189,"name":"Stickman Hook","path":"/games-web/stickmanhook.html","letter":"S"},
+  {"index":190,"name":"Stickmerge","path":"/games-web/stickmerge.html","letter":"S"},
+  {"index":191,"name":"Superliquidsoccer","path":"/games-web/superliquidsoccer.html","letter":"S"},
+  {"index":192,"name":"Tabletennisworldtour","path":"/games-web/tabletennisworldtour.html","letter":"T"},
+  {"index":193,"name":"Tag","path":"/games-web/tag.html","letter":"T"},
+  {"index":194,"name":"Templeofboom","path":"/games-web/templeofboom.html","letter":"T"},
+  {"index":195,"name":"Territorialio","path":"/games-web/territorialio.html","letter":"T"},
+  {"index":196,"name":"Theimpossiblequiz","path":"/games-web/theimpossiblequiz.html","letter":"T"},
+  {"index":197,"name":"Theimpossiblequiz2","path":"/games-web/theimpossiblequiz2.html","letter":"T"},
+  {"index":198,"name":"Thereisnog","path":"/games-web/thereisnog.html","letter":"T"},
+  {"index":199,"name":"Thisistheonlylevel","path":"/games-web/thisistheonlylevel.html","letter":"T"},
+  {"index":200,"name":"Thisistheonlyleveltoo","path":"/games-web/thisistheonlyleveltoo.html","letter":"T"},
+  {"index":201,"name":"Timeshooter2","path":"/games-web/timeshooter2.html","letter":"T"},
+  {"index":202,"name":"Tinyfishing","path":"/games-web/tinyfishing.html","letter":"T"},
+  {"index":203,"name":"Trapthecat","path":"/games-web/trapthecat.html","letter":"T"},
+  {"index":204,"name":"Triviacrack","path":"/games-web/triviacrack.html","letter":"T"},
+  {"index":205,"name":"Tubejumpers","path":"/games-web/tubejumpers.html","letter":"T"},
+  {"index":206,"name":"Tunnelrush","path":"/games-web/tunnelrush.html","letter":"T"},
+  {"index":207,"name":"Unicyclehero","path":"/games-web/unicyclehero.html","letter":"U"},
+  {"index":208,"name":"Vex4","path":"/games-web/vex4.html","letter":"V"},
+  {"index":209,"name":"Vex5","path":"/games-web/vex5.html","letter":"V"},
+  {"index":210,"name":"Vexx3M","path":"/games-web/vexx3m.html","letter":"V"},
+  {"index":211,"name":"Vexx3M2","path":"/games-web/vexx3m2.html","letter":"V"},
+  {"index":212,"name":"Volleyrandom","path":"/games-web/volleyrandom.html","letter":"V"},
+  {"index":213,"name":"Webecomewhatwebehold","path":"/games-web/webecomewhatwebehold.html","letter":"W"},
+  {"index":214,"name":"Wheeliebike","path":"/games-web/wheeliebike.html","letter":"W"},
+  {"index":215,"name":"Wheely","path":"/games-web/wheely.html","letter":"W"},
+  {"index":216,"name":"Wheely2","path":"/games-web/wheely2.html","letter":"W"},
+  {"index":217,"name":"Wheely3","path":"/games-web/wheely3.html","letter":"W"},
+  {"index":218,"name":"Wheely6","path":"/games-web/wheely6.html","letter":"W"},
+  {"index":219,"name":"Wheely8","path":"/games-web/wheely8.html","letter":"W"},
+  {"index":220,"name":"Wordleunlimited","path":"/games-web/wordleunlimited.html","letter":"W"},
+  {"index":221,"name":"Worldshardestgame","path":"/games-web/worldshardestgame.html","letter":"W"},
+  {"index":222,"name":"Worldshardestgame2","path":"/games-web/worldshardestgame2.html","letter":"W"},
+  {"index":223,"name":"Worldshardestgame3","path":"/games-web/worldshardestgame3.html","letter":"W"},
+  {"index":224,"name":"Wrestlebros","path":"/games-web/wrestlebros.html","letter":"W"},
+  {"index":225,"name":"Zombierush","path":"/games-web/zombierush.html","letter":"Z"}
+];
+
+// ===== DOM Elements =====
+const grid = document.getElementById('gameGrid');
+const searchInput = document.getElementById('searchInput');
+const clearSearch = document.getElementById('clearSearch');
+const gameCount = document.getElementById('gameCount');
+const totalCount = document.getElementById('totalCount');
+const noResults = document.getElementById('noResults');
+
+// ===== SVG Icon Template (SailfishOS style) =====
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const ICON_VIEWBOX = '0 0 86 86';
+const SHAPE_PATH = 'M 1.7229995,4.3 H 43 c 23.583,0 42.7,19.118 42.7,42.7 v 41.277 c 0,0.786 -0.637,1.423 -1.423,1.423 H 43 C 19.417,89.7 0.2999995,70.582 0.2999995,47 V 5.723 c 0,-0.786 0.637,-1.423 1.423,-1.423 z';
+const TEXT_X = 43;
+const TEXT_Y = 47;
+const TEXT_SIZE = 29;
+const CENTER_X = 43;
+const CENTER_Y = 47;
+
+function createIconSvg(letter, index) {
+  const isOdd = index % 2 === 1; // 1-based index
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', ICON_VIEWBOX);
+  svg.setAttribute('width', '86');
+  svg.setAttribute('height', '86');
+  svg.classList.add('icon-svg');
+  
+  // Group for the shape + highlight (rotated for even)
+  const group = document.createElementNS(SVG_NS, 'g');
+  group.classList.add('icon-group');
+  if (!isOdd) {
+    group.setAttribute('transform', `rotate(90 ${CENTER_X} ${CENTER_Y})`);
+  }
+  
+  // Background shape
+  const bg = document.createElementNS(SVG_NS, 'path');
+  bg.setAttribute('d', SHAPE_PATH);
+  bg.classList.add('icon-bg');
+  group.appendChild(bg);
+  
+  // Highlight (radial gradient)
+  const highlight = document.createElementNS(SVG_NS, 'path');
+  highlight.setAttribute('d', SHAPE_PATH);
+  highlight.classList.add('icon-highlight');
+  group.appendChild(highlight);
+  
+  svg.appendChild(group);
+  
+  // Text (always upright)
+  const text = document.createElementNS(SVG_NS, 'text');
+  text.setAttribute('x', TEXT_X);
+  text.setAttribute('y', TEXT_Y + TEXT_SIZE * 0.35); // vertical center adjustment
+  text.setAttribute('text-anchor', 'middle');
+  text.setAttribute('dominant-baseline', 'central');
+  text.setAttribute('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
+  text.setAttribute('font-weight', 'bold');
+  text.setAttribute('font-size', TEXT_SIZE);
+  text.classList.add('icon-text');
+  text.textContent = letter;
+  
+  // For even cards starting with 'I', use special color
+  if (!isOdd && letter === 'I') {
+    text.style.fill = '#E85D9E';
+  }
+  
+  svg.appendChild(text);
+  return svg;
+}
+
+// ===== Render Cards =====
+function renderCards(filter = '') {
+  grid.innerHTML = '';
+  let visibleCount = 0;
+  const lowerFilter = filter.toLowerCase().trim();
+  
+  GAMES.forEach((game, i) => {
+    const nameLower = game.name.toLowerCase();
+    const matches = !lowerFilter || nameLower.includes(lowerFilter);
+    
+    const card = document.createElement('a');
+    card.href = game.path;
+    card.className = 'card' + (matches ? '' : ' hidden');
+    card.setAttribute('role', 'listitem');
+    card.setAttribute('data-first-letter', game.letter);
+    if (!matches) card.style.display = 'none';
+    
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'icon-wrap';
+    iconWrap.appendChild(createIconSvg(game.letter, game.index));
+    
+    const title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = game.name;
+    
+    card.appendChild(iconWrap);
+    card.appendChild(title);
+    grid.appendChild(card);
+    
+    if (matches) visibleCount++;
+  });
+  
+  // Update count
+  gameCount.textContent = filter ? `显示 ${visibleCount} / ${GAMES.length} 款游戏` : `共 ${GAMES.length} 款游戏`;
+  totalCount.textContent = GAMES.length;
+  
+  // Show/hide no results
+  noResults.classList.toggle('hidden', visibleCount > 0 || !filter);
+}
+
+// ===== Search Handling =====
+let searchDebounce = null;
+searchInput.addEventListener('input', (e) => {
+  const value = e.target.value;
+  clearSearch.hidden = !value;
+  
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => {
+    renderCards(value);
+  }, 80);
+});
+
+clearSearch.addEventListener('click', () => {
+  searchInput.value = '';
+  clearSearch.hidden = true;
+  searchInput.focus();
+  renderCards('');
+});
+
+// ===== Keyboard: Escape to clear search =====
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.activeElement === searchInput) {
+    searchInput.value = '';
+    clearSearch.hidden = true;
+    searchInput.blur();
+    renderCards('');
+  }
+});
+
+// ===== Initial Render =====
+renderCards();
+
+// ===== Focus search on load (desktop) =====
+if (window.innerWidth > 640) {
+  setTimeout(() => searchInput.focus(), 100);
+}
+</script>
 </body>
 </html>
