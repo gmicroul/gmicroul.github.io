@@ -1,248 +1,604 @@
-name: Hermes Games Generator
-
+name: Hermes Games Navigation Generator-AI
 
 on:
-
   workflow_dispatch:
 
-  #schedule:
-
-  #  - cron: "0 */2 * * *"
-
-
+  # schedule:
+  #   - cron: "0 */2 * * *"
 
 permissions:
-
   contents: write
 
-
-
 jobs:
-
-
   build:
 
-
     runs-on: ubuntu-latest
-
     timeout-minutes: 30
-
-
 
     steps:
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Checkout repository
 
-      uses: actions/checkout@v4
+      - name: Check games-web
+        run: |
+          if [ ! -d "games-web" ]; then
+            echo "games-web directory not found"
+            exit 1
+          fi
 
-      with:
+          COUNT=$(find games-web -type f -name "*.html" | wc -l)
 
-        fetch-depth: 0
+          echo "HTML games: $COUNT"
 
+          if [ "$COUNT" -lt 1 ]; then
+            echo "No games found"
+            exit 1
+          fi
 
 
-    - name: Build Hermes Docker image
+      - name: Download icon templates
+        run: |
+          rm -rf icon-templates
 
-      run: |
+          git clone \
+            --depth 1 \
+            https://github.com/gmicroul/icon-templates.git \
+            icon-templates
 
-        docker build \
-          --progress=plain \
-          -t hermes-agent .
+          if [ ! -d "icon-templates/sfos-icons" ]; then
+            echo "sfos-icons not found"
+            exit 1
+          fi
 
+          ls -lah icon-templates/sfos-icons
 
 
-    - name: Prepare output directory
+      - name: Build Hermes Docker image
+        run: |
+          docker build \
+            --progress=plain \
+            -t hermes-agent .
 
-      run: |
 
-        rm -rf output
+      - name: Prepare output
+        run: |
+          rm -rf output
+          mkdir -p output
+          chmod 777 output
 
-        mkdir -p output
 
-        chmod 777 output
+      - name: Run Hermes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
+        run: |
 
+          timeout 25m docker run \
+            --rm \
+            --user root \
+            -e OPENAI_API_KEY \
+            -e OPENAI_BASE_URL \
+            -e OPENAI_MODEL \
+            -v "$PWD:/opt/hermes-agent/gmicroul.github.io" \
+            hermes-agent \
+            "
 
-    - name: Run Hermes
+            不要询问。
 
-      env:
+            不要执行git操作。
 
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-        OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+            当前仓库：
 
-        OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+            /opt/hermes-agent/gmicroul.github.io
 
 
-      run: |
 
+            你的任务：
 
-        echo "=================="
+            为 GitHub Pages 生成 HTML5 游戏导航主页。
 
-        echo "Running Hermes..."
 
-        date
 
+            扫描目录：
 
+            /opt/hermes-agent/gmicroul.github.io/games-web/
 
-        timeout 25m docker run \
-          --rm \
-          --user root \
-          -e OPENAI_API_KEY \
-          -e OPENAI_BASE_URL \
-          -e OPENAI_MODEL \
-          -v "$PWD/output:/output" \
-          hermes-agent \
-          "
 
 
-          不要停下来问（一次都不能停）。你自己想办法完成输出。
+            生成文件：
 
+            /opt/hermes-agent/gmicroul.github.io/output/index.html
 
-          扫描https://github.com/CoolDude2349/Offline-HTML-Games-Pack/tree/master/offline，对所有小于10MB的html文件汇总。
 
 
-          要求：
+            ==========================
+            游戏扫描规则
+            ==========================
 
 
-          1. 把汇总的内容以HTML5形式写入以下文件：
+            扫描：
 
-          /output/index.html
+            games-web/**/*.html
 
 
-          2. 必须是完整 HTML5 页面。
+            按文件路径排序。
 
 
-          3. index.html里每一个游戏链接指向https://github.com/CoolDude2349/Offline-HTML-Games-Pack/blob/master/offline/对应的游戏的html文件
+            每个游戏：
 
+            读取HTML文件。
 
-          4. 使用中文。
 
+            提取：
 
-          5. 不要修改或删除其它文件。
+            <title>
 
-          6. 生成的文件在https://g.aisword.top/sandbox/share/AdjTiMA1zvi5qAdPf7jpIwNL5q9FWAUNXllq9KkcNCY的页面点击提交上传，这个你要一定自己去想法提交，别推给我提交。
+            作为游戏名称。
 
 
-          "
+            如果没有title：
 
+            根据文件名生成名称。
 
 
-        echo "Hermes finished"
+            生成游戏链接：
 
-        date
 
+            https://gmicroul.github.io/games-web/文件名.html
 
 
+            页面内部必须使用绝对根路径。
 
 
-    - name: Fix Hermes output permission
+            正确：
 
-      run: |
+            /games-web/example.html
 
 
-        echo "Fix output permission"
+            禁止：
 
+            games-web/example.html
 
-        sudo chown -R $USER:$USER output
+            ./games-web/example.html
 
+            ../games-web/example.html
 
-        sudo chmod -R u+rwX,go+rX output
+            /output/games-web/example.html
 
 
-        ls -lah output
 
 
 
+            ==========================
+            游戏图标规则
+            ==========================
 
 
-    - name: Verify Hermes output
+            不使用随机字母CSS图标。
 
-      run: |
 
+            使用：
 
-        echo "===== output ====="
+            /opt/hermes-agent/gmicroul.github.io/icon-templates/sfos-icons/
 
 
-        ls -lah output
+            内的16个SVG模板：
 
 
+            shape1.svg
 
-        if [ ! -f output/index.html ]; then
+            shape2.svg
 
-          echo "ERROR: output/index.html missing"
+            ...
 
-          exit 1
+            shape16.svg
 
-        fi
 
 
+            按游戏排序后循环使用：
 
-        SIZE=$(wc -c < output/index.html)
 
+            第1个游戏:
 
-        echo "SIZE=$SIZE"
+            shape1.svg
 
 
+            第2个游戏:
 
-        if [ "$SIZE" -lt 1000 ]; then
+            shape2.svg
 
-          echo "ERROR: index.html too small"
 
-          cat output/index.html
+            ...
 
-          exit 1
 
-        fi
+            第16个游戏:
 
+            shape16.svg
 
 
-        echo "===== Preview ====="
+            第17个游戏:
 
+            shape1.svg
 
-        head -50 output/index.html
 
 
+            ==========================
 
 
+            SVG要求：
 
-    - name: Commit only Hermes page
 
-      run: |
+            图标尺寸：
 
+            86x86
 
-        git config user.name "github-actions[bot]"
 
+            viewBox:
 
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            0 0 86 86
 
 
 
-        echo "===== Git status ====="
+            必须保留原始shape SVG结构。
 
 
-        git status
+            只允许修改黑色区域的fill。
 
 
+            黑色区域作为唯一可绘制区域。
 
-        git add output/index.html
 
+            透明区域必须保持透明。
 
 
-        if git diff --cached --quiet; then
+            禁止：
 
-          echo "No changes"
+            添加背景
 
-          exit 0
+            添加圆形底板
 
-        fi
+            添加方形底板
 
+            改变shape轮廓
 
+            删除透明区域
 
-        git commit \
-          -m "Update Hermes generated news"
 
 
+            ==========================
 
-        git push origin HEAD:${GITHUB_REF_NAME}
+
+            字母和数字设计：
+
+
+            如果游戏没有logo：
+
+            使用游戏名称首字母。
+
+
+            如果名称以数字开始：
+
+            使用数字。
+
+
+            字母必须：
+
+            - 艺术化
+            - 粗体
+            - 居中
+            - 与shape融合
+
+
+            禁止：
+
+            普通字体
+
+            简单文字头像
+
+            emoji
+
+
+
+            字体：
+
+            system-ui
+
+            bold
+
+            29px
+
+
+            位置：
+
+            x=43
+
+            y=47
+
+
+            颜色：
+
+            #FFFFFF
+
+
+
+            ==========================
+
+
+            渐变规则：
+
+
+            shape填充：
+
+            linearGradient
+
+
+            方向：
+
+            135度
+
+
+            x1=0
+
+            y1=0
+
+
+            x2=1
+
+            y2=1
+
+
+
+            起始颜色：
+
+            #5FD0F5
+
+
+            结束颜色：
+
+            #3AA8D0
+
+
+
+            ==========================
+
+
+            高光：
+
+
+            使用radialGradient
+
+
+            中心：
+
+            0.25 0.25
+
+
+            半径：
+
+            0.6
+
+
+
+            颜色：
+
+            #FFFFFF
+
+
+            透明度：
+
+            0.55 -> 0
+
+
+
+            ==========================
+
+
+            页面要求：
+
+            
+            生成现代游戏大厅风格。
+
+
+
+            必须包含：
+
+
+            1. 响应式网格布局
+
+
+            2. 手机适配
+
+
+            3. 电脑适配
+
+
+            4. 搜索框
+
+
+            5. 实时过滤游戏
+
+
+            6. 游戏数量统计
+
+
+            7. 点击卡片打开游戏
+
+
+
+            卡片尺寸建议：
+
+
+            手机：
+
+            两列布局
+
+
+            游戏卡片：
+
+            170x220
+
+
+            图标：
+
+            86x86
+
+
+            圆角：
+
+            20px
+
+
+
+
+
+            ==========================
+
+
+            技术限制：
+
+
+            index.html必须独立运行。
+
+
+            所有：
+
+            CSS
+
+            JavaScript
+
+
+            必须直接写入index.html。
+
+
+            禁止：
+
+            外部CDN
+
+            外部JS
+
+            外部CSS
+
+
+
+            SVG必须直接内嵌到index.html。
+
+
+            禁止：
+
+            外部SVG链接。
+
+
+
+            ==========================
+
+
+            安全规则：
+
+
+            不修改：
+
+            games-web/
+
+
+            不删除：
+
+            任何仓库文件。
+
+
+            不执行：
+
+            git命令。
+
+
+
+            只生成：
+
+            output/index.html
+
+
+
+            ==========================
+
+
+            完成检查：
+
+
+            确认：
+
+            output/index.html
+
+            存在。
+
+
+            如果成功：
+
+            退出。
+
+
+
+            "
+
+
+      - name: Verify generated files
+        run: |
+
+          echo "===== Output ====="
+
+          ls -lah output
+
+
+          test -f output/index.html
+
+
+          grep "<html" output/index.html
+
+
+          grep "games-web" output/index.html
+
+
+          SIZE=$(du -h output/index.html | awk '{print $1}')
+
+          echo "index.html size: $SIZE"
+
+
+          COUNT=$(find games-web -type f -name "*.html" | wc -l)
+
+          echo "Games count: $COUNT"
+
+
+          if [ "$COUNT" -lt 1 ]; then
+            exit 1
+          fi
+
+
+
+      - name: Commit and push
+        run: |
+
+          git config user.name "github-actions[bot]"
+
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+          git add output/index.html
+
+
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+
+          git commit \
+            -m "Update Hermes games navigation"
+
+
+          git push
