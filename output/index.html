@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>游戏大厅 · Game Hub</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
     --bg1:#06222C; --bg2:#0A3A47;
-    --card:#0E3240; --card-border:#1C5166; --card-hover:#145062;
+    --card:#0E3240; --card-hover:#145062;
     --text:#EAF6F8; --dim:#8FB6C0;
-    --accent:#4FC3F7; --accent2:#2EBD85;
+    --accent:#5FD0F5; --accent2:#3AA8D0;
   }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{scroll-behavior:smooth}
   body{
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
@@ -19,370 +19,173 @@
     background-attachment:fixed;
     color:var(--text); min-height:100vh;
   }
-  .hero{
-    padding:56px 20px 24px; text-align:center;
+  header{
+    position:sticky; top:0; z-index:20;
+    background:rgba(6,34,44,.82);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(95,208,245,.18);
+    padding:14px 20px;
   }
-  .hero h1{
-    font-size:clamp(30px,5vw,48px); font-weight:800; letter-spacing:.5px;
-    background:linear-gradient(90deg,var(--accent),var(--accent2));
-    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  .bar{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:.5px}
+  .logo svg{width:34px;height:34px;flex:none}
+  .logo em{font-style:normal;background:linear-gradient(120deg,#5FD0F5,#3AA8D0);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .count{font-size:13px;color:var(--dim);background:rgba(95,208,245,.10);
+    border:1px solid rgba(95,208,245,.25);padding:4px 12px;border-radius:999px;white-space:nowrap}
+  .search{margin-left:auto;flex:1;min-width:180px;max-width:420px;position:relative}
+  .search input{
+    width:100%;padding:10px 16px 10px 40px;border-radius:999px;
+    border:1px solid rgba(95,208,245,.30);background:rgba(14,50,64,.85);
+    color:var(--text);font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;
   }
-  .hero p{margin-top:10px; color:var(--dim); font-size:15px}
-  .stats{
-    display:inline-flex; align-items:center; gap:18px; margin-top:16px;
-    background:rgba(255,255,255,.05); border:1px solid var(--card-border);
-    border-radius:999px; padding:8px 22px; font-size:14px; color:var(--dim);
-  }
-  .stats b{color:var(--accent); font-size:17px}
-  .search-wrap{max-width:640px; margin:22px auto 6px; padding:0 20px}
-  .search{
-    width:100%; padding:14px 20px; border-radius:999px; font-size:16px;
-    background:rgba(255,255,255,.06); border:1px solid var(--card-border); color:var(--text);
-    outline:none; transition:.2s;
-  }
-  .search::placeholder{color:var(--dim)}
-  .search:focus{border-color:var(--accent); background:rgba(255,255,255,.09)}
-  .empty{text-align:center; color:var(--dim); padding:40px 0; font-size:15px; display:none}
-  .grid{
-    display:grid; gap:16px; padding:24px 20px 60px;
-    max-width:1400px; margin:0 auto;
-    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  }
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(95,208,245,.18)}
+  .search input::placeholder{color:var(--dim)}
+  .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--dim);fill:none;stroke-width:2.4;stroke-linecap:round;pointer-events:none}
+  main{max-width:1280px;margin:0 auto;padding:24px 20px 60px}
+  .grid{display:grid;gap:18px 14px;grid-template-columns:repeat(auto-fill,minmax(108px,1fr))}
+  @media(min-width:600px){.grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:22px 18px}}
+  @media(min-width:1000px){.grid{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:26px 22px}}
   .card{
-    display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
-    background:linear-gradient(180deg,var(--card) 0%,#0B2B37 100%);
-    border:1px solid var(--card-border); border-radius:16px; padding:18px 10px 14px;
-    text-decoration:none; color:var(--text); transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    padding:16px 8px 14px;border-radius:18px;text-decoration:none;color:var(--text);
+    background:linear-gradient(150deg,rgba(20,60,76,.55),rgba(10,42,54,.55));
+    border:1px solid rgba(95,208,245,.10);
+    transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease;
   }
-  .card:hover{
-    transform:translateY(-4px); border-color:var(--accent);
-    box-shadow:0 10px 26px rgba(79,194,247,.18);
+  .card:hover,.card:focus-visible{
+    transform:translateY(-5px);background:linear-gradient(150deg,rgba(24,72,90,.75),rgba(14,52,66,.75));
+    border-color:rgba(95,208,245,.45);box-shadow:0 12px 28px rgba(4,18,24,.45);outline:none;
   }
-  .icon{
-    width:72px; height:72px; border-radius:18px; flex:0 0 auto;
-    position:relative; overflow:hidden;
+  .icon{width:78%;max-width:112px;aspect-ratio:1/1}
+  .icon svg{width:100%;height:100%;display:block;filter:drop-shadow(0 8px 16px rgba(20,40,60,.30))}
+  .card:hover .icon svg{filter:drop-shadow(0 12px 22px rgba(20,40,60,.40))}
+  .name{
+    font-size:13px;font-weight:600;text-align:center;line-height:1.35;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    word-break:break-word;min-height:2.7em;
   }
-  .icon i{
-    position:absolute; left:50%; top:50%;
-    transform:translate(-50%,-50%);
-    font-style:normal; color:#FFFFFF;
-    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
-    font-weight:700; font-size:29px; line-height:1;
-    text-shadow:0 1px 3px rgba(0,0,0,.25);
-  }
-  .gname{
-    font-size:13px; font-weight:600; line-height:1.3; color:var(--text);
-    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-    min-height:34px;
-  }
-  footer{text-align:center; padding:20px; color:var(--dim); font-size:13px}
-  /* mobile small screens */
-  @media (max-width:480px){
-    .grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr)); gap:12px; padding:18px 12px 50px}
-    .icon{width:64px; height:64px}
-  }
+  .empty{display:none;text-align:center;color:var(--dim);padding:70px 0;font-size:16px}
+  footer{text-align:center;color:var(--dim);font-size:12px;padding:0 0 30px;opacity:.7}
 </style>
 </head>
 <body>
-  <header class="hero">
-    <h1>🎮 游戏大厅</h1>
-    <p>HTML5 游戏导航中心 · 点击卡片即可开始游戏</p>
-    <div class="stats"><span>共 <b id="count">224</b> 款游戏</span></div>
-  </header>
-
-  <div class="search-wrap">
-    <input id="search" class="search" type="text" placeholder="🔍 搜索游戏… (Search games)" autocomplete="off">
+<header>
+  <div class="bar">
+    <div class="logo">
+      <svg viewBox="0 0 86 86" aria-hidden="true">
+        <defs>
+          <linearGradient id="lgh" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#5FD0F5"/><stop offset="1" stop-color="#3AA8D0"/>
+          </linearGradient>
+          <radialGradient id="rgh" cx="0.25" cy="0.25" r="0.6">
+            <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+            <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <path d="M 0 0 L 86.0 0 L 86.0 86.0 L 0 86.0 Z M 43 86 A 43.0 43.0 0 0 1 0.0 43.0 L 0 86 Z"
+              fill-rule="evenodd" fill="url(#lgh)"/>
+        <path d="M 0 0 L 86.0 0 L 86.0 86.0 L 0 86.0 Z M 43 86 A 43.0 43.0 0 0 1 0.0 43.0 L 0 86 Z"
+              fill-rule="evenodd" fill="url(#rgh)"/>
+      </svg>
+      <span>游戏<em>大厅</em></span>
+    </div>
+    <span class="count" id="count"></span>
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      <input id="q" type="search" placeholder="搜索游戏… / Search games" autocomplete="off" aria-label="搜索游戏">
+    </div>
   </div>
-  <div id="empty" class="empty">没有找到匹配的游戏</div>
-
-  <main class="grid" id="grid">
-    <a class="card" href="/games-web/1on1soccer.html" target="_blank" rel="noopener"><div class="icon">1</div><div class="meta"><span class="gname">1 on 1 Soccer</span></div></a>
-        <a class="card" href="/games-web/1on1tennis.html" target="_blank" rel="noopener"><div class="icon">1</div><div class="meta"><span class="gname">1 on 1 Tennis</span></div></a>
-        <a class="card" href="/games-web/1.5.html" target="_blank" rel="noopener"><div class="icon">1</div><div class="meta"><span class="gname">1.5</span></div></a>
-        <a class="card" href="/games-web/1.8.html" target="_blank" rel="noopener"><div class="icon">1</div><div class="meta"><span class="gname">1.8</span></div></a>
-        <a class="card" href="/games-web/12minibattles.html" target="_blank" rel="noopener"><div class="icon">1</div><div class="meta"><span class="gname">12 Mini Battles</span></div></a>
-        <a class="card" href="/games-web/2048.html" target="_blank" rel="noopener"><div class="icon">2</div><div class="meta"><span class="gname">2048</span></div></a>
-        <a class="card" href="/games-web/2048cupcakes.html" target="_blank" rel="noopener"><div class="icon">2</div><div class="meta"><span class="gname">2048 Cupcakes</span></div></a>
-        <a class="card" href="/games-web/8ballclassic.html" target="_blank" rel="noopener"><div class="icon">8</div><div class="meta"><span class="gname">8 Ball Classic</span></div></a>
-        <a class="card" href="/games-web/ageofwar.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Age of War</span></div></a>
-        <a class="card" href="/games-web/ageofwar2.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Age of War 2</span></div></a>
-        <a class="card" href="/games-web/agesofconflict.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Ages of Conflict</span></div></a>
-        <a class="card" href="/games-web/Alpha_1.2.6.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Alpha 1.2.6</span></div></a>
-        <a class="card" href="/games-web/amongus.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Among Us</span></div></a>
-        <a class="card" href="/games-web/angrybirds.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Angry Birds</span></div></a>
-        <a class="card" href="/games-web/angrybirdsspace.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Angry Birds Space</span></div></a>
-        <a class="card" href="/games-web/awesometanks.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Awesome Tanks</span></div></a>
-        <a class="card" href="/games-web/awesometanks2.html" target="_blank" rel="noopener"><div class="icon">A</div><div class="meta"><span class="gname">Awesome Tanks 2</span></div></a>
-        <a class="card" href="/games-web/backrooms.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Backrooms</span></div></a>
-        <a class="card" href="/games-web/baconmaydie.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bacon May Die</span></div></a>
-        <a class="card" href="/games-web/badicecream.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bad Ice Cream</span></div></a>
-        <a class="card" href="/games-web/badicecream2.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bad Ice Cream 2</span></div></a>
-        <a class="card" href="/games-web/badicecream3.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bad Ice Cream 3</span></div></a>
-        <a class="card" href="/games-web/badpiggies.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bad Piggies</span></div></a>
-        <a class="card" href="/games-web/baseballbros.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Baseball Bros</span></div></a>
-        <a class="card" href="/games-web/basketbros.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Basket Bros</span></div></a>
-        <a class="card" href="/games-web/basketballlegends.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Basketball Legends</span></div></a>
-        <a class="card" href="/games-web/basketballstars.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Basketball Stars</span></div></a>
-        <a class="card" href="/games-web/Beta_1.3.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Beta 1.3</span></div></a>
-        <a class="card" href="/games-web/blockysnakes.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Blok Wey Snakes</span></div></a>
-        <a class="card" href="/games-web/bloonsTD.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bloons TD</span></div></a>
-        <a class="card" href="/games-web/bloonsTD2.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bloons TD 2</span></div></a>
-        <a class="card" href="/games-web/bloonsTD3.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bloons TD 3</span></div></a>
-        <a class="card" href="/games-web/bloonsTD4.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bloons TD 4</span></div></a>
-        <a class="card" href="/games-web/bloonsTD5.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bloons TD 5</span></div></a>
-        <a class="card" href="/games-web/bloxorz.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bloxorz</span></div></a>
-        <a class="card" href="/games-web/blumgiracers.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Blumgi Racers</span></div></a>
-        <a class="card" href="/games-web/blumgirocket.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Blumgi Rocket</span></div></a>
-        <a class="card" href="/games-web/bobtherobber.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bob the Robber</span></div></a>
-        <a class="card" href="/games-web/bobtherobber2.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bob the Robber 2</span></div></a>
-        <a class="card" href="/games-web/bobtherobber5.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bob the Robber 5</span></div></a>
-        <a class="card" href="/games-web/breakingthebank.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Breaking the Bank</span></div></a>
-        <a class="card" href="/games-web/bubbleshooter.html" target="_blank" rel="noopener"><div class="icon">B</div><div class="meta"><span class="gname">Bubble Shooter</span></div></a>
-        <a class="card" href="/games-web/candycrush.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Candy Crush</span></div></a>
-        <a class="card" href="/games-web/capybaraclicker.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Capybara Clicker</span></div></a>
-        <a class="card" href="/games-web/cardrawing.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Car Drawing</span></div></a>
-        <a class="card" href="/games-web/carkingarena.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Car King Arena</span></div></a>
-        <a class="card" href="/games-web/chess.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Chess</span></div></a>
-        <a class="card" href="/games-web/choppyorc.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Choppy Orc</span></div></a>
-        <a class="card" href="/games-web/circloO.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">circloO</span></div></a>
-        <a class="card" href="/games-web/circloO2.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">circloO 2</span></div></a>
-        <a class="card" href="/games-web/clashofvikings.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Clash of Vikings</span></div></a>
-        <a class="card" href="/games-web/basketrandom.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Class</span></div></a>
-        <a class="card" href="/games-web/cleanupio.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Cleanup.io</span></div></a>
-        <a class="card" href="/games-web/clusterrush.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Cluster Rush</span></div></a>
-        <a class="card" href="/games-web/crazycars.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Crazy Cars</span></div></a>
-        <a class="card" href="/games-web/crazymotorcycle.html" target="_blank" rel="noopener"><div class="icon">C</div><div class="meta"><span class="gname">Crazy Motorcycle</span></div></a>
-        <a class="card" href="/games-web/dadish.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Dadish</span></div></a>
-        <a class="card" href="/games-web/dadish2.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Dadish 2</span></div></a>
-        <a class="card" href="/games-web/dadish3.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Dadish 3</span></div></a>
-        <a class="card" href="/games-web/deathrun3D.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Death Run 3D</span></div></a>
-        <a class="card" href="/games-web/googledino.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Dinosaur Game Chrome</span></div></a>
-        <a class="card" href="/games-web/doodlejump.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Doodle Jump</span></div></a>
-        <a class="card" href="/games-web/drawclimber.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Draw Climber</span></div></a>
-        <a class="card" href="/games-web/ducklife.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Duck Life</span></div></a>
-        <a class="card" href="/games-web/ducklife2.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Duck Life 2</span></div></a>
-        <a class="card" href="/games-web/ducklife3.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Duck Life 3</span></div></a>
-        <a class="card" href="/games-web/ducklife4.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Duck Life 4</span></div></a>
-        <a class="card" href="/games-web/ducklife5.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Duck Life 5</span></div></a>
-        <a class="card" href="/games-web/ducklingsio.html" target="_blank" rel="noopener"><div class="icon">D</div><div class="meta"><span class="gname">Ducklings.io</span></div></a>
-        <a class="card" href="/games-web/eagleride.html" target="_blank" rel="noopener"><div class="icon">E</div><div class="meta"><span class="gname">Eagle Ride</span></div></a>
-        <a class="card" href="/games-web/earntodie.html" target="_blank" rel="noopener"><div class="icon">E</div><div class="meta"><span class="gname">Earn to Die</span></div></a>
-        <a class="card" href="/games-web/earntodie2.html" target="_blank" rel="noopener"><div class="icon">E</div><div class="meta"><span class="gname">Earn to Die 2</span></div></a>
-        <a class="card" href="/games-web/eggycar.html" target="_blank" rel="noopener"><div class="icon">E</div><div class="meta"><span class="gname">Eggy Car</span></div></a>
-        <a class="card" href="/games-web/escapingtheprison.html" target="_blank" rel="noopener"><div class="icon">E</div><div class="meta"><span class="gname">Escaping the Prison</span></div></a>
-        <a class="card" href="/games-web/evilglitch.html" target="_blank" rel="noopener"><div class="icon">E</div><div class="meta"><span class="gname">Evil Glitch</span></div></a>
-        <a class="card" href="/games-web/fancypantsadventure.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Fancy Pants Adventure</span></div></a>
-        <a class="card" href="/games-web/fancypantsadventure2.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Fancy Pants Adventure 2</span></div></a>
-        <a class="card" href="/games-web/fireboyandwatergirl.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Fireboy &amp; Watergirl</span></div></a>
-        <a class="card" href="/games-web/fireboyandwatergirl2.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Fireboy &amp; Watergirl 2</span></div></a>
-        <a class="card" href="/games-web/fireboyandwatergirl3.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Fireboy &amp; Watergirl 3</span></div></a>
-        <a class="card" href="/games-web/fireboyandwatergirl4.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Fireboy &amp; Watergirl 4</span></div></a>
-        <a class="card" href="/games-web/fnaf.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Five Nights at Freddy&#x27;s</span></div></a>
-        <a class="card" href="/games-web/flappybird.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Flappy Bird</span></div></a>
-        <a class="card" href="/games-web/floodrunner2.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Flood Runner 2</span></div></a>
-        <a class="card" href="/games-web/floodrunner3.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Flood Runner 3</span></div></a>
-        <a class="card" href="/games-web/floodrunner4.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Flood Runner 4</span></div></a>
-        <a class="card" href="/games-web/fnaf4.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">FNAF-4</span></div></a>
-        <a class="card" href="/games-web/footballbros.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">FOOTBALL BROS! | Official Site</span></div></a>
-        <a class="card" href="/games-web/footballlegends.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Football Legends</span></div></a>
-        <a class="card" href="/games-web/freerider3.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Free Rider 3</span></div></a>
-        <a class="card" href="/games-web/fruitninja.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Fruit Ninja</span></div></a>
-        <a class="card" href="/games-web/funnybattle.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Funny Battle</span></div></a>
-        <a class="card" href="/games-web/funnybattle2.html" target="_blank" rel="noopener"><div class="icon">F</div><div class="meta"><span class="gname">Funny Battle 2</span></div></a>
-        <a class="card" href="/games-web/geometrydash.html" target="_blank" rel="noopener"><div class="icon">G</div><div class="meta"><span class="gname">Geometry Dash</span></div></a>
-        <a class="card" href="/games-web/getontop.html" target="_blank" rel="noopener"><div class="icon">G</div><div class="meta"><span class="gname">Get On Top</span></div></a>
-        <a class="card" href="/games-web/googlebaseball.html" target="_blank" rel="noopener"><div class="icon">G</div><div class="meta"><span class="gname">Google Baseball</span></div></a>
-        <a class="card" href="/games-web/guesstheiranswer.html" target="_blank" rel="noopener"><div class="icon">G</div><div class="meta"><span class="gname">Guess Their Answer</span></div></a>
-        <a class="card" href="/games-web/hanger2.html" target="_blank" rel="noopener"><div class="icon">H</div><div class="meta"><span class="gname">Hanger 2</span></div></a>
-        <a class="card" href="/games-web/happywheels.html" target="_blank" rel="noopener"><div class="icon">H</div><div class="meta"><span class="gname">Happy Wheels</span></div></a>
-        <a class="card" href="/games-web/helixjump.html" target="_blank" rel="noopener"><div class="icon">H</div><div class="meta"><span class="gname">Helix Jump</span></div></a>
-        <a class="card" href="/games-web/hillclimbracinglite.html" target="_blank" rel="noopener"><div class="icon">H</div><div class="meta"><span class="gname">Hill Climb Racing Lite</span></div></a>
-        <a class="card" href="/games-web/holeio.html" target="_blank" rel="noopener"><div class="icon">H</div><div class="meta"><span class="gname">Hole.io</span></div></a>
-        <a class="card" href="/games-web/houseofhazards.html" target="_blank" rel="noopener"><div class="icon">H</div><div class="meta"><span class="gname">House of Hazards</span></div></a>
-        <a class="card" href="/games-web/hoverracerdrive.html" target="_blank" rel="noopener"><div class="icon">H</div><div class="meta"><span class="gname">Hover Racer Drive</span></div></a>
-        <a class="card" href="/games-web/idlebreakout.html" target="_blank" rel="noopener"><div class="icon">I</div><div class="meta"><span class="gname">Idle Breakout</span></div></a>
-        <a class="card" href="/games-web/Indev.html" target="_blank" rel="noopener"><div class="icon">I</div><div class="meta"><span class="gname">Indev</span></div></a>
-        <a class="card" href="/games-web/ironsnout.html" target="_blank" rel="noopener"><div class="icon">I</div><div class="meta"><span class="gname">Iron Snout</span></div></a>
-        <a class="card" href="/games-web/jetpackjoyride.html" target="_blank" rel="noopener"><div class="icon">J</div><div class="meta"><span class="gname">Jetpack Joyride</span></div></a>
-        <a class="card" href="/games-web/johnnytrigger.html" target="_blank" rel="noopener"><div class="icon">J</div><div class="meta"><span class="gname">Johnny Trigger</span></div></a>
-        <a class="card" href="/games-web/jumpingshell.html" target="_blank" rel="noopener"><div class="icon">J</div><div class="meta"><span class="gname">Jumping Shell</span></div></a>
-        <a class="card" href="/games-web/karatebros.html" target="_blank" rel="noopener"><div class="icon">K</div><div class="meta"><span class="gname">Karate Bros</span></div></a>
-        <a class="card" href="/games-web/learntofly.html" target="_blank" rel="noopener"><div class="icon">L</div><div class="meta"><span class="gname">Learn to Fly</span></div></a>
-        <a class="card" href="/games-web/learntofly2.html" target="_blank" rel="noopener"><div class="icon">L</div><div class="meta"><span class="gname">Learn to Fly 2</span></div></a>
-        <a class="card" href="/games-web/learntoflyidle.html" target="_blank" rel="noopener"><div class="icon">L</div><div class="meta"><span class="gname">Learn to Fly Idle</span></div></a>
-        <a class="card" href="/games-web/leveldevil.html" target="_blank" rel="noopener"><div class="icon">L</div><div class="meta"><span class="gname">Level Devil</span></div></a>
-        <a class="card" href="/games-web/melonplayground.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Melon Playground</span></div></a>
-        <a class="card" href="/games-web/mergeroundracers.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Merge Round Racers</span></div></a>
-        <a class="card" href="/games-web/minesweeper.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Minesweeper</span></div></a>
-        <a class="card" href="/games-web/monstertracks.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Monster Tracks</span></div></a>
-        <a class="card" href="/games-web/motox3m2.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Moto X3M 2</span></div></a>
-        <a class="card" href="/games-web/motox3m3.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Moto X3M 3</span></div></a>
-        <a class="card" href="/games-web/motox3mpoolparty.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Moto X3M Pool Party</span></div></a>
-        <a class="card" href="/games-web/motox3mspookyland.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Moto X3M Spooky Land</span></div></a>
-        <a class="card" href="/games-web/motox3mwinter.html" target="_blank" rel="noopener"><div class="icon">M</div><div class="meta"><span class="gname">Moto X3M Winter</span></div></a>
-        <a class="card" href="/games-web/noobminer.html" target="_blank" rel="noopener"><div class="icon">N</div><div class="meta"><span class="gname">Noob Miner</span></div></a>
-        <a class="card" href="/games-web/oppositeday.html" target="_blank" rel="noopener"><div class="icon">O</div><div class="meta"><span class="gname">Opposite Day</span></div></a>
-        <a class="card" href="/games-web/ovo2.html" target="_blank" rel="noopener"><div class="icon">O</div><div class="meta"><span class="gname">OvO 2</span></div></a>
-        <a class="card" href="/games-web/ovo.html" target="_blank" rel="noopener"><div class="icon">O</div><div class="meta"><span class="gname">OvOfw</span></div></a>
-        <a class="card" href="/games-web/pacman.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Pac Man</span></div></a>
-        <a class="card" href="/games-web/papasburgeria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Burgeria</span></div></a>
-        <a class="card" href="/games-web/papascheeseria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Cheeseria</span></div></a>
-        <a class="card" href="/games-web/papascupcakeria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Cupcakeria</span></div></a>
-        <a class="card" href="/games-web/papasdonuteria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Donuteria</span></div></a>
-        <a class="card" href="/games-web/papasfreezeria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Freezeria</span></div></a>
-        <a class="card" href="/games-web/papashotdoggeria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Hot Doggeria</span></div></a>
-        <a class="card" href="/games-web/papaspancakeria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Pancakeria</span></div></a>
-        <a class="card" href="/games-web/papaspastaria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Pastaria</span></div></a>
-        <a class="card" href="/games-web/papaspizzeria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Pizzeria</span></div></a>
-        <a class="card" href="/games-web/papastacomia.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Taco Mia</span></div></a>
-        <a class="card" href="/games-web/papaswingeria.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Papa&#x27;s Wingeria</span></div></a>
-        <a class="card" href="/games-web/parkingfury.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Parking Fury</span></div></a>
-        <a class="card" href="/games-web/parkingfury2.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Parking Fury 2</span></div></a>
-        <a class="card" href="/games-web/parkingfury3.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Parking Fury 3</span></div></a>
-        <a class="card" href="/games-web/picosschool.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Pico&#x27;s School</span></div></a>
-        <a class="card" href="/games-web/pingpongchaos.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Ping Pong Chaos</span></div></a>
-        <a class="card" href="/games-web/pixelspeedrun.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Pixel Speedrun</span></div></a>
-        <a class="card" href="/games-web/plantsvszombies.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Plants vs Zombies</span></div></a>
-        <a class="card" href="/games-web/plonky.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Plonky</span></div></a>
-        <a class="card" href="/games-web/polytrack.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">PolyTrack</span></div></a>
-        <a class="card" href="/games-web/poorbunny.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Poor Bunny</span></div></a>
-        <a class="card" href="/games-web/pou.html" target="_blank" rel="noopener"><div class="icon">P</div><div class="meta"><span class="gname">Pou</span></div></a>
-        <a class="card" href="/games-web/ragdollhit.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Ragdoll Hit</span></div></a>
-        <a class="card" href="/games-web/ragdollsoccer.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Ragdoll Soccer</span></div></a>
-        <a class="card" href="/games-web/redball4vol1.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Red Ball 4 Vol. 1</span></div></a>
-        <a class="card" href="/games-web/redball4vol2.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Red Ball 4 Vol. 2</span></div></a>
-        <a class="card" href="/games-web/redball4vol3.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Red Ball 4 Vol. 3</span></div></a>
-        <a class="card" href="/games-web/retrobowl.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Retro Bowl</span></div></a>
-        <a class="card" href="/games-web/retrobowlcollege.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Retro Bowl College</span></div></a>
-        <a class="card" href="/games-web/retrohighway.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Retro Highway</span></div></a>
-        <a class="card" href="/games-web/retropingpong.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Retro-Ping-Pong</span></div></a>
-        <a class="card" href="/games-web/riddleschool.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Riddle School</span></div></a>
-        <a class="card" href="/games-web/riddleschool2.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Riddle School 2</span></div></a>
-        <a class="card" href="/games-web/riddleschool3.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Riddle School 3</span></div></a>
-        <a class="card" href="/games-web/riddleschool4.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Riddle School 4</span></div></a>
-        <a class="card" href="/games-web/rooftopsnipers2.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Rooftop Snipers 2</span></div></a>
-        <a class="card" href="/games-web/run.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Run</span></div></a>
-        <a class="card" href="/games-web/run2.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Run 2</span></div></a>
-        <a class="card" href="/games-web/run3.html" target="_blank" rel="noopener"><div class="icon">R</div><div class="meta"><span class="gname">Run 3</span></div></a>
-        <a class="card" href="/games-web/sandgame.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Sand</span></div></a>
-        <a class="card" href="/games-web/shortlife.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Short Life</span></div></a>
-        <a class="card" href="/games-web/slope2player.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Slope 2 Player</span></div></a>
-        <a class="card" href="/games-web/slowroads.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Slow Roads</span></div></a>
-        <a class="card" href="/games-web/snowballio.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Snowball.io</span></div></a>
-        <a class="card" href="/games-web/soccerbros.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Soccer Bros</span></div></a>
-        <a class="card" href="/games-web/agariolite.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Solo Agario</span></div></a>
-        <a class="card" href="/games-web/spaceiskey.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Space is Key</span></div></a>
-        <a class="card" href="/games-web/spaceiskey2.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Space is Key 2</span></div></a>
-        <a class="card" href="/games-web/spacewaves.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Space Waves</span></div></a>
-        <a class="card" href="/games-web/spacebarclicker.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">SPACEBAR CLICKER</span></div></a>
-        <a class="card" href="/games-web/speedstars.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Speed Stars</span></div></a>
-        <a class="card" href="/games-web/sprunki.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Sprunki</span></div></a>
-        <a class="card" href="/games-web/stack.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Stack</span></div></a>
-        <a class="card" href="/games-web/stacktris.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">StackTris</span></div></a>
-        <a class="card" href="/games-web/stateio.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">State.io</span></div></a>
-        <a class="card" href="/games-web/stickarchersbattle.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Stick Archers Battle</span></div></a>
-        <a class="card" href="/games-web/stickfighter.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Stick Fighter</span></div></a>
-        <a class="card" href="/games-web/stickmerge.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Stick Merge</span></div></a>
-        <a class="card" href="/games-web/stickmanhook.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Stickman Hook</span></div></a>
-        <a class="card" href="/games-web/superliquidsoccer.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Super Liquid Soccer</span></div></a>
-        <a class="card" href="/games-web/sm64.html" target="_blank" rel="noopener"><div class="icon">S</div><div class="meta"><span class="gname">Super Mario 64</span></div></a>
-        <a class="card" href="/games-web/tabletennisworldtour.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Table Tennis World Tour</span></div></a>
-        <a class="card" href="/games-web/tag.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Tag</span></div></a>
-        <a class="card" href="/games-web/templeofboom.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Temple of Boom</span></div></a>
-        <a class="card" href="/games-web/territorialio.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Territorial.io</span></div></a>
-        <a class="card" href="/games-web/theimpossiblequiz.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">The Impossible Quiz</span></div></a>
-        <a class="card" href="/games-web/theimpossiblequiz2.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">The Impossible Quiz 2</span></div></a>
-        <a class="card" href="/games-web/thereisnog.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">There Is No Game</span></div></a>
-        <a class="card" href="/games-web/thisistheonlylevel.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">This Is The Only Level</span></div></a>
-        <a class="card" href="/games-web/thisistheonlyleveltoo.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">This Is The Only Level Too</span></div></a>
-        <a class="card" href="/games-web/timeshooter2.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Time Shooter 2</span></div></a>
-        <a class="card" href="/games-web/tinyfishing.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Tiny Fishing</span></div></a>
-        <a class="card" href="/games-web/trapthecat.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Trap the Cat</span></div></a>
-        <a class="card" href="/games-web/triviacrack.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Trivia Crack</span></div></a>
-        <a class="card" href="/games-web/tubejumpers.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Tube Jumpers</span></div></a>
-        <a class="card" href="/games-web/tunnelrush.html" target="_blank" rel="noopener"><div class="icon">T</div><div class="meta"><span class="gname">Tunnel Rush</span></div></a>
-        <a class="card" href="/games-web/unicyclehero.html" target="_blank" rel="noopener"><div class="icon">U</div><div class="meta"><span class="gname">Unicycle Hero</span></div></a>
-        <a class="card" href="/games-web/vex4.html" target="_blank" rel="noopener"><div class="icon">V</div><div class="meta"><span class="gname">Vex 4</span></div></a>
-        <a class="card" href="/games-web/vex5.html" target="_blank" rel="noopener"><div class="icon">V</div><div class="meta"><span class="gname">Vex 5</span></div></a>
-        <a class="card" href="/games-web/vexx3m.html" target="_blank" rel="noopener"><div class="icon">V</div><div class="meta"><span class="gname">Vex X3M</span></div></a>
-        <a class="card" href="/games-web/vexx3m2.html" target="_blank" rel="noopener"><div class="icon">V</div><div class="meta"><span class="gname">Vex X3M 2</span></div></a>
-        <a class="card" href="/games-web/volleyrandom.html" target="_blank" rel="noopener"><div class="icon">V</div><div class="meta"><span class="gname">Volley Random</span></div></a>
-        <a class="card" href="/games-web/webecomewhatwebehold.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">We Become What We Behold</span></div></a>
-        <a class="card" href="/games-web/wheeliebike.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">Wheelie Bike</span></div></a>
-        <a class="card" href="/games-web/wheely.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">Wheely</span></div></a>
-        <a class="card" href="/games-web/wheely2.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">Wheely 2</span></div></a>
-        <a class="card" href="/games-web/wheely3.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">Wheely 3</span></div></a>
-        <a class="card" href="/games-web/wheely6.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">Wheely 6</span></div></a>
-        <a class="card" href="/games-web/wheely8.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">Wheely 8</span></div></a>
-        <a class="card" href="/games-web/wordleunlimited.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">Wordle Unlimited</span></div></a>
-        <a class="card" href="/games-web/worldshardestgame.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">World&#x27;s Hardest Game</span></div></a>
-        <a class="card" href="/games-web/worldshardestgame2.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">World&#x27;s Hardest Game 2</span></div></a>
-        <a class="card" href="/games-web/worldshardestgame3.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">World&#x27;s Hardest Game 3</span></div></a>
-        <a class="card" href="/games-web/wrestlebros.html" target="_blank" rel="noopener"><div class="icon">W</div><div class="meta"><span class="gname">Wrestle Bros</span></div></a>
-        <a class="card" href="/games-web/zombierush.html" target="_blank" rel="noopener"><div class="icon">Z</div><div class="meta"><span class="gname">Zombie Rush</span></div></a>
-  </main>
-
-  <footer>Game Hub · HTML5 Games</footer>
-
+</header>
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">没有找到匹配的游戏 / No games found</div>
+</main>
+<footer>Game Hub · <span id="ftotal"></span> games</footer>
 <script>
 (function(){
-  var input = document.getElementById('search');
-  var grid = document.getElementById('grid');
-  var empty = document.getElementById('empty');
-  var cards = Array.prototype.slice.call(grid.children);
-  var count = document.getElementById('count');
-  var total = cards.length;
-  var i = 0;
-  var iconGrads = [
-    'linear-gradient(135deg,#5FD0F5,#3AA8D0)',
-    'linear-gradient(135deg,#5FC8F5,#3A86D0)',
-    'linear-gradient(135deg,#5FE7F5,#3AC8D0)',
-    'linear-gradient(135deg,#6FD0F5,#4A8AD0)',
-    'linear-gradient(135deg,#5FD0FF,#5A9AD0)',
-    'linear-gradient(135deg,#55D9E8,#3A96D8)',
-    'linear-gradient(135deg,#5AD2F0,#3AA0CE)',
-    'linear-gradient(135deg,#66CFF8,#4E8FC8)',
-    'linear-gradient(135deg,#5BCFF5,#4AB0D8)',
-    'linear-gradient(135deg,#7FD8F5,#3A9CC8)',
-    'linear-gradient(135deg,#57C5F5,#47B0D0)',
-    'linear-gradient(135deg,#6BD7F5,#3E9ED0)',
-    'linear-gradient(135deg,#62CDF3,#58A6D0)',
-    'linear-gradient(135deg,#5ED8FA,#3AA0C4)',
-    'linear-gradient(135deg,#7AD9F7,#48A6D0)',
-    'linear-gradient(135deg,#5CC6F0,#3EAAE0)'
-  ];
-  var highlight = 'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 60%)';
-  cards.forEach(function(card){
-    var icon = card.querySelector('.icon');
-    var g = iconGrads[i % iconGrads.length]; i++;
-    // base gradient (135deg linear) + radial white highlight
-    icon.style.backgroundImage = g + ', ' + highlight;
-    icon.style.backgroundRepeat = 'no-repeat, no-repeat';
-    icon.style.backgroundPosition = 'center, center';
-    icon.style.backgroundSize = 'cover, cover';
-    // letter overlay
-    var l = document.createElement('i');
-    l.textContent = icon.textContent;
-    icon.textContent = '';
-    icon.appendChild(l);
-  });
+"use strict";
+var GAMES = [{"f": "1on1soccer.html", "n": "1 on 1 Soccer"}, {"f": "1on1tennis.html", "n": "1 on 1 Tennis"}, {"f": "12minibattles.html", "n": "12 Mini Battles"}, {"f": "2048.html", "n": "2048"}, {"f": "2048cupcakes.html", "n": "2048 Cupcakes"}, {"f": "8ballclassic.html", "n": "8 Ball Classic"}, {"f": "agariolite.html", "n": "Agar.io Lite"}, {"f": "ageofwar.html", "n": "Ageofwar"}, {"f": "ageofwar2.html", "n": "Ageofwar 2"}, {"f": "agesofconflict.html", "n": "Agesofconflict"}, {"f": "amongus.html", "n": "Amongus"}, {"f": "angrybirds.html", "n": "Angrybirds"}, {"f": "angrybirdsspace.html", "n": "Angrybirdsspace"}, {"f": "awesometanks.html", "n": "Awesometanks"}, {"f": "awesometanks2.html", "n": "Awesometanks 2"}, {"f": "backrooms.html", "n": "Backrooms"}, {"f": "baconmaydie.html", "n": "Baconmaydie"}, {"f": "badicecream.html", "n": "Badicecream"}, {"f": "badicecream2.html", "n": "Badicecream 2"}, {"f": "badicecream3.html", "n": "Badicecream 3"}, {"f": "badpiggies.html", "n": "Badpiggies"}, {"f": "baseballbros.html", "n": "Baseballbros"}, {"f": "basketballlegends.html", "n": "Basketballlegends"}, {"f": "basketballstars.html", "n": "Basketballstars"}, {"f": "basketbros.html", "n": "Basketbros"}, {"f": "basketrandom.html", "n": "Basketrandom"}, {"f": "blockysnakes.html", "n": "Blockysnakes"}, {"f": "bloonsTD.html", "n": "Bloons TD"}, {"f": "bloonsTD2.html", "n": "Bloons TD 2"}, {"f": "bloonsTD3.html", "n": "Bloons TD 3"}, {"f": "bloonsTD4.html", "n": "Bloons TD 4"}, {"f": "bloonsTD5.html", "n": "Bloons TD 5"}, {"f": "bloxorz.html", "n": "Bloxorz"}, {"f": "blumgiracers.html", "n": "Blumgiracers"}, {"f": "blumgirocket.html", "n": "Blumgirocket"}, {"f": "bobtherobber.html", "n": "Bobtherobber"}, {"f": "bobtherobber2.html", "n": "Bobtherobber 2"}, {"f": "bobtherobber5.html", "n": "Bobtherobber 5"}, {"f": "breakingthebank.html", "n": "Breakingthebank"}, {"f": "bubbleshooter.html", "n": "Bubbleshooter"}, {"f": "candycrush.html", "n": "Candycrush"}, {"f": "capybaraclicker.html", "n": "Capybaraclicker"}, {"f": "cardrawing.html", "n": "Cardrawing"}, {"f": "carkingarena.html", "n": "Carkingarena"}, {"f": "chess.html", "n": "Chess"}, {"f": "choppyorc.html", "n": "Choppyorc"}, {"f": "circloO.html", "n": "circloO"}, {"f": "circloO2.html", "n": "circloO 2"}, {"f": "clashofvikings.html", "n": "Clashofvikings"}, {"f": "cleanupio.html", "n": "Cleanupio"}, {"f": "clusterrush.html", "n": "Cluster Rush"}, {"f": "crazycars.html", "n": "Crazycars"}, {"f": "crazymotorcycle.html", "n": "Crazymotorcycle"}, {"f": "dadish.html", "n": "Dadish"}, {"f": "dadish2.html", "n": "Dadish 2"}, {"f": "dadish3.html", "n": "Dadish 3"}, {"f": "deathrun3D.html", "n": "Death Run 3D"}, {"f": "googledino.html", "n": "Dino Game"}, {"f": "doodlejump.html", "n": "Doodlejump"}, {"f": "drawclimber.html", "n": "Drawclimber"}, {"f": "ducklife.html", "n": "Ducklife"}, {"f": "ducklife2.html", "n": "Ducklife 2"}, {"f": "ducklife3.html", "n": "Ducklife 3"}, {"f": "ducklife4.html", "n": "Ducklife 4"}, {"f": "ducklife5.html", "n": "Ducklife 5"}, {"f": "ducklingsio.html", "n": "Ducklingsio"}, {"f": "eagleride.html", "n": "Eagleride"}, {"f": "earntodie.html", "n": "Earntodie"}, {"f": "earntodie2.html", "n": "Earntodie 2"}, {"f": "eggycar.html", "n": "Eggycar"}, {"f": "escapingtheprison.html", "n": "Escapingtheprison"}, {"f": "evilglitch.html", "n": "Evil Glitch"}, {"f": "fancypantsadventure.html", "n": "Fancypantsadventure"}, {"f": "fancypantsadventure2.html", "n": "Fancypantsadventure 2"}, {"f": "fireboyandwatergirl.html", "n": "Fireboyandwatergirl"}, {"f": "fireboyandwatergirl2.html", "n": "Fireboyandwatergirl 2"}, {"f": "fireboyandwatergirl3.html", "n": "Fireboyandwatergirl 3"}, {"f": "fireboyandwatergirl4.html", "n": "Fireboyandwatergirl 4"}, {"f": "fnaf.html", "n": "Five Nights at Freddy's"}, {"f": "flappybird.html", "n": "Flappy Bird"}, {"f": "floodrunner2.html", "n": "Floodrunner 2"}, {"f": "floodrunner3.html", "n": "Floodrunner 3"}, {"f": "floodrunner4.html", "n": "Floodrunner 4"}, {"f": "fnaf4.html", "n": "FNAF 4"}, {"f": "footballbros.html", "n": "Football Bros"}, {"f": "footballlegends.html", "n": "Footballlegends"}, {"f": "freerider3.html", "n": "Freerider 3"}, {"f": "fruitninja.html", "n": "Fruitninja"}, {"f": "funnybattle.html", "n": "Funnybattle"}, {"f": "funnybattle2.html", "n": "Funnybattle 2"}, {"f": "geometrydash.html", "n": "Geometry Dash"}, {"f": "getontop.html", "n": "Getontop"}, {"f": "googlebaseball.html", "n": "Googlebaseball"}, {"f": "guesstheiranswer.html", "n": "Guesstheiranswer"}, {"f": "hanger2.html", "n": "Hanger 2"}, {"f": "happywheels.html", "n": "Happywheels"}, {"f": "helixjump.html", "n": "Helixjump"}, {"f": "hillclimbracinglite.html", "n": "Hillclimbracinglite"}, {"f": "holeio.html", "n": "Holeio"}, {"f": "houseofhazards.html", "n": "Houseofhazards"}, {"f": "hoverracerdrive.html", "n": "Hoverracerdrive"}, {"f": "idlebreakout.html", "n": "Idlebreakout"}, {"f": "ironsnout.html", "n": "Ironsnout"}, {"f": "jetpackjoyride.html", "n": "Jetpackjoyride"}, {"f": "johnnytrigger.html", "n": "Johnnytrigger"}, {"f": "jumpingshell.html", "n": "Jumpingshell"}, {"f": "karatebros.html", "n": "Karatebros"}, {"f": "learntofly.html", "n": "Learntofly"}, {"f": "learntofly2.html", "n": "Learntofly 2"}, {"f": "learntoflyidle.html", "n": "Learntoflyidle"}, {"f": "leveldevil.html", "n": "Level Devil"}, {"f": "melonplayground.html", "n": "Melonplayground"}, {"f": "mergeroundracers.html", "n": "Mergeroundracers"}, {"f": "1.5.html", "n": "Minecraft 1.5"}, {"f": "1.8.html", "n": "Minecraft 1.8"}, {"f": "Alpha_1.2.6.html", "n": "Minecraft Alpha 1.2.6"}, {"f": "Beta_1.3.html", "n": "Minecraft Beta 1.3"}, {"f": "Indev.html", "n": "Minecraft Indev"}, {"f": "minesweeper.html", "n": "Minesweeper"}, {"f": "monstertracks.html", "n": "Monstertracks"}, {"f": "motox3m2.html", "n": "Motox 3 M 2"}, {"f": "motox3m3.html", "n": "Motox 3 M 3"}, {"f": "motox3mpoolparty.html", "n": "Motox 3 Mpoolparty"}, {"f": "motox3mspookyland.html", "n": "Motox 3 Mspookyland"}, {"f": "motox3mwinter.html", "n": "Motox 3 Mwinter"}, {"f": "noobminer.html", "n": "Noob Miner"}, {"f": "oppositeday.html", "n": "Oppositeday"}, {"f": "ovo.html", "n": "OvO"}, {"f": "ovo2.html", "n": "OvO 2"}, {"f": "pacman.html", "n": "Pac Man"}, {"f": "papasburgeria.html", "n": "Papasburgeria"}, {"f": "papascheeseria.html", "n": "Papascheeseria"}, {"f": "papascupcakeria.html", "n": "Papascupcakeria"}, {"f": "papasdonuteria.html", "n": "Papasdonuteria"}, {"f": "papasfreezeria.html", "n": "Papasfreezeria"}, {"f": "papashotdoggeria.html", "n": "Papashotdoggeria"}, {"f": "papaspancakeria.html", "n": "Papaspancakeria"}, {"f": "papaspastaria.html", "n": "Papaspastaria"}, {"f": "papaspizzeria.html", "n": "Papaspizzeria"}, {"f": "papastacomia.html", "n": "Papastacomia"}, {"f": "papaswingeria.html", "n": "Papaswingeria"}, {"f": "parkingfury.html", "n": "Parkingfury"}, {"f": "parkingfury2.html", "n": "Parkingfury 2"}, {"f": "parkingfury3.html", "n": "Parkingfury 3"}, {"f": "picosschool.html", "n": "Picosschool"}, {"f": "pingpongchaos.html", "n": "Pingpongchaos"}, {"f": "pixelspeedrun.html", "n": "Pixel Speedrun"}, {"f": "plantsvszombies.html", "n": "Plantsvszombies"}, {"f": "plonky.html", "n": "Plonky"}, {"f": "polytrack.html", "n": "Polytrack"}, {"f": "poorbunny.html", "n": "Poorbunny"}, {"f": "pou.html", "n": "Pou"}, {"f": "ragdollhit.html", "n": "Ragdollhit"}, {"f": "ragdollsoccer.html", "n": "Ragdollsoccer"}, {"f": "redball4vol1.html", "n": "Redball 4 Vol 1"}, {"f": "redball4vol2.html", "n": "Redball 4 Vol 2"}, {"f": "redball4vol3.html", "n": "Redball 4 Vol 3"}, {"f": "retropingpong.html", "n": "Retro-Ping-Pong"}, {"f": "retrobowl.html", "n": "Retrobowl"}, {"f": "retrobowlcollege.html", "n": "Retrobowlcollege"}, {"f": "retrohighway.html", "n": "Retrohighway"}, {"f": "riddleschool.html", "n": "Riddleschool"}, {"f": "riddleschool2.html", "n": "Riddleschool 2"}, {"f": "riddleschool3.html", "n": "Riddleschool 3"}, {"f": "riddleschool4.html", "n": "Riddleschool 4"}, {"f": "rooftopsnipers2.html", "n": "Rooftop Snipers 2"}, {"f": "run.html", "n": "Run"}, {"f": "run2.html", "n": "Run 2"}, {"f": "run3.html", "n": "Run 3"}, {"f": "sandgame.html", "n": "Sand"}, {"f": "shortlife.html", "n": "Shortlife"}, {"f": "slope2player.html", "n": "Slope 2 Player"}, {"f": "slowroads.html", "n": "Slowroads"}, {"f": "snowballio.html", "n": "Snowballio"}, {"f": "soccerbros.html", "n": "Soccerbros"}, {"f": "spacewaves.html", "n": "Space Waves"}, {"f": "spacebarclicker.html", "n": "SPACEBAR CLICKER"}, {"f": "spaceiskey.html", "n": "Spaceiskey"}, {"f": "spaceiskey2.html", "n": "Spaceiskey 2"}, {"f": "speedstars.html", "n": "Speedstars"}, {"f": "sprunki.html", "n": "Sprunki"}, {"f": "stack.html", "n": "Stack"}, {"f": "stacktris.html", "n": "Stacktris"}, {"f": "stateio.html", "n": "Stateio"}, {"f": "stickarchersbattle.html", "n": "Stickarchersbattle"}, {"f": "stickfighter.html", "n": "Stickfighter"}, {"f": "stickmanhook.html", "n": "Stickman Hook"}, {"f": "stickmerge.html", "n": "Stickmerge"}, {"f": "sm64.html", "n": "Super Mario 64"}, {"f": "superliquidsoccer.html", "n": "Superliquidsoccer"}, {"f": "tabletennisworldtour.html", "n": "Tabletennisworldtour"}, {"f": "tag.html", "n": "Tag"}, {"f": "templeofboom.html", "n": "Templeofboom"}, {"f": "territorialio.html", "n": "Territorialio"}, {"f": "theimpossiblequiz.html", "n": "Theimpossiblequiz"}, {"f": "theimpossiblequiz2.html", "n": "Theimpossiblequiz 2"}, {"f": "thereisnog.html", "n": "Thereisnog"}, {"f": "thisistheonlylevel.html", "n": "Thisistheonlylevel"}, {"f": "thisistheonlyleveltoo.html", "n": "Thisistheonlyleveltoo"}, {"f": "timeshooter2.html", "n": "Timeshooter 2"}, {"f": "tinyfishing.html", "n": "Tinyfishing"}, {"f": "trapthecat.html", "n": "Trapthecat"}, {"f": "triviacrack.html", "n": "Triviacrack"}, {"f": "tubejumpers.html", "n": "Tubejumpers"}, {"f": "tunnelrush.html", "n": "Tunnelrush"}, {"f": "unicyclehero.html", "n": "Unicyclehero"}, {"f": "vex4.html", "n": "Vex 4"}, {"f": "vex5.html", "n": "Vex 5"}, {"f": "vexx3m.html", "n": "Vexx3M"}, {"f": "vexx3m2.html", "n": "Vexx3M 2"}, {"f": "volleyrandom.html", "n": "Volleyrandom"}, {"f": "webecomewhatwebehold.html", "n": "Webecomewhatwebehold"}, {"f": "wheeliebike.html", "n": "Wheeliebike"}, {"f": "wheely.html", "n": "Wheely"}, {"f": "wheely2.html", "n": "Wheely 2"}, {"f": "wheely3.html", "n": "Wheely 3"}, {"f": "wheely6.html", "n": "Wheely 6"}, {"f": "wheely8.html", "n": "Wheely 8"}, {"f": "wordleunlimited.html", "n": "Wordleunlimited"}, {"f": "worldshardestgame.html", "n": "Worldshardestgame"}, {"f": "worldshardestgame2.html", "n": "Worldshardestgame 2"}, {"f": "worldshardestgame3.html", "n": "Worldshardestgame 3"}, {"f": "wrestlebros.html", "n": "Wrestlebros"}, {"f": "zombierush.html", "n": "Zombierush"}];
 
-  function apply(){
-    var q = input.value.toLowerCase().trim();
-    var shown = 0;
-    cards.forEach(function(card){
-      var name = card.querySelector('.gname').textContent.toLowerCase();
-      var file = card.getAttribute('data-file') || '';
-      var hit = !q || name.indexOf(q) !== -1 || file.indexOf(q) !== -1;
-      card.style.display = hit ? '' : 'none';
-      if (hit) shown++;
-    });
-    count.textContent = shown;
-    empty.style.display = shown === 0 ? 'block' : 'none';
-  }
-  cards.forEach(function(card){ card.setAttribute('data-file', card.getAttribute('href')); });
-  input.addEventListener('input', apply);
-  apply();
+/* SailfishOS icon template: shape_0100_1cut_BL — 86x86 square with a
+   quarter-circle cut out of the bottom-left (BL) corner. Only the solid
+   (non-cut) region is filled; the cut stays transparent. */
+var SHAPE = "M 0 0 L 86.0 0 L 86.0 86.0 L 0 86.0 Z M 43 86 A 43.0 43.0 0 0 1 0.0 43.0 L 0 86 Z";
+
+/* Per-card palette — each pair is a 135 deg linear gradient.
+   #5FD0F5 -> #3AA8D0 is the brand base; a few ocean/warm variants keep it lively. */
+var PALETTE = [
+  ["#5FD0F5","#3AA8D0"],
+  ["#6FE0FF","#3AA8D0"],
+  ["#5FD0F5","#2E94C4"],
+  ["#7BD9FF","#3AA8D0"],
+  ["#4EDCA0","#2EBD85"],
+  ["#5FD0F5","#1E8FB8"],
+  ["#8BE0FF","#4FC3F7"],
+  ["#FFD98A","#F9A825"],
+  ["#F48FB1","#E91E8C"],
+  ["#7E9BF5","#5C6BC0"]
+];
+
+function hash(s){var h=0,i;for(i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
+function letter(name){
+  var m=/[A-Za-z0-9\u4e00-\u9fff]/.exec(name);
+  return m?m[0].toUpperCase():"?";
+}
+function esc(s){return s.replace(/\"/g,"&quot;").replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+
+function iconSVG(g,i){
+  var c=PALETTE[hash(g.f)%PALETTE.length];
+  var L=letter(g.n);
+  return '<svg viewBox="0 0 86 86" role="img" aria-label="'+esc(g.n)+'">'
+    +'<defs>'
+    +'<linearGradient id="g'+i+'" x1="0" y1="0" x2="1" y2="1">'
+    +'<stop offset="0" stop-color="'+c[0]+'"/><stop offset="1" stop-color="'+c[1]+'"/>'
+    +'</linearGradient>'
+    +'<radialGradient id="r'+i+'" cx="0.25" cy="0.25" r="0.6">'
+    +'<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>'
+    +'<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>'
+    +'</radialGradient>'
+    +'</defs>'
+    +'<path d="'+SHAPE+'" fill-rule="evenodd" fill="url(#g'+i+')"/>'
+    +'<path d="'+SHAPE+'" fill-rule="evenodd" fill="url(#r'+i+')"/>'
+    +'<text x="43" y="47" text-anchor="middle" dominant-baseline="central" '
+    +'font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" '
+    +'font-size="29" font-weight="bold" fill="#FFFFFF">'+esc(L)+'</text>'
+    +'</svg>';
+}
+
+var grid=document.getElementById("grid");
+var cards=[];
+GAMES.forEach(function(g,i){
+  var a=document.createElement("a");
+  a.className="card";
+  a.href="/games-web/"+encodeURIComponent(g.f);
+  a.target="_blank"; a.rel="noopener";
+  a.innerHTML='<span class="icon">'+iconSVG(g,i)+'</span><span class="name"></span>';
+  a.querySelector(".name").textContent=g.n;
+  grid.appendChild(a);
+  cards.push({el:a,name:(g.n+" "+g.f).toLowerCase()});
+});
+
+var countEl=document.getElementById("count");
+var emptyEl=document.getElementById("empty");
+var ftotal=document.getElementById("ftotal");
+var total=GAMES.length;
+ftotal.textContent=total;
+function setCount(n){countEl.textContent=n+" / "+total+" 款游戏";}
+setCount(total);
+
+var q=document.getElementById("q");
+q.addEventListener("input",function(){
+  var v=q.value.trim().toLowerCase(),shown=0;
+  cards.forEach(function(c){
+    var hit=!v||c.name.indexOf(v)!==-1;
+    c.el.style.display=hit?"":"none";
+    if(hit)shown++;
+  });
+  setCount(shown);
+  emptyEl.style.display=shown?"none":"block";
+});
 })();
 </script>
 </body>
