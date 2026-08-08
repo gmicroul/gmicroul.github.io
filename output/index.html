@@ -1,710 +1,1172 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>游戏大厅 · Game Hub</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameHub - 游戏大厅</title>
+<style>
+/* Reset and base */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
-    :root {
-      --bg-start: #5FD0F5;
-      --bg-end: #3AA8D0;
-      --text: #FFFFFF;
-      --card-bg: rgba(255, 255, 255, 0.12);
-      --card-border: rgba(255, 255, 255, 0.2);
-      --card-hover: rgba(255, 255, 255, 0.2);
-      --search-bg: rgba(255, 255, 255, 0.15);
-      --search-border: rgba(255, 255, 255, 0.3);
-    }
+/* Background with gradients */
+body {
+    background: linear-gradient(135deg, #5FD0F5 0%, #3AA8D0 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    position: relative;
+}
 
-    body {
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
-      color: var(--text);
-      overflow-x: hidden;
-    }
+/* Radial highlight overlay */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 60%);
+    pointer-events: none;
+    z-index: 0;
+}
 
-    /* 背景高光效果 */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.55) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: 0;
-    }
+/* Centered title text */
+.page-title {
+    position: fixed;
+    top: 43px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #FFFFFF;
+    font-size: 29px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 10;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    white-space: nowrap;
+}
 
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px 16px;
-    }
+/* Main container */
+.container {
+    position: relative;
+    z-index: 1;
+    padding: 90px 20px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
 
-    /* 标题区域 */
-    .header {
-      text-align: center;
-      padding: 32px 16px 24px;
-    }
+/* Search section */
+.search-section {
+    margin-bottom: 30px;
+    text-align: center;
+}
+.search-box {
+    width: 100%;
+    max-width: 500px;
+    padding: 16px 24px;
+    font-size: 18px;
+    border: none;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    outline: none;
+    transition: box-shadow 0.3s, transform 0.2s;
+}
+.search-box:focus {
+    box-shadow: 0 6px 30px rgba(0,0,0,0.2);
+    transform: scale(1.02);
+}
+.search-box::placeholder {
+    color: #999;
+}
 
-    .header h1 {
-      font-size: clamp(28px, 5vw, 42px);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
+/* Stats */
+.stats {
+    text-align: center;
+    color: #FFFFFF;
+    font-size: 14px;
+    margin-bottom: 20px;
+    opacity: 0.9;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
 
-    .game-count {
-      margin-top: 8px;
-      font-size: clamp(14px, 2.5vw, 16px);
-      opacity: 0.9;
-      font-weight: 400;
-    }
+/* Games grid */
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+    animation: fadeIn 0.5s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    /* 搜索框 */
-    .search-wrapper {
-      position: relative;
-      max-width: 560px;
-      margin: 0 auto 32px;
-    }
+/* Game card */
+.game-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+}
+.game-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+.game-card:active {
+    transform: translateY(-4px) scale(0.98);
+}
 
-    .search-input {
-      width: 100%;
-      padding: 16px 20px 16px 52px;
-      font-size: 16px;
-      color: var(--text);
-      background: var(--search-bg);
-      border: 2px solid var(--search-border);
-      border-radius: 14px;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-    }
+/* Icon placeholder using CSS */
+.game-icon {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+}
+.game-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--icon-color-1), var(--icon-color-2));
+    z-index: -1;
+}
 
-    .search-input::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
+/* Generate 16 color pairs for the 16 icons */
+.game-card[data-icon-index="0"] .game-icon { --icon-color-1: #FF6B6B; --icon-color-2: #FF8E8E; }
+.game-card[data-icon-index="1"] .game-icon { --icon-color-1: #4ECDC4; --icon-color-2: #7EF9F1; }
+.game-card[data-icon-index="2"] .game-icon { --icon-color-1: #FFD93D; --icon-color-2: #FFF07D; }
+.game-card[data-icon-index="3"] .game-icon { --icon-color-1: #6BCB77; --icon-color-2: #9BF9A7; }
+.game-card[data-icon-index="4"] .game-icon { --icon-color-1: #FF9F43; --icon-color-2: #FFC07B; }
+.game-card[data-icon-index="5"] .game-icon { --icon-color-1: #A8E6CF; --icon-color-2: #D4F5E1; }
+.game-card[data-icon-index="6"] .game-icon { --icon-color-1: #FF8B94; --icon-color-2: #FFB3BB; }
+.game-card[data-icon-index="7"] .game-icon { --icon-color-1: #C7CEEA; --icon-color-2: #E8E9F5; }
+.game-card[data-icon-index="8"] .game-icon { --icon-color-1: #FFB347; --icon-color-2: #FFD18A; }
+.game-card[data-icon-index="9"] .game-icon { --icon-color-1: #77DD77; --icon-color-2: #A5EBA5; }
+.game-card[data-icon-index="10"] .game-icon { --icon-color-1: #FDFD96; --icon-color-2: #FFFFC7; }
+.game-card[data-icon-index="11"] .game-icon { --icon-color-1: #FF6961; --icon-color-2: #FF9993; }
+.game-card[data-icon-index="12"] .game-icon { --icon-color-1: #CB99C9; --icon-color-2: #E0C9E0; }
+.game-card[data-icon-index="13"] .game-icon { --icon-color-1: #779ECB; --icon-color-2: #A8C5E0; }
+.game-card[data-icon-index="14"] .game-icon { --icon-color-1: #F49AC2; --icon-color-2: #F7C5D8; }
+.game-card[data-icon-index="15"] .game-icon { --icon-color-1: #84B6F4; --icon-color-2: #B3D4F9; }
 
-    .search-input:focus {
-      border-color: var(--text);
-      background: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
-    }
+/* Letter overlay on icon */
+.game-icon .icon-letter {
+    font-size: 56px;
+    font-weight: 900;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 1;
+}
 
-    .search-icon {
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
-      opacity: 0.6;
-      pointer-events: none;
-    }
+/* Game title */
+.game-title {
+    padding: 14px 12px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+}
 
-    .clear-btn {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 28px;
-      height: 28px;
-      border: none;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      color: var(--text);
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
-    }
+/* Hidden state */
+.game-card.hidden {
+    display: none !important;
+}
 
-    .clear-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .page-title { font-size: 24px; top: 30px; }
+    .container { padding: 75px 12px 30px; }
+    .search-box { padding: 14px 20px; font-size: 16px; }
+    .games-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; }
+    .game-title { font-size: 12px; padding: 10px 8px; }
+    .game-icon { font-size: 40px; }
+    .game-icon .icon-letter { font-size: 48px; }
+}
+@media (max-width: 768px) and (min-width: 481px) {
+    .games-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
+}
+@media (min-width: 1200px) {
+    .games-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
 
-    .clear-btn.visible {
-      display: flex;
-    }
-
-    /* 游戏网格 */
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 16px;
-    }
-
-    /* 游戏卡片 */
-    .game-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 12px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      text-decoration: none;
-      color: var(--text);
-      transition: transform 0.2s, background 0.2s, box-shadow 0.2s, border-color 0.2s;
-      backdrop-filter: blur(8px);
-    }
-
-    .game-card:hover {
-      transform: translateY(-4px);
-      background: var(--card-hover);
-      border-color: rgba(255, 255, 255, 0.4);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-    }
-
-    .game-card:active {
-      transform: translateY(-2px) scale(0.98);
-    }
-
-    /* 图标容器 */
-    .icon-wrapper {
-      width: 64px;
-      height: 64px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-      font-weight: 700;
-      font-size: 24px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .game-title {
-      font-size: 14px;
-      font-weight: 500;
-      text-align: center;
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      word-break: break-word;
-    }
-
-    .game-card.hidden {
-      display: none;
-    }
-
-    /* 空状态 */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
-      opacity: 0.7;
-    }
-
-    .empty-state svg {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 16px;
-    }
-
-    /* 响应式断点 */
-    @media (max-width: 480px) {
-      .container {
-        padding: 16px 12px;
-      }
-
-      .header {
-        padding: 24px 8px 16px;
-      }
-
-      .games-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-
-      .game-card {
-        padding: 16px 8px;
-      }
-
-      .icon-wrapper {
-        width: 52px;
-        height: 52px;
-        font-size: 20px;
-        border-radius: 12px;
-      }
-
-      .game-title {
-        font-size: 12px;
-      }
-
-      .search-input {
-        padding: 14px 16px 14px 46px;
-        font-size: 16px; /* 防止 iOS 缩放 */
-      }
-    }
-
-    @media (min-width: 481px) and (max-width: 768px) {
-      .games-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (min-width: 769px) and (max-width: 1024px) {
-      .games-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    @media (min-width: 1025px) and (max-width: 1280px) {
-      .games-grid {
-        grid-template-columns: repeat(5, 1fr);
-      }
-    }
-
-    @media (min-width: 1281px) {
-      .games-grid {
-        grid-template-columns: repeat(6, 1fr);
-      }
-    }
-
-    /* 入场动画 */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .game-card {
-      animation: fadeInUp 0.4s ease-out backwards;
-    }
-
-    .game-card:nth-child(1) { animation-delay: 0ms; }
-    .game-card:nth-child(2) { animation-delay: 20ms; }
-    .game-card:nth-child(3) { animation-delay: 40ms; }
-    .game-card:nth-child(4) { animation-delay: 60ms; }
-    .game-card:nth-child(5) { animation-delay: 80ms; }
-    .game-card:nth-child(6) { animation-delay: 100ms; }
-    .game-card:nth-child(7) { animation-delay: 120ms; }
-    .game-card:nth-child(8) { animation-delay: 140ms; }
-    .game-card:nth-child(9) { animation-delay: 160ms; }
-    .game-card:nth-child(10) { animation-delay: 180ms; }
-    .game-card:nth-child(11) { animation-delay: 200ms; }
-    .game-card:nth-child(12) { animation-delay: 220ms; }
-    .game-card:nth-child(13) { animation-delay: 240ms; }
-    .game-card:nth-child(14) { animation-delay: 260ms; }
-    .game-card:nth-child(15) { animation-delay: 280ms; }
-    .game-card:nth-child(16) { animation-delay: 300ms; }
-    .game-card:nth-child(17) { animation-delay: 320ms; }
-    .game-card:nth-child(18) { animation-delay: 340ms; }
-    .game-card:nth-child(19) { animation-delay: 360ms; }
-    .game-card:nth-child(20) { animation-delay: 380ms; }
-
-    /* 减少动画偏好 */
-    @media (prefers-reduced-motion: reduce) {
-      .game-card {
-        animation: none;
-      }
-      .game-card:hover {
-        transform: none;
-      }
-    }
-
-    /* 滚动条样式 */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.5);
-    }
-  </style>
+/* Loading animation for cards */
+@keyframes cardAppear {
+    from { opacity: 0; transform: translateY(20px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.game-card { animation: cardAppear 0.4s ease-out backwards; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <h1>游戏大厅</h1>
-      <div class="game-count" id="gameCount">共 225 个游戏</div>
-    </header>
-
-    <div class="search-wrapper">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"></circle>
-        <path d="M21 21l-4.35-4.35"></path>
-      </svg>
-      <input
-        type="search"
-        class="search-input"
-        id="searchInput"
-        placeholder="搜索游戏..."
-        autocomplete="off"
-        aria-label="搜索游戏"
-      >
-      <button class="clear-btn" id="clearBtn" aria-label="清除搜索">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+<div class="page-title">GameHub</div>
+<div class="container">
+    <div class="search-section">
+        <input type="text" class="search-box" id="searchBox" placeholder="搜索游戏..." autocomplete="off">
     </div>
-
+    <div class="stats" id="stats">共 225 款游戏</div>
     <div class="games-grid" id="gamesGrid">
-      <!-- 游戏卡片将由 JS 动态生成 -->
+        <a href="/games-web/12minibattles.html" class="game-card" data-icon-index="0" data-title="12minibattles">
+            <div class="game-icon"><span class="icon-letter">1</span></div>
+            <div class="game-title">12Minibattles</div>
+        </a>
+        <a href="/games-web/1on1soccer.html" class="game-card" data-icon-index="1" data-title="1on1soccer">
+            <div class="game-icon"><span class="icon-letter">1</span></div>
+            <div class="game-title">1On1Soccer</div>
+        </a>
+        <a href="/games-web/1on1tennis.html" class="game-card" data-icon-index="2" data-title="1on1tennis">
+            <div class="game-icon"><span class="icon-letter">1</span></div>
+            <div class="game-title">1On1Tennis</div>
+        </a>
+        <a href="/games-web/2048.html" class="game-card" data-icon-index="3" data-title="2048">
+            <div class="game-icon"><span class="icon-letter">2</span></div>
+            <div class="game-title">2048</div>
+        </a>
+        <a href="/games-web/2048cupcakes.html" class="game-card" data-icon-index="4" data-title="2048cupcakes">
+            <div class="game-icon"><span class="icon-letter">2</span></div>
+            <div class="game-title">2048Cupcakes</div>
+        </a>
+        <a href="/games-web/8ballclassic.html" class="game-card" data-icon-index="5" data-title="8ballclassic">
+            <div class="game-icon"><span class="icon-letter">8</span></div>
+            <div class="game-title">8Ballclassic</div>
+        </a>
+        <a href="/games-web/ageofwar.html" class="game-card" data-icon-index="6" data-title="ageofwar">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Ageofwar</div>
+        </a>
+        <a href="/games-web/ageofwar2.html" class="game-card" data-icon-index="7" data-title="ageofwar2">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Ageofwar2</div>
+        </a>
+        <a href="/games-web/agesofconflict.html" class="game-card" data-icon-index="8" data-title="agesofconflict">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Agesofconflict</div>
+        </a>
+        <a href="/games-web/Alpha_1.2.6.html" class="game-card" data-icon-index="9" data-title="alpha 1.2.6">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Alpha 1.2.6</div>
+        </a>
+        <a href="/games-web/amongus.html" class="game-card" data-icon-index="10" data-title="amongus">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Amongus</div>
+        </a>
+        <a href="/games-web/angrybirds.html" class="game-card" data-icon-index="11" data-title="angrybirds">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Angrybirds</div>
+        </a>
+        <a href="/games-web/angrybirdsspace.html" class="game-card" data-icon-index="12" data-title="angrybirdsspace">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Angrybirdsspace</div>
+        </a>
+        <a href="/games-web/awesometanks.html" class="game-card" data-icon-index="13" data-title="awesometanks">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Awesometanks</div>
+        </a>
+        <a href="/games-web/awesometanks2.html" class="game-card" data-icon-index="14" data-title="awesometanks2">
+            <div class="game-icon"><span class="icon-letter">A</span></div>
+            <div class="game-title">Awesometanks2</div>
+        </a>
+        <a href="/games-web/backrooms.html" class="game-card" data-icon-index="15" data-title="backrooms">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Backrooms</div>
+        </a>
+        <a href="/games-web/baconmaydie.html" class="game-card" data-icon-index="0" data-title="baconmaydie">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Baconmaydie</div>
+        </a>
+        <a href="/games-web/badicecream.html" class="game-card" data-icon-index="1" data-title="badicecream">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Badicecream</div>
+        </a>
+        <a href="/games-web/badicecream2.html" class="game-card" data-icon-index="2" data-title="badicecream2">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Badicecream2</div>
+        </a>
+        <a href="/games-web/badicecream3.html" class="game-card" data-icon-index="3" data-title="badicecream3">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Badicecream3</div>
+        </a>
+        <a href="/games-web/badpiggies.html" class="game-card" data-icon-index="4" data-title="badpiggies">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Badpiggies</div>
+        </a>
+        <a href="/games-web/baseballbros.html" class="game-card" data-icon-index="5" data-title="baseballbros">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Baseballbros</div>
+        </a>
+        <a href="/games-web/basketballlegends.html" class="game-card" data-icon-index="6" data-title="basketballlegends">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Basketballlegends</div>
+        </a>
+        <a href="/games-web/basketballstars.html" class="game-card" data-icon-index="7" data-title="basketballstars">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Basketballstars</div>
+        </a>
+        <a href="/games-web/basketbros.html" class="game-card" data-icon-index="8" data-title="basketbros">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Basketbros</div>
+        </a>
+        <a href="/games-web/blockysnakes.html" class="game-card" data-icon-index="9" data-title="blockysnakes">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Blockysnakes</div>
+        </a>
+        <a href="/games-web/bloonsTD.html" class="game-card" data-icon-index="10" data-title="bloonstd">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bloonstd</div>
+        </a>
+        <a href="/games-web/bloonsTD2.html" class="game-card" data-icon-index="11" data-title="bloonstd2">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bloonstd2</div>
+        </a>
+        <a href="/games-web/bloonsTD3.html" class="game-card" data-icon-index="12" data-title="bloonstd3">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bloonstd3</div>
+        </a>
+        <a href="/games-web/bloonsTD4.html" class="game-card" data-icon-index="13" data-title="bloonstd4">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bloonstd4</div>
+        </a>
+        <a href="/games-web/bloonsTD5.html" class="game-card" data-icon-index="14" data-title="bloonstd5">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bloonstd5</div>
+        </a>
+        <a href="/games-web/bloxorz.html" class="game-card" data-icon-index="15" data-title="bloxorz">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bloxorz</div>
+        </a>
+        <a href="/games-web/blumgiracers.html" class="game-card" data-icon-index="0" data-title="blumgiracers">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Blumgiracers</div>
+        </a>
+        <a href="/games-web/blumgirocket.html" class="game-card" data-icon-index="1" data-title="blumgirocket">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Blumgirocket</div>
+        </a>
+        <a href="/games-web/bobtherobber.html" class="game-card" data-icon-index="2" data-title="bobtherobber">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bobtherobber</div>
+        </a>
+        <a href="/games-web/bobtherobber2.html" class="game-card" data-icon-index="3" data-title="bobtherobber2">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bobtherobber2</div>
+        </a>
+        <a href="/games-web/bobtherobber5.html" class="game-card" data-icon-index="4" data-title="bobtherobber5">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bobtherobber5</div>
+        </a>
+        <a href="/games-web/breakingthebank.html" class="game-card" data-icon-index="5" data-title="breakingthebank">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Breakingthebank</div>
+        </a>
+        <a href="/games-web/bubbleshooter.html" class="game-card" data-icon-index="6" data-title="bubbleshooter">
+            <div class="game-icon"><span class="icon-letter">B</span></div>
+            <div class="game-title">Bubbleshooter</div>
+        </a>
+        <a href="/games-web/candycrush.html" class="game-card" data-icon-index="7" data-title="candycrush">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Candycrush</div>
+        </a>
+        <a href="/games-web/capybaraclicker.html" class="game-card" data-icon-index="8" data-title="capybaraclicker">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Capybaraclicker</div>
+        </a>
+        <a href="/games-web/cardrawing.html" class="game-card" data-icon-index="9" data-title="cardrawing">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Cardrawing</div>
+        </a>
+        <a href="/games-web/carkingarena.html" class="game-card" data-icon-index="10" data-title="carkingarena">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Carkingarena</div>
+        </a>
+        <a href="/games-web/chess.html" class="game-card" data-icon-index="11" data-title="chess">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Chess</div>
+        </a>
+        <a href="/games-web/choppyorc.html" class="game-card" data-icon-index="12" data-title="choppyorc">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Choppyorc</div>
+        </a>
+        <a href="/games-web/circloO.html" class="game-card" data-icon-index="13" data-title="circloo">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Circloo</div>
+        </a>
+        <a href="/games-web/circloO2.html" class="game-card" data-icon-index="14" data-title="circloo2">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Circloo2</div>
+        </a>
+        <a href="/games-web/clashofvikings.html" class="game-card" data-icon-index="15" data-title="clashofvikings">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Clashofvikings</div>
+        </a>
+        <a href="/games-web/basketrandom.html" class="game-card" data-icon-index="0" data-title="class">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Class</div>
+        </a>
+        <a href="/games-web/cleanupio.html" class="game-card" data-icon-index="1" data-title="cleanupio">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Cleanupio</div>
+        </a>
+        <a href="/games-web/clusterrush.html" class="game-card" data-icon-index="2" data-title="cluster rush">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Cluster Rush</div>
+        </a>
+        <a href="/games-web/crazycars.html" class="game-card" data-icon-index="3" data-title="crazycars">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Crazycars</div>
+        </a>
+        <a href="/games-web/crazymotorcycle.html" class="game-card" data-icon-index="4" data-title="crazymotorcycle">
+            <div class="game-icon"><span class="icon-letter">C</span></div>
+            <div class="game-title">Crazymotorcycle</div>
+        </a>
+        <a href="/games-web/dadish.html" class="game-card" data-icon-index="5" data-title="dadish">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Dadish</div>
+        </a>
+        <a href="/games-web/dadish2.html" class="game-card" data-icon-index="6" data-title="dadish2">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Dadish2</div>
+        </a>
+        <a href="/games-web/dadish3.html" class="game-card" data-icon-index="7" data-title="dadish3">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Dadish3</div>
+        </a>
+        <a href="/games-web/deathrun3D.html" class="game-card" data-icon-index="8" data-title="deathrun3d">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Deathrun3D</div>
+        </a>
+        <a href="/games-web/googledino.html" class="game-card" data-icon-index="9" data-title="dinosaur game chrome">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Dinosaur Game Chrome</div>
+        </a>
+        <a href="/games-web/drawclimber.html" class="game-card" data-icon-index="10" data-title="drawclimber">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Drawclimber</div>
+        </a>
+        <a href="/games-web/ducklife.html" class="game-card" data-icon-index="11" data-title="ducklife">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Ducklife</div>
+        </a>
+        <a href="/games-web/ducklife2.html" class="game-card" data-icon-index="12" data-title="ducklife2">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Ducklife2</div>
+        </a>
+        <a href="/games-web/ducklife3.html" class="game-card" data-icon-index="13" data-title="ducklife3">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Ducklife3</div>
+        </a>
+        <a href="/games-web/ducklife4.html" class="game-card" data-icon-index="14" data-title="ducklife4">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Ducklife4</div>
+        </a>
+        <a href="/games-web/ducklife5.html" class="game-card" data-icon-index="15" data-title="ducklife5">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Ducklife5</div>
+        </a>
+        <a href="/games-web/ducklingsio.html" class="game-card" data-icon-index="0" data-title="ducklingsio">
+            <div class="game-icon"><span class="icon-letter">D</span></div>
+            <div class="game-title">Ducklingsio</div>
+        </a>
+        <a href="/games-web/Beta_1.3.html" class="game-card" data-icon-index="1" data-title="eaglercraft launcher | beta 1.3 offline">
+            <div class="game-icon"><span class="icon-letter">E</span></div>
+            <div class="game-title">Eaglercraft Launcher | Beta 1.3 Offline</div>
+        </a>
+        <a href="/games-web/Indev.html" class="game-card" data-icon-index="2" data-title="eaglercraft launcher | indev offline">
+            <div class="game-icon"><span class="icon-letter">E</span></div>
+            <div class="game-title">Eaglercraft Launcher | Indev Offline</div>
+        </a>
+        <a href="/games-web/eagleride.html" class="game-card" data-icon-index="3" data-title="eagleride">
+            <div class="game-icon"><span class="icon-letter">E</span></div>
+            <div class="game-title">Eagleride</div>
+        </a>
+        <a href="/games-web/earntodie.html" class="game-card" data-icon-index="4" data-title="earntodie">
+            <div class="game-icon"><span class="icon-letter">E</span></div>
+            <div class="game-title">Earntodie</div>
+        </a>
+        <a href="/games-web/earntodie2.html" class="game-card" data-icon-index="5" data-title="earntodie2">
+            <div class="game-icon"><span class="icon-letter">E</span></div>
+            <div class="game-title">Earntodie2</div>
+        </a>
+        <a href="/games-web/eggycar.html" class="game-card" data-icon-index="6" data-title="eggycar">
+            <div class="game-icon"><span class="icon-letter">E</span></div>
+            <div class="game-title">Eggycar</div>
+        </a>
+        <a href="/games-web/escapingtheprison.html" class="game-card" data-icon-index="7" data-title="escapingtheprison">
+            <div class="game-icon"><span class="icon-letter">E</span></div>
+            <div class="game-title">Escapingtheprison</div>
+        </a>
+        <a href="/games-web/evilglitch.html" class="game-card" data-icon-index="8" data-title="evil glitch">
+            <div class="game-icon"><span class="icon-letter">E</span></div>
+            <div class="game-title">Evil Glitch</div>
+        </a>
+        <a href="/games-web/fancypantsadventure.html" class="game-card" data-icon-index="9" data-title="fancypantsadventure">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Fancypantsadventure</div>
+        </a>
+        <a href="/games-web/fancypantsadventure2.html" class="game-card" data-icon-index="10" data-title="fancypantsadventure2">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Fancypantsadventure2</div>
+        </a>
+        <a href="/games-web/fireboyandwatergirl.html" class="game-card" data-icon-index="11" data-title="fireboyandwatergirl">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Fireboyandwatergirl</div>
+        </a>
+        <a href="/games-web/fireboyandwatergirl2.html" class="game-card" data-icon-index="12" data-title="fireboyandwatergirl2">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Fireboyandwatergirl2</div>
+        </a>
+        <a href="/games-web/fireboyandwatergirl3.html" class="game-card" data-icon-index="13" data-title="fireboyandwatergirl3">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Fireboyandwatergirl3</div>
+        </a>
+        <a href="/games-web/fireboyandwatergirl4.html" class="game-card" data-icon-index="14" data-title="fireboyandwatergirl4">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Fireboyandwatergirl4</div>
+        </a>
+        <a href="/games-web/flappybird.html" class="game-card" data-icon-index="15" data-title="flappy bird">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Flappy Bird</div>
+        </a>
+        <a href="/games-web/floodrunner2.html" class="game-card" data-icon-index="0" data-title="floodrunner2">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Floodrunner2</div>
+        </a>
+        <a href="/games-web/floodrunner3.html" class="game-card" data-icon-index="1" data-title="floodrunner3">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Floodrunner3</div>
+        </a>
+        <a href="/games-web/floodrunner4.html" class="game-card" data-icon-index="2" data-title="floodrunner4">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Floodrunner4</div>
+        </a>
+        <a href="/games-web/fnaf.html" class="game-card" data-icon-index="3" data-title="fnaf">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Fnaf</div>
+        </a>
+        <a href="/games-web/fnaf4.html" class="game-card" data-icon-index="4" data-title="fnaf-4">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">FNAF-4</div>
+        </a>
+        <a href="/games-web/footballbros.html" class="game-card" data-icon-index="5" data-title="football bros! | official site">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">FOOTBALL BROS! | Official Site</div>
+        </a>
+        <a href="/games-web/footballlegends.html" class="game-card" data-icon-index="6" data-title="footballlegends">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Footballlegends</div>
+        </a>
+        <a href="/games-web/freerider3.html" class="game-card" data-icon-index="7" data-title="freerider3">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Freerider3</div>
+        </a>
+        <a href="/games-web/fruitninja.html" class="game-card" data-icon-index="8" data-title="fruitninja">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Fruitninja</div>
+        </a>
+        <a href="/games-web/funnybattle.html" class="game-card" data-icon-index="9" data-title="funnybattle">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Funnybattle</div>
+        </a>
+        <a href="/games-web/funnybattle2.html" class="game-card" data-icon-index="10" data-title="funnybattle2">
+            <div class="game-icon"><span class="icon-letter">F</span></div>
+            <div class="game-title">Funnybattle2</div>
+        </a>
+        <a href="/games-web/geometrydash.html" class="game-card" data-icon-index="11" data-title="geometry dash">
+            <div class="game-icon"><span class="icon-letter">G</span></div>
+            <div class="game-title">Geometry Dash</div>
+        </a>
+        <a href="/games-web/getontop.html" class="game-card" data-icon-index="12" data-title="getontop">
+            <div class="game-icon"><span class="icon-letter">G</span></div>
+            <div class="game-title">Getontop</div>
+        </a>
+        <a href="/games-web/googlebaseball.html" class="game-card" data-icon-index="13" data-title="googlebaseball">
+            <div class="game-icon"><span class="icon-letter">G</span></div>
+            <div class="game-title">Googlebaseball</div>
+        </a>
+        <a href="/games-web/guesstheiranswer.html" class="game-card" data-icon-index="14" data-title="guesstheiranswer">
+            <div class="game-icon"><span class="icon-letter">G</span></div>
+            <div class="game-title">Guesstheiranswer</div>
+        </a>
+        <a href="/games-web/hanger2.html" class="game-card" data-icon-index="15" data-title="hanger2">
+            <div class="game-icon"><span class="icon-letter">H</span></div>
+            <div class="game-title">Hanger2</div>
+        </a>
+        <a href="/games-web/happywheels.html" class="game-card" data-icon-index="0" data-title="happywheels">
+            <div class="game-icon"><span class="icon-letter">H</span></div>
+            <div class="game-title">Happywheels</div>
+        </a>
+        <a href="/games-web/helixjump.html" class="game-card" data-icon-index="1" data-title="helixjump">
+            <div class="game-icon"><span class="icon-letter">H</span></div>
+            <div class="game-title">Helixjump</div>
+        </a>
+        <a href="/games-web/hillclimbracinglite.html" class="game-card" data-icon-index="2" data-title="hillclimbracinglite">
+            <div class="game-icon"><span class="icon-letter">H</span></div>
+            <div class="game-title">Hillclimbracinglite</div>
+        </a>
+        <a href="/games-web/holeio.html" class="game-card" data-icon-index="3" data-title="holeio">
+            <div class="game-icon"><span class="icon-letter">H</span></div>
+            <div class="game-title">Holeio</div>
+        </a>
+        <a href="/games-web/houseofhazards.html" class="game-card" data-icon-index="4" data-title="houseofhazards">
+            <div class="game-icon"><span class="icon-letter">H</span></div>
+            <div class="game-title">Houseofhazards</div>
+        </a>
+        <a href="/games-web/hoverracerdrive.html" class="game-card" data-icon-index="5" data-title="hoverracerdrive">
+            <div class="game-icon"><span class="icon-letter">H</span></div>
+            <div class="game-title">Hoverracerdrive</div>
+        </a>
+        <a href="/games-web/idlebreakout.html" class="game-card" data-icon-index="6" data-title="idlebreakout">
+            <div class="game-icon"><span class="icon-letter">I</span></div>
+            <div class="game-title">Idlebreakout</div>
+        </a>
+        <a href="/games-web/ironsnout.html" class="game-card" data-icon-index="7" data-title="ironsnout">
+            <div class="game-icon"><span class="icon-letter">I</span></div>
+            <div class="game-title">Ironsnout</div>
+        </a>
+        <a href="/games-web/jetpackjoyride.html" class="game-card" data-icon-index="8" data-title="jetpackjoyride">
+            <div class="game-icon"><span class="icon-letter">J</span></div>
+            <div class="game-title">Jetpackjoyride</div>
+        </a>
+        <a href="/games-web/johnnytrigger.html" class="game-card" data-icon-index="9" data-title="johnnytrigger">
+            <div class="game-icon"><span class="icon-letter">J</span></div>
+            <div class="game-title">Johnnytrigger</div>
+        </a>
+        <a href="/games-web/doodlejump.html" class="game-card" data-icon-index="10" data-title="jump">
+            <div class="game-icon"><span class="icon-letter">J</span></div>
+            <div class="game-title">Jump</div>
+        </a>
+        <a href="/games-web/jumpingshell.html" class="game-card" data-icon-index="11" data-title="jumping shell">
+            <div class="game-icon"><span class="icon-letter">J</span></div>
+            <div class="game-title">Jumping Shell</div>
+        </a>
+        <a href="/games-web/karatebros.html" class="game-card" data-icon-index="12" data-title="karatebros">
+            <div class="game-icon"><span class="icon-letter">K</span></div>
+            <div class="game-title">Karatebros</div>
+        </a>
+        <a href="/games-web/learntofly.html" class="game-card" data-icon-index="13" data-title="learntofly">
+            <div class="game-icon"><span class="icon-letter">L</span></div>
+            <div class="game-title">Learntofly</div>
+        </a>
+        <a href="/games-web/learntofly2.html" class="game-card" data-icon-index="14" data-title="learntofly2">
+            <div class="game-icon"><span class="icon-letter">L</span></div>
+            <div class="game-title">Learntofly2</div>
+        </a>
+        <a href="/games-web/learntoflyidle.html" class="game-card" data-icon-index="15" data-title="learntoflyidle">
+            <div class="game-icon"><span class="icon-letter">L</span></div>
+            <div class="game-title">Learntoflyidle</div>
+        </a>
+        <a href="/games-web/leveldevil.html" class="game-card" data-icon-index="0" data-title="level devil">
+            <div class="game-icon"><span class="icon-letter">L</span></div>
+            <div class="game-title">Level Devil</div>
+        </a>
+        <a href="/games-web/melonplayground.html" class="game-card" data-icon-index="1" data-title="melonplayground">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Melonplayground</div>
+        </a>
+        <a href="/games-web/mergeroundracers.html" class="game-card" data-icon-index="2" data-title="mergeroundracers">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Mergeroundracers</div>
+        </a>
+        <a href="/games-web/minesweeper.html" class="game-card" data-icon-index="3" data-title="minesweeper">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Minesweeper</div>
+        </a>
+        <a href="/games-web/monstertracks.html" class="game-card" data-icon-index="4" data-title="monstertracks">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Monstertracks</div>
+        </a>
+        <a href="/games-web/motox3m2.html" class="game-card" data-icon-index="5" data-title="motox3m2">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Motox3M2</div>
+        </a>
+        <a href="/games-web/motox3m3.html" class="game-card" data-icon-index="6" data-title="motox3m3">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Motox3M3</div>
+        </a>
+        <a href="/games-web/motox3mpoolparty.html" class="game-card" data-icon-index="7" data-title="motox3mpoolparty">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Motox3Mpoolparty</div>
+        </a>
+        <a href="/games-web/motox3mspookyland.html" class="game-card" data-icon-index="8" data-title="motox3mspookyland">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Motox3Mspookyland</div>
+        </a>
+        <a href="/games-web/motox3mwinter.html" class="game-card" data-icon-index="9" data-title="motox3mwinter">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">Motox3Mwinter</div>
+        </a>
+        <a href="/games-web/1.5.html" class="game-card" data-icon-index="10" data-title="my drive - google drive">
+            <div class="game-icon"><span class="icon-letter">M</span></div>
+            <div class="game-title">My Drive - Google Drive</div>
+        </a>
+        <a href="/games-web/noobminer.html" class="game-card" data-icon-index="11" data-title="noob miner">
+            <div class="game-icon"><span class="icon-letter">N</span></div>
+            <div class="game-title">Noob Miner</div>
+        </a>
+        <a href="/games-web/oppositeday.html" class="game-card" data-icon-index="12" data-title="oppositeday">
+            <div class="game-icon"><span class="icon-letter">O</span></div>
+            <div class="game-title">Oppositeday</div>
+        </a>
+        <a href="/games-web/ovo2.html" class="game-card" data-icon-index="13" data-title="ovo 2">
+            <div class="game-icon"><span class="icon-letter">O</span></div>
+            <div class="game-title">OvO 2</div>
+        </a>
+        <a href="/games-web/ovo.html" class="game-card" data-icon-index="14" data-title="ovofw">
+            <div class="game-icon"><span class="icon-letter">O</span></div>
+            <div class="game-title">OvOfw</div>
+        </a>
+        <a href="/games-web/pacman.html" class="game-card" data-icon-index="15" data-title="pac man">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Pac Man</div>
+        </a>
+        <a href="/games-web/papasburgeria.html" class="game-card" data-icon-index="0" data-title="papasburgeria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papasburgeria</div>
+        </a>
+        <a href="/games-web/papascheeseria.html" class="game-card" data-icon-index="1" data-title="papascheeseria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papascheeseria</div>
+        </a>
+        <a href="/games-web/papascupcakeria.html" class="game-card" data-icon-index="2" data-title="papascupcakeria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papascupcakeria</div>
+        </a>
+        <a href="/games-web/papasdonuteria.html" class="game-card" data-icon-index="3" data-title="papasdonuteria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papasdonuteria</div>
+        </a>
+        <a href="/games-web/papasfreezeria.html" class="game-card" data-icon-index="4" data-title="papasfreezeria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papasfreezeria</div>
+        </a>
+        <a href="/games-web/papashotdoggeria.html" class="game-card" data-icon-index="5" data-title="papashotdoggeria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papashotdoggeria</div>
+        </a>
+        <a href="/games-web/papaspancakeria.html" class="game-card" data-icon-index="6" data-title="papaspancakeria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papaspancakeria</div>
+        </a>
+        <a href="/games-web/papaspastaria.html" class="game-card" data-icon-index="7" data-title="papaspastaria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papaspastaria</div>
+        </a>
+        <a href="/games-web/papaspizzeria.html" class="game-card" data-icon-index="8" data-title="papaspizzeria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papaspizzeria</div>
+        </a>
+        <a href="/games-web/papastacomia.html" class="game-card" data-icon-index="9" data-title="papastacomia">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papastacomia</div>
+        </a>
+        <a href="/games-web/papaswingeria.html" class="game-card" data-icon-index="10" data-title="papaswingeria">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Papaswingeria</div>
+        </a>
+        <a href="/games-web/parkingfury.html" class="game-card" data-icon-index="11" data-title="parkingfury">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Parkingfury</div>
+        </a>
+        <a href="/games-web/parkingfury2.html" class="game-card" data-icon-index="12" data-title="parkingfury2">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Parkingfury2</div>
+        </a>
+        <a href="/games-web/parkingfury3.html" class="game-card" data-icon-index="13" data-title="parkingfury3">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Parkingfury3</div>
+        </a>
+        <a href="/games-web/picosschool.html" class="game-card" data-icon-index="14" data-title="picosschool">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Picosschool</div>
+        </a>
+        <a href="/games-web/pingpongchaos.html" class="game-card" data-icon-index="15" data-title="pingpongchaos">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Pingpongchaos</div>
+        </a>
+        <a href="/games-web/pixelspeedrun.html" class="game-card" data-icon-index="0" data-title="pixel speedrun">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Pixel Speedrun</div>
+        </a>
+        <a href="/games-web/plantsvszombies.html" class="game-card" data-icon-index="1" data-title="plantsvszombies">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Plantsvszombies</div>
+        </a>
+        <a href="/games-web/plonky.html" class="game-card" data-icon-index="2" data-title="plonky">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Plonky</div>
+        </a>
+        <a href="/games-web/polytrack.html" class="game-card" data-icon-index="3" data-title="polytrack">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Polytrack</div>
+        </a>
+        <a href="/games-web/poorbunny.html" class="game-card" data-icon-index="4" data-title="poorbunny">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Poorbunny</div>
+        </a>
+        <a href="/games-web/pou.html" class="game-card" data-icon-index="5" data-title="pou">
+            <div class="game-icon"><span class="icon-letter">P</span></div>
+            <div class="game-title">Pou</div>
+        </a>
+        <a href="/games-web/ragdollhit.html" class="game-card" data-icon-index="6" data-title="ragdollhit">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Ragdollhit</div>
+        </a>
+        <a href="/games-web/ragdollsoccer.html" class="game-card" data-icon-index="7" data-title="ragdollsoccer">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Ragdollsoccer</div>
+        </a>
+        <a href="/games-web/redball4vol1.html" class="game-card" data-icon-index="8" data-title="redball4vol1">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Redball4Vol1</div>
+        </a>
+        <a href="/games-web/redball4vol2.html" class="game-card" data-icon-index="9" data-title="redball4vol2">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Redball4Vol2</div>
+        </a>
+        <a href="/games-web/redball4vol3.html" class="game-card" data-icon-index="10" data-title="redball4vol3">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Redball4Vol3</div>
+        </a>
+        <a href="/games-web/retropingpong.html" class="game-card" data-icon-index="11" data-title="retro-ping-pong">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Retro-Ping-Pong</div>
+        </a>
+        <a href="/games-web/retrobowl.html" class="game-card" data-icon-index="12" data-title="retrobowl">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Retrobowl</div>
+        </a>
+        <a href="/games-web/retrobowlcollege.html" class="game-card" data-icon-index="13" data-title="retrobowlcollege">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Retrobowlcollege</div>
+        </a>
+        <a href="/games-web/retrohighway.html" class="game-card" data-icon-index="14" data-title="retrohighway">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Retrohighway</div>
+        </a>
+        <a href="/games-web/riddleschool.html" class="game-card" data-icon-index="15" data-title="riddleschool">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Riddleschool</div>
+        </a>
+        <a href="/games-web/riddleschool2.html" class="game-card" data-icon-index="0" data-title="riddleschool2">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Riddleschool2</div>
+        </a>
+        <a href="/games-web/riddleschool3.html" class="game-card" data-icon-index="1" data-title="riddleschool3">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Riddleschool3</div>
+        </a>
+        <a href="/games-web/riddleschool4.html" class="game-card" data-icon-index="2" data-title="riddleschool4">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Riddleschool4</div>
+        </a>
+        <a href="/games-web/rooftopsnipers2.html" class="game-card" data-icon-index="3" data-title="rooftop snipers 2">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Rooftop Snipers 2</div>
+        </a>
+        <a href="/games-web/run.html" class="game-card" data-icon-index="4" data-title="run">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Run</div>
+        </a>
+        <a href="/games-web/run2.html" class="game-card" data-icon-index="5" data-title="run2">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Run2</div>
+        </a>
+        <a href="/games-web/run3.html" class="game-card" data-icon-index="6" data-title="run3">
+            <div class="game-icon"><span class="icon-letter">R</span></div>
+            <div class="game-title">Run3</div>
+        </a>
+        <a href="/games-web/sandgame.html" class="game-card" data-icon-index="7" data-title="sand">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Sand</div>
+        </a>
+        <a href="/games-web/1.8.html" class="game-card" data-icon-index="8" data-title="school">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">School</div>
+        </a>
+        <a href="/games-web/shortlife.html" class="game-card" data-icon-index="9" data-title="shortlife">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Shortlife</div>
+        </a>
+        <a href="/games-web/slope2player.html" class="game-card" data-icon-index="10" data-title="slope2player">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Slope2Player</div>
+        </a>
+        <a href="/games-web/slowroads.html" class="game-card" data-icon-index="11" data-title="slowroads">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Slowroads</div>
+        </a>
+        <a href="/games-web/snowballio.html" class="game-card" data-icon-index="12" data-title="snowballio">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Snowballio</div>
+        </a>
+        <a href="/games-web/soccerbros.html" class="game-card" data-icon-index="13" data-title="soccerbros">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Soccerbros</div>
+        </a>
+        <a href="/games-web/agariolite.html" class="game-card" data-icon-index="14" data-title="solo agario">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Solo Agario</div>
+        </a>
+        <a href="/games-web/spacewaves.html" class="game-card" data-icon-index="15" data-title="space waves">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Space Waves</div>
+        </a>
+        <a href="/games-web/spacebarclicker.html" class="game-card" data-icon-index="0" data-title="spacebar clicker">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">SPACEBAR CLICKER</div>
+        </a>
+        <a href="/games-web/spaceiskey.html" class="game-card" data-icon-index="1" data-title="spaceiskey">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Spaceiskey</div>
+        </a>
+        <a href="/games-web/spaceiskey2.html" class="game-card" data-icon-index="2" data-title="spaceiskey2">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Spaceiskey2</div>
+        </a>
+        <a href="/games-web/speedstars.html" class="game-card" data-icon-index="3" data-title="speedstars">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Speedstars</div>
+        </a>
+        <a href="/games-web/sprunki.html" class="game-card" data-icon-index="4" data-title="sprunki">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Sprunki</div>
+        </a>
+        <a href="/games-web/stack.html" class="game-card" data-icon-index="5" data-title="stack">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Stack</div>
+        </a>
+        <a href="/games-web/stacktris.html" class="game-card" data-icon-index="6" data-title="stacktris">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Stacktris</div>
+        </a>
+        <a href="/games-web/stateio.html" class="game-card" data-icon-index="7" data-title="stateio">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Stateio</div>
+        </a>
+        <a href="/games-web/stickarchersbattle.html" class="game-card" data-icon-index="8" data-title="stickarchersbattle">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Stickarchersbattle</div>
+        </a>
+        <a href="/games-web/stickfighter.html" class="game-card" data-icon-index="9" data-title="stickfighter">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Stickfighter</div>
+        </a>
+        <a href="/games-web/stickmanhook.html" class="game-card" data-icon-index="10" data-title="stickman hook">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Stickman Hook</div>
+        </a>
+        <a href="/games-web/stickmerge.html" class="game-card" data-icon-index="11" data-title="stickmerge">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Stickmerge</div>
+        </a>
+        <a href="/games-web/sm64.html" class="game-card" data-icon-index="12" data-title="super mario 64">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Super Mario 64</div>
+        </a>
+        <a href="/games-web/superliquidsoccer.html" class="game-card" data-icon-index="13" data-title="superliquidsoccer">
+            <div class="game-icon"><span class="icon-letter">S</span></div>
+            <div class="game-title">Superliquidsoccer</div>
+        </a>
+        <a href="/games-web/tabletennisworldtour.html" class="game-card" data-icon-index="14" data-title="tabletennisworldtour">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Tabletennisworldtour</div>
+        </a>
+        <a href="/games-web/tag.html" class="game-card" data-icon-index="15" data-title="tag">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Tag</div>
+        </a>
+        <a href="/games-web/templeofboom.html" class="game-card" data-icon-index="0" data-title="templeofboom">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Templeofboom</div>
+        </a>
+        <a href="/games-web/territorialio.html" class="game-card" data-icon-index="1" data-title="territorialio">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Territorialio</div>
+        </a>
+        <a href="/games-web/theimpossiblequiz.html" class="game-card" data-icon-index="2" data-title="theimpossiblequiz">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Theimpossiblequiz</div>
+        </a>
+        <a href="/games-web/theimpossiblequiz2.html" class="game-card" data-icon-index="3" data-title="theimpossiblequiz2">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Theimpossiblequiz2</div>
+        </a>
+        <a href="/games-web/thereisnog.html" class="game-card" data-icon-index="4" data-title="thereisnog">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Thereisnog</div>
+        </a>
+        <a href="/games-web/thisistheonlylevel.html" class="game-card" data-icon-index="5" data-title="thisistheonlylevel">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Thisistheonlylevel</div>
+        </a>
+        <a href="/games-web/thisistheonlyleveltoo.html" class="game-card" data-icon-index="6" data-title="thisistheonlyleveltoo">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Thisistheonlyleveltoo</div>
+        </a>
+        <a href="/games-web/timeshooter2.html" class="game-card" data-icon-index="7" data-title="timeshooter2">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Timeshooter2</div>
+        </a>
+        <a href="/games-web/tinyfishing.html" class="game-card" data-icon-index="8" data-title="tinyfishing">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Tinyfishing</div>
+        </a>
+        <a href="/games-web/trapthecat.html" class="game-card" data-icon-index="9" data-title="trapthecat">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Trapthecat</div>
+        </a>
+        <a href="/games-web/triviacrack.html" class="game-card" data-icon-index="10" data-title="triviacrack">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Triviacrack</div>
+        </a>
+        <a href="/games-web/tubejumpers.html" class="game-card" data-icon-index="11" data-title="tubejumpers">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Tubejumpers</div>
+        </a>
+        <a href="/games-web/tunnelrush.html" class="game-card" data-icon-index="12" data-title="tunnelrush">
+            <div class="game-icon"><span class="icon-letter">T</span></div>
+            <div class="game-title">Tunnelrush</div>
+        </a>
+        <a href="/games-web/unicyclehero.html" class="game-card" data-icon-index="13" data-title="unicyclehero">
+            <div class="game-icon"><span class="icon-letter">U</span></div>
+            <div class="game-title">Unicyclehero</div>
+        </a>
+        <a href="/games-web/vex4.html" class="game-card" data-icon-index="14" data-title="vex4">
+            <div class="game-icon"><span class="icon-letter">V</span></div>
+            <div class="game-title">Vex4</div>
+        </a>
+        <a href="/games-web/vex5.html" class="game-card" data-icon-index="15" data-title="vex5">
+            <div class="game-icon"><span class="icon-letter">V</span></div>
+            <div class="game-title">Vex5</div>
+        </a>
+        <a href="/games-web/vexx3m.html" class="game-card" data-icon-index="0" data-title="vexx3m">
+            <div class="game-icon"><span class="icon-letter">V</span></div>
+            <div class="game-title">Vexx3M</div>
+        </a>
+        <a href="/games-web/vexx3m2.html" class="game-card" data-icon-index="1" data-title="vexx3m2">
+            <div class="game-icon"><span class="icon-letter">V</span></div>
+            <div class="game-title">Vexx3M2</div>
+        </a>
+        <a href="/games-web/volleyrandom.html" class="game-card" data-icon-index="2" data-title="volleyrandom">
+            <div class="game-icon"><span class="icon-letter">V</span></div>
+            <div class="game-title">Volleyrandom</div>
+        </a>
+        <a href="/games-web/webecomewhatwebehold.html" class="game-card" data-icon-index="3" data-title="webecomewhatwebehold">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Webecomewhatwebehold</div>
+        </a>
+        <a href="/games-web/wheeliebike.html" class="game-card" data-icon-index="4" data-title="wheeliebike">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Wheeliebike</div>
+        </a>
+        <a href="/games-web/wheely.html" class="game-card" data-icon-index="5" data-title="wheely">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Wheely</div>
+        </a>
+        <a href="/games-web/wheely2.html" class="game-card" data-icon-index="6" data-title="wheely2">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Wheely2</div>
+        </a>
+        <a href="/games-web/wheely3.html" class="game-card" data-icon-index="7" data-title="wheely3">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Wheely3</div>
+        </a>
+        <a href="/games-web/wheely6.html" class="game-card" data-icon-index="8" data-title="wheely6">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Wheely6</div>
+        </a>
+        <a href="/games-web/wheely8.html" class="game-card" data-icon-index="9" data-title="wheely8">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Wheely8</div>
+        </a>
+        <a href="/games-web/wordleunlimited.html" class="game-card" data-icon-index="10" data-title="wordleunlimited">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Wordleunlimited</div>
+        </a>
+        <a href="/games-web/worldshardestgame.html" class="game-card" data-icon-index="11" data-title="worldshardestgame">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Worldshardestgame</div>
+        </a>
+        <a href="/games-web/worldshardestgame2.html" class="game-card" data-icon-index="12" data-title="worldshardestgame2">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Worldshardestgame2</div>
+        </a>
+        <a href="/games-web/worldshardestgame3.html" class="game-card" data-icon-index="13" data-title="worldshardestgame3">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Worldshardestgame3</div>
+        </a>
+        <a href="/games-web/wrestlebros.html" class="game-card" data-icon-index="14" data-title="wrestlebros">
+            <div class="game-icon"><span class="icon-letter">W</span></div>
+            <div class="game-title">Wrestlebros</div>
+        </a>
+        <a href="/games-web/zombierush.html" class="game-card" data-icon-index="15" data-title="zombierush">
+            <div class="game-icon"><span class="icon-letter">Z</span></div>
+            <div class="game-title">Zombierush</div>
+        </a>
+        <a href="/games-web/index.html" class="game-card" data-icon-index="0" data-title="游戏大厅 · game hub">
+            <div class="game-icon"><span class="icon-letter">游</span></div>
+            <div class="game-title">游戏大厅 · Game Hub</div>
+        </a>
     </div>
-
-    <div class="empty-state hidden" id="emptyState">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="11" cy="11" r="8"></circle>
-        <path d="M21 21l-4.35-4.35"></path>
-        <line x1="11" y1="8" x2="11" y2="14"></line>
-        <line x1="8" y1="11" x2="14" y2="11"></line>
-      </svg>
-      <p>未找到匹配的游戏</p>
-    </div>
-  </div>
-
-  <script>
-    // 游戏数据
-    const games = [
-      {"filename":"1.5.html","title":"My Drive - Google Drive"},
-      {"filename":"1.8.html","title":"School"},
-      {"filename":"12minibattles.html","title":"12Minibattles"},
-      {"filename":"1on1soccer.html","title":"1On1Soccer"},
-      {"filename":"1on1tennis.html","title":"1On1Tennis"},
-      {"filename":"2048.html","title":"2048"},
-      {"filename":"2048cupcakes.html","title":"2048Cupcakes"},
-      {"filename":"8ballclassic.html","title":"8Ballclassic"},
-      {"filename":"ageofwar.html","title":"Ageofwar"},
-      {"filename":"ageofwar2.html","title":"Ageofwar2"},
-      {"filename":"agesofconflict.html","title":"Agesofconflict"},
-      {"filename":"Alpha_1.2.6.html","title":"Alpha 1.2.6"},
-      {"filename":"amongus.html","title":"Amongus"},
-      {"filename":"angrybirds.html","title":"Angrybirds"},
-      {"filename":"angrybirdsspace.html","title":"Angrybirdsspace"},
-      {"filename":"awesometanks.html","title":"Awesometanks"},
-      {"filename":"awesometanks2.html","title":"Awesometanks2"},
-      {"filename":"backrooms.html","title":"Backrooms"},
-      {"filename":"baconmaydie.html","title":"Baconmaydie"},
-      {"filename":"badicecream.html","title":"Badicecream"},
-      {"filename":"badicecream2.html","title":"Badicecream2"},
-      {"filename":"badicecream3.html","title":"Badicecream3"},
-      {"filename":"badpiggies.html","title":"Badpiggies"},
-      {"filename":"baseballbros.html","title":"Baseballbros"},
-      {"filename":"basketballlegends.html","title":"Basketballlegends"},
-      {"filename":"basketballstars.html","title":"Basketballstars"},
-      {"filename":"basketbros.html","title":"Basketbros"},
-      {"filename":"basketrandom.html","title":"Class"},
-      {"filename":"blockysnakes.html","title":"Blockysnakes"},
-      {"filename":"bloonsTD.html","title":"Bloonstd"},
-      {"filename":"bloonsTD2.html","title":"Bloonstd2"},
-      {"filename":"bloonsTD3.html","title":"Bloonstd3"},
-      {"filename":"bloonsTD4.html","title":"Bloonstd4"},
-      {"filename":"bloonsTD5.html","title":"Bloonstd5"},
-      {"filename":"bloxorz.html","title":"Bloxorz"},
-      {"filename":"blumgiracers.html","title":"Blumgiracers"},
-      {"filename":"blumgirocket.html","title":"Blumgirocket"},
-      {"filename":"bobtherobber.html","title":"Bobtherobber"},
-      {"filename":"bobtherobber2.html","title":"Bobtherobber2"},
-      {"filename":"bobtherobber5.html","title":"Bobtherobber5"},
-      {"filename":"breakingthebank.html","title":"Breakingthebank"},
-      {"filename":"bubbleshooter.html","title":"Bubbleshooter"},
-      {"filename":"candycrush.html","title":"Candycrush"},
-      {"filename":"capybaraclicker.html","title":"Capybaraclicker"},
-      {"filename":"cardrawing.html","title":"Cardrawing"},
-      {"filename":"carkingarena.html","title":"Carkingarena"},
-      {"filename":"chess.html","title":"Chess"},
-      {"filename":"choppyorc.html","title":"Choppyorc"},
-      {"filename":"circloO.html","title":"Circloo"},
-      {"filename":"circloO2.html","title":"Circloo2"},
-      {"filename":"clashofvikings.html","title":"Clashofvikings"},
-      {"filename":"cleanupio.html","title":"Cleanupio"},
-      {"filename":"clusterrush.html","title":"Cluster Rush"},
-      {"filename":"crazycars.html","title":"Crazycars"},
-      {"filename":"crazymotorcycle.html","title":"Crazymotorcycle"},
-      {"filename":"dadish.html","title":"Dadish"},
-      {"filename":"dadish2.html","title":"Dadish2"},
-      {"filename":"dadish3.html","title":"Dadish3"},
-      {"filename":"deathrun3D.html","title":"Deathrun3D"},
-      {"filename":"doodlejump.html","title":"Doodlejump"},
-      {"filename":"drawclimber.html","title":"Drawclimber"},
-      {"filename":"ducklife.html","title":"Ducklife"},
-      {"filename":"ducklife2.html","title":"Ducklife2"},
-      {"filename":"ducklife3.html","title":"Ducklife3"},
-      {"filename":"ducklife4.html","title":"Ducklife4"},
-      {"filename":"ducklife5.html","title":"Ducklife5"},
-      {"filename":"ducklingsio.html","title":"Ducklingsio"},
-      {"filename":"Beta_1.3.html","title":"Eaglercraft Launcher | Beta 1.3 Offline"},
-      {"filename":"Indev.html","title":"Eaglercraft Launcher | Indev Offline"},
-      {"filename":"eagleride.html","title":"Eagleride"},
-      {"filename":"earntodie.html","title":"Earntodie"},
-      {"filename":"earntodie2.html","title":"Earntodie2"},
-      {"filename":"eggycar.html","title":"Eggycar"},
-      {"filename":"escapingtheprison.html","title":"Escapingtheprison"},
-      {"filename":"evilglitch.html","title":"Evil Glitch"},
-      {"filename":"fancypantsadventure.html","title":"Fancypantsadventure"},
-      {"filename":"fancypantsadventure2.html","title":"Fancypantsadventure2"},
-      {"filename":"fireboyandwatergirl.html","title":"Fireboyandwatergirl"},
-      {"filename":"fireboyandwatergirl2.html","title":"Fireboyandwatergirl2"},
-      {"filename":"fireboyandwatergirl3.html","title":"Fireboyandwatergirl3"},
-      {"filename":"fireboyandwatergirl4.html","title":"Fireboyandwatergirl4"},
-      {"filename":"flappybird.html","title":"Flappy Bird"},
-      {"filename":"floodrunner2.html","title":"Floodrunner2"},
-      {"filename":"floodrunner3.html","title":"Floodrunner3"},
-      {"filename":"floodrunner4.html","title":"Floodrunner4"},
-      {"filename":"fnaf.html","title":"Fnaf"},
-      {"filename":"fnaf4.html","title":"FNAF-4"},
-      {"filename":"footballbros.html","title":"FOOTBALL BROS! | Official Site"},
-      {"filename":"footballlegends.html","title":"Footballlegends"},
-      {"filename":"freerider3.html","title":"Freerider3"},
-      {"filename":"fruitninja.html","title":"Fruitninja"},
-      {"filename":"funnybattle.html","title":"Funnybattle"},
-      {"filename":"funnybattle2.html","title":"Funnybattle2"},
-      {"filename":"geometrydash.html","title":"Geometry Dash"},
-      {"filename":"getontop.html","title":"Getontop"},
-      {"filename":"googledino.html","title":"Dinosaur Game Chrome"},
-      {"filename":"googlebaseball.html","title":"Googlebaseball"},
-      {"filename":"guesstheiranswer.html","title":"Guesstheiranswer"},
-      {"filename":"hanger2.html","title":"Hanger2"},
-      {"filename":"happywheels.html","title":"Happywheels"},
-      {"filename":"helixjump.html","title":"Helixjump"},
-      {"filename":"hillclimbracinglite.html","title":"Hillclimbracinglite"},
-      {"filename":"holeio.html","title":"Holeio"},
-      {"filename":"houseofhazards.html","title":"Houseofhazards"},
-      {"filename":"hoverracerdrive.html","title":"Hoverracerdrive"},
-      {"filename":"idlebreakout.html","title":"Idlebreakout"},
-      {"filename":"ironsnout.html","title":"Ironsnout"},
-      {"filename":"jetpackjoyride.html","title":"Jetpackjoyride"},
-      {"filename":"johnnytrigger.html","title":"Johnnytrigger"},
-      {"filename":"jumpingshell.html","title":"Jumpingshell"},
-      {"filename":"karatebros.html","title":"Karatebros"},
-      {"filename":"learntofly.html","title":"Learntofly"},
-      {"filename":"learntofly2.html","title":"Learntofly2"},
-      {"filename":"learntoflyidle.html","title":"Learntoflyidle"},
-      {"filename":"leveldevil.html","title":"Level Devil"},
-      {"filename":"melonplayground.html","title":"Melonplayground"},
-      {"filename":"mergeroundracers.html","title":"Mergeroundracers"},
-      {"filename":"minesweeper.html","title":"Minesweeper"},
-      {"filename":"monstertracks.html","title":"Monstertracks"},
-      {"filename":"motox3m2.html","title":"Motox3M2"},
-      {"filename":"motox3m3.html","title":"Motox3M3"},
-      {"filename":"motox3mpoolparty.html","title":"Motox3Mpoolparty"},
-      {"filename":"motox3mspookyland.html","title":"Motox3Mspookyland"},
-      {"filename":"motox3mwinter.html","title":"Motox3Mwinter"},
-      {"filename":"noobminer.html","title":"Noob Miner"},
-      {"filename":"oppositeday.html","title":"Oppositeday"},
-      {"filename":"ovo2.html","title":"OvO 2"},
-      {"filename":"ovo.html","title":"OvOfw"},
-      {"filename":"pacman.html","title":"Pac Man"},
-      {"filename":"papasburgeria.html","title":"Papasburgeria"},
-      {"filename":"papascheeseria.html","title":"Papascheeseria"},
-      {"filename":"papascupcakeria.html","title":"Papascupcakeria"},
-      {"filename":"papasdonuteria.html","title":"Papasdonuteria"},
-      {"filename":"papasfreezeria.html","title":"Papasfreezeria"},
-      {"filename":"papashotdoggeria.html","title":"Papashotdoggeria"},
-      {"filename":"papaspancakeria.html","title":"Papaspancakeria"},
-      {"filename":"papaspastaria.html","title":"Papaspastaria"},
-      {"filename":"papaspizzeria.html","title":"Papaspizzeria"},
-      {"filename":"papastacomia.html","title":"Papastacomia"},
-      {"filename":"papaswingeria.html","title":"Papaswingeria"},
-      {"filename":"parkingfury.html","title":"Parkingfury"},
-      {"filename":"parkingfury2.html","title":"Parkingfury2"},
-      {"filename":"parkingfury3.html","title":"Parkingfury3"},
-      {"filename":"picosschool.html","title":"Picosschool"},
-      {"filename":"pingpongchaos.html","title":"Pingpongchaos"},
-      {"filename":"pixelspeedrun.html","title":"Pixel Speedrun"},
-      {"filename":"plantsvszombies.html","title":"Plantsvszombies"},
-      {"filename":"plonky.html","title":"Plonky"},
-      {"filename":"polytrack.html","title":"Polytrack"},
-      {"filename":"poorbunny.html","title":"Poorbunny"},
-      {"filename":"pou.html","title":"Pou"},
-      {"filename":"ragdollhit.html","title":"Ragdollhit"},
-      {"filename":"ragdollsoccer.html","title":"Ragdollsoccer"},
-      {"filename":"redball4vol1.html","title":"Redball4Vol1"},
-      {"filename":"redball4vol2.html","title":"Redball4Vol2"},
-      {"filename":"redball4vol3.html","title":"Redball4Vol3"},
-      {"filename":"retropingpong.html","title":"Retro-Ping-Pong"},
-      {"filename":"retrobowl.html","title":"Retrobowl"},
-      {"filename":"retrobowlcollege.html","title":"Retrobowlcollege"},
-      {"filename":"retrohighway.html","title":"Retrohighway"},
-      {"filename":"riddleschool.html","title":"Riddleschool"},
-      {"filename":"riddleschool2.html","title":"Riddleschool2"},
-      {"filename":"riddleschool3.html","title":"Riddleschool3"},
-      {"filename":"riddleschool4.html","title":"Riddleschool4"},
-      {"filename":"rooftopsnipers2.html","title":"Rooftop Snipers 2"},
-      {"filename":"run.html","title":"Run"},
-      {"filename":"run2.html","title":"Run2"},
-      {"filename":"run3.html","title":"Run3"},
-      {"filename":"sandgame.html","title":"Sand"},
-      {"filename":"shortlife.html","title":"Shortlife"},
-      {"filename":"slope2player.html","title":"Slope2Player"},
-      {"filename":"slowroads.html","title":"Slowroads"},
-      {"filename":"sm64.html","title":"Super Mario 64"},
-      {"filename":"snowballio.html","title":"Snowballio"},
-      {"filename":"soccerbros.html","title":"Soccerbros"},
-      {"filename":"agariolite.html","title":"Solo Agario"},
-      {"filename":"spacewaves.html","title":"Space Waves"},
-      {"filename":"spacebarclicker.html","title":"SPACEBAR CLICKER"},
-      {"filename":"spaceiskey.html","title":"Spaceiskey"},
-      {"filename":"spaceiskey2.html","title":"Spaceiskey2"},
-      {"filename":"speedstars.html","title":"Speedstars"},
-      {"filename":"sprunki.html","title":"Sprunki"},
-      {"filename":"stack.html","title":"Stack"},
-      {"filename":"stacktris.html","title":"Stacktris"},
-      {"filename":"stateio.html","title":"Stateio"},
-      {"filename":"stickarchersbattle.html","title":"Stickarchersbattle"},
-      {"filename":"stickfighter.html","title":"Stickfighter"},
-      {"filename":"stickmanhook.html","title":"Stickman Hook"},
-      {"filename":"stickmerge.html","title":"Stickmerge"},
-      {"filename":"superliquidsoccer.html","title":"Superliquidsoccer"},
-      {"filename":"tabletennisworldtour.html","title":"Tabletennisworldtour"},
-      {"filename":"tag.html","title":"Tag"},
-      {"filename":"templeofboom.html","title":"Templeofboom"},
-      {"filename":"territorialio.html","title":"Territorialio"},
-      {"filename":"theimpossiblequiz.html","title":"Theimpossiblequiz"},
-      {"filename":"theimpossiblequiz2.html","title":"Theimpossiblequiz2"},
-      {"filename":"thereisnog.html","title":"Thereisnog"},
-      {"filename":"thisistheonlylevel.html","title":"Thisistheonlylevel"},
-      {"filename":"thisistheonlyleveltoo.html","title":"Thisistheonlyleveltoo"},
-      {"filename":"timeshooter2.html","title":"Timeshooter2"},
-      {"filename":"tinyfishing.html","title":"Tinyfishing"},
-      {"filename":"trapthecat.html","title":"Trapthecat"},
-      {"filename":"triviacrack.html","title":"Triviacrack"},
-      {"filename":"tubejumpers.html","title":"Tubejumpers"},
-      {"filename":"tunnelrush.html","title":"Tunnelrush"},
-      {"filename":"unicyclehero.html","title":"Unicyclehero"},
-      {"filename":"vex4.html","title":"Vex4"},
-      {"filename":"vex5.html","title":"Vex5"},
-      {"filename":"vexx3m.html","title":"Vexx3M"},
-      {"filename":"vexx3m2.html","title":"Vexx3M2"},
-      {"filename":"volleyrandom.html","title":"Volleyrandom"},
-      {"filename":"webecomewhatwebehold.html","title":"Webecomewhatwebehold"},
-      {"filename":"wheeliebike.html","title":"Wheeliebike"},
-      {"filename":"wheely.html","title":"Wheely"},
-      {"filename":"wheely2.html","title":"Wheely2"},
-      {"filename":"wheely3.html","title":"Wheely3"},
-      {"filename":"wheely6.html","title":"Wheely6"},
-      {"filename":"wheely8.html","title":"Wheely8"},
-      {"filename":"wordleunlimited.html","title":"Wordleunlimited"},
-      {"filename":"worldshardestgame.html","title":"Worldshardestgame"},
-      {"filename":"worldshardestgame2.html","title":"Worldshardestgame2"},
-      {"filename":"worldshardestgame3.html","title":"Worldshardestgame3"},
-      {"filename":"wrestlebros.html","title":"Wrestlebros"},
-      {"filename":"zombierush.html","title":"Zombierush"},
-      {"filename":"index.html","title":"游戏大厅 · Game Hub"}
-    ];
-
-    // 16 种图标背景色（轮流使用）
-    const iconColors = [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
-      '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
-      '#F8B500', '#00CED1', '#FF69B4', '#32CD32',
-      '#FF8C00', '#9370DB', '#20B2AA', '#FF4500'
-    ];
-
-    // 简单的哈希函数，用于根据标题生成固定的字母
-    function getInitial(title) {
-      let hash = 0;
-      for (let i = 0; i < title.length; i++) {
-        hash = ((hash << 5) - hash) + title.charCodeAt(i);
-        hash |= 0;
-      }
-      const idx = Math.abs(hash) % 26;
-      return String.fromCharCode(65 + idx); // A-Z
-    }
-
-    const grid = document.getElementById('gamesGrid');
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearBtn');
-    const gameCount = document.getElementById('gameCount');
-    const emptyState = document.getElementById('emptyState');
-
-    // 渲染游戏卡片
-    function renderGames(filteredGames) {
-      grid.innerHTML = '';
-      filteredGames.forEach((game, index) => {
-        const colorIndex = index % iconColors.length;
-        const initial = getInitial(game.title);
-        const bgColor = iconColors[colorIndex];
-
-        const card = document.createElement('a');
-        card.href = '/games-web/' + game.filename;
-        card.className = 'game-card';
-        card.dataset.title = game.title.toLowerCase();
-        card.innerHTML = `
-          <div class="icon-wrapper" style="background: ${bgColor};">
-            ${initial}
-          </div>
-          <span class="game-title">${escapeHtml(game.title)}</span>
-        `;
-        grid.appendChild(card);
-      });
-
-      // 更新计数
-      gameCount.textContent = `共 ${filteredGames.length} 个游戏`;
-
-      // 显示/隐藏空状态
-      if (filteredGames.length === 0) {
-        emptyState.classList.remove('hidden');
-      } else {
-        emptyState.classList.add('hidden');
-      }
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    // 搜索过滤
-    function filterGames(query) {
-      const lowerQuery = query.toLowerCase().trim();
-      if (!lowerQuery) return games;
-
-      return games.filter(game =>
-        game.title.toLowerCase().includes(lowerQuery) ||
-        game.filename.toLowerCase().includes(lowerQuery)
-      );
-    }
-
-    // 事件监听
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value;
-      const filtered = filterGames(query);
-      renderGames(filtered);
-      clearBtn.classList.toggle('visible', query.length > 0);
+</div>
+<script>
+(function() {
+    const searchBox = document.getElementById('searchBox');
+    const gamesGrid = document.getElementById('gamesGrid');
+    const stats = document.getElementById('stats');
+    const cards = document.querySelectorAll('.game-card');
+    const totalGames = cards.length;
+    
+    let visibleCount = totalGames;
+    
+    searchBox.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        visibleCount = 0;
+        
+        cards.forEach((card, index) => {
+            const title = card.dataset.title;
+            if (title.includes(query)) {
+                card.classList.remove('hidden');
+                // Stagger animation
+                card.style.animationDelay = (visibleCount * 0.03) + 's';
+                visibleCount++;
+            } else {
+                card.classList.add('hidden');
+            }
+        });
+        
+        stats.textContent = query ? `找到 ${visibleCount} / ${totalGames} 款游戏` : `共 ${totalGames} 款游戏`;
     });
-
-    clearBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      renderGames(games);
-      clearBtn.classList.remove('visible');
-      searchInput.focus();
+    
+    // Focus search on load
+    searchBox.focus();
+    
+    // Keyboard shortcut: / to focus search
+    document.addEventListener('keydown', function(e) {
+        if (e.key === '/' && document.activeElement !== searchBox) {
+            e.preventDefault();
+            searchBox.focus();
+        }
+        if (e.key === 'Escape') {
+            searchBox.blur();
+            searchBox.value = '';
+            searchBox.dispatchEvent(new Event('input'));
+        }
     });
-
-    // 初始渲染
-    renderGames(games);
-  </script>
+})();
+</script>
 </body>
 </html>
