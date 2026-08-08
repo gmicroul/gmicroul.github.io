@@ -1,4 +1,4 @@
-name: Hermes Games Navigation Generator
+name: Hermes Games Navigation Generator-AI
 
 on:
   workflow_dispatch:
@@ -6,16 +6,21 @@ on:
   # schedule:
   #   - cron: "0 */2 * * *"
 
+
 permissions:
   contents: write
 
+
 jobs:
+
   build:
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+
     steps:
+
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,61 +29,88 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
 
+
       - name: Check games-web
         run: |
+
           if [ ! -d "games-web" ]; then
             echo "games-web directory not found"
             exit 1
           fi
 
+
           COUNT=$(find games-web -type f -name "*.html" | wc -l)
 
           echo "HTML games: $COUNT"
 
+
           if [ "$COUNT" -lt 1 ]; then
-            echo "No games found"
             exit 1
           fi
 
 
-      - name: Download icon templates
+
+
+      - name: Download SVG templates
         run: |
+
           rm -rf icon-templates
+
 
           git clone \
             --depth 1 \
             https://github.com/gmicroul/icon-templates.git \
             icon-templates
 
+
+
           if [ ! -d "icon-templates/sfos-icons" ]; then
-            echo "sfos-icons not found"
+            echo "SVG templates missing"
             exit 1
           fi
 
-          ls -lah icon-templates/sfos-icons
+
+
+          ls icon-templates/sfos-icons
+
+
 
 
       - name: Build Hermes Docker image
         run: |
+
           docker build \
             --progress=plain \
             -t hermes-agent .
 
 
+
+
       - name: Prepare output
         run: |
+
           rm -rf output
+
           mkdir -p output
+
           chmod 777 output
 
 
+
+
       - name: Run Hermes
+
         env:
+
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
 
+
         run: |
+
 
           timeout 25m docker run \
             --rm \
@@ -90,9 +122,11 @@ jobs:
             hermes-agent \
             "
 
+
             不要询问。
 
-            不要执行git操作。
+            不执行git操作。
+
 
 
             当前仓库：
@@ -101,32 +135,34 @@ jobs:
 
 
 
-            你的任务：
+            任务：
 
-            为 GitHub Pages 生成 HTML5 游戏导航主页。
-
-
-
-            扫描目录：
-
-            /opt/hermes-agent/gmicroul.github.io/games-web/
-
-
-
-            生成文件：
+            生成：
 
             /opt/hermes-agent/gmicroul.github.io/output/index.html
 
 
 
-            ==========================
-            游戏扫描规则
-            ==========================
+
+
+            =====================
+
+            游戏扫描
+
+            =====================
+
 
 
             扫描：
 
-            games-web/**/*.html
+
+            /opt/hermes-agent/gmicroul.github.io/games-web/
+
+
+            所有：
+
+            *.html
+
 
 
             按文件路径排序。
@@ -134,64 +170,54 @@ jobs:
 
             每个游戏：
 
-            读取HTML文件。
+            读取html。
 
 
             提取：
 
             <title>
 
+
             作为游戏名称。
 
 
-            如果没有title：
 
-            根据文件名生成名称。
+            没有title：
 
-
-            生成游戏链接：
+            使用文件名。
 
 
-            https://gmicroul.github.io/games-web/文件名.html
 
 
-            页面内部必须使用绝对根路径。
+            游戏链接必须：
 
-
-            正确：
-
-            /games-web/example.html
-
-
-            禁止：
-
-            games-web/example.html
-
-            ./games-web/example.html
-
-            ../games-web/example.html
-
-            /output/games-web/example.html
+            /games-web/文件名.html
 
 
 
 
 
-            ==========================
-            游戏图标规则
-            ==========================
+            =====================
+
+            图标系统
+
+            =====================
 
 
-            不使用随机字母CSS图标。
+
+            不生成新的SVG。
 
 
-            使用：
+            不设计图标。
+
+
+            使用已有模板：
+
 
             /opt/hermes-agent/gmicroul.github.io/icon-templates/sfos-icons/
 
 
-            内的16个SVG模板：
-
+            文件：
 
             shape1.svg
 
@@ -203,15 +229,15 @@ jobs:
 
 
 
-            按游戏排序后循环使用：
+            循环使用：
 
 
-            第1个游戏:
+            游戏1:
 
             shape1.svg
 
 
-            第2个游戏:
+            游戏2:
 
             shape2.svg
 
@@ -219,136 +245,67 @@ jobs:
             ...
 
 
-            第16个游戏:
+            游戏16:
 
             shape16.svg
 
 
-            第17个游戏:
+            游戏17:
 
             shape1.svg
 
 
 
-            ==========================
 
+            =====================
 
-            SVG要求：
+            SVG处理
 
-
-            图标尺寸：
-
-            86x86
-
-
-            viewBox:
-
-            0 0 86 86
+            =====================
 
 
 
-            必须保留原始shape SVG结构。
+            保留原SVG结构。
 
 
-            只允许修改黑色区域的fill。
+            只允许修改：
 
+            黑色区域fill。
 
-            黑色区域作为唯一可绘制区域。
 
 
             透明区域必须保持透明。
 
 
-            禁止：
-
-            添加背景
-
-            添加圆形底板
-
-            添加方形底板
-
-            改变shape轮廓
-
-            删除透明区域
-
-
-
-            ==========================
-
-
-            字母和数字设计：
-
-
-            如果游戏没有logo：
-
-            使用游戏名称首字母。
-
-
-            如果名称以数字开始：
-
-            使用数字。
-
-
-            字母必须：
-
-            - 艺术化
-            - 粗体
-            - 居中
-            - 与shape融合
-
 
             禁止：
 
-            普通字体
+            添加背景。
 
-            简单文字头像
+            修改path。
 
-            emoji
+            修改viewBox。
 
-
-
-            字体：
-
-            system-ui
-
-            bold
-
-            29px
-
-
-            位置：
-
-            x=43
-
-            y=47
-
-
-            颜色：
-
-            #FFFFFF
+            重新绘制shape。
 
 
 
-            ==========================
+            SVG尺寸：
+
+            86x86
 
 
-            渐变规则：
 
 
-            shape填充：
 
-            linearGradient
+            填充：
 
-
-            方向：
-
-            135度
+            linearGradient:
 
 
             x1=0
 
             y1=0
-
 
             x2=1
 
@@ -356,34 +313,79 @@ jobs:
 
 
 
-            起始颜色：
+            颜色：
 
             #5FD0F5
 
-
-            结束颜色：
+            到
 
             #3AA8D0
 
 
 
-            ==========================
 
 
             高光：
 
 
-            使用radialGradient
+            radialGradient:
 
 
-            中心：
+            cx=0.25
 
-            0.25 0.25
+            cy=0.25
+
+            r=0.6
 
 
-            半径：
 
-            0.6
+            白色：
+
+            #FFFFFF
+
+
+            opacity:
+
+            0.55 -> 0
+
+
+
+
+
+            =====================
+
+            文字
+
+            =====================
+
+
+
+            如果没有logo：
+
+            使用游戏名称首字母。
+
+
+            文字：
+
+            x=43
+
+            y=47
+
+
+
+            居中。
+
+
+
+            字体：
+
+            system-ui
+
+
+            bold
+
+
+            29px
 
 
 
@@ -392,63 +394,50 @@ jobs:
             #FFFFFF
 
 
-            透明度：
-
-            0.55 -> 0
 
 
 
-            ==========================
+            =====================
+
+            页面
+
+            =====================
 
 
-            页面要求：
 
-            
-            生成现代游戏大厅风格。
-
+            生成现代游戏大厅。
 
 
             必须包含：
 
 
-            1. 响应式网格布局
+            - 手机两列布局
 
+            - PC响应式布局
 
-            2. 手机适配
+            - 搜索框
 
+            - 实时过滤
 
-            3. 电脑适配
+            - 游戏数量统计
 
-
-            4. 搜索框
-
-
-            5. 实时过滤游戏
-
-
-            6. 游戏数量统计
-
-
-            7. 点击卡片打开游戏
+            - 点击卡片打开游戏
 
 
 
-            卡片尺寸建议：
 
+            卡片：
 
             手机：
 
-            两列布局
+            170x220px
 
-
-            游戏卡片：
-
-            170x220
 
 
             图标：
 
-            86x86
+            86x86px
+
 
 
             圆角：
@@ -459,28 +448,33 @@ jobs:
 
 
 
-            ==========================
+            =====================
 
+            技术限制
 
-            技术限制：
+            =====================
+
 
 
             index.html必须独立运行。
 
 
-            所有：
 
-            CSS
+            CSS:
 
-            JavaScript
+            内嵌。
 
 
-            必须直接写入index.html。
+
+            JavaScript:
+
+            内嵌。
+
 
 
             禁止：
 
-            外部CDN
+            CDN
 
             外部JS
 
@@ -488,19 +482,18 @@ jobs:
 
 
 
-            SVG必须直接内嵌到index.html。
+            SVG:
 
-
-            禁止：
-
-            外部SVG链接。
+            必须内嵌。
 
 
 
-            ==========================
+            =====================
 
+            安全
 
-            安全规则：
+            =====================
+
 
 
             不修改：
@@ -510,13 +503,7 @@ jobs:
 
             不删除：
 
-            任何仓库文件。
-
-
-            不执行：
-
-            git命令。
-
+            任何文件。
 
 
             只生成：
@@ -525,32 +512,19 @@ jobs:
 
 
 
-            ==========================
 
 
-            完成检查：
-
-
-            确认：
-
-            output/index.html
-
-            存在。
-
-
-            如果成功：
-
-            退出。
-
-
+            完成后退出。
 
             "
 
 
-      - name: Verify generated files
+
+
+      - name: Verify
+
         run: |
 
-          echo "===== Output ====="
 
           ls -lah output
 
@@ -564,14 +538,12 @@ jobs:
           grep "games-web" output/index.html
 
 
-          SIZE=$(du -h output/index.html | awk '{print $1}')
-
-          echo "index.html size: $SIZE"
-
 
           COUNT=$(find games-web -type f -name "*.html" | wc -l)
 
-          echo "Games count: $COUNT"
+
+          echo "Games: $COUNT"
+
 
 
           if [ "$COUNT" -lt 1 ]; then
@@ -580,25 +552,36 @@ jobs:
 
 
 
+
+
       - name: Commit and push
+
         run: |
+
 
           git config user.name "github-actions[bot]"
 
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
 
+
           git add output/index.html
 
 
+
           if git diff --cached --quiet; then
+
             echo "No changes"
+
             exit 0
+
           fi
+
 
 
           git commit \
             -m "Update Hermes games navigation"
+
 
 
           git push
