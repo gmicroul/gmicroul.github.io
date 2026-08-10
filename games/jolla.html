@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>游戏大厅 · SFOS 风格</title>
+<style>
+  :root{
+    --bg:#eef2f5;
+    --panel:#ffffff;
+    --text:#1c2733;
+    --dim:#6b7a8a;
+    --accent:#0a9d8c;
+    --accent2:#33cde5;
+    --line:#e3e8ee;
+    --shadow:0 10px 24px rgba(28,42,58,.10);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(51,205,229,.14), transparent 60%),
+      radial-gradient(1000px 500px at 90% 10%, rgba(10,157,140,.12), transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--text); min-height:100vh;
+  }
+  header{
+    position:sticky; top:0; z-index:20;
+    background:rgba(238,242,245,.86);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+    padding:12px 20px;
+  }
+  .bar{max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand .tile{
+    width:34px;height:34px;flex:none;border-radius:9px;
+    background:linear-gradient(135deg,var(--accent2),var(--accent));
+    display:grid;place-items:center;box-shadow:0 4px 10px rgba(10,157,140,.35);
+  }
+  .brand .tile svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .brand b{font-size:18px;letter-spacing:.3px;white-space:nowrap}
+  .brand small{display:block;font-size:11px;color:var(--dim);font-weight:400}
+  .count{
+    font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap;
+    background:rgba(10,157,140,.10);border:1px solid rgba(10,157,140,.28);
+    padding:5px 12px;border-radius:999px;
+  }
+  .search{margin-left:auto;flex:1;min-width:170px;max-width:430px;position:relative}
+  .search input{
+    width:100%;padding:10px 16px 10px 42px;border-radius:14px;
+    border:1px solid var(--line);background:var(--panel);
+    color:var(--text);font-size:15px;outline:none;
+    transition:border-color .2s,box-shadow .2s;
+    box-shadow:0 2px 8px rgba(28,42,58,.05);
+  }
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(10,157,140,.16)}
+  .search input::placeholder{color:var(--dim)}
+  .search svg{
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    width:18px;height:18px;stroke:var(--dim);fill:none;stroke-width:2.4;stroke-linecap:round;pointer-events:none;
+  }
+  .hint{display:none}
+  main{max-width:1120px;margin:0 auto;padding:26px 20px 70px}
+  .grid{
+    display:grid;gap:16px 14px;
+    grid-template-columns:repeat(auto-fill,108px);
+    justify-content:center;
+  }
+  @media(max-width:560px){
+    .grid{grid-template-columns:repeat(2,108px);gap:14px 12px}
+    .bar{gap:8px}
+    .brand small{display:none}
+  }
+  @media(max-width:340px){
+    .grid{grid-template-columns:repeat(2,104px)}
+  }
+  .card{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    width:108px;height:108px;border-radius:20px;text-decoration:none;color:var(--text);
+    background:var(--panel);border:1px solid var(--line);
+    box-shadow:0 4px 14px rgba(28,42,58,.06);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .card img{width:86px;height:86px;border-radius:16px;display:block;pointer-events:none;user-select:none}
+  .card .nm{
+    max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-size:11px;color:var(--dim);line-height:1.2;
+  }
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:rgba(10,157,140,.5)}
+  .card:hover .nm{color:var(--accent)}
+  .empty{
+    grid-column:1/-1;text-align:center;padding:60px 0;color:var(--dim);
+  }
+  .empty b{display:block;font-size:16px;color:var(--text);margin-bottom:4px}
+  footer{text-align:center;color:var(--dim);font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">
+      <div class="tile">
+        <svg viewBox="0 0 24 24"><path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z"/></svg>
+      </div>
+      <div>
+        <b>游戏大厅</b>
+        <small>SFOS Games Launcher</small>
+      </div>
+    </div>
+    <span class="count" id="count">0 款游戏</span>
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 L21 21"/></svg>
+      <input id="q" type="text" placeholder="搜索游戏…" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+</header>
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">
+    <b>没有找到匹配的游戏</b>
+    <span>换个关键词试试</span>
+  </div>
+</main>
+<footer>Game Hub · 共 <span id="total">0</span> 款游戏 · 点击卡片即可游玩</footer>
+
+<script>
+var GAMES = [{"n": "1 on 1 Soccer", "f": "1on1soccer.html", "icon": "icons/1_on_1_soccer.svg"}, {"n": "1 on 1 Tennis", "f": "1on1tennis.html", "icon": "icons/1_on_1_tennis.svg"}, {"n": "12 Mini Battles", "f": "12minibattles.html", "icon": "icons/12_mini_battles.svg"}, {"n": "2048", "f": "2048.html", "icon": "icons/2048.svg"}, {"n": "2048 Cupcakes", "f": "2048cupcakes.html", "icon": "icons/2048_cupcakes.svg"}, {"n": "8 Ball Classic", "f": "8ballclassic.html", "icon": "icons/8_ball_classic.svg"}, {"n": "Agar.io Lite", "f": "agariolite.html", "icon": "icons/agar_io_lite.svg"}, {"n": "Age of War", "f": "ageofwar.html", "icon": "icons/age_of_war.svg"}, {"n": "Age of War 2", "f": "ageofwar2.html", "icon": "icons/age_of_war_2.svg"}, {"n": "Ages of Conflict", "f": "agesofconflict.html", "icon": "icons/ages_of_conflict.svg"}, {"n": "Among Us", "f": "amongus.html", "icon": "icons/among_us.svg"}, {"n": "Angry Birds", "f": "angrybirds.html", "icon": "icons/angry_birds.svg"}, {"n": "Angry Birds Space", "f": "angrybirdsspace.html", "icon": "icons/angry_birds_space.svg"}, {"n": "Awesome Tanks", "f": "awesometanks.html", "icon": "icons/awesome_tanks.svg"}, {"n": "Awesome Tanks 2", "f": "awesometanks2.html", "icon": "icons/awesome_tanks_2.svg"}, {"n": "Backrooms", "f": "backrooms.html", "icon": "icons/backrooms.svg"}, {"n": "Bacon May Die", "f": "baconmaydie.html", "icon": "icons/bacon_may_die.svg"}, {"n": "Bad Ice Cream", "f": "badicecream.html", "icon": "icons/bad_ice_cream.svg"}, {"n": "Bad Ice Cream 2", "f": "badicecream2.html", "icon": "icons/bad_ice_cream_2.svg"}, {"n": "Bad Ice Cream 3", "f": "badicecream3.html", "icon": "icons/bad_ice_cream_3.svg"}, {"n": "Bad Piggies", "f": "badpiggies.html", "icon": "icons/bad_piggies.svg"}, {"n": "Baseball Bros", "f": "baseballbros.html", "icon": "icons/baseball_bros.svg"}, {"n": "Basket Bros", "f": "basketbros.html", "icon": "icons/basket_bros.svg"}, {"n": "Basket Random", "f": "basketrandom.html", "icon": "icons/basket_random.svg"}, {"n": "Basketball Legends", "f": "basketballlegends.html", "icon": "icons/basketball_legends.svg"}, {"n": "Basketball Stars", "f": "basketballstars.html", "icon": "icons/basketball_stars.svg"}, {"n": "Blocky Snakes", "f": "blockysnakes.html", "icon": "icons/blocky_snakes.svg"}, {"n": "Bloons TD", "f": "bloonsTD.html", "icon": "icons/bloons_td.svg"}, {"n": "Bloons TD 2", "f": "bloonsTD2.html", "icon": "icons/bloons_td_2.svg"}, {"n": "Bloons TD 3", "f": "bloonsTD3.html", "icon": "icons/bloons_td_3.svg"}, {"n": "Bloons TD 4", "f": "bloonsTD4.html", "icon": "icons/bloons_td_4.svg"}, {"n": "Bloons TD 5", "f": "bloonsTD5.html", "icon": "icons/bloons_td_5.svg"}, {"n": "Bloxorz", "f": "bloxorz.html", "icon": "icons/bloxorz.svg"}, {"n": "Blumgi Racers", "f": "blumgiracers.html", "icon": "icons/blumgi_racers.svg"}, {"n": "Blumgi Rocket", "f": "blumgirocket.html", "icon": "icons/blumgi_rocket.svg"}, {"n": "Bob the Robber", "f": "bobtherobber.html", "icon": "icons/bob_the_robber.svg"}, {"n": "Bob the Robber 2", "f": "bobtherobber2.html", "icon": "icons/bob_the_robber_2.svg"}, {"n": "Bob the Robber 5", "f": "bobtherobber5.html", "icon": "icons/bob_the_robber_5.svg"}, {"n": "Breaking the Bank", "f": "breakingthebank.html", "icon": "icons/breaking_the_bank.svg"}, {"n": "Bubble Shooter", "f": "bubbleshooter.html", "icon": "icons/bubble_shooter.svg"}, {"n": "Candy Crush", "f": "candycrush.html", "icon": "icons/candy_crush.svg"}, {"n": "Capybara Clicker", "f": "capybaraclicker.html", "icon": "icons/capybara_clicker.svg"}, {"n": "Car Drawing", "f": "cardrawing.html", "icon": "icons/car_drawing.svg"}, {"n": "Car King Arena", "f": "carkingarena.html", "icon": "icons/car_king_arena.svg"}, {"n": "Chess", "f": "chess.html", "icon": "icons/chess.svg"}, {"n": "Choppy Orc", "f": "choppyorc.html", "icon": "icons/choppy_orc.svg"}, {"n": "Chrome Dino", "f": "googledino.html", "icon": "icons/chrome_dino.svg"}, {"n": "circloO", "f": "circloO.html", "icon": "icons/circloo.svg"}, {"n": "circloO 2", "f": "circloO2.html", "icon": "icons/circloo_2.svg"}, {"n": "Clash of Vikings", "f": "clashofvikings.html", "icon": "icons/clash_of_vikings.svg"}, {"n": "Cleanup.io", "f": "cleanupio.html", "icon": "icons/cleanup_io.svg"}, {"n": "Cluster Rush", "f": "clusterrush.html", "icon": "icons/cluster_rush.svg"}, {"n": "Crazy Cars", "f": "crazycars.html", "icon": "icons/crazy_cars.svg"}, {"n": "Crazy Motorcycle", "f": "crazymotorcycle.html", "icon": "icons/crazy_motorcycle.svg"}, {"n": "Dadish", "f": "dadish.html", "icon": "icons/dadish.svg"}, {"n": "Dadish 2", "f": "dadish2.html", "icon": "icons/dadish_2.svg"}, {"n": "Dadish 3", "f": "dadish3.html", "icon": "icons/dadish_3.svg"}, {"n": "Death Run 3D", "f": "deathrun3D.html", "icon": "icons/death_run_3d.svg"}, {"n": "Doodle Jump", "f": "doodlejump.html", "icon": "icons/doodle_jump.svg"}, {"n": "Draw Climber", "f": "drawclimber.html", "icon": "icons/draw_climber.svg"}, {"n": "Duck Life", "f": "ducklife.html", "icon": "icons/duck_life.svg"}, {"n": "Duck Life 2", "f": "ducklife2.html", "icon": "icons/duck_life_2.svg"}, {"n": "Duck Life 3", "f": "ducklife3.html", "icon": "icons/duck_life_3.svg"}, {"n": "Duck Life 4", "f": "ducklife4.html", "icon": "icons/duck_life_4.svg"}, {"n": "Duck Life 5", "f": "ducklife5.html", "icon": "icons/duck_life_5.svg"}, {"n": "Ducklings.io", "f": "ducklingsio.html", "icon": "icons/ducklings_io.svg"}, {"n": "Eagle Ride", "f": "eagleride.html", "icon": "icons/eagle_ride.svg"}, {"n": "Earn to Die", "f": "earntodie.html", "icon": "icons/earn_to_die.svg"}, {"n": "Earn to Die 2", "f": "earntodie2.html", "icon": "icons/earn_to_die_2.svg"}, {"n": "Eggy Car", "f": "eggycar.html", "icon": "icons/eggy_car.svg"}, {"n": "Escaping the Prison", "f": "escapingtheprison.html", "icon": "icons/escaping_the_prison.svg"}, {"n": "Evil Glitch", "f": "evilglitch.html", "icon": "icons/evil_glitch.svg"}, {"n": "Fancy Pants Adventure", "f": "fancypantsadventure.html", "icon": "icons/fancy_pants_adventure.svg"}, {"n": "Fancy Pants Adventure 2", "f": "fancypantsadventure2.html", "icon": "icons/fancy_pants_adventure_2.svg"}, {"n": "Fireboy and Watergirl", "f": "fireboyandwatergirl.html", "icon": "icons/fireboy_and_watergirl.svg"}, {"n": "Fireboy and Watergirl 2", "f": "fireboyandwatergirl2.html", "icon": "icons/fireboy_and_watergirl_2.svg"}, {"n": "Fireboy and Watergirl 3", "f": "fireboyandwatergirl3.html", "icon": "icons/fireboy_and_watergirl_3.svg"}, {"n": "Fireboy and Watergirl 4", "f": "fireboyandwatergirl4.html", "icon": "icons/fireboy_and_watergirl_4.svg"}, {"n": "Flappy Bird", "f": "flappybird.html", "icon": "icons/flappy_bird.svg"}, {"n": "Flood Runner 2", "f": "floodrunner2.html", "icon": "icons/flood_runner_2.svg"}, {"n": "Flood Runner 3", "f": "floodrunner3.html", "icon": "icons/flood_runner_3.svg"}, {"n": "Flood Runner 4", "f": "floodrunner4.html", "icon": "icons/flood_runner_4.svg"}, {"n": "FNAF", "f": "fnaf.html", "icon": "icons/fnaf.svg"}, {"n": "FNAF 4", "f": "fnaf4.html", "icon": "icons/fnaf_4.svg"}, {"n": "Football Bros", "f": "footballbros.html", "icon": "icons/football_bros.svg"}, {"n": "Football Legends", "f": "footballlegends.html", "icon": "icons/football_legends.svg"}, {"n": "Free Rider 3", "f": "freerider3.html", "icon": "icons/free_rider_3.svg"}, {"n": "Fruit Ninja", "f": "fruitninja.html", "icon": "icons/fruit_ninja.svg"}, {"n": "Funny Battle", "f": "funnybattle.html", "icon": "icons/funny_battle.svg"}, {"n": "Funny Battle 2", "f": "funnybattle2.html", "icon": "icons/funny_battle_2.svg"}, {"n": "Geometry Dash", "f": "geometrydash.html", "icon": "icons/geometry_dash.svg"}, {"n": "Get on Top", "f": "getontop.html", "icon": "icons/get_on_top.svg"}, {"n": "Google Baseball", "f": "googlebaseball.html", "icon": "icons/google_baseball.svg"}, {"n": "Guess Their Answer", "f": "guesstheiranswer.html", "icon": "icons/guess_their_answer.svg"}, {"n": "Hanger 2", "f": "hanger2.html", "icon": "icons/hanger_2.svg"}, {"n": "Happy Wheels", "f": "happywheels.html", "icon": "icons/happy_wheels.svg"}, {"n": "Helix Jump", "f": "helixjump.html", "icon": "icons/helix_jump.svg"}, {"n": "Hill Climb Racing Lite", "f": "hillclimbracinglite.html", "icon": "icons/hill_climb_racing_lite.svg"}, {"n": "Hole.io", "f": "holeio.html", "icon": "icons/hole_io.svg"}, {"n": "House of Hazards", "f": "houseofhazards.html", "icon": "icons/house_of_hazards.svg"}, {"n": "Hover Racer Drive", "f": "hoverracerdrive.html", "icon": "icons/hover_racer_drive.svg"}, {"n": "Idle Breakout", "f": "idlebreakout.html", "icon": "icons/idle_breakout.svg"}, {"n": "Iron Snout", "f": "ironsnout.html", "icon": "icons/iron_snout.svg"}, {"n": "Jetpack Joyride", "f": "jetpackjoyride.html", "icon": "icons/jetpack_joyride.svg"}, {"n": "Johnny Trigger", "f": "johnnytrigger.html", "icon": "icons/johnny_trigger.svg"}, {"n": "Jumping Shell", "f": "jumpingshell.html", "icon": "icons/jumping_shell.svg"}, {"n": "Karate Bros", "f": "karatebros.html", "icon": "icons/karate_bros.svg"}, {"n": "Learn to Fly", "f": "learntofly.html", "icon": "icons/learn_to_fly.svg"}, {"n": "Learn to Fly 2", "f": "learntofly2.html", "icon": "icons/learn_to_fly_2.svg"}, {"n": "Learn to Fly Idle", "f": "learntoflyidle.html", "icon": "icons/learn_to_fly_idle.svg"}, {"n": "Level Devil", "f": "leveldevil.html", "icon": "icons/level_devil.svg"}, {"n": "Melon Playground", "f": "melonplayground.html", "icon": "icons/melon_playground.svg"}, {"n": "Merge Round Racers", "f": "mergeroundracers.html", "icon": "icons/merge_round_racers.svg"}, {"n": "Minecraft 1.5", "f": "1.5.html", "icon": "icons/minecraft_1_5.svg"}, {"n": "Minecraft 1.8", "f": "1.8.html", "icon": "icons/minecraft_1_8.svg"}, {"n": "Minecraft Alpha 1.2.6", "f": "Alpha_1.2.6.html", "icon": "icons/minecraft_alpha_1_2_6.svg"}, {"n": "Minecraft Beta 1.3", "f": "Beta_1.3.html", "icon": "icons/minecraft_beta_1_3.svg"}, {"n": "Minecraft Indev", "f": "Indev.html", "icon": "icons/minecraft_indev.svg"}, {"n": "Minesweeper", "f": "minesweeper.html", "icon": "icons/minesweeper.svg"}, {"n": "Monster Tracks", "f": "monstertracks.html", "icon": "icons/monster_tracks.svg"}, {"n": "Moto X3M 2", "f": "motox3m2.html", "icon": "icons/moto_x3m_2.svg"}, {"n": "Moto X3M 3", "f": "motox3m3.html", "icon": "icons/moto_x3m_3.svg"}, {"n": "Moto X3M Pool Party", "f": "motox3mpoolparty.html", "icon": "icons/moto_x3m_pool_party.svg"}, {"n": "Moto X3M Spooky Land", "f": "motox3mspookyland.html", "icon": "icons/moto_x3m_spooky_land.svg"}, {"n": "Moto X3M Winter", "f": "motox3mwinter.html", "icon": "icons/moto_x3m_winter.svg"}, {"n": "Noob Miner", "f": "noobminer.html", "icon": "icons/noob_miner.svg"}, {"n": "Opposite Day", "f": "oppositeday.html", "icon": "icons/opposite_day.svg"}, {"n": "OvO", "f": "ovo.html", "icon": "icons/ovo.svg"}, {"n": "OvO 2", "f": "ovo2.html", "icon": "icons/ovo_2.svg"}, {"n": "Pac-Man", "f": "pacman.html", "icon": "icons/pac_man.svg"}, {"n": "Papa's Burgeria", "f": "papasburgeria.html", "icon": "icons/papa_s_burgeria.svg"}, {"n": "Papa's Cheeseria", "f": "papascheeseria.html", "icon": "icons/papa_s_cheeseria.svg"}, {"n": "Papa's Cupcakeria", "f": "papascupcakeria.html", "icon": "icons/papa_s_cupcakeria.svg"}, {"n": "Papa's Donuteria", "f": "papasdonuteria.html", "icon": "icons/papa_s_donuteria.svg"}, {"n": "Papa's Freezeria", "f": "papasfreezeria.html", "icon": "icons/papa_s_freezeria.svg"}, {"n": "Papa's Hotdoggeria", "f": "papashotdoggeria.html", "icon": "icons/papa_s_hotdoggeria.svg"}, {"n": "Papa's Pancakeria", "f": "papaspancakeria.html", "icon": "icons/papa_s_pancakeria.svg"}, {"n": "Papa's Pastaria", "f": "papaspastaria.html", "icon": "icons/papa_s_pastaria.svg"}, {"n": "Papa's Pizzeria", "f": "papaspizzeria.html", "icon": "icons/papa_s_pizzeria.svg"}, {"n": "Papa's Tacomia", "f": "papastacomia.html", "icon": "icons/papa_s_tacomia.svg"}, {"n": "Papa's Wingeria", "f": "papaswingeria.html", "icon": "icons/papa_s_wingeria.svg"}, {"n": "Parking Fury", "f": "parkingfury.html", "icon": "icons/parking_fury.svg"}, {"n": "Parking Fury 2", "f": "parkingfury2.html", "icon": "icons/parking_fury_2.svg"}, {"n": "Parking Fury 3", "f": "parkingfury3.html", "icon": "icons/parking_fury_3.svg"}, {"n": "Pico's School", "f": "picosschool.html", "icon": "icons/pico_s_school.svg"}, {"n": "Ping Pong Chaos", "f": "pingpongchaos.html", "icon": "icons/ping_pong_chaos.svg"}, {"n": "Pixel Speedrun", "f": "pixelspeedrun.html", "icon": "icons/pixel_speedrun.svg"}, {"n": "Plants vs Zombies", "f": "plantsvszombies.html", "icon": "icons/plants_vs_zombies.svg"}, {"n": "Plonky", "f": "plonky.html", "icon": "icons/plonky.svg"}, {"n": "Poly Track", "f": "polytrack.html", "icon": "icons/poly_track.svg"}, {"n": "Poor Bunny", "f": "poorbunny.html", "icon": "icons/poor_bunny.svg"}, {"n": "Pou", "f": "pou.html", "icon": "icons/pou.svg"}, {"n": "Ragdoll Hit", "f": "ragdollhit.html", "icon": "icons/ragdoll_hit.svg"}, {"n": "Ragdoll Soccer", "f": "ragdollsoccer.html", "icon": "icons/ragdoll_soccer.svg"}, {"n": "Red Ball 4 Vol.1", "f": "redball4vol1.html", "icon": "icons/red_ball_4_vol_1.svg"}, {"n": "Red Ball 4 Vol.2", "f": "redball4vol2.html", "icon": "icons/red_ball_4_vol_2.svg"}, {"n": "Red Ball 4 Vol.3", "f": "redball4vol3.html", "icon": "icons/red_ball_4_vol_3.svg"}, {"n": "Retro Bowl", "f": "retrobowl.html", "icon": "icons/retro_bowl.svg"}, {"n": "Retro Bowl College", "f": "retrobowlcollege.html", "icon": "icons/retro_bowl_college.svg"}, {"n": "Retro Highway", "f": "retrohighway.html", "icon": "icons/retro_highway.svg"}, {"n": "Retro Ping Pong", "f": "retropingpong.html", "icon": "icons/retro_ping_pong.svg"}, {"n": "Riddle School", "f": "riddleschool.html", "icon": "icons/riddle_school.svg"}, {"n": "Riddle School 2", "f": "riddleschool2.html", "icon": "icons/riddle_school_2.svg"}, {"n": "Riddle School 3", "f": "riddleschool3.html", "icon": "icons/riddle_school_3.svg"}, {"n": "Riddle School 4", "f": "riddleschool4.html", "icon": "icons/riddle_school_4.svg"}, {"n": "Rooftop Snipers 2", "f": "rooftopsnipers2.html", "icon": "icons/rooftop_snipers_2.svg"}, {"n": "Run", "f": "run.html", "icon": "icons/run.svg"}, {"n": "Run 2", "f": "run2.html", "icon": "icons/run_2.svg"}, {"n": "Run 3", "f": "run3.html", "icon": "icons/run_3.svg"}, {"n": "Sand Game", "f": "sandgame.html", "icon": "icons/sand_game.svg"}, {"n": "Short Life", "f": "shortlife.html", "icon": "icons/short_life.svg"}, {"n": "Slope 2 Player", "f": "slope2player.html", "icon": "icons/slope_2_player.svg"}, {"n": "Slow Roads", "f": "slowroads.html", "icon": "icons/slow_roads.svg"}, {"n": "Snowball.io", "f": "snowballio.html", "icon": "icons/snowball_io.svg"}, {"n": "Soccer Bros", "f": "soccerbros.html", "icon": "icons/soccer_bros.svg"}, {"n": "Space Is Key", "f": "spaceiskey.html", "icon": "icons/space_is_key.svg"}, {"n": "Space Is Key 2", "f": "spaceiskey2.html", "icon": "icons/space_is_key_2.svg"}, {"n": "Space Waves", "f": "spacewaves.html", "icon": "icons/space_waves.svg"}, {"n": "Spacebar Clicker", "f": "spacebarclicker.html", "icon": "icons/spacebar_clicker.svg"}, {"n": "Speed Stars", "f": "speedstars.html", "icon": "icons/speed_stars.svg"}, {"n": "Sprunki", "f": "sprunki.html", "icon": "icons/sprunki.svg"}, {"n": "Stack", "f": "stack.html", "icon": "icons/stack.svg"}, {"n": "Stack Tris", "f": "stacktris.html", "icon": "icons/stack_tris.svg"}, {"n": "State.io", "f": "stateio.html", "icon": "icons/state_io.svg"}, {"n": "Stick Archers Battle", "f": "stickarchersbattle.html", "icon": "icons/stick_archers_battle.svg"}, {"n": "Stick Fighter", "f": "stickfighter.html", "icon": "icons/stick_fighter.svg"}, {"n": "Stick Merge", "f": "stickmerge.html", "icon": "icons/stick_merge.svg"}, {"n": "Stickman Hook", "f": "stickmanhook.html", "icon": "icons/stickman_hook.svg"}, {"n": "Super Liquid Soccer", "f": "superliquidsoccer.html", "icon": "icons/super_liquid_soccer.svg"}, {"n": "Super Mario 64", "f": "sm64.html", "icon": "icons/super_mario_64.svg"}, {"n": "Table Tennis World Tour", "f": "tabletennisworldtour.html", "icon": "icons/table_tennis_world_tour.svg"}, {"n": "Tag", "f": "tag.html", "icon": "icons/tag.svg"}, {"n": "Temple of Boom", "f": "templeofboom.html", "icon": "icons/temple_of_boom.svg"}, {"n": "Territorial.io", "f": "territorialio.html", "icon": "icons/territorial_io.svg"}, {"n": "The Impossible Quiz", "f": "theimpossiblequiz.html", "icon": "icons/the_impossible_quiz.svg"}, {"n": "The Impossible Quiz 2", "f": "theimpossiblequiz2.html", "icon": "icons/the_impossible_quiz_2.svg"}, {"n": "There Is No Game", "f": "thereisnog.html", "icon": "icons/there_is_no_game.svg"}, {"n": "This Is The Only Level", "f": "thisistheonlylevel.html", "icon": "icons/this_is_the_only_level.svg"}, {"n": "This Is The Only Level Too", "f": "thisistheonlyleveltoo.html", "icon": "icons/this_is_the_only_level_too.svg"}, {"n": "Time Shooter 2", "f": "timeshooter2.html", "icon": "icons/time_shooter_2.svg"}, {"n": "Tiny Fishing", "f": "tinyfishing.html", "icon": "icons/tiny_fishing.svg"}, {"n": "Trap the Cat", "f": "trapthecat.html", "icon": "icons/trap_the_cat.svg"}, {"n": "Trivia Crack", "f": "triviacrack.html", "icon": "icons/trivia_crack.svg"}, {"n": "Tube Jumpers", "f": "tubejumpers.html", "icon": "icons/tube_jumpers.svg"}, {"n": "Tunnel Rush", "f": "tunnelrush.html", "icon": "icons/tunnel_rush.svg"}, {"n": "Unicycle Hero", "f": "unicyclehero.html", "icon": "icons/unicycle_hero.svg"}, {"n": "Vex 4", "f": "vex4.html", "icon": "icons/vex_4.svg"}, {"n": "Vex 5", "f": "vex5.html", "icon": "icons/vex_5.svg"}, {"n": "Vex X3M", "f": "vexx3m.html", "icon": "icons/vex_x3m.svg"}, {"n": "Vex X3M 2", "f": "vexx3m2.html", "icon": "icons/vex_x3m_2.svg"}, {"n": "Volley Random", "f": "volleyrandom.html", "icon": "icons/volley_random.svg"}, {"n": "We Become What We Behold", "f": "webecomewhatwebehold.html", "icon": "icons/we_become_what_we_behold.svg"}, {"n": "Wheelie Bike", "f": "wheeliebike.html", "icon": "icons/wheelie_bike.svg"}, {"n": "Wheely", "f": "wheely.html", "icon": "icons/wheely.svg"}, {"n": "Wheely 2", "f": "wheely2.html", "icon": "icons/wheely_2.svg"}, {"n": "Wheely 3", "f": "wheely3.html", "icon": "icons/wheely_3.svg"}, {"n": "Wheely 6", "f": "wheely6.html", "icon": "icons/wheely_6.svg"}, {"n": "Wheely 8", "f": "wheely8.html", "icon": "icons/wheely_8.svg"}, {"n": "Wordle Unlimited", "f": "wordleunlimited.html", "icon": "icons/wordle_unlimited.svg"}, {"n": "Worlds Hardest Game", "f": "worldshardestgame.html", "icon": "icons/worlds_hardest_game.svg"}, {"n": "Worlds Hardest Game 2", "f": "worldshardestgame2.html", "icon": "icons/worlds_hardest_game_2.svg"}, {"n": "Worlds Hardest Game 3", "f": "worldshardestgame3.html", "icon": "icons/worlds_hardest_game_3.svg"}, {"n": "Wrestle Bros", "f": "wrestlebros.html", "icon": "icons/wrestle_bros.svg"}, {"n": "Zombie Rush", "f": "zombierush.html", "icon": "icons/zombie_rush.svg"}];
+var grid = document.getElementById('grid');
+var empty = document.getElementById('empty');
+var countEl = document.getElementById('count');
+var totalEl = document.getElementById('total');
+var ICON = 'icons/';
+var gameEls = [];
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function build(){
+  var html = '';
+  for (var i=0;i<GAMES.length;i++){
+    var g = GAMES[i];
+    html += '<a class="card" href="../games-web/' + encodeURI(g.f) + '" target="_blank" rel="noopener" title="' + esc(g.n) + '" data-name="' + esc(g.n.toLowerCase()) + '">' +
+            '<img src="' + ICON + g.icon.split('/').pop() + '" alt="' + esc(g.n) + '" width="86" height="86" loading="lazy">' +
+            '<span class="nm">' + esc(g.n) + '</span></a>';
+  }
+  grid.innerHTML = html;
+  gameEls = Array.prototype.slice.call(grid.children);
+  totalEl.textContent = GAMES.length;
+}
+
+function filter(){
+  var q = document.getElementById('q').value.trim().toLowerCase();
+  var shown = 0;
+  for (var i=0;i<gameEls.length;i++){
+    var el = gameEls[i];
+    var ok = !q || el.getAttribute('data-name').indexOf(q) !== -1;
+    el.style.display = ok ? '' : 'none';
+    if (ok) shown++;
+  }
+  countEl.textContent = shown + ' / ' + GAMES.length + ' 款游戏';
+  empty.style.display = shown === 0 ? '' : 'none';
+}
+
+document.getElementById('q').addEventListener('input', filter);
+build();
+filter();
+</script>
+</body>
+</html>
