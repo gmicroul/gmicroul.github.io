@@ -97,9 +97,9 @@ function setControlsEnabled(enabled) {
 function setRunning(running) {
   isRunning = running;
   ui.runIcon.innerHTML = running ? "&#x23F8;" : "&#x25B6;";
-  ui.runToggle.setAttribute("aria-label", running ? "鏆傚仠" : "缁х画");
-  ui.runToggle.title = running ? "鏆傚仠" : "缁х画";
-  setStatus(running ? "running" : "paused", running ? "姝ｅ湪杩愯" : "宸叉殏鍋�");
+  ui.runToggle.setAttribute("aria-label", running ? "暂停" : "继续");
+  ui.runToggle.title = running ? "暂停" : "继续";
+  setStatus(running ? "running" : "paused", running ? "正在运行" : "已暂停");
 }
 
 function enableInput(instance = emulator) {
@@ -114,7 +114,7 @@ function showError(message) {
   ui.error.hidden = false;
   ui.errorMessage.textContent = message;
   setControlsEnabled(false);
-  setStatus("error", "鍚姩澶辫触");
+  setStatus("error", "启动失败");
 }
 
 async function disposeEmulator() {
@@ -132,7 +132,7 @@ async function disposeEmulator() {
 
 function updateDownload(progress) {
   if (!progress.lengthComputable || !progress.total) {
-    ui.loadingDetail.textContent = "姝ｅ湪璇诲彇鍚姩鏂囦欢";
+    ui.loadingDetail.textContent = "正在读取启动文件";
     return;
   }
 
@@ -146,19 +146,19 @@ function initialize() {
 
   ui.error.hidden = true;
   ui.loading.classList.remove("is-hidden");
-  ui.loadingTitle.textContent = "姝ｅ湪鍔犺浇 Alpine Linux";
+  ui.loadingTitle.textContent = "正在加载 Alpine Linux";
   ui.loadingDetail.textContent = "0%";
   ui.progress.style.width = "0";
   setControlsEnabled(false);
-  setStatus("loading", "姝ｅ湪鍔犺浇杩愯鐜");
+  setStatus("loading", "正在加载运行环境");
   ui.memorySize.textContent = `${memorySize / 1024 / 1024} MB`;
 
   if (typeof WebAssembly !== "object") {
-    showError("褰撳墠娴忚鍣ㄤ笉鏀寔 WebAssembly锛岃浣跨敤杈冩柊鐨� Chrome銆丒dge銆丗irefox 鎴� Safari銆�");
+    showError("当前浏览器不支持 WebAssembly，请使用较新的 Chrome、Edge、Firefox 或 Safari。");
     return;
   }
   if (typeof V86 !== "function") {
-    showError("v86 杩愯鏃舵病鏈夊姞杞芥垚鍔燂紝璇锋鏌� vendor/v86 鐩綍鍚庨噸璇曘€�");
+    showError("v86 运行时没有加载成功，请检查 vendor/v86 目录后重试。");
     return;
   }
 
@@ -188,14 +188,14 @@ function initialize() {
     });
     instance.add_listener("download-error", event => {
       if (emulator !== instance) return;
-      const file = event?.file_name ? `锛�${event.file_name}锛塦 : "";
-      showError(`鍚姩鏂囦欢涓嬭浇澶辫触${file}銆傝纭 assets 涓殑 ISO 鍒嗙墖宸茬粡瀹屾暣涓婁紶銆俙);
+      const file = event?.file_name ? `（${event.file_name}）` : "";
+      showError(`启动文件下载失败${file}。请确认 assets 中的 ISO 分片已经完整上传。`);
       void disposeEmulator();
     });
     instance.add_listener("emulator-ready", () => {
       if (emulator !== instance) return;
-      ui.loadingTitle.textContent = "姝ｅ湪鍚姩 Alpine 妗岄潰";
-      ui.loadingDetail.textContent = "ISO 鍜� virtio 缃戝崱宸插氨缁�";
+      ui.loadingTitle.textContent = "正在启动 Alpine 桌面";
+      ui.loadingDetail.textContent = "ISO 和 virtio 网卡已就绪";
       ui.progress.style.width = "100%";
       setControlsEnabled(true);
     });
@@ -215,7 +215,7 @@ function initialize() {
     });
   } catch (error) {
     console.error(error);
-    showError(error instanceof Error ? error.message : "鍒濆鍖栨ā鎷熷櫒鏃跺彂鐢熸湭鐭ラ敊璇€�");
+    showError(error instanceof Error ? error.message : "初始化模拟器时发生未知错误。");
     void disposeEmulator();
   }
 }
@@ -237,7 +237,7 @@ ui.runToggle.addEventListener("click", async () => {
 ui.restart.addEventListener("click", () => {
   if (!emulator) return;
   emulator.restart();
-  setStatus("loading", "姝ｅ湪閲嶆柊鍚姩");
+  setStatus("loading", "正在重新启动");
   enableInput();
 });
 
@@ -268,34 +268,34 @@ ui.retry.addEventListener("click", async () => {
   isRetrying = false;
 });
 
-/* === 鍓创鏉匡細绮樿创涓绘満鍓创鏉垮埌铏氭嫙鏈� === */
+/* === 剪贴板：粘贴主机剪贴板到虚拟机 === */
 ui.pasteClipboard.addEventListener("click", async () => {
   if (!emulator) return;
   try {
     const text = await navigator.clipboard.readText();
     if (!text) {
-      setStatus("paused", "鍓创鏉夸负绌�");
-      setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "姝ｅ湪杩愯" : "宸叉殏鍋�"), 2000);
+      setStatus("paused", "剪贴板为空");
+      setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "正在运行" : "已暂停"), 2000);
       return;
     }
     enableInput();
     // v86 keyboard_send_text simulates typing the text into the guest
     emulator.keyboard_send_text(text);
-    setStatus("running", `宸茬矘璐� ${text.length} 瀛楃`);
-    setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "姝ｅ湪杩愯" : "宸叉殏鍋�"), 2000);
+    setStatus("running", `已粘贴 ${text.length} 字符`);
+    setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "正在运行" : "已暂停"), 2000);
   } catch (err) {
     // clipboard API might be blocked; fall back to a prompt
-    const text = prompt("绮樿创鏂囨湰鍒拌櫄鎷熸満锛圕trl+V 绮樿创鍒版澶勶級锛�");
+    const text = prompt("粘贴文本到虚拟机（Ctrl+V 粘贴到此处）：");
     if (text && emulator) {
       enableInput();
       emulator.keyboard_send_text(text);
-      setStatus("running", `宸茬矘璐� ${text.length} 瀛楃`);
-      setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "姝ｅ湪杩愯" : "宸叉殏鍋�"), 2000);
+      setStatus("running", `已粘贴 ${text.length} 字符`);
+      setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "正在运行" : "已暂停"), 2000);
     }
   }
 });
 
-/* === 鍓创鏉匡細澶嶅埗铏氭嫙鏈哄睆骞曟枃鏈埌涓绘満鍓创鏉� === */
+/* === 剪贴板：复制虚拟机屏幕文本到主机剪贴板 === */
 ui.copyScreenText.addEventListener("click", async () => {
   if (!emulator) return;
   try {
@@ -308,15 +308,15 @@ ui.copyScreenText.addEventListener("click", async () => {
     }
     if (!text || !text.trim()) {
       // fallback: try screen_make_screenshot and copy as image (not text)
-      setStatus("paused", "灞忓箷鏃犲彲澶嶅埗鏂囨湰");
-      setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "姝ｅ湪杩愯" : "宸叉殏鍋�"), 2000);
+      setStatus("paused", "屏幕无可复制文本");
+      setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "正在运行" : "已暂停"), 2000);
       return;
     }
     // trim trailing whitespace per line but keep structure
     text = text.split("\n").map(l => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "\n");
     await navigator.clipboard.writeText(text);
-    setStatus("running", `宸插鍒� ${text.length} 瀛楃`);
-    setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "姝ｅ湪杩愯" : "宸叉殏鍋�"), 2000);
+    setStatus("running", `已复制 ${text.length} 字符`);
+    setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "正在运行" : "已暂停"), 2000);
   } catch (err) {
     // fallback: create a textarea and select it
     const textScreen = ui.screen.querySelector(".text-screen");
@@ -328,8 +328,8 @@ ui.copyScreenText.addEventListener("click", async () => {
       ta.select();
       try { document.execCommand("copy"); } catch (e) {}
       document.body.removeChild(ta);
-      setStatus("running", `宸插鍒� ${text.length} 瀛楃`);
-      setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "姝ｅ湪杩愯" : "宸叉殏鍋�"), 2000);
+      setStatus("running", `已复制 ${text.length} 字符`);
+      setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "正在运行" : "已暂停"), 2000);
     }
   }
 });
@@ -345,8 +345,8 @@ ui.screen.addEventListener("paste", async (e) => {
       if (text) {
         enableInput();
         emulator.keyboard_send_text(text);
-        setStatus("running", `宸茬矘璐� ${text.length} 瀛楃`);
-        setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "姝ｅ湪杩愯" : "宸叉殏鍋�"), 2000);
+        setStatus("running", `已粘贴 ${text.length} 字符`);
+        setTimeout(() => setStatus(isRunning ? "running" : "paused", isRunning ? "正在运行" : "已暂停"), 2000);
       }
     }
   }
