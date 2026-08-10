@@ -3,10 +3,10 @@
 这是一个可部署到 GitHub Pages 的 Alpine Linux 3.24 图形系统。浏览器中的
 v86 模拟 32 位 x86 PC，并从自定义 ISO 启动 Openbox 桌面。
 
-系统预装 NetSurf、`wget`、`curl`、`fastfetch`、Openbox、tint2、xterm、Python3、pip、
+系统预装 NetSurf、`wget`、`curl`、`fastfetch`、Openbox、tint2、xterm、Python 3.11、pip、
 openssh 和 bash。桌面启动后只打开 tint2 面板（不再自动打开浏览器和终端），
-鼠标键盘通过 evdev InputClass 自动配置。首次进入桌面会自动尝试安装 hermes-agent
-（`pip install --break-system-packages hermes-agent`）。
+鼠标键盘通过 evdev InputClass 自动配置。hermes-agent（0.19.0，运行于 Python 3.11）
+已预装，可直接执行 `hermes`，无需在线安装。
 SSH 服务（sshd port 22）开机自启，`alpine` 用户空密码，可免密码 `doas`。
 
 客体系统使用 Alpine 官方 32 位 x86 仓库中的 NetSurf 3.11。NetSurf 适合普通
@@ -16,7 +16,7 @@ HTTP/HTTPS 页面，但不适合依赖大量 JavaScript 的现代 Web 应用。
 
 ```text
 dist/alpine-v86-260722-x86.iso
-SHA-256: 3d338f7998e2e861197d4324b3fd79270410f16a64e676c41ac04228b1858202
+SHA-256: 10de78d93b388bebbd2d0d225f2365c762466127ec0274390a97b9d69658d065
 ```
 
 ISO 约 170 MB，不能作为单个文件提交到 GitHub 仓库。GitHub Pages 版本使用
