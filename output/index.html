@@ -1,158 +1,1050 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#14171a">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>游戏大厅 · SFOS Game Hub</title>
 <style>
-
-* { margin:0; padding:0; box-sizing:border-box; }
-html,body { height:100%; }
-body {
-  background: #14171a;
-  background-image: radial-gradient(1200px 500px at 50% -10%, rgba(0,192,255,0.10), transparent 60%),
-                    radial-gradient(800px 400px at 90% 110%, rgba(0,255,170,0.06), transparent 60%);
-  background-attachment: fixed;
-  color: #f2f5f7;
-  font-family: "Sailfish", "Open Sans", "Segoe UI", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
-  min-height: 100%;
-}
-.wrap { max-width: 1180px; margin: 0 auto; padding: 26px 18px 60px; }
-
-header.top { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
-.brand {
-  width:48px; height:48px; border-radius:8px; flex:0 0 auto;
-  background: linear-gradient(135deg, #00c0ff, #0077e6);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow: 0 4px 18px rgba(0,140,255,0.35);
-}
-.brand svg { width:26px; height:26px; }
-.title h1 { font-size:24px; font-weight:600; letter-spacing:0.5px; }
-.title p { font-size:13px; color:#8a949c; margin-top:2px; }
-.title p b { color:#00d2a0; font-weight:600; }
-
-.searchbar { position:relative; margin-bottom:22px; }
-.searchbar svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); width:18px; height:18px; stroke:#8a949c; fill:none; stroke-width:2; stroke-linecap:round; }
-#search {
-  width:100%; padding:13px 44px; font-size:15px; color:#f2f5f7;
-  background:#1c2126; border:1px solid #2a3138; border-radius:10px;
-  outline:none; transition: border-color .15s, box-shadow .15s;
-}
-#search::placeholder { color:#6a747c; }
-#search:focus { border-color:#00c0ff; box-shadow:0 0 0 3px rgba(0,192,255,0.18); }
-#clear {
-  position:absolute; right:10px; top:50%; transform:translateY(-50%);
-  width:28px; height:28px; border:none; border-radius:8px; cursor:pointer;
-  background:#2a3138; color:#aeb6bd; font-size:14px; line-height:1;
-  display:none; align-items:center; justify-content:center;
-}
-#clear:hover { background:#36404a; color:#fff; }
-
-.grid {
-  display:grid;
-  grid-template-columns: repeat(auto-fill, 108px);
-  justify-content:center;
-  gap: 14px;
-}
-@media (max-width: 480px) {
-  .grid { grid-template-columns: repeat(2, 108px); gap: 12px; }
-}
-.card {
-  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-  width:108px; height:108px;
-  background:#1b2025; border:1px solid #242b32; border-radius:0;
-  text-decoration:none; color:inherit;
-  transition: transform .12s, border-color .12s, background .12s;
-}
-.card:hover { background:#20272d; border-color:#00c0ff; transform:translateY(-3px); }
-.card .ico { width:86px; height:86px; flex:0 0 86px; display:flex; align-items:center; justify-content:center; margin-top:4px; }
-.card .ico img { width:86px; height:86px; display:block; }
-.card .nm {
-  width:100%; height:22px; flex:0 0 22px; text-align:center; font-size:10px; line-height:22px;
-  color:#c2cad1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 2px;
-}
-.card:hover .nm { color:#fff; }
-
-.empty {
-  display:none; text-align:center; padding:60px 0; color:#6a747c; font-size:14px;
-}
-.empty.on { display:block; }
-footer { margin-top:36px; text-align:center; font-size:12px; color:#4a525a; }
-
+  :root{
+    --bg0:#05080f; --bg1:#0a1322;
+    --card:#0f1a2c; --card-hi:#16263f;
+    --line:rgba(255,255,255,.07);
+    --text:#e9f0fa; --dim:#7d8ba2;
+    --acc:#00a9f1; --acc2:#2ee6a8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:
+      radial-gradient(1200px 700px at 85% -10%, rgba(0,169,241,.10), transparent 60%),
+      radial-gradient(1000px 600px at -10% 0%, rgba(46,230,168,.07), transparent 55%),
+      linear-gradient(160deg,var(--bg0) 0%,var(--bg1) 100%);
+    background-attachment:fixed;
+    color:var(--text); min-height:100vh;
+  }
+  header{
+    position:sticky; top:0; z-index:20;
+    background:rgba(6,11,20,.78);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+    padding:12px 16px;
+  }
+  .bar{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:.3px;white-space:nowrap}
+  .logo i{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+  .logo b{color:var(--acc2);font-weight:800}
+  .count{
+    font-size:11px;color:var(--acc2);border:1px solid rgba(46,230,168,.35);
+    padding:3px 9px;border-radius:999px;white-space:nowrap;
+  }
+  .search{
+    flex:1;min-width:200px;display:flex;align-items:center;gap:8px;
+    background:rgba(255,255,255,.05);border:1px solid var(--line);
+    border-radius:9px;padding:0 12px;height:38px;
+    transition:border-color .18s, box-shadow .18s;
+  }
+  .search:focus-within{border-color:rgba(0,169,241,.6);box-shadow:0 0 0 3px rgba(0,169,241,.14)}
+  .search svg{flex:none;opacity:.75}
+  .search input{
+    flex:1;background:transparent;border:0;outline:0;color:var(--text);
+    font-size:14px;height:100%;
+  }
+  .search input::placeholder{color:var(--dim)}
+  .clear{
+    display:none;border:0;background:transparent;color:var(--dim);cursor:pointer;
+    font-size:16px;padding:4px;line-height:1;
+  }
+  .clear.show{display:block}
+  main{max-width:1200px;margin:0 auto;padding:18px 14px 40px}
+  .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px;justify-items:center}
+  .card{
+    position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    width:108px;height:108px;background:var(--card);
+    border:1px solid var(--line);border-radius:0;
+    text-decoration:none;color:var(--text);
+    padding-top:2px;
+    transition:background .16s,transform .16s,box-shadow .16s,border-color .16s;
+  }
+  .card img{width:86px;height:86px;flex:none;display:block}
+  .card .nm{
+    width:100%;max-width:104px;font-size:11px;line-height:16px;text-align:center;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    color:var(--dim);transition:color .16s;
+  }
+  .card:hover,.card:focus-visible{
+    background:var(--card-hi);border-color:rgba(0,169,241,.55);
+    transform:translateY(-2px);
+    box-shadow:0 6px 18px rgba(0,0,0,.35),0 0 0 1px rgba(0,169,241,.25);
+    outline:none;
+  }
+  .card:hover .nm{color:var(--text)}
+  .card::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:2px;
+    background:linear-gradient(90deg,var(--acc),var(--acc2));
+    transform:scaleX(0);transform-origin:left;transition:transform .18s;
+  }
+  .card:hover::after{transform:scaleX(1)}
+  .empty{
+    display:none;grid-column:1/-1;text-align:center;color:var(--dim);
+    padding:60px 0;font-size:14px;
+  }
+  .empty.show{display:block}
+  .hint{max-width:1200px;margin:0 auto;text-align:center;color:var(--dim);font-size:11px;padding:0 14px 26px}
+  @media (min-width:600px){
+    .cards{grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:16px}
+    .card{width:108px}
+  }
+  @media (min-width:900px){
+    header{padding:14px 24px}
+    main{padding:24px}
+    .card{width:108px}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand" aria-hidden="true">
-      <svg viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13 2 L24 7.5 L24 18.5 L13 24 L2 18.5 L2 7.5 Z" fill="#ffffff" opacity="0.95"/>
-        <path d="M13 7 L18.5 10 L13 13 L7.5 10 Z" fill="#00c0ff"/>
-        <path d="M7.5 13 L13 16 L18.5 13 L18.5 17 L13 20 L7.5 17 Z" fill="#00d2a0"/>
-      </svg>
+<header>
+  <div class="bar">
+    <div class="logo"><i></i>SFOS<b> 游戏大厅</b></div>
+    <span class="count" id="count"></span>
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg>
+      <input id="q" type="text" placeholder="搜索游戏…" autocomplete="off">
+      <button class="clear" id="clear" type="button" title="清空">×</button>
     </div>
-    <div class="title">
-      <h1>游戏大厅</h1>
-      <p>共 <b id="count">0</b> 款游戏</p>
-    </div>
-  </header>
-
-  <div class="searchbar">
-    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-    <input id="search" type="search" placeholder="搜索游戏…" autocomplete="off">
-    <button id="clear" type="button" title="清除">&#10005;</button>
   </div>
+</header>
 
-  <div id="grid" class="grid"></div>
-  <div id="empty" class="empty">没有找到匹配的游戏</div>
+<main>
+  <div class="cards" id="cards">
+<a class="card" href="../games-web/1.5.html" data-name="1.5">
+        <img src="icons/1.5.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">1.5</span>
+      </a>
+<a class="card" href="../games-web/1.8.html" data-name="1.8">
+        <img src="icons/1.8.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">1.8</span>
+      </a>
+<a class="card" href="../games-web/12minibattles.html" data-name="12minibattles">
+        <img src="icons/12minibattles.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">12minibattles</span>
+      </a>
+<a class="card" href="../games-web/1on1soccer.html" data-name="1on1soccer">
+        <img src="icons/1on1soccer.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">1on1soccer</span>
+      </a>
+<a class="card" href="../games-web/1on1tennis.html" data-name="1on1tennis">
+        <img src="icons/1on1tennis.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">1on1tennis</span>
+      </a>
+<a class="card" href="../games-web/2048.html" data-name="2048">
+        <img src="icons/2048.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">2048</span>
+      </a>
+<a class="card" href="../games-web/2048cupcakes.html" data-name="2048cupcakes">
+        <img src="icons/2048cupcakes.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">2048cupcakes</span>
+      </a>
+<a class="card" href="../games-web/8ballclassic.html" data-name="8ballclassic">
+        <img src="icons/8ballclassic.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">8ballclassic</span>
+      </a>
+<a class="card" href="../games-web/Alpha_1.2.6.html" data-name="Alpha_1.2.6">
+        <img src="icons/Alpha_1.2.6.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Alpha_1.2.6</span>
+      </a>
+<a class="card" href="../games-web/Beta_1.3.html" data-name="Beta_1.3">
+        <img src="icons/Beta_1.3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Beta_1.3</span>
+      </a>
+<a class="card" href="../games-web/Indev.html" data-name="Indev">
+        <img src="icons/Indev.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Indev</span>
+      </a>
+<a class="card" href="../games-web/agariolite.html" data-name="Solo Agario">
+        <img src="icons/Solo%20Agario.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Solo Agario</span>
+      </a>
+<a class="card" href="../games-web/ageofwar.html" data-name="ageofwar">
+        <img src="icons/ageofwar.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ageofwar</span>
+      </a>
+<a class="card" href="../games-web/ageofwar2.html" data-name="ageofwar2">
+        <img src="icons/ageofwar2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ageofwar2</span>
+      </a>
+<a class="card" href="../games-web/agesofconflict.html" data-name="agesofconflict">
+        <img src="icons/agesofconflict.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">agesofconflict</span>
+      </a>
+<a class="card" href="../games-web/amongus.html" data-name="amongus">
+        <img src="icons/amongus.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">amongus</span>
+      </a>
+<a class="card" href="../games-web/angrybirds.html" data-name="angrybirds">
+        <img src="icons/angrybirds.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">angrybirds</span>
+      </a>
+<a class="card" href="../games-web/angrybirdsspace.html" data-name="angrybirdsspace">
+        <img src="icons/angrybirdsspace.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">angrybirdsspace</span>
+      </a>
+<a class="card" href="../games-web/awesometanks.html" data-name="awesometanks">
+        <img src="icons/awesometanks.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">awesometanks</span>
+      </a>
+<a class="card" href="../games-web/awesometanks2.html" data-name="awesometanks2">
+        <img src="icons/awesometanks2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">awesometanks2</span>
+      </a>
+<a class="card" href="../games-web/backrooms.html" data-name="backrooms">
+        <img src="icons/backrooms.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">backrooms</span>
+      </a>
+<a class="card" href="../games-web/baconmaydie.html" data-name="baconmaydie">
+        <img src="icons/baconmaydie.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">baconmaydie</span>
+      </a>
+<a class="card" href="../games-web/badicecream.html" data-name="badicecream">
+        <img src="icons/badicecream.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">badicecream</span>
+      </a>
+<a class="card" href="../games-web/badicecream2.html" data-name="badicecream2">
+        <img src="icons/badicecream2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">badicecream2</span>
+      </a>
+<a class="card" href="../games-web/badicecream3.html" data-name="badicecream3">
+        <img src="icons/badicecream3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">badicecream3</span>
+      </a>
+<a class="card" href="../games-web/badpiggies.html" data-name="badpiggies">
+        <img src="icons/badpiggies.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">badpiggies</span>
+      </a>
+<a class="card" href="../games-web/baseballbros.html" data-name="baseballbros">
+        <img src="icons/baseballbros.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">baseballbros</span>
+      </a>
+<a class="card" href="../games-web/basketballlegends.html" data-name="basketballlegends">
+        <img src="icons/basketballlegends.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">basketballlegends</span>
+      </a>
+<a class="card" href="../games-web/basketballstars.html" data-name="basketballstars">
+        <img src="icons/basketballstars.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">basketballstars</span>
+      </a>
+<a class="card" href="../games-web/basketbros.html" data-name="basketbros">
+        <img src="icons/basketbros.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">basketbros</span>
+      </a>
+<a class="card" href="../games-web/basketrandom.html" data-name="basketrandom">
+        <img src="icons/basketrandom.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">basketrandom</span>
+      </a>
+<a class="card" href="../games-web/blockysnakes.html" data-name="blockysnakes">
+        <img src="icons/blockysnakes.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">blockysnakes</span>
+      </a>
+<a class="card" href="../games-web/bloonsTD.html" data-name="bloonsTD">
+        <img src="icons/bloonsTD.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bloonsTD</span>
+      </a>
+<a class="card" href="../games-web/bloonsTD2.html" data-name="bloonsTD2">
+        <img src="icons/bloonsTD2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bloonsTD2</span>
+      </a>
+<a class="card" href="../games-web/bloonsTD3.html" data-name="bloonsTD3">
+        <img src="icons/bloonsTD3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bloonsTD3</span>
+      </a>
+<a class="card" href="../games-web/bloonsTD4.html" data-name="bloonsTD4">
+        <img src="icons/bloonsTD4.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bloonsTD4</span>
+      </a>
+<a class="card" href="../games-web/bloonsTD5.html" data-name="bloonsTD5">
+        <img src="icons/bloonsTD5.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bloonsTD5</span>
+      </a>
+<a class="card" href="../games-web/bloxorz.html" data-name="bloxorz">
+        <img src="icons/bloxorz.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bloxorz</span>
+      </a>
+<a class="card" href="../games-web/blumgiracers.html" data-name="blumgiracers">
+        <img src="icons/blumgiracers.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">blumgiracers</span>
+      </a>
+<a class="card" href="../games-web/blumgirocket.html" data-name="blumgirocket">
+        <img src="icons/blumgirocket.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">blumgirocket</span>
+      </a>
+<a class="card" href="../games-web/bobtherobber.html" data-name="bobtherobber">
+        <img src="icons/bobtherobber.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bobtherobber</span>
+      </a>
+<a class="card" href="../games-web/bobtherobber2.html" data-name="bobtherobber2">
+        <img src="icons/bobtherobber2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bobtherobber2</span>
+      </a>
+<a class="card" href="../games-web/bobtherobber5.html" data-name="bobtherobber5">
+        <img src="icons/bobtherobber5.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bobtherobber5</span>
+      </a>
+<a class="card" href="../games-web/breakingthebank.html" data-name="breakingthebank">
+        <img src="icons/breakingthebank.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">breakingthebank</span>
+      </a>
+<a class="card" href="../games-web/bubbleshooter.html" data-name="bubbleshooter">
+        <img src="icons/bubbleshooter.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">bubbleshooter</span>
+      </a>
+<a class="card" href="../games-web/candycrush.html" data-name="candycrush">
+        <img src="icons/candycrush.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">candycrush</span>
+      </a>
+<a class="card" href="../games-web/capybaraclicker.html" data-name="capybaraclicker">
+        <img src="icons/capybaraclicker.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">capybaraclicker</span>
+      </a>
+<a class="card" href="../games-web/cardrawing.html" data-name="cardrawing">
+        <img src="icons/cardrawing.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">cardrawing</span>
+      </a>
+<a class="card" href="../games-web/carkingarena.html" data-name="carkingarena">
+        <img src="icons/carkingarena.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">carkingarena</span>
+      </a>
+<a class="card" href="../games-web/chess.html" data-name="chess">
+        <img src="icons/chess.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">chess</span>
+      </a>
+<a class="card" href="../games-web/choppyorc.html" data-name="choppyorc">
+        <img src="icons/choppyorc.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">choppyorc</span>
+      </a>
+<a class="card" href="../games-web/circloO.html" data-name="circloO">
+        <img src="icons/circloO.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">circloO</span>
+      </a>
+<a class="card" href="../games-web/circloO2.html" data-name="circloO2">
+        <img src="icons/circloO2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">circloO2</span>
+      </a>
+<a class="card" href="../games-web/clashofvikings.html" data-name="clashofvikings">
+        <img src="icons/clashofvikings.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">clashofvikings</span>
+      </a>
+<a class="card" href="../games-web/cleanupio.html" data-name="cleanupio">
+        <img src="icons/cleanupio.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">cleanupio</span>
+      </a>
+<a class="card" href="../games-web/clusterrush.html" data-name="Cluster Rush">
+        <img src="icons/Cluster%20Rush.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Cluster Rush</span>
+      </a>
+<a class="card" href="../games-web/crazycars.html" data-name="crazycars">
+        <img src="icons/crazycars.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">crazycars</span>
+      </a>
+<a class="card" href="../games-web/crazymotorcycle.html" data-name="crazymotorcycle">
+        <img src="icons/crazymotorcycle.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">crazymotorcycle</span>
+      </a>
+<a class="card" href="../games-web/dadish.html" data-name="dadish">
+        <img src="icons/dadish.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">dadish</span>
+      </a>
+<a class="card" href="../games-web/dadish2.html" data-name="dadish2">
+        <img src="icons/dadish2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">dadish2</span>
+      </a>
+<a class="card" href="../games-web/dadish3.html" data-name="dadish3">
+        <img src="icons/dadish3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">dadish3</span>
+      </a>
+<a class="card" href="../games-web/deathrun3D.html" data-name="deathrun3D">
+        <img src="icons/deathrun3D.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">deathrun3D</span>
+      </a>
+<a class="card" href="../games-web/doodlejump.html" data-name="doodlejump">
+        <img src="icons/doodlejump.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">doodlejump</span>
+      </a>
+<a class="card" href="../games-web/drawclimber.html" data-name="drawclimber">
+        <img src="icons/drawclimber.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">drawclimber</span>
+      </a>
+<a class="card" href="../games-web/ducklife.html" data-name="ducklife">
+        <img src="icons/ducklife.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ducklife</span>
+      </a>
+<a class="card" href="../games-web/ducklife2.html" data-name="ducklife2">
+        <img src="icons/ducklife2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ducklife2</span>
+      </a>
+<a class="card" href="../games-web/ducklife3.html" data-name="ducklife3">
+        <img src="icons/ducklife3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ducklife3</span>
+      </a>
+<a class="card" href="../games-web/ducklife4.html" data-name="ducklife4">
+        <img src="icons/ducklife4.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ducklife4</span>
+      </a>
+<a class="card" href="../games-web/ducklife5.html" data-name="ducklife5">
+        <img src="icons/ducklife5.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ducklife5</span>
+      </a>
+<a class="card" href="../games-web/ducklingsio.html" data-name="ducklingsio">
+        <img src="icons/ducklingsio.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ducklingsio</span>
+      </a>
+<a class="card" href="../games-web/eagleride.html" data-name="eagleride">
+        <img src="icons/eagleride.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">eagleride</span>
+      </a>
+<a class="card" href="../games-web/earntodie.html" data-name="earntodie">
+        <img src="icons/earntodie.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">earntodie</span>
+      </a>
+<a class="card" href="../games-web/earntodie2.html" data-name="earntodie2">
+        <img src="icons/earntodie2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">earntodie2</span>
+      </a>
+<a class="card" href="../games-web/eggycar.html" data-name="eggycar">
+        <img src="icons/eggycar.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">eggycar</span>
+      </a>
+<a class="card" href="../games-web/escapingtheprison.html" data-name="escapingtheprison">
+        <img src="icons/escapingtheprison.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">escapingtheprison</span>
+      </a>
+<a class="card" href="../games-web/evilglitch.html" data-name="Evil Glitch">
+        <img src="icons/Evil%20Glitch.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Evil Glitch</span>
+      </a>
+<a class="card" href="../games-web/fancypantsadventure.html" data-name="fancypantsadventure">
+        <img src="icons/fancypantsadventure.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">fancypantsadventure</span>
+      </a>
+<a class="card" href="../games-web/fancypantsadventure2.html" data-name="fancypantsadventure2">
+        <img src="icons/fancypantsadventure2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">fancypantsadventure2</span>
+      </a>
+<a class="card" href="../games-web/fireboyandwatergirl.html" data-name="fireboyandwatergirl">
+        <img src="icons/fireboyandwatergirl.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">fireboyandwatergirl</span>
+      </a>
+<a class="card" href="../games-web/fireboyandwatergirl2.html" data-name="fireboyandwatergirl2">
+        <img src="icons/fireboyandwatergirl2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">fireboyandwatergirl2</span>
+      </a>
+<a class="card" href="../games-web/fireboyandwatergirl3.html" data-name="fireboyandwatergirl3">
+        <img src="icons/fireboyandwatergirl3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">fireboyandwatergirl3</span>
+      </a>
+<a class="card" href="../games-web/fireboyandwatergirl4.html" data-name="fireboyandwatergirl4">
+        <img src="icons/fireboyandwatergirl4.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">fireboyandwatergirl4</span>
+      </a>
+<a class="card" href="../games-web/flappybird.html" data-name="Flappy Bird">
+        <img src="icons/Flappy%20Bird.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Flappy Bird</span>
+      </a>
+<a class="card" href="../games-web/floodrunner2.html" data-name="floodrunner2">
+        <img src="icons/floodrunner2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">floodrunner2</span>
+      </a>
+<a class="card" href="../games-web/floodrunner3.html" data-name="floodrunner3">
+        <img src="icons/floodrunner3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">floodrunner3</span>
+      </a>
+<a class="card" href="../games-web/floodrunner4.html" data-name="floodrunner4">
+        <img src="icons/floodrunner4.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">floodrunner4</span>
+      </a>
+<a class="card" href="../games-web/fnaf.html" data-name="fnaf">
+        <img src="icons/fnaf.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">fnaf</span>
+      </a>
+<a class="card" href="../games-web/fnaf4.html" data-name="FNAF-4">
+        <img src="icons/FNAF-4.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">FNAF-4</span>
+      </a>
+<a class="card" href="../games-web/footballbros.html" data-name="footballbros">
+        <img src="icons/footballbros.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">footballbros</span>
+      </a>
+<a class="card" href="../games-web/footballlegends.html" data-name="footballlegends">
+        <img src="icons/footballlegends.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">footballlegends</span>
+      </a>
+<a class="card" href="../games-web/freerider3.html" data-name="freerider3">
+        <img src="icons/freerider3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">freerider3</span>
+      </a>
+<a class="card" href="../games-web/fruitninja.html" data-name="fruitninja">
+        <img src="icons/fruitninja.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">fruitninja</span>
+      </a>
+<a class="card" href="../games-web/funnybattle.html" data-name="funnybattle">
+        <img src="icons/funnybattle.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">funnybattle</span>
+      </a>
+<a class="card" href="../games-web/funnybattle2.html" data-name="funnybattle2">
+        <img src="icons/funnybattle2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">funnybattle2</span>
+      </a>
+<a class="card" href="../games-web/geometrydash.html" data-name="Geometry Dash">
+        <img src="icons/Geometry%20Dash.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Geometry Dash</span>
+      </a>
+<a class="card" href="../games-web/getontop.html" data-name="getontop">
+        <img src="icons/getontop.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">getontop</span>
+      </a>
+<a class="card" href="../games-web/googlebaseball.html" data-name="googlebaseball">
+        <img src="icons/googlebaseball.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">googlebaseball</span>
+      </a>
+<a class="card" href="../games-web/googledino.html" data-name="Dinosaur Game Chrome">
+        <img src="icons/Dinosaur%20Game%20Chrome.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Dinosaur Game Chrome</span>
+      </a>
+<a class="card" href="../games-web/guesstheiranswer.html" data-name="guesstheiranswer">
+        <img src="icons/guesstheiranswer.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">guesstheiranswer</span>
+      </a>
+<a class="card" href="../games-web/hanger2.html" data-name="hanger2">
+        <img src="icons/hanger2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">hanger2</span>
+      </a>
+<a class="card" href="../games-web/happywheels.html" data-name="happywheels">
+        <img src="icons/happywheels.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">happywheels</span>
+      </a>
+<a class="card" href="../games-web/helixjump.html" data-name="helixjump">
+        <img src="icons/helixjump.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">helixjump</span>
+      </a>
+<a class="card" href="../games-web/hillclimbracinglite.html" data-name="hillclimbracinglite">
+        <img src="icons/hillclimbracinglite.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">hillclimbracinglite</span>
+      </a>
+<a class="card" href="../games-web/holeio.html" data-name="holeio">
+        <img src="icons/holeio.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">holeio</span>
+      </a>
+<a class="card" href="../games-web/houseofhazards.html" data-name="houseofhazards">
+        <img src="icons/houseofhazards.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">houseofhazards</span>
+      </a>
+<a class="card" href="../games-web/hoverracerdrive.html" data-name="hoverracerdrive">
+        <img src="icons/hoverracerdrive.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">hoverracerdrive</span>
+      </a>
+<a class="card" href="../games-web/idlebreakout.html" data-name="idlebreakout">
+        <img src="icons/idlebreakout.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">idlebreakout</span>
+      </a>
+<a class="card" href="../games-web/ironsnout.html" data-name="ironsnout">
+        <img src="icons/ironsnout.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ironsnout</span>
+      </a>
+<a class="card" href="../games-web/jetpackjoyride.html" data-name="jetpackjoyride">
+        <img src="icons/jetpackjoyride.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">jetpackjoyride</span>
+      </a>
+<a class="card" href="../games-web/johnnytrigger.html" data-name="johnnytrigger">
+        <img src="icons/johnnytrigger.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">johnnytrigger</span>
+      </a>
+<a class="card" href="../games-web/jumpingshell.html" data-name="jumpingshell">
+        <img src="icons/jumpingshell.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">jumpingshell</span>
+      </a>
+<a class="card" href="../games-web/karatebros.html" data-name="karatebros">
+        <img src="icons/karatebros.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">karatebros</span>
+      </a>
+<a class="card" href="../games-web/learntofly.html" data-name="learntofly">
+        <img src="icons/learntofly.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">learntofly</span>
+      </a>
+<a class="card" href="../games-web/learntofly2.html" data-name="learntofly2">
+        <img src="icons/learntofly2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">learntofly2</span>
+      </a>
+<a class="card" href="../games-web/learntoflyidle.html" data-name="learntoflyidle">
+        <img src="icons/learntoflyidle.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">learntoflyidle</span>
+      </a>
+<a class="card" href="../games-web/leveldevil.html" data-name="Level Devil">
+        <img src="icons/Level%20Devil.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Level Devil</span>
+      </a>
+<a class="card" href="../games-web/melonplayground.html" data-name="melonplayground">
+        <img src="icons/melonplayground.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">melonplayground</span>
+      </a>
+<a class="card" href="../games-web/mergeroundracers.html" data-name="mergeroundracers">
+        <img src="icons/mergeroundracers.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">mergeroundracers</span>
+      </a>
+<a class="card" href="../games-web/minesweeper.html" data-name="minesweeper">
+        <img src="icons/minesweeper.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">minesweeper</span>
+      </a>
+<a class="card" href="../games-web/monstertracks.html" data-name="monstertracks">
+        <img src="icons/monstertracks.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">monstertracks</span>
+      </a>
+<a class="card" href="../games-web/motox3m2.html" data-name="motox3m2">
+        <img src="icons/motox3m2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">motox3m2</span>
+      </a>
+<a class="card" href="../games-web/motox3m3.html" data-name="motox3m3">
+        <img src="icons/motox3m3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">motox3m3</span>
+      </a>
+<a class="card" href="../games-web/motox3mpoolparty.html" data-name="motox3mpoolparty">
+        <img src="icons/motox3mpoolparty.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">motox3mpoolparty</span>
+      </a>
+<a class="card" href="../games-web/motox3mspookyland.html" data-name="motox3mspookyland">
+        <img src="icons/motox3mspookyland.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">motox3mspookyland</span>
+      </a>
+<a class="card" href="../games-web/motox3mwinter.html" data-name="motox3mwinter">
+        <img src="icons/motox3mwinter.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">motox3mwinter</span>
+      </a>
+<a class="card" href="../games-web/noobminer.html" data-name="Noob Miner">
+        <img src="icons/Noob%20Miner.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Noob Miner</span>
+      </a>
+<a class="card" href="../games-web/oppositeday.html" data-name="oppositeday">
+        <img src="icons/oppositeday.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">oppositeday</span>
+      </a>
+<a class="card" href="../games-web/ovo.html" data-name="OvOfw">
+        <img src="icons/OvOfw.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">OvOfw</span>
+      </a>
+<a class="card" href="../games-web/ovo2.html" data-name="OvO 2">
+        <img src="icons/OvO%202.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">OvO 2</span>
+      </a>
+<a class="card" href="../games-web/pacman.html" data-name="Pac Man">
+        <img src="icons/Pac%20Man.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Pac Man</span>
+      </a>
+<a class="card" href="../games-web/papasburgeria.html" data-name="papasburgeria">
+        <img src="icons/papasburgeria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papasburgeria</span>
+      </a>
+<a class="card" href="../games-web/papascheeseria.html" data-name="papascheeseria">
+        <img src="icons/papascheeseria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papascheeseria</span>
+      </a>
+<a class="card" href="../games-web/papascupcakeria.html" data-name="papascupcakeria">
+        <img src="icons/papascupcakeria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papascupcakeria</span>
+      </a>
+<a class="card" href="../games-web/papasdonuteria.html" data-name="papasdonuteria">
+        <img src="icons/papasdonuteria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papasdonuteria</span>
+      </a>
+<a class="card" href="../games-web/papasfreezeria.html" data-name="papasfreezeria">
+        <img src="icons/papasfreezeria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papasfreezeria</span>
+      </a>
+<a class="card" href="../games-web/papashotdoggeria.html" data-name="papashotdoggeria">
+        <img src="icons/papashotdoggeria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papashotdoggeria</span>
+      </a>
+<a class="card" href="../games-web/papaspancakeria.html" data-name="papaspancakeria">
+        <img src="icons/papaspancakeria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papaspancakeria</span>
+      </a>
+<a class="card" href="../games-web/papaspastaria.html" data-name="papaspastaria">
+        <img src="icons/papaspastaria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papaspastaria</span>
+      </a>
+<a class="card" href="../games-web/papaspizzeria.html" data-name="papaspizzeria">
+        <img src="icons/papaspizzeria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papaspizzeria</span>
+      </a>
+<a class="card" href="../games-web/papastacomia.html" data-name="papastacomia">
+        <img src="icons/papastacomia.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papastacomia</span>
+      </a>
+<a class="card" href="../games-web/papaswingeria.html" data-name="papaswingeria">
+        <img src="icons/papaswingeria.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">papaswingeria</span>
+      </a>
+<a class="card" href="../games-web/parkingfury.html" data-name="parkingfury">
+        <img src="icons/parkingfury.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">parkingfury</span>
+      </a>
+<a class="card" href="../games-web/parkingfury2.html" data-name="parkingfury2">
+        <img src="icons/parkingfury2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">parkingfury2</span>
+      </a>
+<a class="card" href="../games-web/parkingfury3.html" data-name="parkingfury3">
+        <img src="icons/parkingfury3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">parkingfury3</span>
+      </a>
+<a class="card" href="../games-web/picosschool.html" data-name="picosschool">
+        <img src="icons/picosschool.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">picosschool</span>
+      </a>
+<a class="card" href="../games-web/pingpongchaos.html" data-name="pingpongchaos">
+        <img src="icons/pingpongchaos.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">pingpongchaos</span>
+      </a>
+<a class="card" href="../games-web/pixelspeedrun.html" data-name="Pixel Speedrun">
+        <img src="icons/Pixel%20Speedrun.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Pixel Speedrun</span>
+      </a>
+<a class="card" href="../games-web/plantsvszombies.html" data-name="plantsvszombies">
+        <img src="icons/plantsvszombies.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">plantsvszombies</span>
+      </a>
+<a class="card" href="../games-web/plonky.html" data-name="plonky">
+        <img src="icons/plonky.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">plonky</span>
+      </a>
+<a class="card" href="../games-web/polytrack.html" data-name="polytrack">
+        <img src="icons/polytrack.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">polytrack</span>
+      </a>
+<a class="card" href="../games-web/poorbunny.html" data-name="poorbunny">
+        <img src="icons/poorbunny.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">poorbunny</span>
+      </a>
+<a class="card" href="../games-web/pou.html" data-name="pou">
+        <img src="icons/pou.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">pou</span>
+      </a>
+<a class="card" href="../games-web/ragdollhit.html" data-name="ragdollhit">
+        <img src="icons/ragdollhit.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ragdollhit</span>
+      </a>
+<a class="card" href="../games-web/ragdollsoccer.html" data-name="ragdollsoccer">
+        <img src="icons/ragdollsoccer.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">ragdollsoccer</span>
+      </a>
+<a class="card" href="../games-web/redball4vol1.html" data-name="redball4vol1">
+        <img src="icons/redball4vol1.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">redball4vol1</span>
+      </a>
+<a class="card" href="../games-web/redball4vol2.html" data-name="redball4vol2">
+        <img src="icons/redball4vol2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">redball4vol2</span>
+      </a>
+<a class="card" href="../games-web/redball4vol3.html" data-name="redball4vol3">
+        <img src="icons/redball4vol3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">redball4vol3</span>
+      </a>
+<a class="card" href="../games-web/retrobowl.html" data-name="retrobowl">
+        <img src="icons/retrobowl.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">retrobowl</span>
+      </a>
+<a class="card" href="../games-web/retrobowlcollege.html" data-name="retrobowlcollege">
+        <img src="icons/retrobowlcollege.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">retrobowlcollege</span>
+      </a>
+<a class="card" href="../games-web/retrohighway.html" data-name="retrohighway">
+        <img src="icons/retrohighway.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">retrohighway</span>
+      </a>
+<a class="card" href="../games-web/retropingpong.html" data-name="Retro-Ping-Pong">
+        <img src="icons/Retro-Ping-Pong.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Retro-Ping-Pong</span>
+      </a>
+<a class="card" href="../games-web/riddleschool.html" data-name="riddleschool">
+        <img src="icons/riddleschool.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">riddleschool</span>
+      </a>
+<a class="card" href="../games-web/riddleschool2.html" data-name="riddleschool2">
+        <img src="icons/riddleschool2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">riddleschool2</span>
+      </a>
+<a class="card" href="../games-web/riddleschool3.html" data-name="riddleschool3">
+        <img src="icons/riddleschool3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">riddleschool3</span>
+      </a>
+<a class="card" href="../games-web/riddleschool4.html" data-name="riddleschool4">
+        <img src="icons/riddleschool4.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">riddleschool4</span>
+      </a>
+<a class="card" href="../games-web/rooftopsnipers2.html" data-name="Rooftop Snipers 2">
+        <img src="icons/Rooftop%20Snipers%202.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Rooftop Snipers 2</span>
+      </a>
+<a class="card" href="../games-web/run.html" data-name="run">
+        <img src="icons/run.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">run</span>
+      </a>
+<a class="card" href="../games-web/run2.html" data-name="run2">
+        <img src="icons/run2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">run2</span>
+      </a>
+<a class="card" href="../games-web/run3.html" data-name="run3">
+        <img src="icons/run3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">run3</span>
+      </a>
+<a class="card" href="../games-web/sandgame.html" data-name="Sand">
+        <img src="icons/Sand.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Sand</span>
+      </a>
+<a class="card" href="../games-web/shortlife.html" data-name="shortlife">
+        <img src="icons/shortlife.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">shortlife</span>
+      </a>
+<a class="card" href="../games-web/slope2player.html" data-name="slope2player">
+        <img src="icons/slope2player.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">slope2player</span>
+      </a>
+<a class="card" href="../games-web/slowroads.html" data-name="slowroads">
+        <img src="icons/slowroads.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">slowroads</span>
+      </a>
+<a class="card" href="../games-web/sm64.html" data-name="Super Mario 64">
+        <img src="icons/Super%20Mario%2064.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Super Mario 64</span>
+      </a>
+<a class="card" href="../games-web/snowballio.html" data-name="snowballio">
+        <img src="icons/snowballio.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">snowballio</span>
+      </a>
+<a class="card" href="../games-web/soccerbros.html" data-name="soccerbros">
+        <img src="icons/soccerbros.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">soccerbros</span>
+      </a>
+<a class="card" href="../games-web/spacebarclicker.html" data-name="SPACEBAR CLICKER">
+        <img src="icons/SPACEBAR%20CLICKER.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">SPACEBAR CLICKER</span>
+      </a>
+<a class="card" href="../games-web/spaceiskey.html" data-name="spaceiskey">
+        <img src="icons/spaceiskey.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">spaceiskey</span>
+      </a>
+<a class="card" href="../games-web/spaceiskey2.html" data-name="spaceiskey2">
+        <img src="icons/spaceiskey2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">spaceiskey2</span>
+      </a>
+<a class="card" href="../games-web/spacewaves.html" data-name="Space Waves">
+        <img src="icons/Space%20Waves.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Space Waves</span>
+      </a>
+<a class="card" href="../games-web/speedstars.html" data-name="speedstars">
+        <img src="icons/speedstars.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">speedstars</span>
+      </a>
+<a class="card" href="../games-web/sprunki.html" data-name="Sprunki">
+        <img src="icons/Sprunki.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Sprunki</span>
+      </a>
+<a class="card" href="../games-web/stack.html" data-name="stack">
+        <img src="icons/stack.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">stack</span>
+      </a>
+<a class="card" href="../games-web/stacktris.html" data-name="stacktris">
+        <img src="icons/stacktris.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">stacktris</span>
+      </a>
+<a class="card" href="../games-web/stateio.html" data-name="stateio">
+        <img src="icons/stateio.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">stateio</span>
+      </a>
+<a class="card" href="../games-web/stickarchersbattle.html" data-name="stickarchersbattle">
+        <img src="icons/stickarchersbattle.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">stickarchersbattle</span>
+      </a>
+<a class="card" href="../games-web/stickfighter.html" data-name="stickfighter">
+        <img src="icons/stickfighter.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">stickfighter</span>
+      </a>
+<a class="card" href="../games-web/stickmanhook.html" data-name="Stickman Hook">
+        <img src="icons/Stickman%20Hook.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">Stickman Hook</span>
+      </a>
+<a class="card" href="../games-web/stickmerge.html" data-name="stickmerge">
+        <img src="icons/stickmerge.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">stickmerge</span>
+      </a>
+<a class="card" href="../games-web/superliquidsoccer.html" data-name="superliquidsoccer">
+        <img src="icons/superliquidsoccer.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">superliquidsoccer</span>
+      </a>
+<a class="card" href="../games-web/tabletennisworldtour.html" data-name="tabletennisworldtour">
+        <img src="icons/tabletennisworldtour.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">tabletennisworldtour</span>
+      </a>
+<a class="card" href="../games-web/tag.html" data-name="tag">
+        <img src="icons/tag.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">tag</span>
+      </a>
+<a class="card" href="../games-web/templeofboom.html" data-name="templeofboom">
+        <img src="icons/templeofboom.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">templeofboom</span>
+      </a>
+<a class="card" href="../games-web/territorialio.html" data-name="territorialio">
+        <img src="icons/territorialio.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">territorialio</span>
+      </a>
+<a class="card" href="../games-web/theimpossiblequiz.html" data-name="theimpossiblequiz">
+        <img src="icons/theimpossiblequiz.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">theimpossiblequiz</span>
+      </a>
+<a class="card" href="../games-web/theimpossiblequiz2.html" data-name="theimpossiblequiz2">
+        <img src="icons/theimpossiblequiz2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">theimpossiblequiz2</span>
+      </a>
+<a class="card" href="../games-web/thereisnog.html" data-name="thereisnog">
+        <img src="icons/thereisnog.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">thereisnog</span>
+      </a>
+<a class="card" href="../games-web/thisistheonlylevel.html" data-name="thisistheonlylevel">
+        <img src="icons/thisistheonlylevel.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">thisistheonlylevel</span>
+      </a>
+<a class="card" href="../games-web/thisistheonlyleveltoo.html" data-name="thisistheonlyleveltoo">
+        <img src="icons/thisistheonlyleveltoo.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">thisistheonlyleveltoo</span>
+      </a>
+<a class="card" href="../games-web/timeshooter2.html" data-name="timeshooter2">
+        <img src="icons/timeshooter2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">timeshooter2</span>
+      </a>
+<a class="card" href="../games-web/tinyfishing.html" data-name="tinyfishing">
+        <img src="icons/tinyfishing.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">tinyfishing</span>
+      </a>
+<a class="card" href="../games-web/trapthecat.html" data-name="trapthecat">
+        <img src="icons/trapthecat.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">trapthecat</span>
+      </a>
+<a class="card" href="../games-web/triviacrack.html" data-name="triviacrack">
+        <img src="icons/triviacrack.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">triviacrack</span>
+      </a>
+<a class="card" href="../games-web/tubejumpers.html" data-name="tubejumpers">
+        <img src="icons/tubejumpers.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">tubejumpers</span>
+      </a>
+<a class="card" href="../games-web/tunnelrush.html" data-name="tunnelrush">
+        <img src="icons/tunnelrush.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">tunnelrush</span>
+      </a>
+<a class="card" href="../games-web/unicyclehero.html" data-name="unicyclehero">
+        <img src="icons/unicyclehero.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">unicyclehero</span>
+      </a>
+<a class="card" href="../games-web/vex4.html" data-name="vex4">
+        <img src="icons/vex4.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">vex4</span>
+      </a>
+<a class="card" href="../games-web/vex5.html" data-name="vex5">
+        <img src="icons/vex5.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">vex5</span>
+      </a>
+<a class="card" href="../games-web/vexx3m.html" data-name="vexx3m">
+        <img src="icons/vexx3m.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">vexx3m</span>
+      </a>
+<a class="card" href="../games-web/vexx3m2.html" data-name="vexx3m2">
+        <img src="icons/vexx3m2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">vexx3m2</span>
+      </a>
+<a class="card" href="../games-web/volleyrandom.html" data-name="volleyrandom">
+        <img src="icons/volleyrandom.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">volleyrandom</span>
+      </a>
+<a class="card" href="../games-web/webecomewhatwebehold.html" data-name="webecomewhatwebehold">
+        <img src="icons/webecomewhatwebehold.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">webecomewhatwebehold</span>
+      </a>
+<a class="card" href="../games-web/wheeliebike.html" data-name="wheeliebike">
+        <img src="icons/wheeliebike.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">wheeliebike</span>
+      </a>
+<a class="card" href="../games-web/wheely.html" data-name="wheely">
+        <img src="icons/wheely.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">wheely</span>
+      </a>
+<a class="card" href="../games-web/wheely2.html" data-name="wheely2">
+        <img src="icons/wheely2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">wheely2</span>
+      </a>
+<a class="card" href="../games-web/wheely3.html" data-name="wheely3">
+        <img src="icons/wheely3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">wheely3</span>
+      </a>
+<a class="card" href="../games-web/wheely6.html" data-name="wheely6">
+        <img src="icons/wheely6.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">wheely6</span>
+      </a>
+<a class="card" href="../games-web/wheely8.html" data-name="wheely8">
+        <img src="icons/wheely8.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">wheely8</span>
+      </a>
+<a class="card" href="../games-web/wordleunlimited.html" data-name="wordleunlimited">
+        <img src="icons/wordleunlimited.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">wordleunlimited</span>
+      </a>
+<a class="card" href="../games-web/worldshardestgame.html" data-name="worldshardestgame">
+        <img src="icons/worldshardestgame.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">worldshardestgame</span>
+      </a>
+<a class="card" href="../games-web/worldshardestgame2.html" data-name="worldshardestgame2">
+        <img src="icons/worldshardestgame2.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">worldshardestgame2</span>
+      </a>
+<a class="card" href="../games-web/worldshardestgame3.html" data-name="worldshardestgame3">
+        <img src="icons/worldshardestgame3.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">worldshardestgame3</span>
+      </a>
+<a class="card" href="../games-web/wrestlebros.html" data-name="wrestlebros">
+        <img src="icons/wrestlebros.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">wrestlebros</span>
+      </a>
+<a class="card" href="../games-web/zombierush.html" data-name="zombierush">
+        <img src="icons/zombierush.svg" width="86" height="86" alt="" loading="lazy" decoding="async">
+        <span class="nm">zombierush</span>
+      </a>
+  </div>
+  <div class="empty" id="empty">没有找到匹配的游戏</div>
+</main>
 
-  <footer>SFOS Game Hub</footer>
-</div>
+<p class="hint">点击卡片进入游戏 · 图标为 SFOS 风格自适应形状</p>
+
 <script>
-
 (function(){
-  var GAMES = [{"n":"My Drive - Google Drive","f":"1.5.html","i":"icons/My-Drive-Google-Drive.svg"},{"n":"School","f":"1.8.html","i":"icons/School.svg"},{"n":"12minibattles","f":"12minibattles.html","i":"icons/12minibattles.svg"},{"n":"1on1soccer","f":"1on1soccer.html","i":"icons/1on1soccer.svg"},{"n":"1on1tennis","f":"1on1tennis.html","i":"icons/1on1tennis.svg"},{"n":"2048","f":"2048.html","i":"icons/2048.svg"},{"n":"2048cupcakes","f":"2048cupcakes.html","i":"icons/2048cupcakes.svg"},{"n":"8ballclassic","f":"8ballclassic.html","i":"icons/8ballclassic.svg"},{"n":"Alpha_1.2.6","f":"Alpha_1.2.6.html","i":"icons/Alpha_1-2-6.svg"},{"n":"Eaglercraft Launcher | Beta 1.3 Offline","f":"Beta_1.3.html","i":"icons/Eaglercraft-Launcher-Beta-1-3-Offline.svg"},{"n":"Eaglercraft Launcher | Indev Offline","f":"Indev.html","i":"icons/Eaglercraft-Launcher-Indev-Offline.svg"},{"n":"Solo Agario","f":"agariolite.html","i":"icons/Solo-Agario.svg"},{"n":"ageofwar","f":"ageofwar.html","i":"icons/ageofwar.svg"},{"n":"ageofwar2","f":"ageofwar2.html","i":"icons/ageofwar2.svg"},{"n":"agesofconflict","f":"agesofconflict.html","i":"icons/agesofconflict.svg"},{"n":"amongus","f":"amongus.html","i":"icons/amongus.svg"},{"n":"angrybirds","f":"angrybirds.html","i":"icons/angrybirds.svg"},{"n":"angrybirdsspace","f":"angrybirdsspace.html","i":"icons/angrybirdsspace.svg"},{"n":"awesometanks","f":"awesometanks.html","i":"icons/awesometanks.svg"},{"n":"awesometanks2","f":"awesometanks2.html","i":"icons/awesometanks2.svg"},{"n":"backrooms","f":"backrooms.html","i":"icons/backrooms.svg"},{"n":"baconmaydie","f":"baconmaydie.html","i":"icons/baconmaydie.svg"},{"n":"badicecream","f":"badicecream.html","i":"icons/badicecream.svg"},{"n":"badicecream2","f":"badicecream2.html","i":"icons/badicecream2.svg"},{"n":"badicecream3","f":"badicecream3.html","i":"icons/badicecream3.svg"},{"n":"badpiggies","f":"badpiggies.html","i":"icons/badpiggies.svg"},{"n":"baseballbros","f":"baseballbros.html","i":"icons/baseballbros.svg"},{"n":"basketballlegends","f":"basketballlegends.html","i":"icons/basketballlegends.svg"},{"n":"basketballstars","f":"basketballstars.html","i":"icons/basketballstars.svg"},{"n":"basketbros","f":"basketbros.html","i":"icons/basketbros.svg"},{"n":"Class","f":"basketrandom.html","i":"icons/Class.svg"},{"n":"blockysnakes","f":"blockysnakes.html","i":"icons/blockysnakes.svg"},{"n":"bloonsTD","f":"bloonsTD.html","i":"icons/bloonsTD.svg"},{"n":"bloonsTD2","f":"bloonsTD2.html","i":"icons/bloonsTD2.svg"},{"n":"bloonsTD3","f":"bloonsTD3.html","i":"icons/bloonsTD3.svg"},{"n":"bloonsTD4","f":"bloonsTD4.html","i":"icons/bloonsTD4.svg"},{"n":"bloonsTD5","f":"bloonsTD5.html","i":"icons/bloonsTD5.svg"},{"n":"bloxorz","f":"bloxorz.html","i":"icons/bloxorz.svg"},{"n":"blumgiracers","f":"blumgiracers.html","i":"icons/blumgiracers.svg"},{"n":"blumgirocket","f":"blumgirocket.html","i":"icons/blumgirocket.svg"},{"n":"bobtherobber","f":"bobtherobber.html","i":"icons/bobtherobber.svg"},{"n":"bobtherobber2","f":"bobtherobber2.html","i":"icons/bobtherobber2.svg"},{"n":"bobtherobber5","f":"bobtherobber5.html","i":"icons/bobtherobber5.svg"},{"n":"breakingthebank","f":"breakingthebank.html","i":"icons/breakingthebank.svg"},{"n":"bubbleshooter","f":"bubbleshooter.html","i":"icons/bubbleshooter.svg"},{"n":"candycrush","f":"candycrush.html","i":"icons/candycrush.svg"},{"n":"capybaraclicker","f":"capybaraclicker.html","i":"icons/capybaraclicker.svg"},{"n":"cardrawing","f":"cardrawing.html","i":"icons/cardrawing.svg"},{"n":"carkingarena","f":"carkingarena.html","i":"icons/carkingarena.svg"},{"n":"chess","f":"chess.html","i":"icons/chess.svg"},{"n":"choppyorc","f":"choppyorc.html","i":"icons/choppyorc.svg"},{"n":"circloO","f":"circloO.html","i":"icons/circloO.svg"},{"n":"circloO2","f":"circloO2.html","i":"icons/circloO2.svg"},{"n":"clashofvikings","f":"clashofvikings.html","i":"icons/clashofvikings.svg"},{"n":"cleanupio","f":"cleanupio.html","i":"icons/cleanupio.svg"},{"n":"Cluster Rush","f":"clusterrush.html","i":"icons/Cluster-Rush.svg"},{"n":"crazycars","f":"crazycars.html","i":"icons/crazycars.svg"},{"n":"crazymotorcycle","f":"crazymotorcycle.html","i":"icons/crazymotorcycle.svg"},{"n":"dadish","f":"dadish.html","i":"icons/dadish.svg"},{"n":"dadish2","f":"dadish2.html","i":"icons/dadish2.svg"},{"n":"dadish3","f":"dadish3.html","i":"icons/dadish3.svg"},{"n":"deathrun3D","f":"deathrun3D.html","i":"icons/deathrun3D.svg"},{"n":"Jump","f":"doodlejump.html","i":"icons/Jump.svg"},{"n":"drawclimber","f":"drawclimber.html","i":"icons/drawclimber.svg"},{"n":"ducklife","f":"ducklife.html","i":"icons/ducklife.svg"},{"n":"ducklife2","f":"ducklife2.html","i":"icons/ducklife2.svg"},{"n":"ducklife3","f":"ducklife3.html","i":"icons/ducklife3.svg"},{"n":"ducklife4","f":"ducklife4.html","i":"icons/ducklife4.svg"},{"n":"ducklife5","f":"ducklife5.html","i":"icons/ducklife5.svg"},{"n":"ducklingsio","f":"ducklingsio.html","i":"icons/ducklingsio.svg"},{"n":"eagleride","f":"eagleride.html","i":"icons/eagleride.svg"},{"n":"earntodie","f":"earntodie.html","i":"icons/earntodie.svg"},{"n":"earntodie2","f":"earntodie2.html","i":"icons/earntodie2.svg"},{"n":"eggycar","f":"eggycar.html","i":"icons/eggycar.svg"},{"n":"escapingtheprison","f":"escapingtheprison.html","i":"icons/escapingtheprison.svg"},{"n":"Evil Glitch","f":"evilglitch.html","i":"icons/Evil-Glitch.svg"},{"n":"fancypantsadventure","f":"fancypantsadventure.html","i":"icons/fancypantsadventure.svg"},{"n":"fancypantsadventure2","f":"fancypantsadventure2.html","i":"icons/fancypantsadventure2.svg"},{"n":"fireboyandwatergirl","f":"fireboyandwatergirl.html","i":"icons/fireboyandwatergirl.svg"},{"n":"fireboyandwatergirl2","f":"fireboyandwatergirl2.html","i":"icons/fireboyandwatergirl2.svg"},{"n":"fireboyandwatergirl3","f":"fireboyandwatergirl3.html","i":"icons/fireboyandwatergirl3.svg"},{"n":"fireboyandwatergirl4","f":"fireboyandwatergirl4.html","i":"icons/fireboyandwatergirl4.svg"},{"n":"Flappy Bird","f":"flappybird.html","i":"icons/Flappy-Bird.svg"},{"n":"floodrunner2","f":"floodrunner2.html","i":"icons/floodrunner2.svg"},{"n":"floodrunner3","f":"floodrunner3.html","i":"icons/floodrunner3.svg"},{"n":"floodrunner4","f":"floodrunner4.html","i":"icons/floodrunner4.svg"},{"n":"fnaf","f":"fnaf.html","i":"icons/fnaf.svg"},{"n":"FNAF-4","f":"fnaf4.html","i":"icons/FNAF-4.svg"},{"n":"FOOTBALL BROS! | Official Site","f":"footballbros.html","i":"icons/FOOTBALL-BROS-Official-Site.svg"},{"n":"footballlegends","f":"footballlegends.html","i":"icons/footballlegends.svg"},{"n":"freerider3","f":"freerider3.html","i":"icons/freerider3.svg"},{"n":"fruitninja","f":"fruitninja.html","i":"icons/fruitninja.svg"},{"n":"funnybattle","f":"funnybattle.html","i":"icons/funnybattle.svg"},{"n":"funnybattle2","f":"funnybattle2.html","i":"icons/funnybattle2.svg"},{"n":"Geometry Dash","f":"geometrydash.html","i":"icons/Geometry-Dash.svg"},{"n":"getontop","f":"getontop.html","i":"icons/getontop.svg"},{"n":"googlebaseball","f":"googlebaseball.html","i":"icons/googlebaseball.svg"},{"n":"Dinosaur Game Chrome","f":"googledino.html","i":"icons/Dinosaur-Game-Chrome.svg"},{"n":"guesstheiranswer","f":"guesstheiranswer.html","i":"icons/guesstheiranswer.svg"},{"n":"hanger2","f":"hanger2.html","i":"icons/hanger2.svg"},{"n":"happywheels","f":"happywheels.html","i":"icons/happywheels.svg"},{"n":"helixjump","f":"helixjump.html","i":"icons/helixjump.svg"},{"n":"hillclimbracinglite","f":"hillclimbracinglite.html","i":"icons/hillclimbracinglite.svg"},{"n":"holeio","f":"holeio.html","i":"icons/holeio.svg"},{"n":"houseofhazards","f":"houseofhazards.html","i":"icons/houseofhazards.svg"},{"n":"hoverracerdrive","f":"hoverracerdrive.html","i":"icons/hoverracerdrive.svg"},{"n":"idlebreakout","f":"idlebreakout.html","i":"icons/idlebreakout.svg"},{"n":"ironsnout","f":"ironsnout.html","i":"icons/ironsnout.svg"},{"n":"jetpackjoyride","f":"jetpackjoyride.html","i":"icons/jetpackjoyride.svg"},{"n":"johnnytrigger","f":"johnnytrigger.html","i":"icons/johnnytrigger.svg"},{"n":"jumpingshell","f":"jumpingshell.html","i":"icons/jumpingshell.svg"},{"n":"karatebros","f":"karatebros.html","i":"icons/karatebros.svg"},{"n":"learntofly","f":"learntofly.html","i":"icons/learntofly.svg"},{"n":"learntofly2","f":"learntofly2.html","i":"icons/learntofly2.svg"},{"n":"learntoflyidle","f":"learntoflyidle.html","i":"icons/learntoflyidle.svg"},{"n":"Level Devil","f":"leveldevil.html","i":"icons/Level-Devil.svg"},{"n":"melonplayground","f":"melonplayground.html","i":"icons/melonplayground.svg"},{"n":"mergeroundracers","f":"mergeroundracers.html","i":"icons/mergeroundracers.svg"},{"n":"minesweeper","f":"minesweeper.html","i":"icons/minesweeper.svg"},{"n":"monstertracks","f":"monstertracks.html","i":"icons/monstertracks.svg"},{"n":"motox3m2","f":"motox3m2.html","i":"icons/motox3m2.svg"},{"n":"motox3m3","f":"motox3m3.html","i":"icons/motox3m3.svg"},{"n":"motox3mpoolparty","f":"motox3mpoolparty.html","i":"icons/motox3mpoolparty.svg"},{"n":"motox3mspookyland","f":"motox3mspookyland.html","i":"icons/motox3mspookyland.svg"},{"n":"motox3mwinter","f":"motox3mwinter.html","i":"icons/motox3mwinter.svg"},{"n":"Noob Miner","f":"noobminer.html","i":"icons/Noob-Miner.svg"},{"n":"oppositeday","f":"oppositeday.html","i":"icons/oppositeday.svg"},{"n":"OvOfw","f":"ovo.html","i":"icons/OvOfw.svg"},{"n":"OvO 2","f":"ovo2.html","i":"icons/OvO-2.svg"},{"n":"Pac Man","f":"pacman.html","i":"icons/Pac-Man.svg"},{"n":"papasburgeria","f":"papasburgeria.html","i":"icons/papasburgeria.svg"},{"n":"papascheeseria","f":"papascheeseria.html","i":"icons/papascheeseria.svg"},{"n":"papascupcakeria","f":"papascupcakeria.html","i":"icons/papascupcakeria.svg"},{"n":"papasdonuteria","f":"papasdonuteria.html","i":"icons/papasdonuteria.svg"},{"n":"papasfreezeria","f":"papasfreezeria.html","i":"icons/papasfreezeria.svg"},{"n":"papashotdoggeria","f":"papashotdoggeria.html","i":"icons/papashotdoggeria.svg"},{"n":"papaspancakeria","f":"papaspancakeria.html","i":"icons/papaspancakeria.svg"},{"n":"papaspastaria","f":"papaspastaria.html","i":"icons/papaspastaria.svg"},{"n":"papaspizzeria","f":"papaspizzeria.html","i":"icons/papaspizzeria.svg"},{"n":"papastacomia","f":"papastacomia.html","i":"icons/papastacomia.svg"},{"n":"papaswingeria","f":"papaswingeria.html","i":"icons/papaswingeria.svg"},{"n":"parkingfury","f":"parkingfury.html","i":"icons/parkingfury.svg"},{"n":"parkingfury2","f":"parkingfury2.html","i":"icons/parkingfury2.svg"},{"n":"parkingfury3","f":"parkingfury3.html","i":"icons/parkingfury3.svg"},{"n":"picosschool","f":"picosschool.html","i":"icons/picosschool.svg"},{"n":"pingpongchaos","f":"pingpongchaos.html","i":"icons/pingpongchaos.svg"},{"n":"Pixel Speedrun","f":"pixelspeedrun.html","i":"icons/Pixel-Speedrun.svg"},{"n":"plantsvszombies","f":"plantsvszombies.html","i":"icons/plantsvszombies.svg"},{"n":"plonky","f":"plonky.html","i":"icons/plonky.svg"},{"n":"polytrack","f":"polytrack.html","i":"icons/polytrack.svg"},{"n":"poorbunny","f":"poorbunny.html","i":"icons/poorbunny.svg"},{"n":"pou","f":"pou.html","i":"icons/pou.svg"},{"n":"ragdollhit","f":"ragdollhit.html","i":"icons/ragdollhit.svg"},{"n":"ragdollsoccer","f":"ragdollsoccer.html","i":"icons/ragdollsoccer.svg"},{"n":"redball4vol1","f":"redball4vol1.html","i":"icons/redball4vol1.svg"},{"n":"redball4vol2","f":"redball4vol2.html","i":"icons/redball4vol2.svg"},{"n":"redball4vol3","f":"redball4vol3.html","i":"icons/redball4vol3.svg"},{"n":"retrobowl","f":"retrobowl.html","i":"icons/retrobowl.svg"},{"n":"retrobowlcollege","f":"retrobowlcollege.html","i":"icons/retrobowlcollege.svg"},{"n":"retrohighway","f":"retrohighway.html","i":"icons/retrohighway.svg"},{"n":"Retro-Ping-Pong","f":"retropingpong.html","i":"icons/Retro-Ping-Pong.svg"},{"n":"riddleschool","f":"riddleschool.html","i":"icons/riddleschool.svg"},{"n":"riddleschool2","f":"riddleschool2.html","i":"icons/riddleschool2.svg"},{"n":"riddleschool3","f":"riddleschool3.html","i":"icons/riddleschool3.svg"},{"n":"riddleschool4","f":"riddleschool4.html","i":"icons/riddleschool4.svg"},{"n":"Rooftop Snipers 2","f":"rooftopsnipers2.html","i":"icons/Rooftop-Snipers-2.svg"},{"n":"run","f":"run.html","i":"icons/run.svg"},{"n":"run2","f":"run2.html","i":"icons/run2.svg"},{"n":"run3","f":"run3.html","i":"icons/run3.svg"},{"n":"Sand","f":"sandgame.html","i":"icons/Sand.svg"},{"n":"shortlife","f":"shortlife.html","i":"icons/shortlife.svg"},{"n":"slope2player","f":"slope2player.html","i":"icons/slope2player.svg"},{"n":"slowroads","f":"slowroads.html","i":"icons/slowroads.svg"},{"n":"Super Mario 64","f":"sm64.html","i":"icons/Super-Mario-64.svg"},{"n":"snowballio","f":"snowballio.html","i":"icons/snowballio.svg"},{"n":"soccerbros","f":"soccerbros.html","i":"icons/soccerbros.svg"},{"n":"SPACEBAR CLICKER","f":"spacebarclicker.html","i":"icons/SPACEBAR-CLICKER.svg"},{"n":"spaceiskey","f":"spaceiskey.html","i":"icons/spaceiskey.svg"},{"n":"spaceiskey2","f":"spaceiskey2.html","i":"icons/spaceiskey2.svg"},{"n":"Space Waves","f":"spacewaves.html","i":"icons/Space-Waves.svg"},{"n":"speedstars","f":"speedstars.html","i":"icons/speedstars.svg"},{"n":"Sprunki","f":"sprunki.html","i":"icons/Sprunki.svg"},{"n":"stack","f":"stack.html","i":"icons/stack.svg"},{"n":"stacktris","f":"stacktris.html","i":"icons/stacktris.svg"},{"n":"stateio","f":"stateio.html","i":"icons/stateio.svg"},{"n":"stickarchersbattle","f":"stickarchersbattle.html","i":"icons/stickarchersbattle.svg"},{"n":"stickfighter","f":"stickfighter.html","i":"icons/stickfighter.svg"},{"n":"Stickman Hook","f":"stickmanhook.html","i":"icons/Stickman-Hook.svg"},{"n":"stickmerge","f":"stickmerge.html","i":"icons/stickmerge.svg"},{"n":"superliquidsoccer","f":"superliquidsoccer.html","i":"icons/superliquidsoccer.svg"},{"n":"tabletennisworldtour","f":"tabletennisworldtour.html","i":"icons/tabletennisworldtour.svg"},{"n":"tag","f":"tag.html","i":"icons/tag.svg"},{"n":"templeofboom","f":"templeofboom.html","i":"icons/templeofboom.svg"},{"n":"territorialio","f":"territorialio.html","i":"icons/territorialio.svg"},{"n":"theimpossiblequiz","f":"theimpossiblequiz.html","i":"icons/theimpossiblequiz.svg"},{"n":"theimpossiblequiz2","f":"theimpossiblequiz2.html","i":"icons/theimpossiblequiz2.svg"},{"n":"thereisnog","f":"thereisnog.html","i":"icons/thereisnog.svg"},{"n":"thisistheonlylevel","f":"thisistheonlylevel.html","i":"icons/thisistheonlylevel.svg"},{"n":"thisistheonlyleveltoo","f":"thisistheonlyleveltoo.html","i":"icons/thisistheonlyleveltoo.svg"},{"n":"timeshooter2","f":"timeshooter2.html","i":"icons/timeshooter2.svg"},{"n":"tinyfishing","f":"tinyfishing.html","i":"icons/tinyfishing.svg"},{"n":"trapthecat","f":"trapthecat.html","i":"icons/trapthecat.svg"},{"n":"triviacrack","f":"triviacrack.html","i":"icons/triviacrack.svg"},{"n":"tubejumpers","f":"tubejumpers.html","i":"icons/tubejumpers.svg"},{"n":"tunnelrush","f":"tunnelrush.html","i":"icons/tunnelrush.svg"},{"n":"unicyclehero","f":"unicyclehero.html","i":"icons/unicyclehero.svg"},{"n":"vex4","f":"vex4.html","i":"icons/vex4.svg"},{"n":"vex5","f":"vex5.html","i":"icons/vex5.svg"},{"n":"vexx3m","f":"vexx3m.html","i":"icons/vexx3m.svg"},{"n":"vexx3m2","f":"vexx3m2.html","i":"icons/vexx3m2.svg"},{"n":"volleyrandom","f":"volleyrandom.html","i":"icons/volleyrandom.svg"},{"n":"webecomewhatwebehold","f":"webecomewhatwebehold.html","i":"icons/webecomewhatwebehold.svg"},{"n":"wheeliebike","f":"wheeliebike.html","i":"icons/wheeliebike.svg"},{"n":"wheely","f":"wheely.html","i":"icons/wheely.svg"},{"n":"wheely2","f":"wheely2.html","i":"icons/wheely2.svg"},{"n":"wheely3","f":"wheely3.html","i":"icons/wheely3.svg"},{"n":"wheely6","f":"wheely6.html","i":"icons/wheely6.svg"},{"n":"wheely8","f":"wheely8.html","i":"icons/wheely8.svg"},{"n":"wordleunlimited","f":"wordleunlimited.html","i":"icons/wordleunlimited.svg"},{"n":"worldshardestgame","f":"worldshardestgame.html","i":"icons/worldshardestgame.svg"},{"n":"worldshardestgame2","f":"worldshardestgame2.html","i":"icons/worldshardestgame2.svg"},{"n":"worldshardestgame3","f":"worldshardestgame3.html","i":"icons/worldshardestgame3.svg"},{"n":"wrestlebros","f":"wrestlebros.html","i":"icons/wrestlebros.svg"},{"n":"zombierush","f":"zombierush.html","i":"icons/zombierush.svg"}];
-  var grid = document.getElementById('grid');
-  var search = document.getElementById('search');
-  var clearBtn = document.getElementById('clear');
+  var cards = Array.prototype.slice.call(document.querySelectorAll('#cards .card'));
+  var q = document.getElementById('q');
+  var clear = document.getElementById('clear');
   var count = document.getElementById('count');
   var empty = document.getElementById('empty');
-  var all = GAMES.map(function(g){
-    var a = document.createElement('a');
-    a.className = 'card';
-    a.href = '../games-web/' + g.f;
-    a.title = g.n;
-    var ico = document.createElement('span');
-    ico.className = 'ico';
-    var img = document.createElement('img');
-    img.src = g.i; img.alt = ''; img.width = 86; img.height = 86; img.loading = 'lazy';
-    ico.appendChild(img);
-    var nm = document.createElement('span');
-    nm.className = 'nm'; nm.textContent = g.n;
-    a.appendChild(ico); a.appendChild(nm);
-    return a;
-  });
-  all.forEach(function(a){ grid.appendChild(a); });
+  var total = cards.length;
+  count.textContent = total + ' 款游戏';
 
-  function render(){
-    var q = search.value.trim().toLowerCase();
-    var shown = 0;
-    for (var i = 0; i < all.length; i++) {
-      var hit = !q || GAMES[i].n.toLowerCase().indexOf(q) !== -1;
-      all[i].style.display = hit ? '' : 'none';
-      if (hit) shown++;
-    }
-    count.textContent = shown;
-    empty.classList.toggle('on', shown === 0);
-    clearBtn.style.display = q ? 'flex' : 'none';
+  function apply(){
+    var v = q.value.trim().toLowerCase();
+    clear.classList.toggle('show', v.length > 0);
+    var n = 0;
+    cards.forEach(function(c){
+      var hit = c.getAttribute('data-name').toLowerCase().indexOf(v) !== -1;
+      c.style.display = hit ? '' : 'none';
+      if(hit) n++;
+    });
+    empty.classList.toggle('show', n === 0);
+    count.textContent = (v ? n + ' / ' + total : total) + ' 款游戏';
   }
-  search.addEventListener('input', render);
-  search.addEventListener('keydown', function(e){ if (e.key === 'Escape') { search.value = ''; render(); } });
-  clearBtn.addEventListener('click', function(){ search.value = ''; render(); search.focus(); });
-  render();
+  q.addEventListener('input', apply);
+  clear.addEventListener('click', function(){ q.value=''; q.focus(); apply(); });
+  apply();
 })();
-
 </script>
 </body>
 </html>
