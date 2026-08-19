@@ -1,1421 +1,1438 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Game Hub</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-body{background:#000;color:#fff;display:flex;flex-direction:column}
-.header{background:linear-gradient(135deg,#0a0a1a 0%,#1a1a3e 50%,#0a0a1a 100%);padding:16px 16px 12px;flex-shrink:0;position:relative;z-index:10}
-.header::after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(233,69,96,0.3),transparent)}
-.header h1{font-size:20px;font-weight:600;background:linear-gradient(135deg,#e94560,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;letter-spacing:1px}
-.search-wrap{position:relative}
-.search-wrap input{width:100%;padding:10px 14px 10px 36px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;outline:none;transition:border-color .2s}
-.search-wrap input:focus{border-color:rgba(233,69,96,0.5)}
-.search-wrap input::placeholder{color:rgba(255,255,255,0.35)}
-.search-wrap::before{content:"&#128269;";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;opacity:0.4}
-.count{padding:6px 16px;font-size:12px;color:rgba(255,255,255,0.4);flex-shrink:0;background:rgba(0,0,0,0.3)}
-.grid-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 12px 20px;-webkit-overflow-scrolling:touch}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-@media(min-width:480px){.grid{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}}
-@media(min-width:960px){.grid{grid-template-columns:repeat(5,1fr)}}
-@media(min-width:1200px){.grid{grid-template-columns:repeat(6,1fr)}}
-.card{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,0.04);border-radius:12px;padding:10px 4px 8px;text-decoration:none;color:#fff;transition:transform .15s,background .15s;-webkit-tap-highlight-color:transparent}
-.card:active{transform:scale(0.95);background:rgba(255,255,255,0.08)}
-.icon-wrap{width:86px;height:86px;border-radius:0;overflow:hidden;flex-shrink:0}
-.icon-wrap img{width:100%;height:100%;display:block}
-.card-title{font-size:11px;text-align:center;line-height:1.3;margin-top:6px;color:rgba(255,255,255,0.75);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-height:28px;padding:0 4px}
-.no-results{display:none;text-align:center;padding:40px 20px;color:rgba(255,255,255,0.3);font-size:14px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Lobby</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000000; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; }
+
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: #000000; border-bottom: 1px solid #333;
+      padding: 12px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .header-top { display: flex; align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 18px; font-weight: 600; color: #ffffff; }
+    .game-count { font-size: 13px; color: #888; }
+    .search-input {
+      width: 100%; padding: 10px 14px;
+      background: #1a1a1a; border: 1px solid #333; border-radius: 0px;
+      color: #e0e0e0; font-size: 15px; outline: none;
+    }
+    .search-input:focus { border-color: #555; }
+    .search-input::placeholder { color: #666; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding: 12px 12px 24px;
+    }
+    @media (min-width: 480px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 720px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 1024px) { .grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (min-width: 1280px) { .grid { grid-template-columns: repeat(6, 1fr); } }
+
+    .card {
+      background: #1a1a1a; border: 1px solid #333; border-radius: 0px;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 12px 8px; cursor: pointer;
+      text-decoration: none; color: inherit;
+      transition: background 0.15s;
+    }
+    .card:hover { background: #252525; }
+    .card-icon { margin-bottom: 8px; }
+    .card-icon img { display: block; width: 86px; height: 86px; }
+    .card-name {
+      font-size: 12px; text-align: center;
+      color: #ccc; line-height: 1.3;
+      word-break: break-word;
+      max-width: 100%;
+    }
+
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
-<div class="header">
-  <h1>Game Hub</h1>
-  <div class="search-wrap">
-    <input type="text" id="search" placeholder="Search games..." autocomplete="off">
+
+  <div class="header">
+    <div class="header-top">
+      <h1>Game Lobby</h1>
+      <span class="game-count" id="count">224 games</span>
+    </div>
+    <input type="text" class="search-input" id="search" placeholder="Search games..." autocomplete="off">
   </div>
-</div>
-<div class="count" id="count">225 games</div>
-<div class="grid-wrap">
+
   <div class="grid" id="grid">
-      <a class="card" href="1.5.html" title="My Drive - Google Drive">
-        <div class="icon-wrap">
-          <img src="icons/1_5.svg" alt="My Drive - Google Drive" loading="lazy">
+      <a class="card" data-name="my drive - google drive" href="games-web/1.5.html">
+        <div class="card-icon">
+          <img src="icons/MyDriveGoogleDrive.svg" alt="My Drive - Google Drive" width="86" height="86">
         </div>
-        <div class="card-title">My Drive - Google Drive</div>
+        <div class="card-name">My Drive - Google Drive</div>
       </a>
-      <a class="card" href="1.8.html" title="School">
-        <div class="icon-wrap">
-          <img src="icons/1_8.svg" alt="School" loading="lazy">
+      <a class="card" data-name="school" href="games-web/1.8.html">
+        <div class="card-icon">
+          <img src="icons/School.svg" alt="School" width="86" height="86">
         </div>
-        <div class="card-title">School</div>
+        <div class="card-name">School</div>
       </a>
-      <a class="card" href="12minibattles.html" title="12minibattles">
-        <div class="icon-wrap">
-          <img src="icons/12minibattles.svg" alt="12minibattles" loading="lazy">
+      <a class="card" data-name="12minibattles" href="games-web/12minibattles.html">
+        <div class="card-icon">
+          <img src="icons/12minibattles.svg" alt="12minibattles" width="86" height="86">
         </div>
-        <div class="card-title">12minibattles</div>
+        <div class="card-name">12minibattles</div>
       </a>
-      <a class="card" href="1on1soccer.html" title="1on1soccer">
-        <div class="icon-wrap">
-          <img src="icons/1on1soccer.svg" alt="1on1soccer" loading="lazy">
+      <a class="card" data-name="1on1soccer" href="games-web/1on1soccer.html">
+        <div class="card-icon">
+          <img src="icons/1on1soccer.svg" alt="1on1soccer" width="86" height="86">
         </div>
-        <div class="card-title">1on1soccer</div>
+        <div class="card-name">1on1soccer</div>
       </a>
-      <a class="card" href="1on1tennis.html" title="1on1tennis">
-        <div class="icon-wrap">
-          <img src="icons/1on1tennis.svg" alt="1on1tennis" loading="lazy">
+      <a class="card" data-name="1on1tennis" href="games-web/1on1tennis.html">
+        <div class="card-icon">
+          <img src="icons/1on1tennis.svg" alt="1on1tennis" width="86" height="86">
         </div>
-        <div class="card-title">1on1tennis</div>
+        <div class="card-name">1on1tennis</div>
       </a>
-      <a class="card" href="2048.html" title="2048">
-        <div class="icon-wrap">
-          <img src="icons/2048.svg" alt="2048" loading="lazy">
+      <a class="card" data-name="2048" href="games-web/2048.html">
+        <div class="card-icon">
+          <img src="icons/2048.svg" alt="2048" width="86" height="86">
         </div>
-        <div class="card-title">2048</div>
+        <div class="card-name">2048</div>
       </a>
-      <a class="card" href="2048cupcakes.html" title="2048cupcakes">
-        <div class="icon-wrap">
-          <img src="icons/2048cupcakes.svg" alt="2048cupcakes" loading="lazy">
+      <a class="card" data-name="2048cupcakes" href="games-web/2048cupcakes.html">
+        <div class="card-icon">
+          <img src="icons/2048cupcakes.svg" alt="2048cupcakes" width="86" height="86">
         </div>
-        <div class="card-title">2048cupcakes</div>
+        <div class="card-name">2048cupcakes</div>
       </a>
-      <a class="card" href="8ballclassic.html" title="8ballclassic">
-        <div class="icon-wrap">
-          <img src="icons/8ballclassic.svg" alt="8ballclassic" loading="lazy">
+      <a class="card" data-name="8ballclassic" href="games-web/8ballclassic.html">
+        <div class="card-icon">
+          <img src="icons/8ballclassic.svg" alt="8ballclassic" width="86" height="86">
         </div>
-        <div class="card-title">8ballclassic</div>
+        <div class="card-name">8ballclassic</div>
       </a>
-      <a class="card" href="Alpha_1.2.6.html" title="Alpha_1.2.6">
-        <div class="icon-wrap">
-          <img src="icons/Alpha_1_2_6.svg" alt="Alpha_1.2.6" loading="lazy">
+      <a class="card" data-name="alpha_1.2.6" href="games-web/Alpha_1.2.6.html">
+        <div class="card-icon">
+          <img src="icons/Alpha126.svg" alt="Alpha_1.2.6" width="86" height="86">
         </div>
-        <div class="card-title">Alpha_1.2.6</div>
+        <div class="card-name">Alpha_1.2.6</div>
       </a>
-      <a class="card" href="Beta_1.3.html" title="Eaglercraft Launcher  -  Beta 1.3 Offline">
-        <div class="icon-wrap">
-          <img src="icons/Beta_1_3.svg" alt="Eaglercraft Launcher  -  Beta 1.3 Offline" loading="lazy">
+      <a class="card" data-name="eaglercraft launcher | beta 1.3 offline" href="games-web/Beta_1.3.html">
+        <div class="card-icon">
+          <img src="icons/EaglercraftLauncherBeta13Offline.svg" alt="Eaglercraft Launcher | Beta 1.3 Offline" width="86" height="86">
         </div>
-        <div class="card-title">Eaglercraft Launcher  -  Beta 1.3 Offline</div>
+        <div class="card-name">Eaglercraft Launcher | Beta 1.3 Offline</div>
       </a>
-      <a class="card" href="Indev.html" title="Eaglercraft Launcher  -  Indev Offline">
-        <div class="icon-wrap">
-          <img src="icons/Indev.svg" alt="Eaglercraft Launcher  -  Indev Offline" loading="lazy">
+      <a class="card" data-name="eaglercraft launcher | indev offline" href="games-web/Indev.html">
+        <div class="card-icon">
+          <img src="icons/EaglercraftLauncherIndevOffline.svg" alt="Eaglercraft Launcher | Indev Offline" width="86" height="86">
         </div>
-        <div class="card-title">Eaglercraft Launcher  -  Indev Offline</div>
+        <div class="card-name">Eaglercraft Launcher | Indev Offline</div>
       </a>
-      <a class="card" href="agariolite.html" title="Solo Agario">
-        <div class="icon-wrap">
-          <img src="icons/agariolite.svg" alt="Solo Agario" loading="lazy">
+      <a class="card" data-name="solo agario" href="games-web/agariolite.html">
+        <div class="card-icon">
+          <img src="icons/SoloAgario.svg" alt="Solo Agario" width="86" height="86">
         </div>
-        <div class="card-title">Solo Agario</div>
+        <div class="card-name">Solo Agario</div>
       </a>
-      <a class="card" href="ageofwar.html" title="ageofwar">
-        <div class="icon-wrap">
-          <img src="icons/ageofwar.svg" alt="ageofwar" loading="lazy">
+      <a class="card" data-name="ageofwar" href="games-web/ageofwar.html">
+        <div class="card-icon">
+          <img src="icons/ageofwar.svg" alt="ageofwar" width="86" height="86">
         </div>
-        <div class="card-title">ageofwar</div>
+        <div class="card-name">ageofwar</div>
       </a>
-      <a class="card" href="ageofwar2.html" title="ageofwar2">
-        <div class="icon-wrap">
-          <img src="icons/ageofwar2.svg" alt="ageofwar2" loading="lazy">
+      <a class="card" data-name="ageofwar2" href="games-web/ageofwar2.html">
+        <div class="card-icon">
+          <img src="icons/ageofwar2.svg" alt="ageofwar2" width="86" height="86">
         </div>
-        <div class="card-title">ageofwar2</div>
+        <div class="card-name">ageofwar2</div>
       </a>
-      <a class="card" href="agesofconflict.html" title="agesofconflict">
-        <div class="icon-wrap">
-          <img src="icons/agesofconflict.svg" alt="agesofconflict" loading="lazy">
+      <a class="card" data-name="agesofconflict" href="games-web/agesofconflict.html">
+        <div class="card-icon">
+          <img src="icons/agesofconflict.svg" alt="agesofconflict" width="86" height="86">
         </div>
-        <div class="card-title">agesofconflict</div>
+        <div class="card-name">agesofconflict</div>
       </a>
-      <a class="card" href="amongus.html" title="amongus">
-        <div class="icon-wrap">
-          <img src="icons/amongus.svg" alt="amongus" loading="lazy">
+      <a class="card" data-name="amongus" href="games-web/amongus.html">
+        <div class="card-icon">
+          <img src="icons/amongus.svg" alt="amongus" width="86" height="86">
         </div>
-        <div class="card-title">amongus</div>
+        <div class="card-name">amongus</div>
       </a>
-      <a class="card" href="angrybirds.html" title="angrybirds">
-        <div class="icon-wrap">
-          <img src="icons/angrybirds.svg" alt="angrybirds" loading="lazy">
+      <a class="card" data-name="angrybirds" href="games-web/angrybirds.html">
+        <div class="card-icon">
+          <img src="icons/angrybirds.svg" alt="angrybirds" width="86" height="86">
         </div>
-        <div class="card-title">angrybirds</div>
+        <div class="card-name">angrybirds</div>
       </a>
-      <a class="card" href="angrybirdsspace.html" title="angrybirdsspace">
-        <div class="icon-wrap">
-          <img src="icons/angrybirdsspace.svg" alt="angrybirdsspace" loading="lazy">
+      <a class="card" data-name="angrybirdsspace" href="games-web/angrybirdsspace.html">
+        <div class="card-icon">
+          <img src="icons/angrybirdsspace.svg" alt="angrybirdsspace" width="86" height="86">
         </div>
-        <div class="card-title">angrybirdsspace</div>
+        <div class="card-name">angrybirdsspace</div>
       </a>
-      <a class="card" href="awesometanks.html" title="awesometanks">
-        <div class="icon-wrap">
-          <img src="icons/awesometanks.svg" alt="awesometanks" loading="lazy">
+      <a class="card" data-name="awesometanks" href="games-web/awesometanks.html">
+        <div class="card-icon">
+          <img src="icons/awesometanks.svg" alt="awesometanks" width="86" height="86">
         </div>
-        <div class="card-title">awesometanks</div>
+        <div class="card-name">awesometanks</div>
       </a>
-      <a class="card" href="awesometanks2.html" title="awesometanks2">
-        <div class="icon-wrap">
-          <img src="icons/awesometanks2.svg" alt="awesometanks2" loading="lazy">
+      <a class="card" data-name="awesometanks2" href="games-web/awesometanks2.html">
+        <div class="card-icon">
+          <img src="icons/awesometanks2.svg" alt="awesometanks2" width="86" height="86">
         </div>
-        <div class="card-title">awesometanks2</div>
+        <div class="card-name">awesometanks2</div>
       </a>
-      <a class="card" href="backrooms.html" title="backrooms">
-        <div class="icon-wrap">
-          <img src="icons/backrooms.svg" alt="backrooms" loading="lazy">
+      <a class="card" data-name="backrooms" href="games-web/backrooms.html">
+        <div class="card-icon">
+          <img src="icons/backrooms.svg" alt="backrooms" width="86" height="86">
         </div>
-        <div class="card-title">backrooms</div>
+        <div class="card-name">backrooms</div>
       </a>
-      <a class="card" href="baconmaydie.html" title="baconmaydie">
-        <div class="icon-wrap">
-          <img src="icons/baconmaydie.svg" alt="baconmaydie" loading="lazy">
+      <a class="card" data-name="baconmaydie" href="games-web/baconmaydie.html">
+        <div class="card-icon">
+          <img src="icons/baconmaydie.svg" alt="baconmaydie" width="86" height="86">
         </div>
-        <div class="card-title">baconmaydie</div>
+        <div class="card-name">baconmaydie</div>
       </a>
-      <a class="card" href="badicecream.html" title="badicecream">
-        <div class="icon-wrap">
-          <img src="icons/badicecream.svg" alt="badicecream" loading="lazy">
+      <a class="card" data-name="badicecream" href="games-web/badicecream.html">
+        <div class="card-icon">
+          <img src="icons/badicecream.svg" alt="badicecream" width="86" height="86">
         </div>
-        <div class="card-title">badicecream</div>
+        <div class="card-name">badicecream</div>
       </a>
-      <a class="card" href="badicecream2.html" title="badicecream2">
-        <div class="icon-wrap">
-          <img src="icons/badicecream2.svg" alt="badicecream2" loading="lazy">
+      <a class="card" data-name="badicecream2" href="games-web/badicecream2.html">
+        <div class="card-icon">
+          <img src="icons/badicecream2.svg" alt="badicecream2" width="86" height="86">
         </div>
-        <div class="card-title">badicecream2</div>
+        <div class="card-name">badicecream2</div>
       </a>
-      <a class="card" href="badicecream3.html" title="badicecream3">
-        <div class="icon-wrap">
-          <img src="icons/badicecream3.svg" alt="badicecream3" loading="lazy">
+      <a class="card" data-name="badicecream3" href="games-web/badicecream3.html">
+        <div class="card-icon">
+          <img src="icons/badicecream3.svg" alt="badicecream3" width="86" height="86">
         </div>
-        <div class="card-title">badicecream3</div>
+        <div class="card-name">badicecream3</div>
       </a>
-      <a class="card" href="badpiggies.html" title="badpiggies">
-        <div class="icon-wrap">
-          <img src="icons/badpiggies.svg" alt="badpiggies" loading="lazy">
+      <a class="card" data-name="badpiggies" href="games-web/badpiggies.html">
+        <div class="card-icon">
+          <img src="icons/badpiggies.svg" alt="badpiggies" width="86" height="86">
         </div>
-        <div class="card-title">badpiggies</div>
+        <div class="card-name">badpiggies</div>
       </a>
-      <a class="card" href="baseballbros.html" title="baseballbros">
-        <div class="icon-wrap">
-          <img src="icons/baseballbros.svg" alt="baseballbros" loading="lazy">
+      <a class="card" data-name="baseballbros" href="games-web/baseballbros.html">
+        <div class="card-icon">
+          <img src="icons/baseballbros.svg" alt="baseballbros" width="86" height="86">
         </div>
-        <div class="card-title">baseballbros</div>
+        <div class="card-name">baseballbros</div>
       </a>
-      <a class="card" href="basketballlegends.html" title="basketballlegends">
-        <div class="icon-wrap">
-          <img src="icons/basketballlegends.svg" alt="basketballlegends" loading="lazy">
+      <a class="card" data-name="basketballlegends" href="games-web/basketballlegends.html">
+        <div class="card-icon">
+          <img src="icons/basketballlegends.svg" alt="basketballlegends" width="86" height="86">
         </div>
-        <div class="card-title">basketballlegends</div>
+        <div class="card-name">basketballlegends</div>
       </a>
-      <a class="card" href="basketballstars.html" title="basketballstars">
-        <div class="icon-wrap">
-          <img src="icons/basketballstars.svg" alt="basketballstars" loading="lazy">
+      <a class="card" data-name="basketballstars" href="games-web/basketballstars.html">
+        <div class="card-icon">
+          <img src="icons/basketballstars.svg" alt="basketballstars" width="86" height="86">
         </div>
-        <div class="card-title">basketballstars</div>
+        <div class="card-name">basketballstars</div>
       </a>
-      <a class="card" href="basketbros.html" title="basketbros">
-        <div class="icon-wrap">
-          <img src="icons/basketbros.svg" alt="basketbros" loading="lazy">
+      <a class="card" data-name="basketbros" href="games-web/basketbros.html">
+        <div class="card-icon">
+          <img src="icons/basketbros.svg" alt="basketbros" width="86" height="86">
         </div>
-        <div class="card-title">basketbros</div>
+        <div class="card-name">basketbros</div>
       </a>
-      <a class="card" href="basketrandom.html" title="Class">
-        <div class="icon-wrap">
-          <img src="icons/basketrandom.svg" alt="Class" loading="lazy">
+      <a class="card" data-name="class" href="games-web/basketrandom.html">
+        <div class="card-icon">
+          <img src="icons/Class.svg" alt="Class" width="86" height="86">
         </div>
-        <div class="card-title">Class</div>
+        <div class="card-name">Class</div>
       </a>
-      <a class="card" href="blockysnakes.html" title="blockysnakes">
-        <div class="icon-wrap">
-          <img src="icons/blockysnakes.svg" alt="blockysnakes" loading="lazy">
+      <a class="card" data-name="blockysnakes" href="games-web/blockysnakes.html">
+        <div class="card-icon">
+          <img src="icons/blockysnakes.svg" alt="blockysnakes" width="86" height="86">
         </div>
-        <div class="card-title">blockysnakes</div>
+        <div class="card-name">blockysnakes</div>
       </a>
-      <a class="card" href="bloonsTD.html" title="bloonsTD">
-        <div class="icon-wrap">
-          <img src="icons/bloonsTD.svg" alt="bloonsTD" loading="lazy">
+      <a class="card" data-name="bloonstd" href="games-web/bloonsTD.html">
+        <div class="card-icon">
+          <img src="icons/bloonsTD.svg" alt="bloonsTD" width="86" height="86">
         </div>
-        <div class="card-title">bloonsTD</div>
+        <div class="card-name">bloonsTD</div>
       </a>
-      <a class="card" href="bloonsTD2.html" title="bloonsTD2">
-        <div class="icon-wrap">
-          <img src="icons/bloonsTD2.svg" alt="bloonsTD2" loading="lazy">
+      <a class="card" data-name="bloonstd2" href="games-web/bloonsTD2.html">
+        <div class="card-icon">
+          <img src="icons/bloonsTD2.svg" alt="bloonsTD2" width="86" height="86">
         </div>
-        <div class="card-title">bloonsTD2</div>
+        <div class="card-name">bloonsTD2</div>
       </a>
-      <a class="card" href="bloonsTD3.html" title="bloonsTD3">
-        <div class="icon-wrap">
-          <img src="icons/bloonsTD3.svg" alt="bloonsTD3" loading="lazy">
+      <a class="card" data-name="bloonstd3" href="games-web/bloonsTD3.html">
+        <div class="card-icon">
+          <img src="icons/bloonsTD3.svg" alt="bloonsTD3" width="86" height="86">
         </div>
-        <div class="card-title">bloonsTD3</div>
+        <div class="card-name">bloonsTD3</div>
       </a>
-      <a class="card" href="bloonsTD4.html" title="bloonsTD4">
-        <div class="icon-wrap">
-          <img src="icons/bloonsTD4.svg" alt="bloonsTD4" loading="lazy">
+      <a class="card" data-name="bloonstd4" href="games-web/bloonsTD4.html">
+        <div class="card-icon">
+          <img src="icons/bloonsTD4.svg" alt="bloonsTD4" width="86" height="86">
         </div>
-        <div class="card-title">bloonsTD4</div>
+        <div class="card-name">bloonsTD4</div>
       </a>
-      <a class="card" href="bloonsTD5.html" title="bloonsTD5">
-        <div class="icon-wrap">
-          <img src="icons/bloonsTD5.svg" alt="bloonsTD5" loading="lazy">
+      <a class="card" data-name="bloonstd5" href="games-web/bloonsTD5.html">
+        <div class="card-icon">
+          <img src="icons/bloonsTD5.svg" alt="bloonsTD5" width="86" height="86">
         </div>
-        <div class="card-title">bloonsTD5</div>
+        <div class="card-name">bloonsTD5</div>
       </a>
-      <a class="card" href="bloxorz.html" title="bloxorz">
-        <div class="icon-wrap">
-          <img src="icons/bloxorz.svg" alt="bloxorz" loading="lazy">
+      <a class="card" data-name="bloxorz" href="games-web/bloxorz.html">
+        <div class="card-icon">
+          <img src="icons/bloxorz.svg" alt="bloxorz" width="86" height="86">
         </div>
-        <div class="card-title">bloxorz</div>
+        <div class="card-name">bloxorz</div>
       </a>
-      <a class="card" href="blumgiracers.html" title="blumgiracers">
-        <div class="icon-wrap">
-          <img src="icons/blumgiracers.svg" alt="blumgiracers" loading="lazy">
+      <a class="card" data-name="blumgiracers" href="games-web/blumgiracers.html">
+        <div class="card-icon">
+          <img src="icons/blumgiracers.svg" alt="blumgiracers" width="86" height="86">
         </div>
-        <div class="card-title">blumgiracers</div>
+        <div class="card-name">blumgiracers</div>
       </a>
-      <a class="card" href="blumgirocket.html" title="blumgirocket">
-        <div class="icon-wrap">
-          <img src="icons/blumgirocket.svg" alt="blumgirocket" loading="lazy">
+      <a class="card" data-name="blumgirocket" href="games-web/blumgirocket.html">
+        <div class="card-icon">
+          <img src="icons/blumgirocket.svg" alt="blumgirocket" width="86" height="86">
         </div>
-        <div class="card-title">blumgirocket</div>
+        <div class="card-name">blumgirocket</div>
       </a>
-      <a class="card" href="bobtherobber.html" title="bobtherobber">
-        <div class="icon-wrap">
-          <img src="icons/bobtherobber.svg" alt="bobtherobber" loading="lazy">
+      <a class="card" data-name="bobtherobber" href="games-web/bobtherobber.html">
+        <div class="card-icon">
+          <img src="icons/bobtherobber.svg" alt="bobtherobber" width="86" height="86">
         </div>
-        <div class="card-title">bobtherobber</div>
+        <div class="card-name">bobtherobber</div>
       </a>
-      <a class="card" href="bobtherobber2.html" title="bobtherobber2">
-        <div class="icon-wrap">
-          <img src="icons/bobtherobber2.svg" alt="bobtherobber2" loading="lazy">
+      <a class="card" data-name="bobtherobber2" href="games-web/bobtherobber2.html">
+        <div class="card-icon">
+          <img src="icons/bobtherobber2.svg" alt="bobtherobber2" width="86" height="86">
         </div>
-        <div class="card-title">bobtherobber2</div>
+        <div class="card-name">bobtherobber2</div>
       </a>
-      <a class="card" href="bobtherobber5.html" title="bobtherobber5">
-        <div class="icon-wrap">
-          <img src="icons/bobtherobber5.svg" alt="bobtherobber5" loading="lazy">
+      <a class="card" data-name="bobtherobber5" href="games-web/bobtherobber5.html">
+        <div class="card-icon">
+          <img src="icons/bobtherobber5.svg" alt="bobtherobber5" width="86" height="86">
         </div>
-        <div class="card-title">bobtherobber5</div>
+        <div class="card-name">bobtherobber5</div>
       </a>
-      <a class="card" href="breakingthebank.html" title="breakingthebank">
-        <div class="icon-wrap">
-          <img src="icons/breakingthebank.svg" alt="breakingthebank" loading="lazy">
+      <a class="card" data-name="breakingthebank" href="games-web/breakingthebank.html">
+        <div class="card-icon">
+          <img src="icons/breakingthebank.svg" alt="breakingthebank" width="86" height="86">
         </div>
-        <div class="card-title">breakingthebank</div>
+        <div class="card-name">breakingthebank</div>
       </a>
-      <a class="card" href="bubbleshooter.html" title="bubbleshooter">
-        <div class="icon-wrap">
-          <img src="icons/bubbleshooter.svg" alt="bubbleshooter" loading="lazy">
+      <a class="card" data-name="bubbleshooter" href="games-web/bubbleshooter.html">
+        <div class="card-icon">
+          <img src="icons/bubbleshooter.svg" alt="bubbleshooter" width="86" height="86">
         </div>
-        <div class="card-title">bubbleshooter</div>
+        <div class="card-name">bubbleshooter</div>
       </a>
-      <a class="card" href="candycrush.html" title="candycrush">
-        <div class="icon-wrap">
-          <img src="icons/candycrush.svg" alt="candycrush" loading="lazy">
+      <a class="card" data-name="candycrush" href="games-web/candycrush.html">
+        <div class="card-icon">
+          <img src="icons/candycrush.svg" alt="candycrush" width="86" height="86">
         </div>
-        <div class="card-title">candycrush</div>
+        <div class="card-name">candycrush</div>
       </a>
-      <a class="card" href="capybaraclicker.html" title="capybaraclicker">
-        <div class="icon-wrap">
-          <img src="icons/capybaraclicker.svg" alt="capybaraclicker" loading="lazy">
+      <a class="card" data-name="capybaraclicker" href="games-web/capybaraclicker.html">
+        <div class="card-icon">
+          <img src="icons/capybaraclicker.svg" alt="capybaraclicker" width="86" height="86">
         </div>
-        <div class="card-title">capybaraclicker</div>
+        <div class="card-name">capybaraclicker</div>
       </a>
-      <a class="card" href="cardrawing.html" title="cardrawing">
-        <div class="icon-wrap">
-          <img src="icons/cardrawing.svg" alt="cardrawing" loading="lazy">
+      <a class="card" data-name="cardrawing" href="games-web/cardrawing.html">
+        <div class="card-icon">
+          <img src="icons/cardrawing.svg" alt="cardrawing" width="86" height="86">
         </div>
-        <div class="card-title">cardrawing</div>
+        <div class="card-name">cardrawing</div>
       </a>
-      <a class="card" href="carkingarena.html" title="carkingarena">
-        <div class="icon-wrap">
-          <img src="icons/carkingarena.svg" alt="carkingarena" loading="lazy">
+      <a class="card" data-name="carkingarena" href="games-web/carkingarena.html">
+        <div class="card-icon">
+          <img src="icons/carkingarena.svg" alt="carkingarena" width="86" height="86">
         </div>
-        <div class="card-title">carkingarena</div>
+        <div class="card-name">carkingarena</div>
       </a>
-      <a class="card" href="chess.html" title="chess">
-        <div class="icon-wrap">
-          <img src="icons/chess.svg" alt="chess" loading="lazy">
+      <a class="card" data-name="chess" href="games-web/chess.html">
+        <div class="card-icon">
+          <img src="icons/chess.svg" alt="chess" width="86" height="86">
         </div>
-        <div class="card-title">chess</div>
+        <div class="card-name">chess</div>
       </a>
-      <a class="card" href="choppyorc.html" title="choppyorc">
-        <div class="icon-wrap">
-          <img src="icons/choppyorc.svg" alt="choppyorc" loading="lazy">
+      <a class="card" data-name="choppyorc" href="games-web/choppyorc.html">
+        <div class="card-icon">
+          <img src="icons/choppyorc.svg" alt="choppyorc" width="86" height="86">
         </div>
-        <div class="card-title">choppyorc</div>
+        <div class="card-name">choppyorc</div>
       </a>
-      <a class="card" href="circloO.html" title="circloO">
-        <div class="icon-wrap">
-          <img src="icons/circloO.svg" alt="circloO" loading="lazy">
+      <a class="card" data-name="circloo" href="games-web/circloO.html">
+        <div class="card-icon">
+          <img src="icons/circloO.svg" alt="circloO" width="86" height="86">
         </div>
-        <div class="card-title">circloO</div>
+        <div class="card-name">circloO</div>
       </a>
-      <a class="card" href="circloO2.html" title="circloO2">
-        <div class="icon-wrap">
-          <img src="icons/circloO2.svg" alt="circloO2" loading="lazy">
+      <a class="card" data-name="circloo2" href="games-web/circloO2.html">
+        <div class="card-icon">
+          <img src="icons/circloO2.svg" alt="circloO2" width="86" height="86">
         </div>
-        <div class="card-title">circloO2</div>
+        <div class="card-name">circloO2</div>
       </a>
-      <a class="card" href="clashofvikings.html" title="clashofvikings">
-        <div class="icon-wrap">
-          <img src="icons/clashofvikings.svg" alt="clashofvikings" loading="lazy">
+      <a class="card" data-name="clashofvikings" href="games-web/clashofvikings.html">
+        <div class="card-icon">
+          <img src="icons/clashofvikings.svg" alt="clashofvikings" width="86" height="86">
         </div>
-        <div class="card-title">clashofvikings</div>
+        <div class="card-name">clashofvikings</div>
       </a>
-      <a class="card" href="cleanupio.html" title="cleanupio">
-        <div class="icon-wrap">
-          <img src="icons/cleanupio.svg" alt="cleanupio" loading="lazy">
+      <a class="card" data-name="cleanupio" href="games-web/cleanupio.html">
+        <div class="card-icon">
+          <img src="icons/cleanupio.svg" alt="cleanupio" width="86" height="86">
         </div>
-        <div class="card-title">cleanupio</div>
+        <div class="card-name">cleanupio</div>
       </a>
-      <a class="card" href="clusterrush.html" title="Cluster Rush">
-        <div class="icon-wrap">
-          <img src="icons/clusterrush.svg" alt="Cluster Rush" loading="lazy">
+      <a class="card" data-name="cluster rush" href="games-web/clusterrush.html">
+        <div class="card-icon">
+          <img src="icons/ClusterRush.svg" alt="Cluster Rush" width="86" height="86">
         </div>
-        <div class="card-title">Cluster Rush</div>
+        <div class="card-name">Cluster Rush</div>
       </a>
-      <a class="card" href="crazycars.html" title="crazycars">
-        <div class="icon-wrap">
-          <img src="icons/crazycars.svg" alt="crazycars" loading="lazy">
+      <a class="card" data-name="crazycars" href="games-web/crazycars.html">
+        <div class="card-icon">
+          <img src="icons/crazycars.svg" alt="crazycars" width="86" height="86">
         </div>
-        <div class="card-title">crazycars</div>
+        <div class="card-name">crazycars</div>
       </a>
-      <a class="card" href="crazymotorcycle.html" title="crazymotorcycle">
-        <div class="icon-wrap">
-          <img src="icons/crazymotorcycle.svg" alt="crazymotorcycle" loading="lazy">
+      <a class="card" data-name="crazymotorcycle" href="games-web/crazymotorcycle.html">
+        <div class="card-icon">
+          <img src="icons/crazymotorcycle.svg" alt="crazymotorcycle" width="86" height="86">
         </div>
-        <div class="card-title">crazymotorcycle</div>
+        <div class="card-name">crazymotorcycle</div>
       </a>
-      <a class="card" href="dadish.html" title="dadish">
-        <div class="icon-wrap">
-          <img src="icons/dadish.svg" alt="dadish" loading="lazy">
+      <a class="card" data-name="dadish" href="games-web/dadish.html">
+        <div class="card-icon">
+          <img src="icons/dadish.svg" alt="dadish" width="86" height="86">
         </div>
-        <div class="card-title">dadish</div>
+        <div class="card-name">dadish</div>
       </a>
-      <a class="card" href="dadish2.html" title="dadish2">
-        <div class="icon-wrap">
-          <img src="icons/dadish2.svg" alt="dadish2" loading="lazy">
+      <a class="card" data-name="dadish2" href="games-web/dadish2.html">
+        <div class="card-icon">
+          <img src="icons/dadish2.svg" alt="dadish2" width="86" height="86">
         </div>
-        <div class="card-title">dadish2</div>
+        <div class="card-name">dadish2</div>
       </a>
-      <a class="card" href="dadish3.html" title="dadish3">
-        <div class="icon-wrap">
-          <img src="icons/dadish3.svg" alt="dadish3" loading="lazy">
+      <a class="card" data-name="dadish3" href="games-web/dadish3.html">
+        <div class="card-icon">
+          <img src="icons/dadish3.svg" alt="dadish3" width="86" height="86">
         </div>
-        <div class="card-title">dadish3</div>
+        <div class="card-name">dadish3</div>
       </a>
-      <a class="card" href="deathrun3D.html" title="deathrun3D">
-        <div class="icon-wrap">
-          <img src="icons/deathrun3D.svg" alt="deathrun3D" loading="lazy">
+      <a class="card" data-name="deathrun3d" href="games-web/deathrun3D.html">
+        <div class="card-icon">
+          <img src="icons/deathrun3D.svg" alt="deathrun3D" width="86" height="86">
         </div>
-        <div class="card-title">deathrun3D</div>
+        <div class="card-name">deathrun3D</div>
       </a>
-      <a class="card" href="doodlejump.html" title="doodlejump">
-        <div class="icon-wrap">
-          <img src="icons/doodlejump.svg" alt="doodlejump" loading="lazy">
+      <a class="card" data-name="jump" href="games-web/doodlejump.html">
+        <div class="card-icon">
+          <img src="icons/Jump.svg" alt="Jump" width="86" height="86">
         </div>
-        <div class="card-title">doodlejump</div>
+        <div class="card-name">Jump</div>
       </a>
-      <a class="card" href="drawclimber.html" title="drawclimber">
-        <div class="icon-wrap">
-          <img src="icons/drawclimber.svg" alt="drawclimber" loading="lazy">
+      <a class="card" data-name="drawclimber" href="games-web/drawclimber.html">
+        <div class="card-icon">
+          <img src="icons/drawclimber.svg" alt="drawclimber" width="86" height="86">
         </div>
-        <div class="card-title">drawclimber</div>
+        <div class="card-name">drawclimber</div>
       </a>
-      <a class="card" href="ducklife.html" title="ducklife">
-        <div class="icon-wrap">
-          <img src="icons/ducklife.svg" alt="ducklife" loading="lazy">
+      <a class="card" data-name="ducklife" href="games-web/ducklife.html">
+        <div class="card-icon">
+          <img src="icons/ducklife.svg" alt="ducklife" width="86" height="86">
         </div>
-        <div class="card-title">ducklife</div>
+        <div class="card-name">ducklife</div>
       </a>
-      <a class="card" href="ducklife2.html" title="ducklife2">
-        <div class="icon-wrap">
-          <img src="icons/ducklife2.svg" alt="ducklife2" loading="lazy">
+      <a class="card" data-name="ducklife2" href="games-web/ducklife2.html">
+        <div class="card-icon">
+          <img src="icons/ducklife2.svg" alt="ducklife2" width="86" height="86">
         </div>
-        <div class="card-title">ducklife2</div>
+        <div class="card-name">ducklife2</div>
       </a>
-      <a class="card" href="ducklife3.html" title="ducklife3">
-        <div class="icon-wrap">
-          <img src="icons/ducklife3.svg" alt="ducklife3" loading="lazy">
+      <a class="card" data-name="ducklife3" href="games-web/ducklife3.html">
+        <div class="card-icon">
+          <img src="icons/ducklife3.svg" alt="ducklife3" width="86" height="86">
         </div>
-        <div class="card-title">ducklife3</div>
+        <div class="card-name">ducklife3</div>
       </a>
-      <a class="card" href="ducklife4.html" title="ducklife4">
-        <div class="icon-wrap">
-          <img src="icons/ducklife4.svg" alt="ducklife4" loading="lazy">
+      <a class="card" data-name="ducklife4" href="games-web/ducklife4.html">
+        <div class="card-icon">
+          <img src="icons/ducklife4.svg" alt="ducklife4" width="86" height="86">
         </div>
-        <div class="card-title">ducklife4</div>
+        <div class="card-name">ducklife4</div>
       </a>
-      <a class="card" href="ducklife5.html" title="ducklife5">
-        <div class="icon-wrap">
-          <img src="icons/ducklife5.svg" alt="ducklife5" loading="lazy">
+      <a class="card" data-name="ducklife5" href="games-web/ducklife5.html">
+        <div class="card-icon">
+          <img src="icons/ducklife5.svg" alt="ducklife5" width="86" height="86">
         </div>
-        <div class="card-title">ducklife5</div>
+        <div class="card-name">ducklife5</div>
       </a>
-      <a class="card" href="ducklingsio.html" title="ducklingsio">
-        <div class="icon-wrap">
-          <img src="icons/ducklingsio.svg" alt="ducklingsio" loading="lazy">
+      <a class="card" data-name="ducklingsio" href="games-web/ducklingsio.html">
+        <div class="card-icon">
+          <img src="icons/ducklingsio.svg" alt="ducklingsio" width="86" height="86">
         </div>
-        <div class="card-title">ducklingsio</div>
+        <div class="card-name">ducklingsio</div>
       </a>
-      <a class="card" href="eagleride.html" title="eagleride">
-        <div class="icon-wrap">
-          <img src="icons/eagleride.svg" alt="eagleride" loading="lazy">
+      <a class="card" data-name="eagleride" href="games-web/eagleride.html">
+        <div class="card-icon">
+          <img src="icons/eagleride.svg" alt="eagleride" width="86" height="86">
         </div>
-        <div class="card-title">eagleride</div>
+        <div class="card-name">eagleride</div>
       </a>
-      <a class="card" href="earntodie.html" title="earntodie">
-        <div class="icon-wrap">
-          <img src="icons/earntodie.svg" alt="earntodie" loading="lazy">
+      <a class="card" data-name="earntodie" href="games-web/earntodie.html">
+        <div class="card-icon">
+          <img src="icons/earntodie.svg" alt="earntodie" width="86" height="86">
         </div>
-        <div class="card-title">earntodie</div>
+        <div class="card-name">earntodie</div>
       </a>
-      <a class="card" href="earntodie2.html" title="earntodie2">
-        <div class="icon-wrap">
-          <img src="icons/earntodie2.svg" alt="earntodie2" loading="lazy">
+      <a class="card" data-name="earntodie2" href="games-web/earntodie2.html">
+        <div class="card-icon">
+          <img src="icons/earntodie2.svg" alt="earntodie2" width="86" height="86">
         </div>
-        <div class="card-title">earntodie2</div>
+        <div class="card-name">earntodie2</div>
       </a>
-      <a class="card" href="eggycar.html" title="eggycar">
-        <div class="icon-wrap">
-          <img src="icons/eggycar.svg" alt="eggycar" loading="lazy">
+      <a class="card" data-name="eggycar" href="games-web/eggycar.html">
+        <div class="card-icon">
+          <img src="icons/eggycar.svg" alt="eggycar" width="86" height="86">
         </div>
-        <div class="card-title">eggycar</div>
+        <div class="card-name">eggycar</div>
       </a>
-      <a class="card" href="escapingtheprison.html" title="escapingtheprison">
-        <div class="icon-wrap">
-          <img src="icons/escapingtheprison.svg" alt="escapingtheprison" loading="lazy">
+      <a class="card" data-name="escapingtheprison" href="games-web/escapingtheprison.html">
+        <div class="card-icon">
+          <img src="icons/escapingtheprison.svg" alt="escapingtheprison" width="86" height="86">
         </div>
-        <div class="card-title">escapingtheprison</div>
+        <div class="card-name">escapingtheprison</div>
       </a>
-      <a class="card" href="evilglitch.html" title="Evil Glitch">
-        <div class="icon-wrap">
-          <img src="icons/evilglitch.svg" alt="Evil Glitch" loading="lazy">
+      <a class="card" data-name="evil glitch" href="games-web/evilglitch.html">
+        <div class="card-icon">
+          <img src="icons/EvilGlitch.svg" alt="Evil Glitch" width="86" height="86">
         </div>
-        <div class="card-title">Evil Glitch</div>
+        <div class="card-name">Evil Glitch</div>
       </a>
-      <a class="card" href="fancypantsadventure.html" title="fancypantsadventure">
-        <div class="icon-wrap">
-          <img src="icons/fancypantsadventure.svg" alt="fancypantsadventure" loading="lazy">
+      <a class="card" data-name="fancypantsadventure" href="games-web/fancypantsadventure.html">
+        <div class="card-icon">
+          <img src="icons/fancypantsadventure.svg" alt="fancypantsadventure" width="86" height="86">
         </div>
-        <div class="card-title">fancypantsadventure</div>
+        <div class="card-name">fancypantsadventure</div>
       </a>
-      <a class="card" href="fancypantsadventure2.html" title="fancypantsadventure2">
-        <div class="icon-wrap">
-          <img src="icons/fancypantsadventure2.svg" alt="fancypantsadventure2" loading="lazy">
+      <a class="card" data-name="fancypantsadventure2" href="games-web/fancypantsadventure2.html">
+        <div class="card-icon">
+          <img src="icons/fancypantsadventure2.svg" alt="fancypantsadventure2" width="86" height="86">
         </div>
-        <div class="card-title">fancypantsadventure2</div>
+        <div class="card-name">fancypantsadventure2</div>
       </a>
-      <a class="card" href="fireboyandwatergirl.html" title="fireboyandwatergirl">
-        <div class="icon-wrap">
-          <img src="icons/fireboyandwatergirl.svg" alt="fireboyandwatergirl" loading="lazy">
+      <a class="card" data-name="fireboyandwatergirl" href="games-web/fireboyandwatergirl.html">
+        <div class="card-icon">
+          <img src="icons/fireboyandwatergirl.svg" alt="fireboyandwatergirl" width="86" height="86">
         </div>
-        <div class="card-title">fireboyandwatergirl</div>
+        <div class="card-name">fireboyandwatergirl</div>
       </a>
-      <a class="card" href="fireboyandwatergirl2.html" title="fireboyandwatergirl2">
-        <div class="icon-wrap">
-          <img src="icons/fireboyandwatergirl2.svg" alt="fireboyandwatergirl2" loading="lazy">
+      <a class="card" data-name="fireboyandwatergirl2" href="games-web/fireboyandwatergirl2.html">
+        <div class="card-icon">
+          <img src="icons/fireboyandwatergirl2.svg" alt="fireboyandwatergirl2" width="86" height="86">
         </div>
-        <div class="card-title">fireboyandwatergirl2</div>
+        <div class="card-name">fireboyandwatergirl2</div>
       </a>
-      <a class="card" href="fireboyandwatergirl3.html" title="fireboyandwatergirl3">
-        <div class="icon-wrap">
-          <img src="icons/fireboyandwatergirl3.svg" alt="fireboyandwatergirl3" loading="lazy">
+      <a class="card" data-name="fireboyandwatergirl3" href="games-web/fireboyandwatergirl3.html">
+        <div class="card-icon">
+          <img src="icons/fireboyandwatergirl3.svg" alt="fireboyandwatergirl3" width="86" height="86">
         </div>
-        <div class="card-title">fireboyandwatergirl3</div>
+        <div class="card-name">fireboyandwatergirl3</div>
       </a>
-      <a class="card" href="fireboyandwatergirl4.html" title="fireboyandwatergirl4">
-        <div class="icon-wrap">
-          <img src="icons/fireboyandwatergirl4.svg" alt="fireboyandwatergirl4" loading="lazy">
+      <a class="card" data-name="fireboyandwatergirl4" href="games-web/fireboyandwatergirl4.html">
+        <div class="card-icon">
+          <img src="icons/fireboyandwatergirl4.svg" alt="fireboyandwatergirl4" width="86" height="86">
         </div>
-        <div class="card-title">fireboyandwatergirl4</div>
+        <div class="card-name">fireboyandwatergirl4</div>
       </a>
-      <a class="card" href="flappybird.html" title="Flappy Bird">
-        <div class="icon-wrap">
-          <img src="icons/flappybird.svg" alt="Flappy Bird" loading="lazy">
+      <a class="card" data-name="flappy bird" href="games-web/flappybird.html">
+        <div class="card-icon">
+          <img src="icons/FlappyBird.svg" alt="Flappy Bird" width="86" height="86">
         </div>
-        <div class="card-title">Flappy Bird</div>
+        <div class="card-name">Flappy Bird</div>
       </a>
-      <a class="card" href="floodrunner2.html" title="floodrunner2">
-        <div class="icon-wrap">
-          <img src="icons/floodrunner2.svg" alt="floodrunner2" loading="lazy">
+      <a class="card" data-name="floodrunner2" href="games-web/floodrunner2.html">
+        <div class="card-icon">
+          <img src="icons/floodrunner2.svg" alt="floodrunner2" width="86" height="86">
         </div>
-        <div class="card-title">floodrunner2</div>
+        <div class="card-name">floodrunner2</div>
       </a>
-      <a class="card" href="floodrunner3.html" title="floodrunner3">
-        <div class="icon-wrap">
-          <img src="icons/floodrunner3.svg" alt="floodrunner3" loading="lazy">
+      <a class="card" data-name="floodrunner3" href="games-web/floodrunner3.html">
+        <div class="card-icon">
+          <img src="icons/floodrunner3.svg" alt="floodrunner3" width="86" height="86">
         </div>
-        <div class="card-title">floodrunner3</div>
+        <div class="card-name">floodrunner3</div>
       </a>
-      <a class="card" href="floodrunner4.html" title="floodrunner4">
-        <div class="icon-wrap">
-          <img src="icons/floodrunner4.svg" alt="floodrunner4" loading="lazy">
+      <a class="card" data-name="floodrunner4" href="games-web/floodrunner4.html">
+        <div class="card-icon">
+          <img src="icons/floodrunner4.svg" alt="floodrunner4" width="86" height="86">
         </div>
-        <div class="card-title">floodrunner4</div>
+        <div class="card-name">floodrunner4</div>
       </a>
-      <a class="card" href="fnaf.html" title="fnaf">
-        <div class="icon-wrap">
-          <img src="icons/fnaf.svg" alt="fnaf" loading="lazy">
+      <a class="card" data-name="fnaf" href="games-web/fnaf.html">
+        <div class="card-icon">
+          <img src="icons/fnaf.svg" alt="fnaf" width="86" height="86">
         </div>
-        <div class="card-title">fnaf</div>
+        <div class="card-name">fnaf</div>
       </a>
-      <a class="card" href="fnaf4.html" title="FNAF-4">
-        <div class="icon-wrap">
-          <img src="icons/fnaf4.svg" alt="FNAF-4" loading="lazy">
+      <a class="card" data-name="fnaf-4" href="games-web/fnaf4.html">
+        <div class="card-icon">
+          <img src="icons/FNAF4.svg" alt="FNAF-4" width="86" height="86">
         </div>
-        <div class="card-title">FNAF-4</div>
+        <div class="card-name">FNAF-4</div>
       </a>
-      <a class="card" href="footballbros.html" title="FOOTBALL BROS!  -  Official Site">
-        <div class="icon-wrap">
-          <img src="icons/footballbros.svg" alt="FOOTBALL BROS!  -  Official Site" loading="lazy">
+      <a class="card" data-name="football bros! | official site" href="games-web/footballbros.html">
+        <div class="card-icon">
+          <img src="icons/FOOTBALLBROSOfficialSite.svg" alt="FOOTBALL BROS! | Official Site" width="86" height="86">
         </div>
-        <div class="card-title">FOOTBALL BROS!  -  Official Site</div>
+        <div class="card-name">FOOTBALL BROS! | Official Site</div>
       </a>
-      <a class="card" href="footballlegends.html" title="footballlegends">
-        <div class="icon-wrap">
-          <img src="icons/footballlegends.svg" alt="footballlegends" loading="lazy">
+      <a class="card" data-name="footballlegends" href="games-web/footballlegends.html">
+        <div class="card-icon">
+          <img src="icons/footballlegends.svg" alt="footballlegends" width="86" height="86">
         </div>
-        <div class="card-title">footballlegends</div>
+        <div class="card-name">footballlegends</div>
       </a>
-      <a class="card" href="freerider3.html" title="freerider3">
-        <div class="icon-wrap">
-          <img src="icons/freerider3.svg" alt="freerider3" loading="lazy">
+      <a class="card" data-name="freerider3" href="games-web/freerider3.html">
+        <div class="card-icon">
+          <img src="icons/freerider3.svg" alt="freerider3" width="86" height="86">
         </div>
-        <div class="card-title">freerider3</div>
+        <div class="card-name">freerider3</div>
       </a>
-      <a class="card" href="fruitninja.html" title="fruitninja">
-        <div class="icon-wrap">
-          <img src="icons/fruitninja.svg" alt="fruitninja" loading="lazy">
+      <a class="card" data-name="fruitninja" href="games-web/fruitninja.html">
+        <div class="card-icon">
+          <img src="icons/fruitninja.svg" alt="fruitninja" width="86" height="86">
         </div>
-        <div class="card-title">fruitninja</div>
+        <div class="card-name">fruitninja</div>
       </a>
-      <a class="card" href="funnybattle.html" title="funnybattle">
-        <div class="icon-wrap">
-          <img src="icons/funnybattle.svg" alt="funnybattle" loading="lazy">
+      <a class="card" data-name="funnybattle" href="games-web/funnybattle.html">
+        <div class="card-icon">
+          <img src="icons/funnybattle.svg" alt="funnybattle" width="86" height="86">
         </div>
-        <div class="card-title">funnybattle</div>
+        <div class="card-name">funnybattle</div>
       </a>
-      <a class="card" href="funnybattle2.html" title="funnybattle2">
-        <div class="icon-wrap">
-          <img src="icons/funnybattle2.svg" alt="funnybattle2" loading="lazy">
+      <a class="card" data-name="funnybattle2" href="games-web/funnybattle2.html">
+        <div class="card-icon">
+          <img src="icons/funnybattle2.svg" alt="funnybattle2" width="86" height="86">
         </div>
-        <div class="card-title">funnybattle2</div>
+        <div class="card-name">funnybattle2</div>
       </a>
-      <a class="card" href="geometrydash.html" title="Geometry Dash">
-        <div class="icon-wrap">
-          <img src="icons/geometrydash.svg" alt="Geometry Dash" loading="lazy">
+      <a class="card" data-name="geometry dash" href="games-web/geometrydash.html">
+        <div class="card-icon">
+          <img src="icons/GeometryDash.svg" alt="Geometry Dash" width="86" height="86">
         </div>
-        <div class="card-title">Geometry Dash</div>
+        <div class="card-name">Geometry Dash</div>
       </a>
-      <a class="card" href="getontop.html" title="getontop">
-        <div class="icon-wrap">
-          <img src="icons/getontop.svg" alt="getontop" loading="lazy">
+      <a class="card" data-name="getontop" href="games-web/getontop.html">
+        <div class="card-icon">
+          <img src="icons/getontop.svg" alt="getontop" width="86" height="86">
         </div>
-        <div class="card-title">getontop</div>
+        <div class="card-name">getontop</div>
       </a>
-      <a class="card" href="googlebaseball.html" title="googlebaseball">
-        <div class="icon-wrap">
-          <img src="icons/googlebaseball.svg" alt="googlebaseball" loading="lazy">
+      <a class="card" data-name="googlebaseball" href="games-web/googlebaseball.html">
+        <div class="card-icon">
+          <img src="icons/googlebaseball.svg" alt="googlebaseball" width="86" height="86">
         </div>
-        <div class="card-title">googlebaseball</div>
+        <div class="card-name">googlebaseball</div>
       </a>
-      <a class="card" href="googledino.html" title="Dinosaur Game Chrome">
-        <div class="icon-wrap">
-          <img src="icons/googledino.svg" alt="Dinosaur Game Chrome" loading="lazy">
+      <a class="card" data-name="t-rex game" href="games-web/googledino.html">
+        <div class="card-icon">
+          <img src="icons/TRexGame.svg" alt="T-Rex Game" width="86" height="86">
         </div>
-        <div class="card-title">Dinosaur Game Chrome</div>
+        <div class="card-name">T-Rex Game</div>
       </a>
-      <a class="card" href="guesstheiranswer.html" title="guesstheiranswer">
-        <div class="icon-wrap">
-          <img src="icons/guesstheiranswer.svg" alt="guesstheiranswer" loading="lazy">
+      <a class="card" data-name="guesstheiranswer" href="games-web/guesstheiranswer.html">
+        <div class="card-icon">
+          <img src="icons/guesstheiranswer.svg" alt="guesstheiranswer" width="86" height="86">
         </div>
-        <div class="card-title">guesstheiranswer</div>
+        <div class="card-name">guesstheiranswer</div>
       </a>
-      <a class="card" href="hanger2.html" title="hanger2">
-        <div class="icon-wrap">
-          <img src="icons/hanger2.svg" alt="hanger2" loading="lazy">
+      <a class="card" data-name="hanger2" href="games-web/hanger2.html">
+        <div class="card-icon">
+          <img src="icons/hanger2.svg" alt="hanger2" width="86" height="86">
         </div>
-        <div class="card-title">hanger2</div>
+        <div class="card-name">hanger2</div>
       </a>
-      <a class="card" href="happywheels.html" title="happywheels">
-        <div class="icon-wrap">
-          <img src="icons/happywheels.svg" alt="happywheels" loading="lazy">
+      <a class="card" data-name="happywheels" href="games-web/happywheels.html">
+        <div class="card-icon">
+          <img src="icons/happywheels.svg" alt="happywheels" width="86" height="86">
         </div>
-        <div class="card-title">happywheels</div>
+        <div class="card-name">happywheels</div>
       </a>
-      <a class="card" href="helixjump.html" title="helixjump">
-        <div class="icon-wrap">
-          <img src="icons/helixjump.svg" alt="helixjump" loading="lazy">
+      <a class="card" data-name="helixjump" href="games-web/helixjump.html">
+        <div class="card-icon">
+          <img src="icons/helixjump.svg" alt="helixjump" width="86" height="86">
         </div>
-        <div class="card-title">helixjump</div>
+        <div class="card-name">helixjump</div>
       </a>
-      <a class="card" href="hillclimbracinglite.html" title="hillclimbracinglite">
-        <div class="icon-wrap">
-          <img src="icons/hillclimbracinglite.svg" alt="hillclimbracinglite" loading="lazy">
+      <a class="card" data-name="hillclimbracinglite" href="games-web/hillclimbracinglite.html">
+        <div class="card-icon">
+          <img src="icons/hillclimbracinglite.svg" alt="hillclimbracinglite" width="86" height="86">
         </div>
-        <div class="card-title">hillclimbracinglite</div>
+        <div class="card-name">hillclimbracinglite</div>
       </a>
-      <a class="card" href="holeio.html" title="holeio">
-        <div class="icon-wrap">
-          <img src="icons/holeio.svg" alt="holeio" loading="lazy">
+      <a class="card" data-name="holeio" href="games-web/holeio.html">
+        <div class="card-icon">
+          <img src="icons/holeio.svg" alt="holeio" width="86" height="86">
         </div>
-        <div class="card-title">holeio</div>
+        <div class="card-name">holeio</div>
       </a>
-      <a class="card" href="houseofhazards.html" title="houseofhazards">
-        <div class="icon-wrap">
-          <img src="icons/houseofhazards.svg" alt="houseofhazards" loading="lazy">
+      <a class="card" data-name="houseofhazards" href="games-web/houseofhazards.html">
+        <div class="card-icon">
+          <img src="icons/houseofhazards.svg" alt="houseofhazards" width="86" height="86">
         </div>
-        <div class="card-title">houseofhazards</div>
+        <div class="card-name">houseofhazards</div>
       </a>
-      <a class="card" href="hoverracerdrive.html" title="hoverracerdrive">
-        <div class="icon-wrap">
-          <img src="icons/hoverracerdrive.svg" alt="hoverracerdrive" loading="lazy">
+      <a class="card" data-name="hoverracerdrive" href="games-web/hoverracerdrive.html">
+        <div class="card-icon">
+          <img src="icons/hoverracerdrive.svg" alt="hoverracerdrive" width="86" height="86">
         </div>
-        <div class="card-title">hoverracerdrive</div>
+        <div class="card-name">hoverracerdrive</div>
       </a>
-      <a class="card" href="idlebreakout.html" title="idlebreakout">
-        <div class="icon-wrap">
-          <img src="icons/idlebreakout.svg" alt="idlebreakout" loading="lazy">
+      <a class="card" data-name="idlebreakout" href="games-web/idlebreakout.html">
+        <div class="card-icon">
+          <img src="icons/idlebreakout.svg" alt="idlebreakout" width="86" height="86">
         </div>
-        <div class="card-title">idlebreakout</div>
+        <div class="card-name">idlebreakout</div>
       </a>
-      <a class="card" href="index.html" title="游戏大厅 · Game Hub">
-        <div class="icon-wrap">
-          <img src="icons/index.svg" alt="游戏大厅 · Game Hub" loading="lazy">
+      <a class="card" data-name="ironsnout" href="games-web/ironsnout.html">
+        <div class="card-icon">
+          <img src="icons/ironsnout.svg" alt="ironsnout" width="86" height="86">
         </div>
-        <div class="card-title">游戏大厅 · Game Hub</div>
+        <div class="card-name">ironsnout</div>
       </a>
-      <a class="card" href="ironsnout.html" title="ironsnout">
-        <div class="icon-wrap">
-          <img src="icons/ironsnout.svg" alt="ironsnout" loading="lazy">
+      <a class="card" data-name="jetpackjoyride" href="games-web/jetpackjoyride.html">
+        <div class="card-icon">
+          <img src="icons/jetpackjoyride.svg" alt="jetpackjoyride" width="86" height="86">
         </div>
-        <div class="card-title">ironsnout</div>
+        <div class="card-name">jetpackjoyride</div>
       </a>
-      <a class="card" href="jetpackjoyride.html" title="jetpackjoyride">
-        <div class="icon-wrap">
-          <img src="icons/jetpackjoyride.svg" alt="jetpackjoyride" loading="lazy">
+      <a class="card" data-name="johnnytrigger" href="games-web/johnnytrigger.html">
+        <div class="card-icon">
+          <img src="icons/johnnytrigger.svg" alt="johnnytrigger" width="86" height="86">
         </div>
-        <div class="card-title">jetpackjoyride</div>
+        <div class="card-name">johnnytrigger</div>
       </a>
-      <a class="card" href="johnnytrigger.html" title="johnnytrigger">
-        <div class="icon-wrap">
-          <img src="icons/johnnytrigger.svg" alt="johnnytrigger" loading="lazy">
+      <a class="card" data-name="jumping shell" href="games-web/jumpingshell.html">
+        <div class="card-icon">
+          <img src="icons/JumpingShell.svg" alt="Jumping Shell" width="86" height="86">
         </div>
-        <div class="card-title">johnnytrigger</div>
+        <div class="card-name">Jumping Shell</div>
       </a>
-      <a class="card" href="jumpingshell.html" title="jumpingshell">
-        <div class="icon-wrap">
-          <img src="icons/jumpingshell.svg" alt="jumpingshell" loading="lazy">
+      <a class="card" data-name="karatebros" href="games-web/karatebros.html">
+        <div class="card-icon">
+          <img src="icons/karatebros.svg" alt="karatebros" width="86" height="86">
         </div>
-        <div class="card-title">jumpingshell</div>
+        <div class="card-name">karatebros</div>
       </a>
-      <a class="card" href="karatebros.html" title="karatebros">
-        <div class="icon-wrap">
-          <img src="icons/karatebros.svg" alt="karatebros" loading="lazy">
+      <a class="card" data-name="learntofly" href="games-web/learntofly.html">
+        <div class="card-icon">
+          <img src="icons/learntofly.svg" alt="learntofly" width="86" height="86">
         </div>
-        <div class="card-title">karatebros</div>
+        <div class="card-name">learntofly</div>
       </a>
-      <a class="card" href="learntofly.html" title="learntofly">
-        <div class="icon-wrap">
-          <img src="icons/learntofly.svg" alt="learntofly" loading="lazy">
+      <a class="card" data-name="learntofly2" href="games-web/learntofly2.html">
+        <div class="card-icon">
+          <img src="icons/learntofly2.svg" alt="learntofly2" width="86" height="86">
         </div>
-        <div class="card-title">learntofly</div>
+        <div class="card-name">learntofly2</div>
       </a>
-      <a class="card" href="learntofly2.html" title="learntofly2">
-        <div class="icon-wrap">
-          <img src="icons/learntofly2.svg" alt="learntofly2" loading="lazy">
+      <a class="card" data-name="learntoflyidle" href="games-web/learntoflyidle.html">
+        <div class="card-icon">
+          <img src="icons/learntoflyidle.svg" alt="learntoflyidle" width="86" height="86">
         </div>
-        <div class="card-title">learntofly2</div>
+        <div class="card-name">learntoflyidle</div>
       </a>
-      <a class="card" href="learntoflyidle.html" title="learntoflyidle">
-        <div class="icon-wrap">
-          <img src="icons/learntoflyidle.svg" alt="learntoflyidle" loading="lazy">
+      <a class="card" data-name="level devil" href="games-web/leveldevil.html">
+        <div class="card-icon">
+          <img src="icons/LevelDevil.svg" alt="Level Devil" width="86" height="86">
         </div>
-        <div class="card-title">learntoflyidle</div>
+        <div class="card-name">Level Devil</div>
       </a>
-      <a class="card" href="leveldevil.html" title="Level Devil">
-        <div class="icon-wrap">
-          <img src="icons/leveldevil.svg" alt="Level Devil" loading="lazy">
+      <a class="card" data-name="melonplayground" href="games-web/melonplayground.html">
+        <div class="card-icon">
+          <img src="icons/melonplayground.svg" alt="melonplayground" width="86" height="86">
         </div>
-        <div class="card-title">Level Devil</div>
+        <div class="card-name">melonplayground</div>
       </a>
-      <a class="card" href="melonplayground.html" title="melonplayground">
-        <div class="icon-wrap">
-          <img src="icons/melonplayground.svg" alt="melonplayground" loading="lazy">
+      <a class="card" data-name="mergeroundracers" href="games-web/mergeroundracers.html">
+        <div class="card-icon">
+          <img src="icons/mergeroundracers.svg" alt="mergeroundracers" width="86" height="86">
         </div>
-        <div class="card-title">melonplayground</div>
+        <div class="card-name">mergeroundracers</div>
       </a>
-      <a class="card" href="mergeroundracers.html" title="mergeroundracers">
-        <div class="icon-wrap">
-          <img src="icons/mergeroundracers.svg" alt="mergeroundracers" loading="lazy">
+      <a class="card" data-name="minesweeper" href="games-web/minesweeper.html">
+        <div class="card-icon">
+          <img src="icons/minesweeper.svg" alt="minesweeper" width="86" height="86">
         </div>
-        <div class="card-title">mergeroundracers</div>
+        <div class="card-name">minesweeper</div>
       </a>
-      <a class="card" href="minesweeper.html" title="minesweeper">
-        <div class="icon-wrap">
-          <img src="icons/minesweeper.svg" alt="minesweeper" loading="lazy">
+      <a class="card" data-name="monstertracks" href="games-web/monstertracks.html">
+        <div class="card-icon">
+          <img src="icons/monstertracks.svg" alt="monstertracks" width="86" height="86">
         </div>
-        <div class="card-title">minesweeper</div>
+        <div class="card-name">monstertracks</div>
       </a>
-      <a class="card" href="monstertracks.html" title="monstertracks">
-        <div class="icon-wrap">
-          <img src="icons/monstertracks.svg" alt="monstertracks" loading="lazy">
+      <a class="card" data-name="motox3m2" href="games-web/motox3m2.html">
+        <div class="card-icon">
+          <img src="icons/motox3m2.svg" alt="motox3m2" width="86" height="86">
         </div>
-        <div class="card-title">monstertracks</div>
+        <div class="card-name">motox3m2</div>
       </a>
-      <a class="card" href="motox3m2.html" title="motox3m2">
-        <div class="icon-wrap">
-          <img src="icons/motox3m2.svg" alt="motox3m2" loading="lazy">
+      <a class="card" data-name="motox3m3" href="games-web/motox3m3.html">
+        <div class="card-icon">
+          <img src="icons/motox3m3.svg" alt="motox3m3" width="86" height="86">
         </div>
-        <div class="card-title">motox3m2</div>
+        <div class="card-name">motox3m3</div>
       </a>
-      <a class="card" href="motox3m3.html" title="motox3m3">
-        <div class="icon-wrap">
-          <img src="icons/motox3m3.svg" alt="motox3m3" loading="lazy">
+      <a class="card" data-name="motox3mpoolparty" href="games-web/motox3mpoolparty.html">
+        <div class="card-icon">
+          <img src="icons/motox3mpoolparty.svg" alt="motox3mpoolparty" width="86" height="86">
         </div>
-        <div class="card-title">motox3m3</div>
+        <div class="card-name">motox3mpoolparty</div>
       </a>
-      <a class="card" href="motox3mpoolparty.html" title="motox3mpoolparty">
-        <div class="icon-wrap">
-          <img src="icons/motox3mpoolparty.svg" alt="motox3mpoolparty" loading="lazy">
+      <a class="card" data-name="motox3mspookyland" href="games-web/motox3mspookyland.html">
+        <div class="card-icon">
+          <img src="icons/motox3mspookyland.svg" alt="motox3mspookyland" width="86" height="86">
         </div>
-        <div class="card-title">motox3mpoolparty</div>
+        <div class="card-name">motox3mspookyland</div>
       </a>
-      <a class="card" href="motox3mspookyland.html" title="motox3mspookyland">
-        <div class="icon-wrap">
-          <img src="icons/motox3mspookyland.svg" alt="motox3mspookyland" loading="lazy">
+      <a class="card" data-name="motox3mwinter" href="games-web/motox3mwinter.html">
+        <div class="card-icon">
+          <img src="icons/motox3mwinter.svg" alt="motox3mwinter" width="86" height="86">
         </div>
-        <div class="card-title">motox3mspookyland</div>
+        <div class="card-name">motox3mwinter</div>
       </a>
-      <a class="card" href="motox3mwinter.html" title="motox3mwinter">
-        <div class="icon-wrap">
-          <img src="icons/motox3mwinter.svg" alt="motox3mwinter" loading="lazy">
+      <a class="card" data-name="noob miner" href="games-web/noobminer.html">
+        <div class="card-icon">
+          <img src="icons/NoobMiner.svg" alt="Noob Miner" width="86" height="86">
         </div>
-        <div class="card-title">motox3mwinter</div>
+        <div class="card-name">Noob Miner</div>
       </a>
-      <a class="card" href="noobminer.html" title="Noob Miner">
-        <div class="icon-wrap">
-          <img src="icons/noobminer.svg" alt="Noob Miner" loading="lazy">
+      <a class="card" data-name="oppositeday" href="games-web/oppositeday.html">
+        <div class="card-icon">
+          <img src="icons/oppositeday.svg" alt="oppositeday" width="86" height="86">
         </div>
-        <div class="card-title">Noob Miner</div>
+        <div class="card-name">oppositeday</div>
       </a>
-      <a class="card" href="oppositeday.html" title="oppositeday">
-        <div class="icon-wrap">
-          <img src="icons/oppositeday.svg" alt="oppositeday" loading="lazy">
+      <a class="card" data-name="ovofw" href="games-web/ovo.html">
+        <div class="card-icon">
+          <img src="icons/OvOfw.svg" alt="OvOfw" width="86" height="86">
         </div>
-        <div class="card-title">oppositeday</div>
+        <div class="card-name">OvOfw</div>
       </a>
-      <a class="card" href="ovo.html" title="OvOfw">
-        <div class="icon-wrap">
-          <img src="icons/ovo.svg" alt="OvOfw" loading="lazy">
+      <a class="card" data-name="ovo 2" href="games-web/ovo2.html">
+        <div class="card-icon">
+          <img src="icons/OvO2.svg" alt="OvO 2" width="86" height="86">
         </div>
-        <div class="card-title">OvOfw</div>
+        <div class="card-name">OvO 2</div>
       </a>
-      <a class="card" href="ovo2.html" title="OvO 2">
-        <div class="icon-wrap">
-          <img src="icons/ovo2.svg" alt="OvO 2" loading="lazy">
+      <a class="card" data-name="pac man" href="games-web/pacman.html">
+        <div class="card-icon">
+          <img src="icons/PacMan.svg" alt="Pac Man" width="86" height="86">
         </div>
-        <div class="card-title">OvO 2</div>
+        <div class="card-name">Pac Man</div>
       </a>
-      <a class="card" href="pacman.html" title="Pac Man">
-        <div class="icon-wrap">
-          <img src="icons/pacman.svg" alt="Pac Man" loading="lazy">
+      <a class="card" data-name="papasburgeria" href="games-web/papasburgeria.html">
+        <div class="card-icon">
+          <img src="icons/papasburgeria.svg" alt="papasburgeria" width="86" height="86">
         </div>
-        <div class="card-title">Pac Man</div>
+        <div class="card-name">papasburgeria</div>
       </a>
-      <a class="card" href="papasburgeria.html" title="papasburgeria">
-        <div class="icon-wrap">
-          <img src="icons/papasburgeria.svg" alt="papasburgeria" loading="lazy">
+      <a class="card" data-name="papascheeseria" href="games-web/papascheeseria.html">
+        <div class="card-icon">
+          <img src="icons/papascheeseria.svg" alt="papascheeseria" width="86" height="86">
         </div>
-        <div class="card-title">papasburgeria</div>
+        <div class="card-name">papascheeseria</div>
       </a>
-      <a class="card" href="papascheeseria.html" title="papascheeseria">
-        <div class="icon-wrap">
-          <img src="icons/papascheeseria.svg" alt="papascheeseria" loading="lazy">
+      <a class="card" data-name="papascupcakeria" href="games-web/papascupcakeria.html">
+        <div class="card-icon">
+          <img src="icons/papascupcakeria.svg" alt="papascupcakeria" width="86" height="86">
         </div>
-        <div class="card-title">papascheeseria</div>
+        <div class="card-name">papascupcakeria</div>
       </a>
-      <a class="card" href="papascupcakeria.html" title="papascupcakeria">
-        <div class="icon-wrap">
-          <img src="icons/papascupcakeria.svg" alt="papascupcakeria" loading="lazy">
+      <a class="card" data-name="papasdonuteria" href="games-web/papasdonuteria.html">
+        <div class="card-icon">
+          <img src="icons/papasdonuteria.svg" alt="papasdonuteria" width="86" height="86">
         </div>
-        <div class="card-title">papascupcakeria</div>
+        <div class="card-name">papasdonuteria</div>
       </a>
-      <a class="card" href="papasdonuteria.html" title="papasdonuteria">
-        <div class="icon-wrap">
-          <img src="icons/papasdonuteria.svg" alt="papasdonuteria" loading="lazy">
+      <a class="card" data-name="papasfreezeria" href="games-web/papasfreezeria.html">
+        <div class="card-icon">
+          <img src="icons/papasfreezeria.svg" alt="papasfreezeria" width="86" height="86">
         </div>
-        <div class="card-title">papasdonuteria</div>
+        <div class="card-name">papasfreezeria</div>
       </a>
-      <a class="card" href="papasfreezeria.html" title="papasfreezeria">
-        <div class="icon-wrap">
-          <img src="icons/papasfreezeria.svg" alt="papasfreezeria" loading="lazy">
+      <a class="card" data-name="papashotdoggeria" href="games-web/papashotdoggeria.html">
+        <div class="card-icon">
+          <img src="icons/papashotdoggeria.svg" alt="papashotdoggeria" width="86" height="86">
         </div>
-        <div class="card-title">papasfreezeria</div>
+        <div class="card-name">papashotdoggeria</div>
       </a>
-      <a class="card" href="papashotdoggeria.html" title="papashotdoggeria">
-        <div class="icon-wrap">
-          <img src="icons/papashotdoggeria.svg" alt="papashotdoggeria" loading="lazy">
+      <a class="card" data-name="papaspancakeria" href="games-web/papaspancakeria.html">
+        <div class="card-icon">
+          <img src="icons/papaspancakeria.svg" alt="papaspancakeria" width="86" height="86">
         </div>
-        <div class="card-title">papashotdoggeria</div>
+        <div class="card-name">papaspancakeria</div>
       </a>
-      <a class="card" href="papaspancakeria.html" title="papaspancakeria">
-        <div class="icon-wrap">
-          <img src="icons/papaspancakeria.svg" alt="papaspancakeria" loading="lazy">
+      <a class="card" data-name="papaspastaria" href="games-web/papaspastaria.html">
+        <div class="card-icon">
+          <img src="icons/papaspastaria.svg" alt="papaspastaria" width="86" height="86">
         </div>
-        <div class="card-title">papaspancakeria</div>
+        <div class="card-name">papaspastaria</div>
       </a>
-      <a class="card" href="papaspastaria.html" title="papaspastaria">
-        <div class="icon-wrap">
-          <img src="icons/papaspastaria.svg" alt="papaspastaria" loading="lazy">
+      <a class="card" data-name="papaspizzeria" href="games-web/papaspizzeria.html">
+        <div class="card-icon">
+          <img src="icons/papaspizzeria.svg" alt="papaspizzeria" width="86" height="86">
         </div>
-        <div class="card-title">papaspastaria</div>
+        <div class="card-name">papaspizzeria</div>
       </a>
-      <a class="card" href="papaspizzeria.html" title="papaspizzeria">
-        <div class="icon-wrap">
-          <img src="icons/papaspizzeria.svg" alt="papaspizzeria" loading="lazy">
+      <a class="card" data-name="papastacomia" href="games-web/papastacomia.html">
+        <div class="card-icon">
+          <img src="icons/papastacomia.svg" alt="papastacomia" width="86" height="86">
         </div>
-        <div class="card-title">papaspizzeria</div>
+        <div class="card-name">papastacomia</div>
       </a>
-      <a class="card" href="papastacomia.html" title="papastacomia">
-        <div class="icon-wrap">
-          <img src="icons/papastacomia.svg" alt="papastacomia" loading="lazy">
+      <a class="card" data-name="papaswingeria" href="games-web/papaswingeria.html">
+        <div class="card-icon">
+          <img src="icons/papaswingeria.svg" alt="papaswingeria" width="86" height="86">
         </div>
-        <div class="card-title">papastacomia</div>
+        <div class="card-name">papaswingeria</div>
       </a>
-      <a class="card" href="papaswingeria.html" title="papaswingeria">
-        <div class="icon-wrap">
-          <img src="icons/papaswingeria.svg" alt="papaswingeria" loading="lazy">
+      <a class="card" data-name="parkingfury" href="games-web/parkingfury.html">
+        <div class="card-icon">
+          <img src="icons/parkingfury.svg" alt="parkingfury" width="86" height="86">
         </div>
-        <div class="card-title">papaswingeria</div>
+        <div class="card-name">parkingfury</div>
       </a>
-      <a class="card" href="parkingfury.html" title="parkingfury">
-        <div class="icon-wrap">
-          <img src="icons/parkingfury.svg" alt="parkingfury" loading="lazy">
+      <a class="card" data-name="parkingfury2" href="games-web/parkingfury2.html">
+        <div class="card-icon">
+          <img src="icons/parkingfury2.svg" alt="parkingfury2" width="86" height="86">
         </div>
-        <div class="card-title">parkingfury</div>
+        <div class="card-name">parkingfury2</div>
       </a>
-      <a class="card" href="parkingfury2.html" title="parkingfury2">
-        <div class="icon-wrap">
-          <img src="icons/parkingfury2.svg" alt="parkingfury2" loading="lazy">
+      <a class="card" data-name="parkingfury3" href="games-web/parkingfury3.html">
+        <div class="card-icon">
+          <img src="icons/parkingfury3.svg" alt="parkingfury3" width="86" height="86">
         </div>
-        <div class="card-title">parkingfury2</div>
+        <div class="card-name">parkingfury3</div>
       </a>
-      <a class="card" href="parkingfury3.html" title="parkingfury3">
-        <div class="icon-wrap">
-          <img src="icons/parkingfury3.svg" alt="parkingfury3" loading="lazy">
+      <a class="card" data-name="picosschool" href="games-web/picosschool.html">
+        <div class="card-icon">
+          <img src="icons/picosschool.svg" alt="picosschool" width="86" height="86">
         </div>
-        <div class="card-title">parkingfury3</div>
+        <div class="card-name">picosschool</div>
       </a>
-      <a class="card" href="picosschool.html" title="picosschool">
-        <div class="icon-wrap">
-          <img src="icons/picosschool.svg" alt="picosschool" loading="lazy">
+      <a class="card" data-name="pingpongchaos" href="games-web/pingpongchaos.html">
+        <div class="card-icon">
+          <img src="icons/pingpongchaos.svg" alt="pingpongchaos" width="86" height="86">
         </div>
-        <div class="card-title">picosschool</div>
+        <div class="card-name">pingpongchaos</div>
       </a>
-      <a class="card" href="pingpongchaos.html" title="pingpongchaos">
-        <div class="icon-wrap">
-          <img src="icons/pingpongchaos.svg" alt="pingpongchaos" loading="lazy">
+      <a class="card" data-name="pixel speedrun" href="games-web/pixelspeedrun.html">
+        <div class="card-icon">
+          <img src="icons/PixelSpeedrun.svg" alt="Pixel Speedrun" width="86" height="86">
         </div>
-        <div class="card-title">pingpongchaos</div>
+        <div class="card-name">Pixel Speedrun</div>
       </a>
-      <a class="card" href="pixelspeedrun.html" title="Pixel Speedrun">
-        <div class="icon-wrap">
-          <img src="icons/pixelspeedrun.svg" alt="Pixel Speedrun" loading="lazy">
+      <a class="card" data-name="plantsvszombies" href="games-web/plantsvszombies.html">
+        <div class="card-icon">
+          <img src="icons/plantsvszombies.svg" alt="plantsvszombies" width="86" height="86">
         </div>
-        <div class="card-title">Pixel Speedrun</div>
+        <div class="card-name">plantsvszombies</div>
       </a>
-      <a class="card" href="plantsvszombies.html" title="plantsvszombies">
-        <div class="icon-wrap">
-          <img src="icons/plantsvszombies.svg" alt="plantsvszombies" loading="lazy">
+      <a class="card" data-name="plonky" href="games-web/plonky.html">
+        <div class="card-icon">
+          <img src="icons/plonky.svg" alt="plonky" width="86" height="86">
         </div>
-        <div class="card-title">plantsvszombies</div>
+        <div class="card-name">plonky</div>
       </a>
-      <a class="card" href="plonky.html" title="plonky">
-        <div class="icon-wrap">
-          <img src="icons/plonky.svg" alt="plonky" loading="lazy">
+      <a class="card" data-name="polytrack" href="games-web/polytrack.html">
+        <div class="card-icon">
+          <img src="icons/polytrack.svg" alt="polytrack" width="86" height="86">
         </div>
-        <div class="card-title">plonky</div>
+        <div class="card-name">polytrack</div>
       </a>
-      <a class="card" href="polytrack.html" title="polytrack">
-        <div class="icon-wrap">
-          <img src="icons/polytrack.svg" alt="polytrack" loading="lazy">
+      <a class="card" data-name="poorbunny" href="games-web/poorbunny.html">
+        <div class="card-icon">
+          <img src="icons/poorbunny.svg" alt="poorbunny" width="86" height="86">
         </div>
-        <div class="card-title">polytrack</div>
+        <div class="card-name">poorbunny</div>
       </a>
-      <a class="card" href="poorbunny.html" title="poorbunny">
-        <div class="icon-wrap">
-          <img src="icons/poorbunny.svg" alt="poorbunny" loading="lazy">
+      <a class="card" data-name="pou" href="games-web/pou.html">
+        <div class="card-icon">
+          <img src="icons/pou.svg" alt="pou" width="86" height="86">
         </div>
-        <div class="card-title">poorbunny</div>
+        <div class="card-name">pou</div>
       </a>
-      <a class="card" href="pou.html" title="pou">
-        <div class="icon-wrap">
-          <img src="icons/pou.svg" alt="pou" loading="lazy">
+      <a class="card" data-name="ragdollhit" href="games-web/ragdollhit.html">
+        <div class="card-icon">
+          <img src="icons/ragdollhit.svg" alt="ragdollhit" width="86" height="86">
         </div>
-        <div class="card-title">pou</div>
+        <div class="card-name">ragdollhit</div>
       </a>
-      <a class="card" href="ragdollhit.html" title="ragdollhit">
-        <div class="icon-wrap">
-          <img src="icons/ragdollhit.svg" alt="ragdollhit" loading="lazy">
+      <a class="card" data-name="ragdollsoccer" href="games-web/ragdollsoccer.html">
+        <div class="card-icon">
+          <img src="icons/ragdollsoccer.svg" alt="ragdollsoccer" width="86" height="86">
         </div>
-        <div class="card-title">ragdollhit</div>
+        <div class="card-name">ragdollsoccer</div>
       </a>
-      <a class="card" href="ragdollsoccer.html" title="ragdollsoccer">
-        <div class="icon-wrap">
-          <img src="icons/ragdollsoccer.svg" alt="ragdollsoccer" loading="lazy">
+      <a class="card" data-name="redball4vol1" href="games-web/redball4vol1.html">
+        <div class="card-icon">
+          <img src="icons/redball4vol1.svg" alt="redball4vol1" width="86" height="86">
         </div>
-        <div class="card-title">ragdollsoccer</div>
+        <div class="card-name">redball4vol1</div>
       </a>
-      <a class="card" href="redball4vol1.html" title="redball4vol1">
-        <div class="icon-wrap">
-          <img src="icons/redball4vol1.svg" alt="redball4vol1" loading="lazy">
+      <a class="card" data-name="redball4vol2" href="games-web/redball4vol2.html">
+        <div class="card-icon">
+          <img src="icons/redball4vol2.svg" alt="redball4vol2" width="86" height="86">
         </div>
-        <div class="card-title">redball4vol1</div>
+        <div class="card-name">redball4vol2</div>
       </a>
-      <a class="card" href="redball4vol2.html" title="redball4vol2">
-        <div class="icon-wrap">
-          <img src="icons/redball4vol2.svg" alt="redball4vol2" loading="lazy">
+      <a class="card" data-name="redball4vol3" href="games-web/redball4vol3.html">
+        <div class="card-icon">
+          <img src="icons/redball4vol3.svg" alt="redball4vol3" width="86" height="86">
         </div>
-        <div class="card-title">redball4vol2</div>
+        <div class="card-name">redball4vol3</div>
       </a>
-      <a class="card" href="redball4vol3.html" title="redball4vol3">
-        <div class="icon-wrap">
-          <img src="icons/redball4vol3.svg" alt="redball4vol3" loading="lazy">
+      <a class="card" data-name="retrobowl" href="games-web/retrobowl.html">
+        <div class="card-icon">
+          <img src="icons/retrobowl.svg" alt="retrobowl" width="86" height="86">
         </div>
-        <div class="card-title">redball4vol3</div>
+        <div class="card-name">retrobowl</div>
       </a>
-      <a class="card" href="retrobowl.html" title="retrobowl">
-        <div class="icon-wrap">
-          <img src="icons/retrobowl.svg" alt="retrobowl" loading="lazy">
+      <a class="card" data-name="retrobowlcollege" href="games-web/retrobowlcollege.html">
+        <div class="card-icon">
+          <img src="icons/retrobowlcollege.svg" alt="retrobowlcollege" width="86" height="86">
         </div>
-        <div class="card-title">retrobowl</div>
+        <div class="card-name">retrobowlcollege</div>
       </a>
-      <a class="card" href="retrobowlcollege.html" title="retrobowlcollege">
-        <div class="icon-wrap">
-          <img src="icons/retrobowlcollege.svg" alt="retrobowlcollege" loading="lazy">
+      <a class="card" data-name="retrohighway" href="games-web/retrohighway.html">
+        <div class="card-icon">
+          <img src="icons/retrohighway.svg" alt="retrohighway" width="86" height="86">
         </div>
-        <div class="card-title">retrobowlcollege</div>
+        <div class="card-name">retrohighway</div>
       </a>
-      <a class="card" href="retrohighway.html" title="retrohighway">
-        <div class="icon-wrap">
-          <img src="icons/retrohighway.svg" alt="retrohighway" loading="lazy">
+      <a class="card" data-name="retro-ping-pong" href="games-web/retropingpong.html">
+        <div class="card-icon">
+          <img src="icons/RetroPingPong.svg" alt="Retro-Ping-Pong" width="86" height="86">
         </div>
-        <div class="card-title">retrohighway</div>
+        <div class="card-name">Retro-Ping-Pong</div>
       </a>
-      <a class="card" href="retropingpong.html" title="Retro-Ping-Pong">
-        <div class="icon-wrap">
-          <img src="icons/retropingpong.svg" alt="Retro-Ping-Pong" loading="lazy">
+      <a class="card" data-name="riddleschool" href="games-web/riddleschool.html">
+        <div class="card-icon">
+          <img src="icons/riddleschool.svg" alt="riddleschool" width="86" height="86">
         </div>
-        <div class="card-title">Retro-Ping-Pong</div>
+        <div class="card-name">riddleschool</div>
       </a>
-      <a class="card" href="riddleschool.html" title="riddleschool">
-        <div class="icon-wrap">
-          <img src="icons/riddleschool.svg" alt="riddleschool" loading="lazy">
+      <a class="card" data-name="riddleschool2" href="games-web/riddleschool2.html">
+        <div class="card-icon">
+          <img src="icons/riddleschool2.svg" alt="riddleschool2" width="86" height="86">
         </div>
-        <div class="card-title">riddleschool</div>
+        <div class="card-name">riddleschool2</div>
       </a>
-      <a class="card" href="riddleschool2.html" title="riddleschool2">
-        <div class="icon-wrap">
-          <img src="icons/riddleschool2.svg" alt="riddleschool2" loading="lazy">
+      <a class="card" data-name="riddleschool3" href="games-web/riddleschool3.html">
+        <div class="card-icon">
+          <img src="icons/riddleschool3.svg" alt="riddleschool3" width="86" height="86">
         </div>
-        <div class="card-title">riddleschool2</div>
+        <div class="card-name">riddleschool3</div>
       </a>
-      <a class="card" href="riddleschool3.html" title="riddleschool3">
-        <div class="icon-wrap">
-          <img src="icons/riddleschool3.svg" alt="riddleschool3" loading="lazy">
+      <a class="card" data-name="riddleschool4" href="games-web/riddleschool4.html">
+        <div class="card-icon">
+          <img src="icons/riddleschool4.svg" alt="riddleschool4" width="86" height="86">
         </div>
-        <div class="card-title">riddleschool3</div>
+        <div class="card-name">riddleschool4</div>
       </a>
-      <a class="card" href="riddleschool4.html" title="riddleschool4">
-        <div class="icon-wrap">
-          <img src="icons/riddleschool4.svg" alt="riddleschool4" loading="lazy">
+      <a class="card" data-name="rooftop snipers 2" href="games-web/rooftopsnipers2.html">
+        <div class="card-icon">
+          <img src="icons/RooftopSnipers2.svg" alt="Rooftop Snipers 2" width="86" height="86">
         </div>
-        <div class="card-title">riddleschool4</div>
+        <div class="card-name">Rooftop Snipers 2</div>
       </a>
-      <a class="card" href="rooftopsnipers2.html" title="Rooftop Snipers 2">
-        <div class="icon-wrap">
-          <img src="icons/rooftopsnipers2.svg" alt="Rooftop Snipers 2" loading="lazy">
+      <a class="card" data-name="run" href="games-web/run.html">
+        <div class="card-icon">
+          <img src="icons/run.svg" alt="run" width="86" height="86">
         </div>
-        <div class="card-title">Rooftop Snipers 2</div>
+        <div class="card-name">run</div>
       </a>
-      <a class="card" href="run.html" title="run">
-        <div class="icon-wrap">
-          <img src="icons/run.svg" alt="run" loading="lazy">
+      <a class="card" data-name="run2" href="games-web/run2.html">
+        <div class="card-icon">
+          <img src="icons/run2.svg" alt="run2" width="86" height="86">
         </div>
-        <div class="card-title">run</div>
+        <div class="card-name">run2</div>
       </a>
-      <a class="card" href="run2.html" title="run2">
-        <div class="icon-wrap">
-          <img src="icons/run2.svg" alt="run2" loading="lazy">
+      <a class="card" data-name="run3" href="games-web/run3.html">
+        <div class="card-icon">
+          <img src="icons/run3.svg" alt="run3" width="86" height="86">
         </div>
-        <div class="card-title">run2</div>
+        <div class="card-name">run3</div>
       </a>
-      <a class="card" href="run3.html" title="run3">
-        <div class="icon-wrap">
-          <img src="icons/run3.svg" alt="run3" loading="lazy">
+      <a class="card" data-name="sand" href="games-web/sandgame.html">
+        <div class="card-icon">
+          <img src="icons/Sand.svg" alt="Sand" width="86" height="86">
         </div>
-        <div class="card-title">run3</div>
+        <div class="card-name">Sand</div>
       </a>
-      <a class="card" href="sandgame.html" title="Sand">
-        <div class="icon-wrap">
-          <img src="icons/sandgame.svg" alt="Sand" loading="lazy">
+      <a class="card" data-name="shortlife" href="games-web/shortlife.html">
+        <div class="card-icon">
+          <img src="icons/shortlife.svg" alt="shortlife" width="86" height="86">
         </div>
-        <div class="card-title">Sand</div>
+        <div class="card-name">shortlife</div>
       </a>
-      <a class="card" href="shortlife.html" title="shortlife">
-        <div class="icon-wrap">
-          <img src="icons/shortlife.svg" alt="shortlife" loading="lazy">
+      <a class="card" data-name="slope2player" href="games-web/slope2player.html">
+        <div class="card-icon">
+          <img src="icons/slope2player.svg" alt="slope2player" width="86" height="86">
         </div>
-        <div class="card-title">shortlife</div>
+        <div class="card-name">slope2player</div>
       </a>
-      <a class="card" href="slope2player.html" title="slope2player">
-        <div class="icon-wrap">
-          <img src="icons/slope2player.svg" alt="slope2player" loading="lazy">
+      <a class="card" data-name="slowroads" href="games-web/slowroads.html">
+        <div class="card-icon">
+          <img src="icons/slowroads.svg" alt="slowroads" width="86" height="86">
         </div>
-        <div class="card-title">slope2player</div>
+        <div class="card-name">slowroads</div>
       </a>
-      <a class="card" href="slowroads.html" title="slowroads">
-        <div class="icon-wrap">
-          <img src="icons/slowroads.svg" alt="slowroads" loading="lazy">
+      <a class="card" data-name="super mario 64" href="games-web/sm64.html">
+        <div class="card-icon">
+          <img src="icons/SuperMario64.svg" alt="Super Mario 64" width="86" height="86">
         </div>
-        <div class="card-title">slowroads</div>
+        <div class="card-name">Super Mario 64</div>
       </a>
-      <a class="card" href="sm64.html" title="Super Mario 64">
-        <div class="icon-wrap">
-          <img src="icons/sm64.svg" alt="Super Mario 64" loading="lazy">
+      <a class="card" data-name="snowballio" href="games-web/snowballio.html">
+        <div class="card-icon">
+          <img src="icons/snowballio.svg" alt="snowballio" width="86" height="86">
         </div>
-        <div class="card-title">Super Mario 64</div>
+        <div class="card-name">snowballio</div>
       </a>
-      <a class="card" href="snowballio.html" title="snowballio">
-        <div class="icon-wrap">
-          <img src="icons/snowballio.svg" alt="snowballio" loading="lazy">
+      <a class="card" data-name="soccerbros" href="games-web/soccerbros.html">
+        <div class="card-icon">
+          <img src="icons/soccerbros.svg" alt="soccerbros" width="86" height="86">
         </div>
-        <div class="card-title">snowballio</div>
+        <div class="card-name">soccerbros</div>
       </a>
-      <a class="card" href="soccerbros.html" title="soccerbros">
-        <div class="icon-wrap">
-          <img src="icons/soccerbros.svg" alt="soccerbros" loading="lazy">
+      <a class="card" data-name="spacebar clicker" href="games-web/spacebarclicker.html">
+        <div class="card-icon">
+          <img src="icons/SPACEBARCLICKER.svg" alt="SPACEBAR CLICKER" width="86" height="86">
         </div>
-        <div class="card-title">soccerbros</div>
+        <div class="card-name">SPACEBAR CLICKER</div>
       </a>
-      <a class="card" href="spacebarclicker.html" title="SPACEBAR CLICKER">
-        <div class="icon-wrap">
-          <img src="icons/spacebarclicker.svg" alt="SPACEBAR CLICKER" loading="lazy">
+      <a class="card" data-name="spaceiskey" href="games-web/spaceiskey.html">
+        <div class="card-icon">
+          <img src="icons/spaceiskey.svg" alt="spaceiskey" width="86" height="86">
         </div>
-        <div class="card-title">SPACEBAR CLICKER</div>
+        <div class="card-name">spaceiskey</div>
       </a>
-      <a class="card" href="spaceiskey.html" title="spaceiskey">
-        <div class="icon-wrap">
-          <img src="icons/spaceiskey.svg" alt="spaceiskey" loading="lazy">
+      <a class="card" data-name="spaceiskey2" href="games-web/spaceiskey2.html">
+        <div class="card-icon">
+          <img src="icons/spaceiskey2.svg" alt="spaceiskey2" width="86" height="86">
         </div>
-        <div class="card-title">spaceiskey</div>
+        <div class="card-name">spaceiskey2</div>
       </a>
-      <a class="card" href="spaceiskey2.html" title="spaceiskey2">
-        <div class="icon-wrap">
-          <img src="icons/spaceiskey2.svg" alt="spaceiskey2" loading="lazy">
+      <a class="card" data-name="space waves" href="games-web/spacewaves.html">
+        <div class="card-icon">
+          <img src="icons/SpaceWaves.svg" alt="Space Waves" width="86" height="86">
         </div>
-        <div class="card-title">spaceiskey2</div>
+        <div class="card-name">Space Waves</div>
       </a>
-      <a class="card" href="spacewaves.html" title="Space Waves">
-        <div class="icon-wrap">
-          <img src="icons/spacewaves.svg" alt="Space Waves" loading="lazy">
+      <a class="card" data-name="speedstars" href="games-web/speedstars.html">
+        <div class="card-icon">
+          <img src="icons/speedstars.svg" alt="speedstars" width="86" height="86">
         </div>
-        <div class="card-title">Space Waves</div>
+        <div class="card-name">speedstars</div>
       </a>
-      <a class="card" href="speedstars.html" title="speedstars">
-        <div class="icon-wrap">
-          <img src="icons/speedstars.svg" alt="speedstars" loading="lazy">
+      <a class="card" data-name="sprunki" href="games-web/sprunki.html">
+        <div class="card-icon">
+          <img src="icons/Sprunki.svg" alt="Sprunki" width="86" height="86">
         </div>
-        <div class="card-title">speedstars</div>
+        <div class="card-name">Sprunki</div>
       </a>
-      <a class="card" href="sprunki.html" title="Sprunki">
-        <div class="icon-wrap">
-          <img src="icons/sprunki.svg" alt="Sprunki" loading="lazy">
+      <a class="card" data-name="stack" href="games-web/stack.html">
+        <div class="card-icon">
+          <img src="icons/stack.svg" alt="stack" width="86" height="86">
         </div>
-        <div class="card-title">Sprunki</div>
+        <div class="card-name">stack</div>
       </a>
-      <a class="card" href="stack.html" title="stack">
-        <div class="icon-wrap">
-          <img src="icons/stack.svg" alt="stack" loading="lazy">
+      <a class="card" data-name="stacktris" href="games-web/stacktris.html">
+        <div class="card-icon">
+          <img src="icons/stacktris.svg" alt="stacktris" width="86" height="86">
         </div>
-        <div class="card-title">stack</div>
+        <div class="card-name">stacktris</div>
       </a>
-      <a class="card" href="stacktris.html" title="stacktris">
-        <div class="icon-wrap">
-          <img src="icons/stacktris.svg" alt="stacktris" loading="lazy">
+      <a class="card" data-name="stateio" href="games-web/stateio.html">
+        <div class="card-icon">
+          <img src="icons/stateio.svg" alt="stateio" width="86" height="86">
         </div>
-        <div class="card-title">stacktris</div>
+        <div class="card-name">stateio</div>
       </a>
-      <a class="card" href="stateio.html" title="stateio">
-        <div class="icon-wrap">
-          <img src="icons/stateio.svg" alt="stateio" loading="lazy">
+      <a class="card" data-name="stickarchersbattle" href="games-web/stickarchersbattle.html">
+        <div class="card-icon">
+          <img src="icons/stickarchersbattle.svg" alt="stickarchersbattle" width="86" height="86">
         </div>
-        <div class="card-title">stateio</div>
+        <div class="card-name">stickarchersbattle</div>
       </a>
-      <a class="card" href="stickarchersbattle.html" title="stickarchersbattle">
-        <div class="icon-wrap">
-          <img src="icons/stickarchersbattle.svg" alt="stickarchersbattle" loading="lazy">
+      <a class="card" data-name="stickfighter" href="games-web/stickfighter.html">
+        <div class="card-icon">
+          <img src="icons/stickfighter.svg" alt="stickfighter" width="86" height="86">
         </div>
-        <div class="card-title">stickarchersbattle</div>
+        <div class="card-name">stickfighter</div>
       </a>
-      <a class="card" href="stickfighter.html" title="stickfighter">
-        <div class="icon-wrap">
-          <img src="icons/stickfighter.svg" alt="stickfighter" loading="lazy">
+      <a class="card" data-name="stickman hook" href="games-web/stickmanhook.html">
+        <div class="card-icon">
+          <img src="icons/StickmanHook.svg" alt="Stickman Hook" width="86" height="86">
         </div>
-        <div class="card-title">stickfighter</div>
+        <div class="card-name">Stickman Hook</div>
       </a>
-      <a class="card" href="stickmanhook.html" title="Stickman Hook">
-        <div class="icon-wrap">
-          <img src="icons/stickmanhook.svg" alt="Stickman Hook" loading="lazy">
+      <a class="card" data-name="stickmerge" href="games-web/stickmerge.html">
+        <div class="card-icon">
+          <img src="icons/stickmerge.svg" alt="stickmerge" width="86" height="86">
         </div>
-        <div class="card-title">Stickman Hook</div>
+        <div class="card-name">stickmerge</div>
       </a>
-      <a class="card" href="stickmerge.html" title="stickmerge">
-        <div class="icon-wrap">
-          <img src="icons/stickmerge.svg" alt="stickmerge" loading="lazy">
+      <a class="card" data-name="superliquidsoccer" href="games-web/superliquidsoccer.html">
+        <div class="card-icon">
+          <img src="icons/superliquidsoccer.svg" alt="superliquidsoccer" width="86" height="86">
         </div>
-        <div class="card-title">stickmerge</div>
+        <div class="card-name">superliquidsoccer</div>
       </a>
-      <a class="card" href="superliquidsoccer.html" title="superliquidsoccer">
-        <div class="icon-wrap">
-          <img src="icons/superliquidsoccer.svg" alt="superliquidsoccer" loading="lazy">
+      <a class="card" data-name="tabletennisworldtour" href="games-web/tabletennisworldtour.html">
+        <div class="card-icon">
+          <img src="icons/tabletennisworldtour.svg" alt="tabletennisworldtour" width="86" height="86">
         </div>
-        <div class="card-title">superliquidsoccer</div>
+        <div class="card-name">tabletennisworldtour</div>
       </a>
-      <a class="card" href="tabletennisworldtour.html" title="tabletennisworldtour">
-        <div class="icon-wrap">
-          <img src="icons/tabletennisworldtour.svg" alt="tabletennisworldtour" loading="lazy">
+      <a class="card" data-name="tag" href="games-web/tag.html">
+        <div class="card-icon">
+          <img src="icons/tag.svg" alt="tag" width="86" height="86">
         </div>
-        <div class="card-title">tabletennisworldtour</div>
+        <div class="card-name">tag</div>
       </a>
-      <a class="card" href="tag.html" title="tag">
-        <div class="icon-wrap">
-          <img src="icons/tag.svg" alt="tag" loading="lazy">
+      <a class="card" data-name="templeofboom" href="games-web/templeofboom.html">
+        <div class="card-icon">
+          <img src="icons/templeofboom.svg" alt="templeofboom" width="86" height="86">
         </div>
-        <div class="card-title">tag</div>
+        <div class="card-name">templeofboom</div>
       </a>
-      <a class="card" href="templeofboom.html" title="templeofboom">
-        <div class="icon-wrap">
-          <img src="icons/templeofboom.svg" alt="templeofboom" loading="lazy">
+      <a class="card" data-name="territorialio" href="games-web/territorialio.html">
+        <div class="card-icon">
+          <img src="icons/territorialio.svg" alt="territorialio" width="86" height="86">
         </div>
-        <div class="card-title">templeofboom</div>
+        <div class="card-name">territorialio</div>
       </a>
-      <a class="card" href="territorialio.html" title="territorialio">
-        <div class="icon-wrap">
-          <img src="icons/territorialio.svg" alt="territorialio" loading="lazy">
+      <a class="card" data-name="theimpossiblequiz" href="games-web/theimpossiblequiz.html">
+        <div class="card-icon">
+          <img src="icons/theimpossiblequiz.svg" alt="theimpossiblequiz" width="86" height="86">
         </div>
-        <div class="card-title">territorialio</div>
+        <div class="card-name">theimpossiblequiz</div>
       </a>
-      <a class="card" href="theimpossiblequiz.html" title="theimpossiblequiz">
-        <div class="icon-wrap">
-          <img src="icons/theimpossiblequiz.svg" alt="theimpossiblequiz" loading="lazy">
+      <a class="card" data-name="theimpossiblequiz2" href="games-web/theimpossiblequiz2.html">
+        <div class="card-icon">
+          <img src="icons/theimpossiblequiz2.svg" alt="theimpossiblequiz2" width="86" height="86">
         </div>
-        <div class="card-title">theimpossiblequiz</div>
+        <div class="card-name">theimpossiblequiz2</div>
       </a>
-      <a class="card" href="theimpossiblequiz2.html" title="theimpossiblequiz2">
-        <div class="icon-wrap">
-          <img src="icons/theimpossiblequiz2.svg" alt="theimpossiblequiz2" loading="lazy">
+      <a class="card" data-name="thereisnog" href="games-web/thereisnog.html">
+        <div class="card-icon">
+          <img src="icons/thereisnog.svg" alt="thereisnog" width="86" height="86">
         </div>
-        <div class="card-title">theimpossiblequiz2</div>
+        <div class="card-name">thereisnog</div>
       </a>
-      <a class="card" href="thereisnog.html" title="thereisnog">
-        <div class="icon-wrap">
-          <img src="icons/thereisnog.svg" alt="thereisnog" loading="lazy">
+      <a class="card" data-name="thisistheonlylevel" href="games-web/thisistheonlylevel.html">
+        <div class="card-icon">
+          <img src="icons/thisistheonlylevel.svg" alt="thisistheonlylevel" width="86" height="86">
         </div>
-        <div class="card-title">thereisnog</div>
+        <div class="card-name">thisistheonlylevel</div>
       </a>
-      <a class="card" href="thisistheonlylevel.html" title="thisistheonlylevel">
-        <div class="icon-wrap">
-          <img src="icons/thisistheonlylevel.svg" alt="thisistheonlylevel" loading="lazy">
+      <a class="card" data-name="thisistheonlyleveltoo" href="games-web/thisistheonlyleveltoo.html">
+        <div class="card-icon">
+          <img src="icons/thisistheonlyleveltoo.svg" alt="thisistheonlyleveltoo" width="86" height="86">
         </div>
-        <div class="card-title">thisistheonlylevel</div>
+        <div class="card-name">thisistheonlyleveltoo</div>
       </a>
-      <a class="card" href="thisistheonlyleveltoo.html" title="thisistheonlyleveltoo">
-        <div class="icon-wrap">
-          <img src="icons/thisistheonlyleveltoo.svg" alt="thisistheonlyleveltoo" loading="lazy">
+      <a class="card" data-name="timeshooter2" href="games-web/timeshooter2.html">
+        <div class="card-icon">
+          <img src="icons/timeshooter2.svg" alt="timeshooter2" width="86" height="86">
         </div>
-        <div class="card-title">thisistheonlyleveltoo</div>
+        <div class="card-name">timeshooter2</div>
       </a>
-      <a class="card" href="timeshooter2.html" title="timeshooter2">
-        <div class="icon-wrap">
-          <img src="icons/timeshooter2.svg" alt="timeshooter2" loading="lazy">
+      <a class="card" data-name="tinyfishing" href="games-web/tinyfishing.html">
+        <div class="card-icon">
+          <img src="icons/tinyfishing.svg" alt="tinyfishing" width="86" height="86">
         </div>
-        <div class="card-title">timeshooter2</div>
+        <div class="card-name">tinyfishing</div>
       </a>
-      <a class="card" href="tinyfishing.html" title="tinyfishing">
-        <div class="icon-wrap">
-          <img src="icons/tinyfishing.svg" alt="tinyfishing" loading="lazy">
+      <a class="card" data-name="trapthecat" href="games-web/trapthecat.html">
+        <div class="card-icon">
+          <img src="icons/trapthecat.svg" alt="trapthecat" width="86" height="86">
         </div>
-        <div class="card-title">tinyfishing</div>
+        <div class="card-name">trapthecat</div>
       </a>
-      <a class="card" href="trapthecat.html" title="trapthecat">
-        <div class="icon-wrap">
-          <img src="icons/trapthecat.svg" alt="trapthecat" loading="lazy">
+      <a class="card" data-name="triviacrack" href="games-web/triviacrack.html">
+        <div class="card-icon">
+          <img src="icons/triviacrack.svg" alt="triviacrack" width="86" height="86">
         </div>
-        <div class="card-title">trapthecat</div>
+        <div class="card-name">triviacrack</div>
       </a>
-      <a class="card" href="triviacrack.html" title="triviacrack">
-        <div class="icon-wrap">
-          <img src="icons/triviacrack.svg" alt="triviacrack" loading="lazy">
+      <a class="card" data-name="tubejumpers" href="games-web/tubejumpers.html">
+        <div class="card-icon">
+          <img src="icons/tubejumpers.svg" alt="tubejumpers" width="86" height="86">
         </div>
-        <div class="card-title">triviacrack</div>
+        <div class="card-name">tubejumpers</div>
       </a>
-      <a class="card" href="tubejumpers.html" title="tubejumpers">
-        <div class="icon-wrap">
-          <img src="icons/tubejumpers.svg" alt="tubejumpers" loading="lazy">
+      <a class="card" data-name="tunnelrush" href="games-web/tunnelrush.html">
+        <div class="card-icon">
+          <img src="icons/tunnelrush.svg" alt="tunnelrush" width="86" height="86">
         </div>
-        <div class="card-title">tubejumpers</div>
+        <div class="card-name">tunnelrush</div>
       </a>
-      <a class="card" href="tunnelrush.html" title="tunnelrush">
-        <div class="icon-wrap">
-          <img src="icons/tunnelrush.svg" alt="tunnelrush" loading="lazy">
+      <a class="card" data-name="unicyclehero" href="games-web/unicyclehero.html">
+        <div class="card-icon">
+          <img src="icons/unicyclehero.svg" alt="unicyclehero" width="86" height="86">
         </div>
-        <div class="card-title">tunnelrush</div>
+        <div class="card-name">unicyclehero</div>
       </a>
-      <a class="card" href="unicyclehero.html" title="unicyclehero">
-        <div class="icon-wrap">
-          <img src="icons/unicyclehero.svg" alt="unicyclehero" loading="lazy">
+      <a class="card" data-name="vex4" href="games-web/vex4.html">
+        <div class="card-icon">
+          <img src="icons/vex4.svg" alt="vex4" width="86" height="86">
         </div>
-        <div class="card-title">unicyclehero</div>
+        <div class="card-name">vex4</div>
       </a>
-      <a class="card" href="vex4.html" title="vex4">
-        <div class="icon-wrap">
-          <img src="icons/vex4.svg" alt="vex4" loading="lazy">
+      <a class="card" data-name="vex5" href="games-web/vex5.html">
+        <div class="card-icon">
+          <img src="icons/vex5.svg" alt="vex5" width="86" height="86">
         </div>
-        <div class="card-title">vex4</div>
+        <div class="card-name">vex5</div>
       </a>
-      <a class="card" href="vex5.html" title="vex5">
-        <div class="icon-wrap">
-          <img src="icons/vex5.svg" alt="vex5" loading="lazy">
+      <a class="card" data-name="vexx3m" href="games-web/vexx3m.html">
+        <div class="card-icon">
+          <img src="icons/vexx3m.svg" alt="vexx3m" width="86" height="86">
         </div>
-        <div class="card-title">vex5</div>
+        <div class="card-name">vexx3m</div>
       </a>
-      <a class="card" href="vexx3m.html" title="vexx3m">
-        <div class="icon-wrap">
-          <img src="icons/vexx3m.svg" alt="vexx3m" loading="lazy">
+      <a class="card" data-name="vexx3m2" href="games-web/vexx3m2.html">
+        <div class="card-icon">
+          <img src="icons/vexx3m2.svg" alt="vexx3m2" width="86" height="86">
         </div>
-        <div class="card-title">vexx3m</div>
+        <div class="card-name">vexx3m2</div>
       </a>
-      <a class="card" href="vexx3m2.html" title="vexx3m2">
-        <div class="icon-wrap">
-          <img src="icons/vexx3m2.svg" alt="vexx3m2" loading="lazy">
+      <a class="card" data-name="volleyrandom" href="games-web/volleyrandom.html">
+        <div class="card-icon">
+          <img src="icons/volleyrandom.svg" alt="volleyrandom" width="86" height="86">
         </div>
-        <div class="card-title">vexx3m2</div>
+        <div class="card-name">volleyrandom</div>
       </a>
-      <a class="card" href="volleyrandom.html" title="volleyrandom">
-        <div class="icon-wrap">
-          <img src="icons/volleyrandom.svg" alt="volleyrandom" loading="lazy">
+      <a class="card" data-name="webecomewhatwebehold" href="games-web/webecomewhatwebehold.html">
+        <div class="card-icon">
+          <img src="icons/webecomewhatwebehold.svg" alt="webecomewhatwebehold" width="86" height="86">
         </div>
-        <div class="card-title">volleyrandom</div>
+        <div class="card-name">webecomewhatwebehold</div>
       </a>
-      <a class="card" href="webecomewhatwebehold.html" title="webecomewhatwebehold">
-        <div class="icon-wrap">
-          <img src="icons/webecomewhatwebehold.svg" alt="webecomewhatwebehold" loading="lazy">
+      <a class="card" data-name="wheeliebike" href="games-web/wheeliebike.html">
+        <div class="card-icon">
+          <img src="icons/wheeliebike.svg" alt="wheeliebike" width="86" height="86">
         </div>
-        <div class="card-title">webecomewhatwebehold</div>
+        <div class="card-name">wheeliebike</div>
       </a>
-      <a class="card" href="wheeliebike.html" title="wheeliebike">
-        <div class="icon-wrap">
-          <img src="icons/wheeliebike.svg" alt="wheeliebike" loading="lazy">
+      <a class="card" data-name="wheely" href="games-web/wheely.html">
+        <div class="card-icon">
+          <img src="icons/wheely.svg" alt="wheely" width="86" height="86">
         </div>
-        <div class="card-title">wheeliebike</div>
+        <div class="card-name">wheely</div>
       </a>
-      <a class="card" href="wheely.html" title="wheely">
-        <div class="icon-wrap">
-          <img src="icons/wheely.svg" alt="wheely" loading="lazy">
+      <a class="card" data-name="wheely2" href="games-web/wheely2.html">
+        <div class="card-icon">
+          <img src="icons/wheely2.svg" alt="wheely2" width="86" height="86">
         </div>
-        <div class="card-title">wheely</div>
+        <div class="card-name">wheely2</div>
       </a>
-      <a class="card" href="wheely2.html" title="wheely2">
-        <div class="icon-wrap">
-          <img src="icons/wheely2.svg" alt="wheely2" loading="lazy">
+      <a class="card" data-name="wheely3" href="games-web/wheely3.html">
+        <div class="card-icon">
+          <img src="icons/wheely3.svg" alt="wheely3" width="86" height="86">
         </div>
-        <div class="card-title">wheely2</div>
+        <div class="card-name">wheely3</div>
       </a>
-      <a class="card" href="wheely3.html" title="wheely3">
-        <div class="icon-wrap">
-          <img src="icons/wheely3.svg" alt="wheely3" loading="lazy">
+      <a class="card" data-name="wheely6" href="games-web/wheely6.html">
+        <div class="card-icon">
+          <img src="icons/wheely6.svg" alt="wheely6" width="86" height="86">
         </div>
-        <div class="card-title">wheely3</div>
+        <div class="card-name">wheely6</div>
       </a>
-      <a class="card" href="wheely6.html" title="wheely6">
-        <div class="icon-wrap">
-          <img src="icons/wheely6.svg" alt="wheely6" loading="lazy">
+      <a class="card" data-name="wheely8" href="games-web/wheely8.html">
+        <div class="card-icon">
+          <img src="icons/wheely8.svg" alt="wheely8" width="86" height="86">
         </div>
-        <div class="card-title">wheely6</div>
+        <div class="card-name">wheely8</div>
       </a>
-      <a class="card" href="wheely8.html" title="wheely8">
-        <div class="icon-wrap">
-          <img src="icons/wheely8.svg" alt="wheely8" loading="lazy">
+      <a class="card" data-name="wordleunlimited" href="games-web/wordleunlimited.html">
+        <div class="card-icon">
+          <img src="icons/wordleunlimited.svg" alt="wordleunlimited" width="86" height="86">
         </div>
-        <div class="card-title">wheely8</div>
+        <div class="card-name">wordleunlimited</div>
       </a>
-      <a class="card" href="wordleunlimited.html" title="wordleunlimited">
-        <div class="icon-wrap">
-          <img src="icons/wordleunlimited.svg" alt="wordleunlimited" loading="lazy">
+      <a class="card" data-name="worldshardestgame" href="games-web/worldshardestgame.html">
+        <div class="card-icon">
+          <img src="icons/worldshardestgame.svg" alt="worldshardestgame" width="86" height="86">
         </div>
-        <div class="card-title">wordleunlimited</div>
+        <div class="card-name">worldshardestgame</div>
       </a>
-      <a class="card" href="worldshardestgame.html" title="worldshardestgame">
-        <div class="icon-wrap">
-          <img src="icons/worldshardestgame.svg" alt="worldshardestgame" loading="lazy">
+      <a class="card" data-name="worldshardestgame2" href="games-web/worldshardestgame2.html">
+        <div class="card-icon">
+          <img src="icons/worldshardestgame2.svg" alt="worldshardestgame2" width="86" height="86">
         </div>
-        <div class="card-title">worldshardestgame</div>
+        <div class="card-name">worldshardestgame2</div>
       </a>
-      <a class="card" href="worldshardestgame2.html" title="worldshardestgame2">
-        <div class="icon-wrap">
-          <img src="icons/worldshardestgame2.svg" alt="worldshardestgame2" loading="lazy">
+      <a class="card" data-name="worldshardestgame3" href="games-web/worldshardestgame3.html">
+        <div class="card-icon">
+          <img src="icons/worldshardestgame3.svg" alt="worldshardestgame3" width="86" height="86">
         </div>
-        <div class="card-title">worldshardestgame2</div>
+        <div class="card-name">worldshardestgame3</div>
       </a>
-      <a class="card" href="worldshardestgame3.html" title="worldshardestgame3">
-        <div class="icon-wrap">
-          <img src="icons/worldshardestgame3.svg" alt="worldshardestgame3" loading="lazy">
+      <a class="card" data-name="wrestlebros" href="games-web/wrestlebros.html">
+        <div class="card-icon">
+          <img src="icons/wrestlebros.svg" alt="wrestlebros" width="86" height="86">
         </div>
-        <div class="card-title">worldshardestgame3</div>
+        <div class="card-name">wrestlebros</div>
       </a>
-      <a class="card" href="wrestlebros.html" title="wrestlebros">
-        <div class="icon-wrap">
-          <img src="icons/wrestlebros.svg" alt="wrestlebros" loading="lazy">
+      <a class="card" data-name="zombierush" href="games-web/zombierush.html">
+        <div class="card-icon">
+          <img src="icons/zombierush.svg" alt="zombierush" width="86" height="86">
         </div>
-        <div class="card-title">wrestlebros</div>
-      </a>
-      <a class="card" href="zombierush.html" title="zombierush">
-        <div class="icon-wrap">
-          <img src="icons/zombierush.svg" alt="zombierush" loading="lazy">
-        </div>
-        <div class="card-title">zombierush</div>
+        <div class="card-name">zombierush</div>
       </a>
   </div>
-  <div class="no-results" id="noResults">No games found</div>
-</div>
-<script>
-(function(){
-  var input=document.getElementById("search");
-  var grid=document.getElementById("grid");
-  var cards=grid.querySelectorAll(".card");
-  var countEl=document.getElementById("count");
-  var noRes=document.getElementById("noResults");
-  var total=cards.length;
-  input.addEventListener("input",function(){
-    var q=this.value.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g,"");
-    var shown=0;
-    for(var i=0;i<cards.length;i++){
-      var c=cards[i];
-      var t=(c.getAttribute("title")||"").toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g,"");
-      var h=t.indexOf(q)!==-1;
-      c.style.display=h?"":"none";
-      if(h)shown++;
+
+  <script>
+(function() {
+  var input = document.getElementById('search');
+  var grid = document.getElementById('grid');
+  var countEl = document.getElementById('count');
+  var cards = grid.querySelectorAll('.card');
+  var total = cards.length;
+
+  input.addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    var visible = 0;
+    for (var i = 0; i < cards.length; i++) {
+      var name = cards[i].getAttribute('data-name');
+      var match = !q || name.indexOf(q) !== -1;
+      if (match) { cards[i].classList.remove('hidden'); visible++; }
+      else { cards[i].classList.add('hidden'); }
     }
-    countEl.textContent=shown+" / "+total+" games";
-    noRes.style.display=shown===0?"block":"none";
+    countEl.textContent = visible + (visible === 1 ? ' game' : ' games');
   });
 })();
-</script>
+  </script>
 </body>
 </html>
