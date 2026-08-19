@@ -1,391 +1,278 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0a0a0c">
-<title>游戏大厅 · Game Hub</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Game Hub</title>
 <style>
-  :root{
-    --bg0:#0a0a0c; --bg1:#121216;
-    --panel:#16161c; --panel2:#1c1c24;
-    --line:#26262f;
-    --text:#eef0f4; --dim:#8a8f9c;
-    --accent:#8fd0ff; --accent2:#5fe0a8;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:system-ui,-apple-system,"Sail Sans Pro","Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
-    background:linear-gradient(160deg,var(--bg0),var(--bg1) 60%,#0d0d12);
-    background-attachment:fixed;
-    color:var(--text); min-height:100vh;
-  }
-  header{
-    position:sticky; top:0; z-index:20;
-    background:rgba(10,10,12,.86);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--line);
-    padding:12px 18px;
-  }
-  .bar{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-  .logo{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;letter-spacing:.4px}
-  .logo svg{width:30px;height:30px;flex:none;display:block}
-  .logo em{font-style:normal;background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .count{font-size:12.5px;color:var(--dim);background:rgba(255,255,255,.05);
-    border:1px solid var(--line);padding:4px 12px;border-radius:999px;white-space:nowrap}
-  .search{margin-left:auto;flex:1;min-width:170px;max-width:380px;position:relative}
-  .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:var(--dim);fill:none;stroke-width:2;stroke-linecap:round;pointer-events:none}
-  .search input{
-    width:100%;padding:9px 14px 9px 38px;border-radius:8px;
-    border:1px solid var(--line);background:var(--panel);
-    color:var(--text);font-size:14.5px;outline:none;
-    transition:border-color .2s, box-shadow .2s;
-  }
-  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(143,208,255,.14)}
-  .search input::placeholder{color:var(--dim)}
-  main{max-width:1080px;margin:0 auto;padding:20px 18px 60px}
-  .meta{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;color:var(--dim)}
-  .meta b{color:var(--text);font-weight:700}
-  .meta .pill{background:rgba(143,208,255,.10);border:1px solid rgba(143,208,255,.22);color:var(--accent);padding:2px 10px;border-radius:999px;font-size:12px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-  .cell{
-    display:block;text-decoration:none;color:inherit;cursor:pointer;
-  }
-  .card{
-    width:108px;height:108px;margin:0 auto;
-    display:flex;align-items:center;justify-content:center;
-    background:var(--panel);border:1px solid var(--line);
-    border-radius:0;
-    transition:transform .18s ease, border-color .18s ease, background .18s ease;
-  }
-  .cell:hover .card{transform:translateY(-3px);border-color:rgba(143,208,255,.45);background:var(--panel2)}
-  .cell:active .card{transform:scale(.97)}
-  .icon{
-    width:86px;height:86px;
-    border-radius:0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45));
-  }
-  .name{margin-top:9px;text-align:center;font-size:12.5px;font-weight:600;line-height:1.3;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .empty{display:none;text-align:center;padding:60px 20px;color:var(--dim);font-size:14px}
-  @media (max-width:560px){
-    .grid{grid-template-columns:repeat(2,1fr);gap:10px}
-    main{padding:16px 12px 48px}
-  }
-  @media (max-width:330px){
-    .grid{grid-template-columns:repeat(2,1fr);gap:8px}
-  }
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0f1923;color:#fff;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+.header{position:sticky;top:0;z-index:100;background:rgba(15,25,35,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:12px 16px 8px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.header h1{font-size:18px;font-weight:600;letter-spacing:0.5px;margin-bottom:10px;color:#e0e0e0}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:#667;font-size:16px}
+#search{width:100%;padding:10px 14px 10px 36px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:rgba(255,255,255,0.05);color:#e0e0e0;font-size:15px;outline:none;transition:border-color .2s}
+#search:focus{border-color:rgba(255,255,255,0.25)}
+#search::placeholder{color:#556}
+.count{font-size:12px;color:#556;margin-top:8px;padding:0 2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px;padding:10px 10px 20px;justify-items:center}
+@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 12px 24px}}
+.card{display:flex;flex-direction:column;align-items:center;justify-content:center;width:108px;height:108px;border-radius:0;background:rgba(255,255,255,0.03);text-decoration:none;color:#ccc;transition:background .15s,transform .15s;padding:6px 4px}
+.card:active{background:rgba(255,255,255,0.08);transform:scale(0.95)}
+.card-icon{width:86px;height:86px;border-radius:0;object-fit:contain;display:block}
+.card-title{font-size:10px;text-align:center;margin-top:4px;line-height:1.2;max-height:2.4em;overflow:hidden;text-overflow:ellipsis;width:100%;color:#99a}
+.no-results{display:none;text-align:center;padding:60px 20px;color:#556;font-size:14px}
 </style>
 </head>
 <body>
-<header>
-  <div class="bar">
-    <div class="logo">
-      <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#8fd0ff"/><stop offset="1" stop-color="#5fe0a8"/>
-          </linearGradient>
-        </defs>
-        <path d="M15 2 L28 26 L2 26 Z" fill="none" stroke="url(#lg)" stroke-width="2.6" stroke-linejoin="round"/>
-        <path d="M15 12 L22 24 L8 24 Z" fill="url(#lg)" opacity=".9"/>
-      </svg>
-      <span>游戏大厅 <em>Game Hub</em></span>
-    </div>
-    <span class="count" id="count"></span>
-    <div class="search">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-      <input id="q" type="search" autocomplete="off" placeholder="搜索游戏 / Search games…" aria-label="搜索游戏">
-    </div>
-  </div>
-</header>
-<main>
-  <div class="meta">
-    <span class="pill">SFOS</span>
-    <span>共 <b id="shown">0</b> 款游戏</span>
-  </div>
-  <div class="grid" id="grid"></div>
-  <div class="empty" id="empty">没有找到匹配的游戏</div>
-</main>
+<div class="header">
+<h1>Game Hub</h1>
+<div class="search-wrap">
+<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke-width="2" stroke-linecap="round"/></svg>
+<input type="text" id="search" placeholder="Search games..." autocomplete="off"/>
+</div>
+<div class="count">224 games</div>
+</div>
+<div class="grid" id="grid">
+<a class="card" href="../games-web/12minibattles.html" data-name="12minibattles"><img class="card-icon" src="icons/12minibattles.svg" alt="12minibattles" loading="lazy"/><div class="card-title">12minibattles</div></a>
+<a class="card" href="../games-web/1on1soccer.html" data-name="1on1soccer"><img class="card-icon" src="icons/1on1soccer.svg" alt="1on1soccer" loading="lazy"/><div class="card-title">1on1soccer</div></a>
+<a class="card" href="../games-web/1on1tennis.html" data-name="1on1tennis"><img class="card-icon" src="icons/1on1tennis.svg" alt="1on1tennis" loading="lazy"/><div class="card-title">1on1tennis</div></a>
+<a class="card" href="../games-web/2048.html" data-name="2048"><img class="card-icon" src="icons/2048.svg" alt="2048" loading="lazy"/><div class="card-title">2048</div></a>
+<a class="card" href="../games-web/2048cupcakes.html" data-name="2048cupcakes"><img class="card-icon" src="icons/2048cupcakes.svg" alt="2048cupcakes" loading="lazy"/><div class="card-title">2048cupcakes</div></a>
+<a class="card" href="../games-web/8ballclassic.html" data-name="8ballclassic"><img class="card-icon" src="icons/8ballclassic.svg" alt="8ballclassic" loading="lazy"/><div class="card-title">8ballclassic</div></a>
+<a class="card" href="../games-web/ageofwar.html" data-name="ageofwar"><img class="card-icon" src="icons/ageofwar.svg" alt="ageofwar" loading="lazy"/><div class="card-title">ageofwar</div></a>
+<a class="card" href="../games-web/ageofwar2.html" data-name="ageofwar2"><img class="card-icon" src="icons/ageofwar2.svg" alt="ageofwar2" loading="lazy"/><div class="card-title">ageofwar2</div></a>
+<a class="card" href="../games-web/agesofconflict.html" data-name="agesofconflict"><img class="card-icon" src="icons/agesofconflict.svg" alt="agesofconflict" loading="lazy"/><div class="card-title">agesofconflict</div></a>
+<a class="card" href="../games-web/Alpha_1.2.6.html" data-name="alpha_1.2.6"><img class="card-icon" src="icons/Alpha_126.svg" alt="Alpha_1.2.6" loading="lazy"/><div class="card-title">Alpha_1.2.6</div></a>
+<a class="card" href="../games-web/amongus.html" data-name="amongus"><img class="card-icon" src="icons/amongus.svg" alt="amongus" loading="lazy"/><div class="card-title">amongus</div></a>
+<a class="card" href="../games-web/angrybirds.html" data-name="angrybirds"><img class="card-icon" src="icons/angrybirds.svg" alt="angrybirds" loading="lazy"/><div class="card-title">angrybirds</div></a>
+<a class="card" href="../games-web/angrybirdsspace.html" data-name="angrybirdsspace"><img class="card-icon" src="icons/angrybirdsspace.svg" alt="angrybirdsspace" loading="lazy"/><div class="card-title">angrybirdsspace</div></a>
+<a class="card" href="../games-web/awesometanks.html" data-name="awesometanks"><img class="card-icon" src="icons/awesometanks.svg" alt="awesometanks" loading="lazy"/><div class="card-title">awesometanks</div></a>
+<a class="card" href="../games-web/awesometanks2.html" data-name="awesometanks2"><img class="card-icon" src="icons/awesometanks2.svg" alt="awesometanks2" loading="lazy"/><div class="card-title">awesometanks2</div></a>
+<a class="card" href="../games-web/backrooms.html" data-name="backrooms"><img class="card-icon" src="icons/backrooms.svg" alt="backrooms" loading="lazy"/><div class="card-title">backrooms</div></a>
+<a class="card" href="../games-web/baconmaydie.html" data-name="baconmaydie"><img class="card-icon" src="icons/baconmaydie.svg" alt="baconmaydie" loading="lazy"/><div class="card-title">baconmaydie</div></a>
+<a class="card" href="../games-web/badicecream.html" data-name="badicecream"><img class="card-icon" src="icons/badicecream.svg" alt="badicecream" loading="lazy"/><div class="card-title">badicecream</div></a>
+<a class="card" href="../games-web/badicecream2.html" data-name="badicecream2"><img class="card-icon" src="icons/badicecream2.svg" alt="badicecream2" loading="lazy"/><div class="card-title">badicecream2</div></a>
+<a class="card" href="../games-web/badicecream3.html" data-name="badicecream3"><img class="card-icon" src="icons/badicecream3.svg" alt="badicecream3" loading="lazy"/><div class="card-title">badicecream3</div></a>
+<a class="card" href="../games-web/badpiggies.html" data-name="badpiggies"><img class="card-icon" src="icons/badpiggies.svg" alt="badpiggies" loading="lazy"/><div class="card-title">badpiggies</div></a>
+<a class="card" href="../games-web/baseballbros.html" data-name="baseballbros"><img class="card-icon" src="icons/baseballbros.svg" alt="baseballbros" loading="lazy"/><div class="card-title">baseballbros</div></a>
+<a class="card" href="../games-web/basketballlegends.html" data-name="basketballlegends"><img class="card-icon" src="icons/basketballlegends.svg" alt="basketballlegends" loading="lazy"/><div class="card-title">basketballlegends</div></a>
+<a class="card" href="../games-web/basketballstars.html" data-name="basketballstars"><img class="card-icon" src="icons/basketballstars.svg" alt="basketballstars" loading="lazy"/><div class="card-title">basketballstars</div></a>
+<a class="card" href="../games-web/basketbros.html" data-name="basketbros"><img class="card-icon" src="icons/basketbros.svg" alt="basketbros" loading="lazy"/><div class="card-title">basketbros</div></a>
+<a class="card" href="../games-web/blockysnakes.html" data-name="blockysnakes"><img class="card-icon" src="icons/blockysnakes.svg" alt="blockysnakes" loading="lazy"/><div class="card-title">blockysnakes</div></a>
+<a class="card" href="../games-web/bloonsTD.html" data-name="bloonstd"><img class="card-icon" src="icons/bloonsTD.svg" alt="bloonsTD" loading="lazy"/><div class="card-title">bloonsTD</div></a>
+<a class="card" href="../games-web/bloonsTD2.html" data-name="bloonstd2"><img class="card-icon" src="icons/bloonsTD2.svg" alt="bloonsTD2" loading="lazy"/><div class="card-title">bloonsTD2</div></a>
+<a class="card" href="../games-web/bloonsTD3.html" data-name="bloonstd3"><img class="card-icon" src="icons/bloonsTD3.svg" alt="bloonsTD3" loading="lazy"/><div class="card-title">bloonsTD3</div></a>
+<a class="card" href="../games-web/bloonsTD4.html" data-name="bloonstd4"><img class="card-icon" src="icons/bloonsTD4.svg" alt="bloonsTD4" loading="lazy"/><div class="card-title">bloonsTD4</div></a>
+<a class="card" href="../games-web/bloonsTD5.html" data-name="bloonstd5"><img class="card-icon" src="icons/bloonsTD5.svg" alt="bloonsTD5" loading="lazy"/><div class="card-title">bloonsTD5</div></a>
+<a class="card" href="../games-web/bloxorz.html" data-name="bloxorz"><img class="card-icon" src="icons/bloxorz.svg" alt="bloxorz" loading="lazy"/><div class="card-title">bloxorz</div></a>
+<a class="card" href="../games-web/blumgiracers.html" data-name="blumgiracers"><img class="card-icon" src="icons/blumgiracers.svg" alt="blumgiracers" loading="lazy"/><div class="card-title">blumgiracers</div></a>
+<a class="card" href="../games-web/blumgirocket.html" data-name="blumgirocket"><img class="card-icon" src="icons/blumgirocket.svg" alt="blumgirocket" loading="lazy"/><div class="card-title">blumgirocket</div></a>
+<a class="card" href="../games-web/bobtherobber.html" data-name="bobtherobber"><img class="card-icon" src="icons/bobtherobber.svg" alt="bobtherobber" loading="lazy"/><div class="card-title">bobtherobber</div></a>
+<a class="card" href="../games-web/bobtherobber2.html" data-name="bobtherobber2"><img class="card-icon" src="icons/bobtherobber2.svg" alt="bobtherobber2" loading="lazy"/><div class="card-title">bobtherobber2</div></a>
+<a class="card" href="../games-web/bobtherobber5.html" data-name="bobtherobber5"><img class="card-icon" src="icons/bobtherobber5.svg" alt="bobtherobber5" loading="lazy"/><div class="card-title">bobtherobber5</div></a>
+<a class="card" href="../games-web/breakingthebank.html" data-name="breakingthebank"><img class="card-icon" src="icons/breakingthebank.svg" alt="breakingthebank" loading="lazy"/><div class="card-title">breakingthebank</div></a>
+<a class="card" href="../games-web/bubbleshooter.html" data-name="bubbleshooter"><img class="card-icon" src="icons/bubbleshooter.svg" alt="bubbleshooter" loading="lazy"/><div class="card-title">bubbleshooter</div></a>
+<a class="card" href="../games-web/candycrush.html" data-name="candycrush"><img class="card-icon" src="icons/candycrush.svg" alt="candycrush" loading="lazy"/><div class="card-title">candycrush</div></a>
+<a class="card" href="../games-web/capybaraclicker.html" data-name="capybaraclicker"><img class="card-icon" src="icons/capybaraclicker.svg" alt="capybaraclicker" loading="lazy"/><div class="card-title">capybaraclicker</div></a>
+<a class="card" href="../games-web/cardrawing.html" data-name="cardrawing"><img class="card-icon" src="icons/cardrawing.svg" alt="cardrawing" loading="lazy"/><div class="card-title">cardrawing</div></a>
+<a class="card" href="../games-web/carkingarena.html" data-name="carkingarena"><img class="card-icon" src="icons/carkingarena.svg" alt="carkingarena" loading="lazy"/><div class="card-title">carkingarena</div></a>
+<a class="card" href="../games-web/chess.html" data-name="chess"><img class="card-icon" src="icons/chess.svg" alt="chess" loading="lazy"/><div class="card-title">chess</div></a>
+<a class="card" href="../games-web/choppyorc.html" data-name="choppyorc"><img class="card-icon" src="icons/choppyorc.svg" alt="choppyorc" loading="lazy"/><div class="card-title">choppyorc</div></a>
+<a class="card" href="../games-web/circloO.html" data-name="circloo"><img class="card-icon" src="icons/circloO.svg" alt="circloO" loading="lazy"/><div class="card-title">circloO</div></a>
+<a class="card" href="../games-web/circloO2.html" data-name="circloo2"><img class="card-icon" src="icons/circloO2.svg" alt="circloO2" loading="lazy"/><div class="card-title">circloO2</div></a>
+<a class="card" href="../games-web/clashofvikings.html" data-name="clashofvikings"><img class="card-icon" src="icons/clashofvikings.svg" alt="clashofvikings" loading="lazy"/><div class="card-title">clashofvikings</div></a>
+<a class="card" href="../games-web/basketrandom.html" data-name="class"><img class="card-icon" src="icons/basketrandom.svg" alt="Class" loading="lazy"/><div class="card-title">Class</div></a>
+<a class="card" href="../games-web/cleanupio.html" data-name="cleanupio"><img class="card-icon" src="icons/cleanupio.svg" alt="cleanupio" loading="lazy"/><div class="card-title">cleanupio</div></a>
+<a class="card" href="../games-web/clusterrush.html" data-name="cluster rush"><img class="card-icon" src="icons/clusterrush.svg" alt="Cluster Rush" loading="lazy"/><div class="card-title">Cluster Rush</div></a>
+<a class="card" href="../games-web/crazycars.html" data-name="crazycars"><img class="card-icon" src="icons/crazycars.svg" alt="crazycars" loading="lazy"/><div class="card-title">crazycars</div></a>
+<a class="card" href="../games-web/crazymotorcycle.html" data-name="crazymotorcycle"><img class="card-icon" src="icons/crazymotorcycle.svg" alt="crazymotorcycle" loading="lazy"/><div class="card-title">crazymotorcycle</div></a>
+<a class="card" href="../games-web/dadish.html" data-name="dadish"><img class="card-icon" src="icons/dadish.svg" alt="dadish" loading="lazy"/><div class="card-title">dadish</div></a>
+<a class="card" href="../games-web/dadish2.html" data-name="dadish2"><img class="card-icon" src="icons/dadish2.svg" alt="dadish2" loading="lazy"/><div class="card-title">dadish2</div></a>
+<a class="card" href="../games-web/dadish3.html" data-name="dadish3"><img class="card-icon" src="icons/dadish3.svg" alt="dadish3" loading="lazy"/><div class="card-title">dadish3</div></a>
+<a class="card" href="../games-web/deathrun3D.html" data-name="deathrun3d"><img class="card-icon" src="icons/deathrun3D.svg" alt="deathrun3D" loading="lazy"/><div class="card-title">deathrun3D</div></a>
+<a class="card" href="../games-web/googledino.html" data-name="dinosaur game chrome"><img class="card-icon" src="icons/googledino.svg" alt="Dinosaur Game Chrome" loading="lazy"/><div class="card-title">Dinosaur Game Chrome</div></a>
+<a class="card" href="../games-web/doodlejump.html" data-name="doodlejump"><img class="card-icon" src="icons/doodlejump.svg" alt="doodlejump" loading="lazy"/><div class="card-title">doodlejump</div></a>
+<a class="card" href="../games-web/drawclimber.html" data-name="drawclimber"><img class="card-icon" src="icons/drawclimber.svg" alt="drawclimber" loading="lazy"/><div class="card-title">drawclimber</div></a>
+<a class="card" href="../games-web/ducklife.html" data-name="ducklife"><img class="card-icon" src="icons/ducklife.svg" alt="ducklife" loading="lazy"/><div class="card-title">ducklife</div></a>
+<a class="card" href="../games-web/ducklife2.html" data-name="ducklife2"><img class="card-icon" src="icons/ducklife2.svg" alt="ducklife2" loading="lazy"/><div class="card-title">ducklife2</div></a>
+<a class="card" href="../games-web/ducklife3.html" data-name="ducklife3"><img class="card-icon" src="icons/ducklife3.svg" alt="ducklife3" loading="lazy"/><div class="card-title">ducklife3</div></a>
+<a class="card" href="../games-web/ducklife4.html" data-name="ducklife4"><img class="card-icon" src="icons/ducklife4.svg" alt="ducklife4" loading="lazy"/><div class="card-title">ducklife4</div></a>
+<a class="card" href="../games-web/ducklife5.html" data-name="ducklife5"><img class="card-icon" src="icons/ducklife5.svg" alt="ducklife5" loading="lazy"/><div class="card-title">ducklife5</div></a>
+<a class="card" href="../games-web/ducklingsio.html" data-name="ducklingsio"><img class="card-icon" src="icons/ducklingsio.svg" alt="ducklingsio" loading="lazy"/><div class="card-title">ducklingsio</div></a>
+<a class="card" href="../games-web/Beta_1.3.html" data-name="eaglercraft launcher | beta 1.3 offline"><img class="card-icon" src="icons/Beta_13.svg" alt="Eaglercraft Launcher | Beta 1.3 Offline" loading="lazy"/><div class="card-title">Eaglercraft Launcher | Beta 1.3 Offline</div></a>
+<a class="card" href="../games-web/Indev.html" data-name="eaglercraft launcher | indev offline"><img class="card-icon" src="icons/Indev.svg" alt="Eaglercraft Launcher | Indev Offline" loading="lazy"/><div class="card-title">Eaglercraft Launcher | Indev Offline</div></a>
+<a class="card" href="../games-web/eagleride.html" data-name="eagleride"><img class="card-icon" src="icons/eagleride.svg" alt="eagleride" loading="lazy"/><div class="card-title">eagleride</div></a>
+<a class="card" href="../games-web/earntodie.html" data-name="earntodie"><img class="card-icon" src="icons/earntodie.svg" alt="earntodie" loading="lazy"/><div class="card-title">earntodie</div></a>
+<a class="card" href="../games-web/earntodie2.html" data-name="earntodie2"><img class="card-icon" src="icons/earntodie2.svg" alt="earntodie2" loading="lazy"/><div class="card-title">earntodie2</div></a>
+<a class="card" href="../games-web/eggycar.html" data-name="eggycar"><img class="card-icon" src="icons/eggycar.svg" alt="eggycar" loading="lazy"/><div class="card-title">eggycar</div></a>
+<a class="card" href="../games-web/escapingtheprison.html" data-name="escapingtheprison"><img class="card-icon" src="icons/escapingtheprison.svg" alt="escapingtheprison" loading="lazy"/><div class="card-title">escapingtheprison</div></a>
+<a class="card" href="../games-web/evilglitch.html" data-name="evil glitch"><img class="card-icon" src="icons/evilglitch.svg" alt="Evil Glitch" loading="lazy"/><div class="card-title">Evil Glitch</div></a>
+<a class="card" href="../games-web/fancypantsadventure.html" data-name="fancypantsadventure"><img class="card-icon" src="icons/fancypantsadventure.svg" alt="fancypantsadventure" loading="lazy"/><div class="card-title">fancypantsadventure</div></a>
+<a class="card" href="../games-web/fancypantsadventure2.html" data-name="fancypantsadventure2"><img class="card-icon" src="icons/fancypantsadventure2.svg" alt="fancypantsadventure2" loading="lazy"/><div class="card-title">fancypantsadventure2</div></a>
+<a class="card" href="../games-web/fireboyandwatergirl.html" data-name="fireboyandwatergirl"><img class="card-icon" src="icons/fireboyandwatergirl.svg" alt="fireboyandwatergirl" loading="lazy"/><div class="card-title">fireboyandwatergirl</div></a>
+<a class="card" href="../games-web/fireboyandwatergirl2.html" data-name="fireboyandwatergirl2"><img class="card-icon" src="icons/fireboyandwatergirl2.svg" alt="fireboyandwatergirl2" loading="lazy"/><div class="card-title">fireboyandwatergirl2</div></a>
+<a class="card" href="../games-web/fireboyandwatergirl3.html" data-name="fireboyandwatergirl3"><img class="card-icon" src="icons/fireboyandwatergirl3.svg" alt="fireboyandwatergirl3" loading="lazy"/><div class="card-title">fireboyandwatergirl3</div></a>
+<a class="card" href="../games-web/fireboyandwatergirl4.html" data-name="fireboyandwatergirl4"><img class="card-icon" src="icons/fireboyandwatergirl4.svg" alt="fireboyandwatergirl4" loading="lazy"/><div class="card-title">fireboyandwatergirl4</div></a>
+<a class="card" href="../games-web/flappybird.html" data-name="flappy bird"><img class="card-icon" src="icons/flappybird.svg" alt="Flappy Bird" loading="lazy"/><div class="card-title">Flappy Bird</div></a>
+<a class="card" href="../games-web/floodrunner2.html" data-name="floodrunner2"><img class="card-icon" src="icons/floodrunner2.svg" alt="floodrunner2" loading="lazy"/><div class="card-title">floodrunner2</div></a>
+<a class="card" href="../games-web/floodrunner3.html" data-name="floodrunner3"><img class="card-icon" src="icons/floodrunner3.svg" alt="floodrunner3" loading="lazy"/><div class="card-title">floodrunner3</div></a>
+<a class="card" href="../games-web/floodrunner4.html" data-name="floodrunner4"><img class="card-icon" src="icons/floodrunner4.svg" alt="floodrunner4" loading="lazy"/><div class="card-title">floodrunner4</div></a>
+<a class="card" href="../games-web/fnaf.html" data-name="fnaf"><img class="card-icon" src="icons/fnaf.svg" alt="fnaf" loading="lazy"/><div class="card-title">fnaf</div></a>
+<a class="card" href="../games-web/fnaf4.html" data-name="fnaf-4"><img class="card-icon" src="icons/fnaf4.svg" alt="FNAF-4" loading="lazy"/><div class="card-title">FNAF-4</div></a>
+<a class="card" href="../games-web/footballbros.html" data-name="football bros! | official site"><img class="card-icon" src="icons/footballbros.svg" alt="FOOTBALL BROS! | Official Site" loading="lazy"/><div class="card-title">FOOTBALL BROS! | Official Site</div></a>
+<a class="card" href="../games-web/footballlegends.html" data-name="footballlegends"><img class="card-icon" src="icons/footballlegends.svg" alt="footballlegends" loading="lazy"/><div class="card-title">footballlegends</div></a>
+<a class="card" href="../games-web/freerider3.html" data-name="freerider3"><img class="card-icon" src="icons/freerider3.svg" alt="freerider3" loading="lazy"/><div class="card-title">freerider3</div></a>
+<a class="card" href="../games-web/fruitninja.html" data-name="fruitninja"><img class="card-icon" src="icons/fruitninja.svg" alt="fruitninja" loading="lazy"/><div class="card-title">fruitninja</div></a>
+<a class="card" href="../games-web/funnybattle.html" data-name="funnybattle"><img class="card-icon" src="icons/funnybattle.svg" alt="funnybattle" loading="lazy"/><div class="card-title">funnybattle</div></a>
+<a class="card" href="../games-web/funnybattle2.html" data-name="funnybattle2"><img class="card-icon" src="icons/funnybattle2.svg" alt="funnybattle2" loading="lazy"/><div class="card-title">funnybattle2</div></a>
+<a class="card" href="../games-web/geometrydash.html" data-name="geometry dash"><img class="card-icon" src="icons/geometrydash.svg" alt="Geometry Dash" loading="lazy"/><div class="card-title">Geometry Dash</div></a>
+<a class="card" href="../games-web/getontop.html" data-name="getontop"><img class="card-icon" src="icons/getontop.svg" alt="getontop" loading="lazy"/><div class="card-title">getontop</div></a>
+<a class="card" href="../games-web/googlebaseball.html" data-name="googlebaseball"><img class="card-icon" src="icons/googlebaseball.svg" alt="googlebaseball" loading="lazy"/><div class="card-title">googlebaseball</div></a>
+<a class="card" href="../games-web/guesstheiranswer.html" data-name="guesstheiranswer"><img class="card-icon" src="icons/guesstheiranswer.svg" alt="guesstheiranswer" loading="lazy"/><div class="card-title">guesstheiranswer</div></a>
+<a class="card" href="../games-web/hanger2.html" data-name="hanger2"><img class="card-icon" src="icons/hanger2.svg" alt="hanger2" loading="lazy"/><div class="card-title">hanger2</div></a>
+<a class="card" href="../games-web/happywheels.html" data-name="happywheels"><img class="card-icon" src="icons/happywheels.svg" alt="happywheels" loading="lazy"/><div class="card-title">happywheels</div></a>
+<a class="card" href="../games-web/helixjump.html" data-name="helixjump"><img class="card-icon" src="icons/helixjump.svg" alt="helixjump" loading="lazy"/><div class="card-title">helixjump</div></a>
+<a class="card" href="../games-web/hillclimbracinglite.html" data-name="hillclimbracinglite"><img class="card-icon" src="icons/hillclimbracinglite.svg" alt="hillclimbracinglite" loading="lazy"/><div class="card-title">hillclimbracinglite</div></a>
+<a class="card" href="../games-web/holeio.html" data-name="holeio"><img class="card-icon" src="icons/holeio.svg" alt="holeio" loading="lazy"/><div class="card-title">holeio</div></a>
+<a class="card" href="../games-web/houseofhazards.html" data-name="houseofhazards"><img class="card-icon" src="icons/houseofhazards.svg" alt="houseofhazards" loading="lazy"/><div class="card-title">houseofhazards</div></a>
+<a class="card" href="../games-web/hoverracerdrive.html" data-name="hoverracerdrive"><img class="card-icon" src="icons/hoverracerdrive.svg" alt="hoverracerdrive" loading="lazy"/><div class="card-title">hoverracerdrive</div></a>
+<a class="card" href="../games-web/idlebreakout.html" data-name="idlebreakout"><img class="card-icon" src="icons/idlebreakout.svg" alt="idlebreakout" loading="lazy"/><div class="card-title">idlebreakout</div></a>
+<a class="card" href="../games-web/ironsnout.html" data-name="ironsnout"><img class="card-icon" src="icons/ironsnout.svg" alt="ironsnout" loading="lazy"/><div class="card-title">ironsnout</div></a>
+<a class="card" href="../games-web/jetpackjoyride.html" data-name="jetpackjoyride"><img class="card-icon" src="icons/jetpackjoyride.svg" alt="jetpackjoyride" loading="lazy"/><div class="card-title">jetpackjoyride</div></a>
+<a class="card" href="../games-web/johnnytrigger.html" data-name="johnnytrigger"><img class="card-icon" src="icons/johnnytrigger.svg" alt="johnnytrigger" loading="lazy"/><div class="card-title">johnnytrigger</div></a>
+<a class="card" href="../games-web/jumpingshell.html" data-name="jumpingshell"><img class="card-icon" src="icons/jumpingshell.svg" alt="jumpingshell" loading="lazy"/><div class="card-title">jumpingshell</div></a>
+<a class="card" href="../games-web/karatebros.html" data-name="karatebros"><img class="card-icon" src="icons/karatebros.svg" alt="karatebros" loading="lazy"/><div class="card-title">karatebros</div></a>
+<a class="card" href="../games-web/learntofly.html" data-name="learntofly"><img class="card-icon" src="icons/learntofly.svg" alt="learntofly" loading="lazy"/><div class="card-title">learntofly</div></a>
+<a class="card" href="../games-web/learntofly2.html" data-name="learntofly2"><img class="card-icon" src="icons/learntofly2.svg" alt="learntofly2" loading="lazy"/><div class="card-title">learntofly2</div></a>
+<a class="card" href="../games-web/learntoflyidle.html" data-name="learntoflyidle"><img class="card-icon" src="icons/learntoflyidle.svg" alt="learntoflyidle" loading="lazy"/><div class="card-title">learntoflyidle</div></a>
+<a class="card" href="../games-web/leveldevil.html" data-name="level devil"><img class="card-icon" src="icons/leveldevil.svg" alt="Level Devil" loading="lazy"/><div class="card-title">Level Devil</div></a>
+<a class="card" href="../games-web/melonplayground.html" data-name="melonplayground"><img class="card-icon" src="icons/melonplayground.svg" alt="melonplayground" loading="lazy"/><div class="card-title">melonplayground</div></a>
+<a class="card" href="../games-web/mergeroundracers.html" data-name="mergeroundracers"><img class="card-icon" src="icons/mergeroundracers.svg" alt="mergeroundracers" loading="lazy"/><div class="card-title">mergeroundracers</div></a>
+<a class="card" href="../games-web/minesweeper.html" data-name="minesweeper"><img class="card-icon" src="icons/minesweeper.svg" alt="minesweeper" loading="lazy"/><div class="card-title">minesweeper</div></a>
+<a class="card" href="../games-web/monstertracks.html" data-name="monstertracks"><img class="card-icon" src="icons/monstertracks.svg" alt="monstertracks" loading="lazy"/><div class="card-title">monstertracks</div></a>
+<a class="card" href="../games-web/motox3m2.html" data-name="motox3m2"><img class="card-icon" src="icons/motox3m2.svg" alt="motox3m2" loading="lazy"/><div class="card-title">motox3m2</div></a>
+<a class="card" href="../games-web/motox3m3.html" data-name="motox3m3"><img class="card-icon" src="icons/motox3m3.svg" alt="motox3m3" loading="lazy"/><div class="card-title">motox3m3</div></a>
+<a class="card" href="../games-web/motox3mpoolparty.html" data-name="motox3mpoolparty"><img class="card-icon" src="icons/motox3mpoolparty.svg" alt="motox3mpoolparty" loading="lazy"/><div class="card-title">motox3mpoolparty</div></a>
+<a class="card" href="../games-web/motox3mspookyland.html" data-name="motox3mspookyland"><img class="card-icon" src="icons/motox3mspookyland.svg" alt="motox3mspookyland" loading="lazy"/><div class="card-title">motox3mspookyland</div></a>
+<a class="card" href="../games-web/motox3mwinter.html" data-name="motox3mwinter"><img class="card-icon" src="icons/motox3mwinter.svg" alt="motox3mwinter" loading="lazy"/><div class="card-title">motox3mwinter</div></a>
+<a class="card" href="../games-web/1.5.html" data-name="my drive - google drive"><img class="card-icon" src="icons/15.svg" alt="My Drive - Google Drive" loading="lazy"/><div class="card-title">My Drive - Google Drive</div></a>
+<a class="card" href="../games-web/noobminer.html" data-name="noob miner"><img class="card-icon" src="icons/noobminer.svg" alt="Noob Miner" loading="lazy"/><div class="card-title">Noob Miner</div></a>
+<a class="card" href="../games-web/oppositeday.html" data-name="oppositeday"><img class="card-icon" src="icons/oppositeday.svg" alt="oppositeday" loading="lazy"/><div class="card-title">oppositeday</div></a>
+<a class="card" href="../games-web/ovo2.html" data-name="ovo 2"><img class="card-icon" src="icons/ovo2.svg" alt="OvO 2" loading="lazy"/><div class="card-title">OvO 2</div></a>
+<a class="card" href="../games-web/ovo.html" data-name="ovofw"><img class="card-icon" src="icons/ovo.svg" alt="OvOfw" loading="lazy"/><div class="card-title">OvOfw</div></a>
+<a class="card" href="../games-web/pacman.html" data-name="pac man"><img class="card-icon" src="icons/pacman.svg" alt="Pac Man" loading="lazy"/><div class="card-title">Pac Man</div></a>
+<a class="card" href="../games-web/papasburgeria.html" data-name="papasburgeria"><img class="card-icon" src="icons/papasburgeria.svg" alt="papasburgeria" loading="lazy"/><div class="card-title">papasburgeria</div></a>
+<a class="card" href="../games-web/papascheeseria.html" data-name="papascheeseria"><img class="card-icon" src="icons/papascheeseria.svg" alt="papascheeseria" loading="lazy"/><div class="card-title">papascheeseria</div></a>
+<a class="card" href="../games-web/papascupcakeria.html" data-name="papascupcakeria"><img class="card-icon" src="icons/papascupcakeria.svg" alt="papascupcakeria" loading="lazy"/><div class="card-title">papascupcakeria</div></a>
+<a class="card" href="../games-web/papasdonuteria.html" data-name="papasdonuteria"><img class="card-icon" src="icons/papasdonuteria.svg" alt="papasdonuteria" loading="lazy"/><div class="card-title">papasdonuteria</div></a>
+<a class="card" href="../games-web/papasfreezeria.html" data-name="papasfreezeria"><img class="card-icon" src="icons/papasfreezeria.svg" alt="papasfreezeria" loading="lazy"/><div class="card-title">papasfreezeria</div></a>
+<a class="card" href="../games-web/papashotdoggeria.html" data-name="papashotdoggeria"><img class="card-icon" src="icons/papashotdoggeria.svg" alt="papashotdoggeria" loading="lazy"/><div class="card-title">papashotdoggeria</div></a>
+<a class="card" href="../games-web/papaspancakeria.html" data-name="papaspancakeria"><img class="card-icon" src="icons/papaspancakeria.svg" alt="papaspancakeria" loading="lazy"/><div class="card-title">papaspancakeria</div></a>
+<a class="card" href="../games-web/papaspastaria.html" data-name="papaspastaria"><img class="card-icon" src="icons/papaspastaria.svg" alt="papaspastaria" loading="lazy"/><div class="card-title">papaspastaria</div></a>
+<a class="card" href="../games-web/papaspizzeria.html" data-name="papaspizzeria"><img class="card-icon" src="icons/papaspizzeria.svg" alt="papaspizzeria" loading="lazy"/><div class="card-title">papaspizzeria</div></a>
+<a class="card" href="../games-web/papastacomia.html" data-name="papastacomia"><img class="card-icon" src="icons/papastacomia.svg" alt="papastacomia" loading="lazy"/><div class="card-title">papastacomia</div></a>
+<a class="card" href="../games-web/papaswingeria.html" data-name="papaswingeria"><img class="card-icon" src="icons/papaswingeria.svg" alt="papaswingeria" loading="lazy"/><div class="card-title">papaswingeria</div></a>
+<a class="card" href="../games-web/parkingfury.html" data-name="parkingfury"><img class="card-icon" src="icons/parkingfury.svg" alt="parkingfury" loading="lazy"/><div class="card-title">parkingfury</div></a>
+<a class="card" href="../games-web/parkingfury2.html" data-name="parkingfury2"><img class="card-icon" src="icons/parkingfury2.svg" alt="parkingfury2" loading="lazy"/><div class="card-title">parkingfury2</div></a>
+<a class="card" href="../games-web/parkingfury3.html" data-name="parkingfury3"><img class="card-icon" src="icons/parkingfury3.svg" alt="parkingfury3" loading="lazy"/><div class="card-title">parkingfury3</div></a>
+<a class="card" href="../games-web/picosschool.html" data-name="picosschool"><img class="card-icon" src="icons/picosschool.svg" alt="picosschool" loading="lazy"/><div class="card-title">picosschool</div></a>
+<a class="card" href="../games-web/pingpongchaos.html" data-name="pingpongchaos"><img class="card-icon" src="icons/pingpongchaos.svg" alt="pingpongchaos" loading="lazy"/><div class="card-title">pingpongchaos</div></a>
+<a class="card" href="../games-web/pixelspeedrun.html" data-name="pixel speedrun"><img class="card-icon" src="icons/pixelspeedrun.svg" alt="Pixel Speedrun" loading="lazy"/><div class="card-title">Pixel Speedrun</div></a>
+<a class="card" href="../games-web/plantsvszombies.html" data-name="plantsvszombies"><img class="card-icon" src="icons/plantsvszombies.svg" alt="plantsvszombies" loading="lazy"/><div class="card-title">plantsvszombies</div></a>
+<a class="card" href="../games-web/plonky.html" data-name="plonky"><img class="card-icon" src="icons/plonky.svg" alt="plonky" loading="lazy"/><div class="card-title">plonky</div></a>
+<a class="card" href="../games-web/polytrack.html" data-name="polytrack"><img class="card-icon" src="icons/polytrack.svg" alt="polytrack" loading="lazy"/><div class="card-title">polytrack</div></a>
+<a class="card" href="../games-web/poorbunny.html" data-name="poorbunny"><img class="card-icon" src="icons/poorbunny.svg" alt="poorbunny" loading="lazy"/><div class="card-title">poorbunny</div></a>
+<a class="card" href="../games-web/pou.html" data-name="pou"><img class="card-icon" src="icons/pou.svg" alt="pou" loading="lazy"/><div class="card-title">pou</div></a>
+<a class="card" href="../games-web/ragdollhit.html" data-name="ragdollhit"><img class="card-icon" src="icons/ragdollhit.svg" alt="ragdollhit" loading="lazy"/><div class="card-title">ragdollhit</div></a>
+<a class="card" href="../games-web/ragdollsoccer.html" data-name="ragdollsoccer"><img class="card-icon" src="icons/ragdollsoccer.svg" alt="ragdollsoccer" loading="lazy"/><div class="card-title">ragdollsoccer</div></a>
+<a class="card" href="../games-web/redball4vol1.html" data-name="redball4vol1"><img class="card-icon" src="icons/redball4vol1.svg" alt="redball4vol1" loading="lazy"/><div class="card-title">redball4vol1</div></a>
+<a class="card" href="../games-web/redball4vol2.html" data-name="redball4vol2"><img class="card-icon" src="icons/redball4vol2.svg" alt="redball4vol2" loading="lazy"/><div class="card-title">redball4vol2</div></a>
+<a class="card" href="../games-web/redball4vol3.html" data-name="redball4vol3"><img class="card-icon" src="icons/redball4vol3.svg" alt="redball4vol3" loading="lazy"/><div class="card-title">redball4vol3</div></a>
+<a class="card" href="../games-web/retropingpong.html" data-name="retro-ping-pong"><img class="card-icon" src="icons/retropingpong.svg" alt="Retro-Ping-Pong" loading="lazy"/><div class="card-title">Retro-Ping-Pong</div></a>
+<a class="card" href="../games-web/retrobowl.html" data-name="retrobowl"><img class="card-icon" src="icons/retrobowl.svg" alt="retrobowl" loading="lazy"/><div class="card-title">retrobowl</div></a>
+<a class="card" href="../games-web/retrobowlcollege.html" data-name="retrobowlcollege"><img class="card-icon" src="icons/retrobowlcollege.svg" alt="retrobowlcollege" loading="lazy"/><div class="card-title">retrobowlcollege</div></a>
+<a class="card" href="../games-web/retrohighway.html" data-name="retrohighway"><img class="card-icon" src="icons/retrohighway.svg" alt="retrohighway" loading="lazy"/><div class="card-title">retrohighway</div></a>
+<a class="card" href="../games-web/riddleschool.html" data-name="riddleschool"><img class="card-icon" src="icons/riddleschool.svg" alt="riddleschool" loading="lazy"/><div class="card-title">riddleschool</div></a>
+<a class="card" href="../games-web/riddleschool2.html" data-name="riddleschool2"><img class="card-icon" src="icons/riddleschool2.svg" alt="riddleschool2" loading="lazy"/><div class="card-title">riddleschool2</div></a>
+<a class="card" href="../games-web/riddleschool3.html" data-name="riddleschool3"><img class="card-icon" src="icons/riddleschool3.svg" alt="riddleschool3" loading="lazy"/><div class="card-title">riddleschool3</div></a>
+<a class="card" href="../games-web/riddleschool4.html" data-name="riddleschool4"><img class="card-icon" src="icons/riddleschool4.svg" alt="riddleschool4" loading="lazy"/><div class="card-title">riddleschool4</div></a>
+<a class="card" href="../games-web/rooftopsnipers2.html" data-name="rooftop snipers 2"><img class="card-icon" src="icons/rooftopsnipers2.svg" alt="Rooftop Snipers 2" loading="lazy"/><div class="card-title">Rooftop Snipers 2</div></a>
+<a class="card" href="../games-web/run.html" data-name="run"><img class="card-icon" src="icons/run.svg" alt="run" loading="lazy"/><div class="card-title">run</div></a>
+<a class="card" href="../games-web/run2.html" data-name="run2"><img class="card-icon" src="icons/run2.svg" alt="run2" loading="lazy"/><div class="card-title">run2</div></a>
+<a class="card" href="../games-web/run3.html" data-name="run3"><img class="card-icon" src="icons/run3.svg" alt="run3" loading="lazy"/><div class="card-title">run3</div></a>
+<a class="card" href="../games-web/sandgame.html" data-name="sand"><img class="card-icon" src="icons/sandgame.svg" alt="Sand" loading="lazy"/><div class="card-title">Sand</div></a>
+<a class="card" href="../games-web/1.8.html" data-name="school"><img class="card-icon" src="icons/18.svg" alt="School" loading="lazy"/><div class="card-title">School</div></a>
+<a class="card" href="../games-web/shortlife.html" data-name="shortlife"><img class="card-icon" src="icons/shortlife.svg" alt="shortlife" loading="lazy"/><div class="card-title">shortlife</div></a>
+<a class="card" href="../games-web/slope2player.html" data-name="slope2player"><img class="card-icon" src="icons/slope2player.svg" alt="slope2player" loading="lazy"/><div class="card-title">slope2player</div></a>
+<a class="card" href="../games-web/slowroads.html" data-name="slowroads"><img class="card-icon" src="icons/slowroads.svg" alt="slowroads" loading="lazy"/><div class="card-title">slowroads</div></a>
+<a class="card" href="../games-web/snowballio.html" data-name="snowballio"><img class="card-icon" src="icons/snowballio.svg" alt="snowballio" loading="lazy"/><div class="card-title">snowballio</div></a>
+<a class="card" href="../games-web/soccerbros.html" data-name="soccerbros"><img class="card-icon" src="icons/soccerbros.svg" alt="soccerbros" loading="lazy"/><div class="card-title">soccerbros</div></a>
+<a class="card" href="../games-web/agariolite.html" data-name="solo agario"><img class="card-icon" src="icons/agariolite.svg" alt="Solo Agario" loading="lazy"/><div class="card-title">Solo Agario</div></a>
+<a class="card" href="../games-web/spacewaves.html" data-name="space waves"><img class="card-icon" src="icons/spacewaves.svg" alt="Space Waves" loading="lazy"/><div class="card-title">Space Waves</div></a>
+<a class="card" href="../games-web/spacebarclicker.html" data-name="spacebar clicker"><img class="card-icon" src="icons/spacebarclicker.svg" alt="SPACEBAR CLICKER" loading="lazy"/><div class="card-title">SPACEBAR CLICKER</div></a>
+<a class="card" href="../games-web/spaceiskey.html" data-name="spaceiskey"><img class="card-icon" src="icons/spaceiskey.svg" alt="spaceiskey" loading="lazy"/><div class="card-title">spaceiskey</div></a>
+<a class="card" href="../games-web/spaceiskey2.html" data-name="spaceiskey2"><img class="card-icon" src="icons/spaceiskey2.svg" alt="spaceiskey2" loading="lazy"/><div class="card-title">spaceiskey2</div></a>
+<a class="card" href="../games-web/speedstars.html" data-name="speedstars"><img class="card-icon" src="icons/speedstars.svg" alt="speedstars" loading="lazy"/><div class="card-title">speedstars</div></a>
+<a class="card" href="../games-web/sprunki.html" data-name="sprunki"><img class="card-icon" src="icons/sprunki.svg" alt="Sprunki" loading="lazy"/><div class="card-title">Sprunki</div></a>
+<a class="card" href="../games-web/stack.html" data-name="stack"><img class="card-icon" src="icons/stack.svg" alt="stack" loading="lazy"/><div class="card-title">stack</div></a>
+<a class="card" href="../games-web/stacktris.html" data-name="stacktris"><img class="card-icon" src="icons/stacktris.svg" alt="stacktris" loading="lazy"/><div class="card-title">stacktris</div></a>
+<a class="card" href="../games-web/stateio.html" data-name="stateio"><img class="card-icon" src="icons/stateio.svg" alt="stateio" loading="lazy"/><div class="card-title">stateio</div></a>
+<a class="card" href="../games-web/stickarchersbattle.html" data-name="stickarchersbattle"><img class="card-icon" src="icons/stickarchersbattle.svg" alt="stickarchersbattle" loading="lazy"/><div class="card-title">stickarchersbattle</div></a>
+<a class="card" href="../games-web/stickfighter.html" data-name="stickfighter"><img class="card-icon" src="icons/stickfighter.svg" alt="stickfighter" loading="lazy"/><div class="card-title">stickfighter</div></a>
+<a class="card" href="../games-web/stickmanhook.html" data-name="stickman hook"><img class="card-icon" src="icons/stickmanhook.svg" alt="Stickman Hook" loading="lazy"/><div class="card-title">Stickman Hook</div></a>
+<a class="card" href="../games-web/stickmerge.html" data-name="stickmerge"><img class="card-icon" src="icons/stickmerge.svg" alt="stickmerge" loading="lazy"/><div class="card-title">stickmerge</div></a>
+<a class="card" href="../games-web/sm64.html" data-name="super mario 64"><img class="card-icon" src="icons/sm64.svg" alt="Super Mario 64" loading="lazy"/><div class="card-title">Super Mario 64</div></a>
+<a class="card" href="../games-web/superliquidsoccer.html" data-name="superliquidsoccer"><img class="card-icon" src="icons/superliquidsoccer.svg" alt="superliquidsoccer" loading="lazy"/><div class="card-title">superliquidsoccer</div></a>
+<a class="card" href="../games-web/tabletennisworldtour.html" data-name="tabletennisworldtour"><img class="card-icon" src="icons/tabletennisworldtour.svg" alt="tabletennisworldtour" loading="lazy"/><div class="card-title">tabletennisworldtour</div></a>
+<a class="card" href="../games-web/tag.html" data-name="tag"><img class="card-icon" src="icons/tag.svg" alt="tag" loading="lazy"/><div class="card-title">tag</div></a>
+<a class="card" href="../games-web/templeofboom.html" data-name="templeofboom"><img class="card-icon" src="icons/templeofboom.svg" alt="templeofboom" loading="lazy"/><div class="card-title">templeofboom</div></a>
+<a class="card" href="../games-web/territorialio.html" data-name="territorialio"><img class="card-icon" src="icons/territorialio.svg" alt="territorialio" loading="lazy"/><div class="card-title">territorialio</div></a>
+<a class="card" href="../games-web/theimpossiblequiz.html" data-name="theimpossiblequiz"><img class="card-icon" src="icons/theimpossiblequiz.svg" alt="theimpossiblequiz" loading="lazy"/><div class="card-title">theimpossiblequiz</div></a>
+<a class="card" href="../games-web/theimpossiblequiz2.html" data-name="theimpossiblequiz2"><img class="card-icon" src="icons/theimpossiblequiz2.svg" alt="theimpossiblequiz2" loading="lazy"/><div class="card-title">theimpossiblequiz2</div></a>
+<a class="card" href="../games-web/thereisnog.html" data-name="thereisnog"><img class="card-icon" src="icons/thereisnog.svg" alt="thereisnog" loading="lazy"/><div class="card-title">thereisnog</div></a>
+<a class="card" href="../games-web/thisistheonlylevel.html" data-name="thisistheonlylevel"><img class="card-icon" src="icons/thisistheonlylevel.svg" alt="thisistheonlylevel" loading="lazy"/><div class="card-title">thisistheonlylevel</div></a>
+<a class="card" href="../games-web/thisistheonlyleveltoo.html" data-name="thisistheonlyleveltoo"><img class="card-icon" src="icons/thisistheonlyleveltoo.svg" alt="thisistheonlyleveltoo" loading="lazy"/><div class="card-title">thisistheonlyleveltoo</div></a>
+<a class="card" href="../games-web/timeshooter2.html" data-name="timeshooter2"><img class="card-icon" src="icons/timeshooter2.svg" alt="timeshooter2" loading="lazy"/><div class="card-title">timeshooter2</div></a>
+<a class="card" href="../games-web/tinyfishing.html" data-name="tinyfishing"><img class="card-icon" src="icons/tinyfishing.svg" alt="tinyfishing" loading="lazy"/><div class="card-title">tinyfishing</div></a>
+<a class="card" href="../games-web/trapthecat.html" data-name="trapthecat"><img class="card-icon" src="icons/trapthecat.svg" alt="trapthecat" loading="lazy"/><div class="card-title">trapthecat</div></a>
+<a class="card" href="../games-web/triviacrack.html" data-name="triviacrack"><img class="card-icon" src="icons/triviacrack.svg" alt="triviacrack" loading="lazy"/><div class="card-title">triviacrack</div></a>
+<a class="card" href="../games-web/tubejumpers.html" data-name="tubejumpers"><img class="card-icon" src="icons/tubejumpers.svg" alt="tubejumpers" loading="lazy"/><div class="card-title">tubejumpers</div></a>
+<a class="card" href="../games-web/tunnelrush.html" data-name="tunnelrush"><img class="card-icon" src="icons/tunnelrush.svg" alt="tunnelrush" loading="lazy"/><div class="card-title">tunnelrush</div></a>
+<a class="card" href="../games-web/unicyclehero.html" data-name="unicyclehero"><img class="card-icon" src="icons/unicyclehero.svg" alt="unicyclehero" loading="lazy"/><div class="card-title">unicyclehero</div></a>
+<a class="card" href="../games-web/vex4.html" data-name="vex4"><img class="card-icon" src="icons/vex4.svg" alt="vex4" loading="lazy"/><div class="card-title">vex4</div></a>
+<a class="card" href="../games-web/vex5.html" data-name="vex5"><img class="card-icon" src="icons/vex5.svg" alt="vex5" loading="lazy"/><div class="card-title">vex5</div></a>
+<a class="card" href="../games-web/vexx3m.html" data-name="vexx3m"><img class="card-icon" src="icons/vexx3m.svg" alt="vexx3m" loading="lazy"/><div class="card-title">vexx3m</div></a>
+<a class="card" href="../games-web/vexx3m2.html" data-name="vexx3m2"><img class="card-icon" src="icons/vexx3m2.svg" alt="vexx3m2" loading="lazy"/><div class="card-title">vexx3m2</div></a>
+<a class="card" href="../games-web/volleyrandom.html" data-name="volleyrandom"><img class="card-icon" src="icons/volleyrandom.svg" alt="volleyrandom" loading="lazy"/><div class="card-title">volleyrandom</div></a>
+<a class="card" href="../games-web/webecomewhatwebehold.html" data-name="webecomewhatwebehold"><img class="card-icon" src="icons/webecomewhatwebehold.svg" alt="webecomewhatwebehold" loading="lazy"/><div class="card-title">webecomewhatwebehold</div></a>
+<a class="card" href="../games-web/wheeliebike.html" data-name="wheeliebike"><img class="card-icon" src="icons/wheeliebike.svg" alt="wheeliebike" loading="lazy"/><div class="card-title">wheeliebike</div></a>
+<a class="card" href="../games-web/wheely.html" data-name="wheely"><img class="card-icon" src="icons/wheely.svg" alt="wheely" loading="lazy"/><div class="card-title">wheely</div></a>
+<a class="card" href="../games-web/wheely2.html" data-name="wheely2"><img class="card-icon" src="icons/wheely2.svg" alt="wheely2" loading="lazy"/><div class="card-title">wheely2</div></a>
+<a class="card" href="../games-web/wheely3.html" data-name="wheely3"><img class="card-icon" src="icons/wheely3.svg" alt="wheely3" loading="lazy"/><div class="card-title">wheely3</div></a>
+<a class="card" href="../games-web/wheely6.html" data-name="wheely6"><img class="card-icon" src="icons/wheely6.svg" alt="wheely6" loading="lazy"/><div class="card-title">wheely6</div></a>
+<a class="card" href="../games-web/wheely8.html" data-name="wheely8"><img class="card-icon" src="icons/wheely8.svg" alt="wheely8" loading="lazy"/><div class="card-title">wheely8</div></a>
+<a class="card" href="../games-web/wordleunlimited.html" data-name="wordleunlimited"><img class="card-icon" src="icons/wordleunlimited.svg" alt="wordleunlimited" loading="lazy"/><div class="card-title">wordleunlimited</div></a>
+<a class="card" href="../games-web/worldshardestgame.html" data-name="worldshardestgame"><img class="card-icon" src="icons/worldshardestgame.svg" alt="worldshardestgame" loading="lazy"/><div class="card-title">worldshardestgame</div></a>
+<a class="card" href="../games-web/worldshardestgame2.html" data-name="worldshardestgame2"><img class="card-icon" src="icons/worldshardestgame2.svg" alt="worldshardestgame2" loading="lazy"/><div class="card-title">worldshardestgame2</div></a>
+<a class="card" href="../games-web/worldshardestgame3.html" data-name="worldshardestgame3"><img class="card-icon" src="icons/worldshardestgame3.svg" alt="worldshardestgame3" loading="lazy"/><div class="card-title">worldshardestgame3</div></a>
+<a class="card" href="../games-web/wrestlebros.html" data-name="wrestlebros"><img class="card-icon" src="icons/wrestlebros.svg" alt="wrestlebros" loading="lazy"/><div class="card-title">wrestlebros</div></a>
+<a class="card" href="../games-web/zombierush.html" data-name="zombierush"><img class="card-icon" src="icons/zombierush.svg" alt="zombierush" loading="lazy"/><div class="card-title">zombierush</div></a>
+</div>
+<div class="no-results" id="noResults">No games found</div>
 <script>
 (function(){
-  var GAMES = [
-{"n":"1.5","h":"../games-web/1.5.html","i":"icons/1-5.svg"},
-{"n":"1.8","h":"../games-web/1.8.html","i":"icons/1-8.svg"},
-{"n":"12 Mini Battles","h":"../games-web/12minibattles.html","i":"icons/12-mini-battles.svg"},
-{"n":"1 on 1 Soccer","h":"../games-web/1on1soccer.html","i":"icons/1-on-1-soccer.svg"},
-{"n":"1 on 1 Tennis","h":"../games-web/1on1tennis.html","i":"icons/1-on-1-tennis.svg"},
-{"n":"2048","h":"../games-web/2048.html","i":"icons/2048.svg"},
-{"n":"2048 Cupcakes","h":"../games-web/2048cupcakes.html","i":"icons/2048-cupcakes.svg"},
-{"n":"8 Ball Classic","h":"../games-web/8ballclassic.html","i":"icons/8-ball-classic.svg"},
-{"n":"Alpha 1.2.6","h":"../games-web/Alpha_1.2.6.html","i":"icons/alpha-1-2-6.svg"},
-{"n":"Beta 1.3","h":"../games-web/Beta_1.3.html","i":"icons/beta-1-3.svg"},
-{"n":"Indev","h":"../games-web/Indev.html","i":"icons/indev.svg"},
-{"n":"Agario Lite","h":"../games-web/agariolite.html","i":"icons/agario-lite.svg"},
-{"n":"Age of War","h":"../games-web/ageofwar.html","i":"icons/age-of-war.svg"},
-{"n":"Age of War 2","h":"../games-web/ageofwar2.html","i":"icons/age-of-war-2.svg"},
-{"n":"Ages of Conflict","h":"../games-web/agesofconflict.html","i":"icons/ages-of-conflict.svg"},
-{"n":"Among Us","h":"../games-web/amongus.html","i":"icons/among-us.svg"},
-{"n":"Angry Birds","h":"../games-web/angrybirds.html","i":"icons/angry-birds.svg"},
-{"n":"Angry Birds Space","h":"../games-web/angrybirdsspace.html","i":"icons/angry-birds-space.svg"},
-{"n":"Awesome Tanks","h":"../games-web/awesometanks.html","i":"icons/awesome-tanks.svg"},
-{"n":"Awesome Tanks 2","h":"../games-web/awesometanks2.html","i":"icons/awesome-tanks-2.svg"},
-{"n":"Backrooms","h":"../games-web/backrooms.html","i":"icons/backrooms.svg"},
-{"n":"Bacon May Die","h":"../games-web/baconmaydie.html","i":"icons/bacon-may-die.svg"},
-{"n":"Bad Ice Cream","h":"../games-web/badicecream.html","i":"icons/bad-ice-cream.svg"},
-{"n":"Bad Ice Cream 2","h":"../games-web/badicecream2.html","i":"icons/bad-ice-cream-2.svg"},
-{"n":"Bad Ice Cream 3","h":"../games-web/badicecream3.html","i":"icons/bad-ice-cream-3.svg"},
-{"n":"Bad Piggies","h":"../games-web/badpiggies.html","i":"icons/bad-piggies.svg"},
-{"n":"Baseball Bros","h":"../games-web/baseballbros.html","i":"icons/baseball-bros.svg"},
-{"n":"Basketball Legends","h":"../games-web/basketballlegends.html","i":"icons/basketball-legends.svg"},
-{"n":"Basketball Stars","h":"../games-web/basketballstars.html","i":"icons/basketball-stars.svg"},
-{"n":"Basket Bros","h":"../games-web/basketbros.html","i":"icons/basket-bros.svg"},
-{"n":"Basket Random","h":"../games-web/basketrandom.html","i":"icons/basket-random.svg"},
-{"n":"Blocky Snakes","h":"../games-web/blockysnakes.html","i":"icons/blocky-snakes.svg"},
-{"n":"Bloons TD","h":"../games-web/bloonsTD.html","i":"icons/bloons-td.svg"},
-{"n":"Bloons TD 2","h":"../games-web/bloonsTD2.html","i":"icons/bloons-td-2.svg"},
-{"n":"Bloons TD 3","h":"../games-web/bloonsTD3.html","i":"icons/bloons-td-3.svg"},
-{"n":"Bloons TD 4","h":"../games-web/bloonsTD4.html","i":"icons/bloons-td-4.svg"},
-{"n":"Bloons TD 5","h":"../games-web/bloonsTD5.html","i":"icons/bloons-td-5.svg"},
-{"n":"Bloxorz","h":"../games-web/bloxorz.html","i":"icons/bloxorz.svg"},
-{"n":"Blumgi Racers","h":"../games-web/blumgiracers.html","i":"icons/blumgi-racers.svg"},
-{"n":"Blumgi Rocket","h":"../games-web/blumgirocket.html","i":"icons/blumgi-rocket.svg"},
-{"n":"Bob the Robber","h":"../games-web/bobtherobber.html","i":"icons/bob-the-robber.svg"},
-{"n":"Bob the Robber 2","h":"../games-web/bobtherobber2.html","i":"icons/bob-the-robber-2.svg"},
-{"n":"Bob the Robber 5","h":"../games-web/bobtherobber5.html","i":"icons/bob-the-robber-5.svg"},
-{"n":"Breaking the Bank","h":"../games-web/breakingthebank.html","i":"icons/breaking-the-bank.svg"},
-{"n":"Bubble Shooter","h":"../games-web/bubbleshooter.html","i":"icons/bubble-shooter.svg"},
-{"n":"Candy Crush","h":"../games-web/candycrush.html","i":"icons/candy-crush.svg"},
-{"n":"Capybara Clicker","h":"../games-web/capybaraclicker.html","i":"icons/capybara-clicker.svg"},
-{"n":"Car Drawing","h":"../games-web/cardrawing.html","i":"icons/car-drawing.svg"},
-{"n":"Car King Arena","h":"../games-web/carkingarena.html","i":"icons/car-king-arena.svg"},
-{"n":"Chess","h":"../games-web/chess.html","i":"icons/chess.svg"},
-{"n":"Choppy Orc","h":"../games-web/choppyorc.html","i":"icons/choppy-orc.svg"},
-{"n":"CircloO","h":"../games-web/circloO.html","i":"icons/circloo.svg"},
-{"n":"CircloO 2","h":"../games-web/circloO2.html","i":"icons/circloo-2.svg"},
-{"n":"Clash of Vikings","h":"../games-web/clashofvikings.html","i":"icons/clash-of-vikings.svg"},
-{"n":"Cleanup IO","h":"../games-web/cleanupio.html","i":"icons/cleanup-io.svg"},
-{"n":"Cluster Rush","h":"../games-web/clusterrush.html","i":"icons/cluster-rush.svg"},
-{"n":"Crazy Cars","h":"../games-web/crazycars.html","i":"icons/crazy-cars.svg"},
-{"n":"Crazy Motorcycle","h":"../games-web/crazymotorcycle.html","i":"icons/crazy-motorcycle.svg"},
-{"n":"Dadish","h":"../games-web/dadish.html","i":"icons/dadish.svg"},
-{"n":"Dadish 2","h":"../games-web/dadish2.html","i":"icons/dadish-2.svg"},
-{"n":"Dadish 3","h":"../games-web/dadish3.html","i":"icons/dadish-3.svg"},
-{"n":"Death Run 3D","h":"../games-web/deathrun3D.html","i":"icons/death-run-3d.svg"},
-{"n":"Doodle Jump","h":"../games-web/doodlejump.html","i":"icons/doodle-jump.svg"},
-{"n":"Drawclimber","h":"../games-web/drawclimber.html","i":"icons/drawclimber.svg"},
-{"n":"Duck Life","h":"../games-web/ducklife.html","i":"icons/duck-life.svg"},
-{"n":"Duck Life 2","h":"../games-web/ducklife2.html","i":"icons/duck-life-2.svg"},
-{"n":"Duck Life 3","h":"../games-web/ducklife3.html","i":"icons/duck-life-3.svg"},
-{"n":"Duck Life 4","h":"../games-web/ducklife4.html","i":"icons/duck-life-4.svg"},
-{"n":"Duck Life 5","h":"../games-web/ducklife5.html","i":"icons/duck-life-5.svg"},
-{"n":"Ducklings IO","h":"../games-web/ducklingsio.html","i":"icons/ducklings-io.svg"},
-{"n":"Eagle Ride","h":"../games-web/eagleride.html","i":"icons/eagle-ride.svg"},
-{"n":"Earn to Die","h":"../games-web/earntodie.html","i":"icons/earn-to-die.svg"},
-{"n":"Earn to Die 2","h":"../games-web/earntodie2.html","i":"icons/earn-to-die-2.svg"},
-{"n":"Eggy Car","h":"../games-web/eggycar.html","i":"icons/eggy-car.svg"},
-{"n":"Escaping the Prison","h":"../games-web/escapingtheprison.html","i":"icons/escaping-the-prison.svg"},
-{"n":"Evil Glitch","h":"../games-web/evilglitch.html","i":"icons/evil-glitch.svg"},
-{"n":"Fancy Pants Adventure","h":"../games-web/fancypantsadventure.html","i":"icons/fancy-pants-adventure.svg"},
-{"n":"Fancy Pants Adventure 2","h":"../games-web/fancypantsadventure2.html","i":"icons/fancy-pants-adventure-2.svg"},
-{"n":"Fireboy and Watergirl","h":"../games-web/fireboyandwatergirl.html","i":"icons/fireboy-and-watergirl.svg"},
-{"n":"Fireboy and Watergirl 2","h":"../games-web/fireboyandwatergirl2.html","i":"icons/fireboy-and-watergirl-2.svg"},
-{"n":"Fireboy and Watergirl 3","h":"../games-web/fireboyandwatergirl3.html","i":"icons/fireboy-and-watergirl-3.svg"},
-{"n":"Fireboy and Watergirl 4","h":"../games-web/fireboyandwatergirl4.html","i":"icons/fireboy-and-watergirl-4.svg"},
-{"n":"Flappy Bird","h":"../games-web/flappybird.html","i":"icons/flappy-bird.svg"},
-{"n":"Flood Runner 2","h":"../games-web/floodrunner2.html","i":"icons/flood-runner-2.svg"},
-{"n":"Flood Runner 3","h":"../games-web/floodrunner3.html","i":"icons/flood-runner-3.svg"},
-{"n":"Flood Runner 4","h":"../games-web/floodrunner4.html","i":"icons/flood-runner-4.svg"},
-{"n":"Five Nights at Freddy's","h":"../games-web/fnaf.html","i":"icons/five-nights-at-freddy-s.svg"},
-{"n":"FNAF 4","h":"../games-web/fnaf4.html","i":"icons/fnaf-4.svg"},
-{"n":"Football Bros","h":"../games-web/footballbros.html","i":"icons/football-bros.svg"},
-{"n":"Football Legends","h":"../games-web/footballlegends.html","i":"icons/football-legends.svg"},
-{"n":"Free Rider 3","h":"../games-web/freerider3.html","i":"icons/free-rider-3.svg"},
-{"n":"Fruit Ninja","h":"../games-web/fruitninja.html","i":"icons/fruit-ninja.svg"},
-{"n":"Funny Battle","h":"../games-web/funnybattle.html","i":"icons/funny-battle.svg"},
-{"n":"Funny Battle 2","h":"../games-web/funnybattle2.html","i":"icons/funny-battle-2.svg"},
-{"n":"Geometry Dash","h":"../games-web/geometrydash.html","i":"icons/geometry-dash.svg"},
-{"n":"Get On Top","h":"../games-web/getontop.html","i":"icons/get-on-top.svg"},
-{"n":"Google Baseball","h":"../games-web/googlebaseball.html","i":"icons/google-baseball.svg"},
-{"n":"Chrome Dino","h":"../games-web/googledino.html","i":"icons/chrome-dino.svg"},
-{"n":"Guess Their Answer","h":"../games-web/guesstheiranswer.html","i":"icons/guess-their-answer.svg"},
-{"n":"Hanger 2","h":"../games-web/hanger2.html","i":"icons/hanger-2.svg"},
-{"n":"Happy Wheels","h":"../games-web/happywheels.html","i":"icons/happy-wheels.svg"},
-{"n":"Helix Jump","h":"../games-web/helixjump.html","i":"icons/helix-jump.svg"},
-{"n":"Hill Climb Racing Lite","h":"../games-web/hillclimbracinglite.html","i":"icons/hill-climb-racing-lite.svg"},
-{"n":"Hole IO","h":"../games-web/holeio.html","i":"icons/hole-io.svg"},
-{"n":"House of Hazards","h":"../games-web/houseofhazards.html","i":"icons/house-of-hazards.svg"},
-{"n":"Hover Racer Drive","h":"../games-web/hoverracerdrive.html","i":"icons/hover-racer-drive.svg"},
-{"n":"Idle Breakout","h":"../games-web/idlebreakout.html","i":"icons/idle-breakout.svg"},
-{"n":"Iron Snout","h":"../games-web/ironsnout.html","i":"icons/iron-snout.svg"},
-{"n":"Jetpack Joyride","h":"../games-web/jetpackjoyride.html","i":"icons/jetpack-joyride.svg"},
-{"n":"Johnny Trigger","h":"../games-web/johnnytrigger.html","i":"icons/johnny-trigger.svg"},
-{"n":"Jumping Shell","h":"../games-web/jumpingshell.html","i":"icons/jumping-shell.svg"},
-{"n":"Karate Bros","h":"../games-web/karatebros.html","i":"icons/karate-bros.svg"},
-{"n":"Learn to Fly","h":"../games-web/learntofly.html","i":"icons/learn-to-fly.svg"},
-{"n":"Learn to Fly 2","h":"../games-web/learntofly2.html","i":"icons/learn-to-fly-2.svg"},
-{"n":"Learn to Fly Idle","h":"../games-web/learntoflyidle.html","i":"icons/learn-to-fly-idle.svg"},
-{"n":"Level Devil","h":"../games-web/leveldevil.html","i":"icons/level-devil.svg"},
-{"n":"Melon Playground","h":"../games-web/melonplayground.html","i":"icons/melon-playground.svg"},
-{"n":"Merge Round Racers","h":"../games-web/mergeroundracers.html","i":"icons/merge-round-racers.svg"},
-{"n":"Minesweeper","h":"../games-web/minesweeper.html","i":"icons/minesweeper.svg"},
-{"n":"Monster Tracks","h":"../games-web/monstertracks.html","i":"icons/monster-tracks.svg"},
-{"n":"Moto X3M 2","h":"../games-web/motox3m2.html","i":"icons/moto-x3m-2.svg"},
-{"n":"Moto X3M 3","h":"../games-web/motox3m3.html","i":"icons/moto-x3m-3.svg"},
-{"n":"Moto X3M Pool Party","h":"../games-web/motox3mpoolparty.html","i":"icons/moto-x3m-pool-party.svg"},
-{"n":"Moto X3M Spooky Land","h":"../games-web/motox3mspookyland.html","i":"icons/moto-x3m-spooky-land.svg"},
-{"n":"Moto X3M Winter","h":"../games-web/motox3mwinter.html","i":"icons/moto-x3m-winter.svg"},
-{"n":"Noob Miner","h":"../games-web/noobminer.html","i":"icons/noob-miner.svg"},
-{"n":"Opposite Day","h":"../games-web/oppositeday.html","i":"icons/opposite-day.svg"},
-{"n":"OvO","h":"../games-web/ovo.html","i":"icons/ovo.svg"},
-{"n":"OvO 2","h":"../games-web/ovo2.html","i":"icons/ovo-2.svg"},
-{"n":"Pac-Man","h":"../games-web/pacman.html","i":"icons/pac-man.svg"},
-{"n":"Papa's Burgeria","h":"../games-web/papasburgeria.html","i":"icons/papa-s-burgeria.svg"},
-{"n":"Papa's Cheeseria","h":"../games-web/papascheeseria.html","i":"icons/papa-s-cheeseria.svg"},
-{"n":"Papa's Cupcakeria","h":"../games-web/papascupcakeria.html","i":"icons/papa-s-cupcakeria.svg"},
-{"n":"Papa's Donuteria","h":"../games-web/papasdonuteria.html","i":"icons/papa-s-donuteria.svg"},
-{"n":"Papa's Freezeria","h":"../games-web/papasfreezeria.html","i":"icons/papa-s-freezeria.svg"},
-{"n":"Papa's Hot Doggeria","h":"../games-web/papashotdoggeria.html","i":"icons/papa-s-hot-doggeria.svg"},
-{"n":"Papa's Pancakeria","h":"../games-web/papaspancakeria.html","i":"icons/papa-s-pancakeria.svg"},
-{"n":"Papa's Pastaria","h":"../games-web/papaspastaria.html","i":"icons/papa-s-pastaria.svg"},
-{"n":"Papa's Pizzeria","h":"../games-web/papaspizzeria.html","i":"icons/papa-s-pizzeria.svg"},
-{"n":"Papa's Taco Mia","h":"../games-web/papastacomia.html","i":"icons/papa-s-taco-mia.svg"},
-{"n":"Papa's Wingeria","h":"../games-web/papaswingeria.html","i":"icons/papa-s-wingeria.svg"},
-{"n":"Parking Fury","h":"../games-web/parkingfury.html","i":"icons/parking-fury.svg"},
-{"n":"Parking Fury 2","h":"../games-web/parkingfury2.html","i":"icons/parking-fury-2.svg"},
-{"n":"Parking Fury 3","h":"../games-web/parkingfury3.html","i":"icons/parking-fury-3.svg"},
-{"n":"Picos School","h":"../games-web/picosschool.html","i":"icons/picos-school.svg"},
-{"n":"Ping Pong Chaos","h":"../games-web/pingpongchaos.html","i":"icons/ping-pong-chaos.svg"},
-{"n":"Pixel Speedrun","h":"../games-web/pixelspeedrun.html","i":"icons/pixel-speedrun.svg"},
-{"n":"Plants vs Zombies","h":"../games-web/plantsvszombies.html","i":"icons/plants-vs-zombies.svg"},
-{"n":"Plonky","h":"../games-web/plonky.html","i":"icons/plonky.svg"},
-{"n":"Polytrack","h":"../games-web/polytrack.html","i":"icons/polytrack.svg"},
-{"n":"Poor Bunny","h":"../games-web/poorbunny.html","i":"icons/poor-bunny.svg"},
-{"n":"Pou","h":"../games-web/pou.html","i":"icons/pou.svg"},
-{"n":"Ragdoll Hit","h":"../games-web/ragdollhit.html","i":"icons/ragdoll-hit.svg"},
-{"n":"Ragdoll Soccer","h":"../games-web/ragdollsoccer.html","i":"icons/ragdoll-soccer.svg"},
-{"n":"Red Ball 4 Vol 1","h":"../games-web/redball4vol1.html","i":"icons/red-ball-4-vol-1.svg"},
-{"n":"Red Ball 4 Vol 2","h":"../games-web/redball4vol2.html","i":"icons/red-ball-4-vol-2.svg"},
-{"n":"Red Ball 4 Vol 3","h":"../games-web/redball4vol3.html","i":"icons/red-ball-4-vol-3.svg"},
-{"n":"Retro Bowl","h":"../games-web/retrobowl.html","i":"icons/retro-bowl.svg"},
-{"n":"Retro Bowl College","h":"../games-web/retrobowlcollege.html","i":"icons/retro-bowl-college.svg"},
-{"n":"Retro Highway","h":"../games-web/retrohighway.html","i":"icons/retro-highway.svg"},
-{"n":"Retro Ping Pong","h":"../games-web/retropingpong.html","i":"icons/retro-ping-pong.svg"},
-{"n":"Riddle School","h":"../games-web/riddleschool.html","i":"icons/riddle-school.svg"},
-{"n":"Riddle School 2","h":"../games-web/riddleschool2.html","i":"icons/riddle-school-2.svg"},
-{"n":"Riddle School 3","h":"../games-web/riddleschool3.html","i":"icons/riddle-school-3.svg"},
-{"n":"Riddle School 4","h":"../games-web/riddleschool4.html","i":"icons/riddle-school-4.svg"},
-{"n":"Rooftop Snipers 2","h":"../games-web/rooftopsnipers2.html","i":"icons/rooftop-snipers-2.svg"},
-{"n":"Run","h":"../games-web/run.html","i":"icons/run.svg"},
-{"n":"Run 2","h":"../games-web/run2.html","i":"icons/run-2.svg"},
-{"n":"Run 3","h":"../games-web/run3.html","i":"icons/run-3.svg"},
-{"n":"Sand","h":"../games-web/sandgame.html","i":"icons/sand.svg"},
-{"n":"Short Life","h":"../games-web/shortlife.html","i":"icons/short-life.svg"},
-{"n":"Slope 2 Player","h":"../games-web/slope2player.html","i":"icons/slope-2-player.svg"},
-{"n":"Slow Roads","h":"../games-web/slowroads.html","i":"icons/slow-roads.svg"},
-{"n":"Super Mario 64","h":"../games-web/sm64.html","i":"icons/super-mario-64.svg"},
-{"n":"Snowball IO","h":"../games-web/snowballio.html","i":"icons/snowball-io.svg"},
-{"n":"Soccer Bros","h":"../games-web/soccerbros.html","i":"icons/soccer-bros.svg"},
-{"n":"Spacebar Clicker","h":"../games-web/spacebarclicker.html","i":"icons/spacebar-clicker.svg"},
-{"n":"Space is Key","h":"../games-web/spaceiskey.html","i":"icons/space-is-key.svg"},
-{"n":"Space is Key 2","h":"../games-web/spaceiskey2.html","i":"icons/space-is-key-2.svg"},
-{"n":"Space Waves","h":"../games-web/spacewaves.html","i":"icons/space-waves.svg"},
-{"n":"Speed Stars","h":"../games-web/speedstars.html","i":"icons/speed-stars.svg"},
-{"n":"Sprunki","h":"../games-web/sprunki.html","i":"icons/sprunki.svg"},
-{"n":"Stack","h":"../games-web/stack.html","i":"icons/stack.svg"},
-{"n":"Stacktris","h":"../games-web/stacktris.html","i":"icons/stacktris.svg"},
-{"n":"State IO","h":"../games-web/stateio.html","i":"icons/state-io.svg"},
-{"n":"Stick Archers Battle","h":"../games-web/stickarchersbattle.html","i":"icons/stick-archers-battle.svg"},
-{"n":"Stick Fighter","h":"../games-web/stickfighter.html","i":"icons/stick-fighter.svg"},
-{"n":"Stickman Hook","h":"../games-web/stickmanhook.html","i":"icons/stickman-hook.svg"},
-{"n":"Stick Merge","h":"../games-web/stickmerge.html","i":"icons/stick-merge.svg"},
-{"n":"Super Liquid Soccer","h":"../games-web/superliquidsoccer.html","i":"icons/super-liquid-soccer.svg"},
-{"n":"Table Tennis World Tour","h":"../games-web/tabletennisworldtour.html","i":"icons/table-tennis-world-tour.svg"},
-{"n":"Tag","h":"../games-web/tag.html","i":"icons/tag.svg"},
-{"n":"Temple of Boom","h":"../games-web/templeofboom.html","i":"icons/temple-of-boom.svg"},
-{"n":"Territorial IO","h":"../games-web/territorialio.html","i":"icons/territorial-io.svg"},
-{"n":"The Impossible Quiz","h":"../games-web/theimpossiblequiz.html","i":"icons/the-impossible-quiz.svg"},
-{"n":"The Impossible Quiz 2","h":"../games-web/theimpossiblequiz2.html","i":"icons/the-impossible-quiz-2.svg"},
-{"n":"There Is No Game","h":"../games-web/thereisnog.html","i":"icons/there-is-no-game.svg"},
-{"n":"This Is The Only Level","h":"../games-web/thisistheonlylevel.html","i":"icons/this-is-the-only-level.svg"},
-{"n":"This Is The Only Level Too","h":"../games-web/thisistheonlyleveltoo.html","i":"icons/this-is-the-only-level-too.svg"},
-{"n":"Time Shooter 2","h":"../games-web/timeshooter2.html","i":"icons/time-shooter-2.svg"},
-{"n":"Tiny Fishing","h":"../games-web/tinyfishing.html","i":"icons/tiny-fishing.svg"},
-{"n":"Trap The Cat","h":"../games-web/trapthecat.html","i":"icons/trap-the-cat.svg"},
-{"n":"Trivia Crack","h":"../games-web/triviacrack.html","i":"icons/trivia-crack.svg"},
-{"n":"Tube Jumpers","h":"../games-web/tubejumpers.html","i":"icons/tube-jumpers.svg"},
-{"n":"Tunnel Rush","h":"../games-web/tunnelrush.html","i":"icons/tunnel-rush.svg"},
-{"n":"Unicycle Hero","h":"../games-web/unicyclehero.html","i":"icons/unicycle-hero.svg"},
-{"n":"Vex 4","h":"../games-web/vex4.html","i":"icons/vex-4.svg"},
-{"n":"Vex 5","h":"../games-web/vex5.html","i":"icons/vex-5.svg"},
-{"n":"Vexx 3M","h":"../games-web/vexx3m.html","i":"icons/vexx-3m.svg"},
-{"n":"Vexx 3M 2","h":"../games-web/vexx3m2.html","i":"icons/vexx-3m-2.svg"},
-{"n":"Volley Random","h":"../games-web/volleyrandom.html","i":"icons/volley-random.svg"},
-{"n":"We Become What We Behold","h":"../games-web/webecomewhatwebehold.html","i":"icons/we-become-what-we-behold.svg"},
-{"n":"Wheelie Bike","h":"../games-web/wheeliebike.html","i":"icons/wheelie-bike.svg"},
-{"n":"Wheely","h":"../games-web/wheely.html","i":"icons/wheely.svg"},
-{"n":"Wheely 2","h":"../games-web/wheely2.html","i":"icons/wheely-2.svg"},
-{"n":"Wheely 3","h":"../games-web/wheely3.html","i":"icons/wheely-3.svg"},
-{"n":"Wheely 6","h":"../games-web/wheely6.html","i":"icons/wheely-6.svg"},
-{"n":"Wheely 8","h":"../games-web/wheely8.html","i":"icons/wheely-8.svg"},
-{"n":"Wordle Unlimited","h":"../games-web/wordleunlimited.html","i":"icons/wordle-unlimited.svg"},
-{"n":"World's Hardest Game","h":"../games-web/worldshardestgame.html","i":"icons/world-s-hardest-game.svg"},
-{"n":"World's Hardest Game 2","h":"../games-web/worldshardestgame2.html","i":"icons/world-s-hardest-game-2.svg"},
-{"n":"World's Hardest Game 3","h":"../games-web/worldshardestgame3.html","i":"icons/world-s-hardest-game-3.svg"},
-{"n":"Wrestle Bros","h":"../games-web/wrestlebros.html","i":"icons/wrestle-bros.svg"},
-{"n":"Zombie Rush","h":"../games-web/zombierush.html","i":"icons/zombie-rush.svg"}
-  ];
-  var grid = document.getElementById('grid');
-  var q = document.getElementById('q');
-  var shown = document.getElementById('shown');
-  var empty = document.getElementById('empty');
-  var count = document.getElementById('count');
-  count.textContent = GAMES.length + ' 款游戏';
-
-  function el(g){
-    var a = document.createElement('a');
-    a.className = 'cell';
-    a.href = g.h;
-    a.setAttribute('data-name', g.n.toLowerCase());
-    var box = document.createElement('div');
-    box.className = 'card';
-    var img = document.createElement('img');
-    img.className = 'icon';
-    img.src = g.i;
-    img.alt = g.n;
-    img.loading = 'lazy';
-    box.appendChild(img);
-    var name = document.createElement('div');
-    name.className = 'name';
-    name.textContent = g.n;
-    name.title = g.n;
-    a.appendChild(box);
-    a.appendChild(name);
-    return a;
-  }
-
-  function render(filter){
-    filter = (filter || '').trim().toLowerCase();
-    var vis = 0;
-    grid.innerHTML = '';
-    for (var i = 0; i < GAMES.length; i++){
-      if (!filter || GAMES[i].n.toLowerCase().indexOf(filter) !== -1){
-        grid.appendChild(el(GAMES[i]));
-        vis++;
-      }
-    }
-    shown.textContent = vis;
-    empty.style.display = vis ? 'none' : 'block';
-  }
-
-  var t = null;
-  q.addEventListener('input', function(){
-    clearTimeout(t);
-    var v = q.value;
-    t = setTimeout(function(){ render(v); }, 90);
-  });
-
-  render('');
+var s=document.getElementById("search"),g=document.getElementById("grid"),nr=document.getElementById("noResults"),cards=Array.prototype.slice.call(g.getElementsByClassName("card")),cnt=document.querySelector(".count");
+s.addEventListener("input",function(){
+var q=this.value.toLowerCase().trim(),show=0;
+cards.forEach(function(c){
+var n=c.getAttribute("data-name")||"",vis=!q||n.indexOf(q)!==-1;
+c.style.display=vis?"":"none";
+if(vis)show++;
+});
+cnt.textContent=show+" game"+(show!==1?"s":"");
+nr.style.display=show===0?"block":"none";
+});
 })();
 </script>
 </body>
