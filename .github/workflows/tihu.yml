@@ -1,0 +1,425 @@
+name: OpenCode Games Icon Designer--TIHU
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+
+    steps:
+
+      - name: Checkout website
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+
+      - name: Check games
+        run: |
+
+          if [ ! -d "games-web" ]; then
+            echo "games-web missing"
+            exit 1
+          fi
+
+
+          COUNT=$(find games-web -name "*.html" | wc -l)
+
+          echo "Games: $COUNT"
+
+
+          if [ "$COUNT" -lt 1 ]; then
+            exit 1
+          fi
+
+
+
+      - name: Download icon templates
+        run: |
+
+          rm -rf icon-templates
+
+
+          git clone \
+            --depth 1 \
+            https://github.com/gmicroul/icon-templates.git \
+            icon-templates
+
+
+
+          test -d icon-templates/sfos-icons
+
+
+
+      - name: Install OpenCode
+        run: |
+
+          curl -fsSL https://opencode.ai/install | bash
+
+
+          echo "$HOME/.opencode/bin" >> "$GITHUB_PATH"
+
+
+          export PATH="$HOME/.opencode/bin:$PATH"
+
+
+          opencode --version
+
+
+
+      - name: Prepare output
+        run: |
+
+          rm -rf output
+
+          mkdir -p output/icons
+
+
+
+      - name: Generate games icons and page
+        run: |
+
+
+          export PATH="$HOME/.opencode/bin:$PATH"
+
+
+
+          timeout 25m opencode run "
+
+
+          不要询问。
+
+          不执行git操作。
+
+
+          当前仓库：
+
+          $PWD
+
+
+
+          =============================
+
+          任务
+
+          =============================
+
+
+          为 games-web 游戏生成 SFOS 风格游戏大厅。
+
+
+
+          =============================
+
+          游戏扫描
+
+          =============================
+
+
+          扫描：
+
+          games-web/
+
+
+          所有：
+
+          *.html
+
+
+
+          每个游戏：
+
+
+          读取html。
+
+
+          提取：
+
+          <title>
+
+
+          作为游戏名称。
+
+
+          如果没有title：
+
+          使用文件名。
+
+
+
+          =============================
+
+          图标生成
+
+          =============================
+
+
+          图标模板：
+
+          icon-templates/sfos-icons/
+
+
+          使用：
+
+          shape1.svg
+
+          到
+
+          shape16.svg
+
+
+
+          循环作为基础模板。
+
+
+
+          每个游戏生成：
+
+          output/icons/游戏名.svg
+
+
+
+          =============================
+
+          图标设计规则
+
+          =============================
+
+
+          根据游戏HTML内容判断主题。
+
+
+          为每个游戏设计独特图标。是鹈鹕骑单车的2D动画图标。
+
+
+
+          必须：
+
+          基于shape模板。
+
+
+
+          保留：
+
+          - shape轮廓
+          - 原path结构
+          - viewBox
+          - 透明区域
+
+
+
+          黑色区域：
+
+          是唯一设计区域。
+
+
+
+          可以增加：
+
+
+          - 科技纹
+          - 电路线
+          - 能量纹
+          - 火焰纹
+          - 游戏主题纹理
+          - 金属效果
+          - 光效
+          - 几何纹
+
+
+
+          所有纹理：
+
+          必须限制在原黑色区域。
+          必须原黑色区域边界无线条描绘。
+          必须黑色区域外全透明和无线条描绘
+
+
+
+          推荐：
+
+          clipPath
+
+
+
+          禁止：
+
+          添加背景。
+
+          添加圆形底盘。
+
+          修改透明区域。
+
+
+
+          =============================
+
+          游戏大厅
+
+          =============================
+
+
+          生成：
+
+          output/index.html
+
+
+
+          页面：
+
+
+          SFOS风格。
+
+
+          必须包含：
+
+
+          - 搜索框
+          - 实时过滤
+          - 游戏数量
+          - 游戏卡片
+          - 点击进入游戏
+
+
+
+          布局：
+
+
+          手机：
+
+          两列
+
+
+
+          PC：
+
+          自适应多列
+
+
+
+          卡片：
+
+
+          108x108px
+
+
+          图标：
+
+          86x86px
+
+
+          圆角：
+
+          0px
+
+
+
+          =============================
+
+          HTML要求
+
+          =============================
+
+
+          index.html独立运行。
+
+
+          CSS内嵌。
+
+
+          JS内嵌。
+
+
+          禁止：
+
+          CDN
+
+          外部CSS
+
+          外部JS
+
+
+
+          SVG：
+
+          使用：
+
+          icons/*.svg
+
+
+
+          =============================
+
+          文件保护
+
+          =============================
+
+
+          不修改：
+
+          games-web/
+
+
+          不删除任何游戏。
+
+
+          只生成：
+
+
+          output/
+
+
+          完成后退出。
+
+
+          "
+
+
+
+      - name: Verify
+        run: |
+
+          test -f output/index.html
+
+
+          test -d output/icons
+
+
+          ICONS=$(find output/icons -name "*.svg" | wc -l)
+
+
+          echo "Icons: $ICONS"
+
+
+
+      - name: Commit
+        run: |
+
+          git config user.name "github-actions[bot]"
+
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+          git add output/
+
+
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+
+          git commit \
+            -m "Update generated SFOS game icons"
+
+
+          git push
