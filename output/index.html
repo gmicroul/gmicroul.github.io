@@ -1,290 +1,291 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Game Lobby</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Game Hub</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#1a1a2e;color:#e0e0e0;min-height:100vh}
-.header{background:linear-gradient(135deg,#16213e,#0f3460);padding:16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.4)}
-.header h1{font-size:20px;font-weight:600;color:#e0e0e0;margin-bottom:8px;letter-spacing:0.5px}
-.search-wrap{position:relative}
-.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;fill:none;stroke:#888;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.search-wrap svg line{stroke:#888}
-#search{width:100%;padding:10px 12px 10px 38px;border:1px solid #333;border-radius:8px;background:#0d1117;color:#e0e0e0;font-size:15px;outline:none;transition:border-color .2s}
-#search:focus{border-color:#533483}
-#search::placeholder{color:#555}
-.count{font-size:13px;color:#888;margin-top:8px;padding-left:2px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#1a1a2e;color:#e0e0e0;min-height:100vh;overflow-x:hidden}
+.header{background:linear-gradient(135deg,#0f3460,#16213e);padding:20px 16px 16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.header h1{font-size:22px;font-weight:600;color:#fff;margin-bottom:12px;text-align:center}
+.search-wrap{position:relative;max-width:600px;margin:0 auto}
+.search-wrap input{width:100%;padding:12px 16px 12px 40px;border:none;border-radius:12px;background:#1e2a4a;color:#fff;font-size:15px;outline:none}
+.search-wrap input::placeholder{color:#6b7db3}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#6b7db3;font-size:16px}
+.game-count{text-align:center;color:#6b7db3;font-size:13px;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px;max-width:900px;margin:0 auto}
 @media(min-width:480px){.grid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}}
 @media(min-width:960px){.grid{grid-template-columns:repeat(5,1fr)}}
 @media(min-width:1200px){.grid{grid-template-columns:repeat(6,1fr)}}
-.card{background:#16213e;border-radius:12px;padding:12px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid #1a1a3e;text-decoration:none}
-.card:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(83,52,131,0.3);border-color:#533483}
-.card:active{transform:scale(0.97)}
-.card-icon{width:86px;height:86px;border-radius:0;margin-bottom:8px;display:block}
-.card-name{font-size:12px;color:#ccc;text-align:center;line-height:1.3;max-height:32px;overflow:hidden;width:100%;word-break:break-word}
-.no-results{text-align:center;padding:40px 20px;color:#666;font-size:15px;display:none}
+.card{background:#16213e;border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none;color:#e0e0e0}
+.card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(233,69,96,.3)}
+.card:active{transform:scale(.96)}
+.card-icon{width:86px;height:86px;border-radius:0;overflow:hidden;margin-bottom:8px}
+.card-icon img{width:100%;height:100%;display:block}
+.card-name{font-size:12px;font-weight:500;text-align:center;line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.no-results{text-align:center;color:#6b7db3;padding:60px 20px;font-size:15px;display:none}
 </style>
 </head>
 <body>
 <div class="header">
-<h1>Game Lobby</h1>
-<div class="search-wrap">
-<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-<input type="text" id="search" placeholder="Search games..." autocomplete="off" spellcheck="false">
-</div>
-<div class="count" id="count">224 games</div>
+  <h1>Game Hub</h1>
+  <div class="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="search" placeholder="Search games..." autocomplete="off">
+  </div>
+  <div class="game-count" id="count"></div>
 </div>
 <div class="grid" id="grid"></div>
-<div class="no-results" id="noResults">No games found</div>
+<div class="no-results" id="noresults">No games found</div>
 <script>
-const GAMES=[{"name":"My Drive","file":"1.5.html","icon":"icons/1.5.svg"},
-{"name":"School","file":"1.8.html","icon":"icons/1.8.svg"},
-{"name":"12minibattles","file":"12minibattles.html","icon":"icons/12minibattles.svg"},
-{"name":"1on1soccer","file":"1on1soccer.html","icon":"icons/1on1soccer.svg"},
-{"name":"1on1tennis","file":"1on1tennis.html","icon":"icons/1on1tennis.svg"},
-{"name":"2048","file":"2048.html","icon":"icons/2048.svg"},
-{"name":"2048cupcakes","file":"2048cupcakes.html","icon":"icons/2048cupcakes.svg"},
-{"name":"8ballclassic","file":"8ballclassic.html","icon":"icons/8ballclassic.svg"},
-{"name":"Alpha_1.2.6","file":"Alpha_1.2.6.html","icon":"icons/Alpha_1.2.6.svg"},
-{"name":"Eaglercraft Launcher","file":"Beta_1.3.html","icon":"icons/Beta_1.3.svg"},
-{"name":"Eaglercraft Launcher","file":"Indev.html","icon":"icons/Indev.svg"},
-{"name":"Solo Agario","file":"agariolite.html","icon":"icons/agariolite.svg"},
-{"name":"ageofwar","file":"ageofwar.html","icon":"icons/ageofwar.svg"},
-{"name":"ageofwar2","file":"ageofwar2.html","icon":"icons/ageofwar2.svg"},
-{"name":"agesofconflict","file":"agesofconflict.html","icon":"icons/agesofconflict.svg"},
-{"name":"amongus","file":"amongus.html","icon":"icons/amongus.svg"},
-{"name":"angrybirds","file":"angrybirds.html","icon":"icons/angrybirds.svg"},
-{"name":"angrybirdsspace","file":"angrybirdsspace.html","icon":"icons/angrybirdsspace.svg"},
-{"name":"awesometanks","file":"awesometanks.html","icon":"icons/awesometanks.svg"},
-{"name":"awesometanks2","file":"awesometanks2.html","icon":"icons/awesometanks2.svg"},
-{"name":"backrooms","file":"backrooms.html","icon":"icons/backrooms.svg"},
-{"name":"baconmaydie","file":"baconmaydie.html","icon":"icons/baconmaydie.svg"},
-{"name":"badicecream","file":"badicecream.html","icon":"icons/badicecream.svg"},
-{"name":"badicecream2","file":"badicecream2.html","icon":"icons/badicecream2.svg"},
-{"name":"badicecream3","file":"badicecream3.html","icon":"icons/badicecream3.svg"},
-{"name":"badpiggies","file":"badpiggies.html","icon":"icons/badpiggies.svg"},
-{"name":"baseballbros","file":"baseballbros.html","icon":"icons/baseballbros.svg"},
-{"name":"basketballlegends","file":"basketballlegends.html","icon":"icons/basketballlegends.svg"},
-{"name":"basketballstars","file":"basketballstars.html","icon":"icons/basketballstars.svg"},
-{"name":"basketbros","file":"basketbros.html","icon":"icons/basketbros.svg"},
-{"name":"Class","file":"basketrandom.html","icon":"icons/basketrandom.svg"},
-{"name":"blockysnakes","file":"blockysnakes.html","icon":"icons/blockysnakes.svg"},
-{"name":"bloonsTD","file":"bloonsTD.html","icon":"icons/bloonsTD.svg"},
-{"name":"bloonsTD2","file":"bloonsTD2.html","icon":"icons/bloonsTD2.svg"},
-{"name":"bloonsTD3","file":"bloonsTD3.html","icon":"icons/bloonsTD3.svg"},
-{"name":"bloonsTD4","file":"bloonsTD4.html","icon":"icons/bloonsTD4.svg"},
-{"name":"bloonsTD5","file":"bloonsTD5.html","icon":"icons/bloonsTD5.svg"},
-{"name":"bloxorz","file":"bloxorz.html","icon":"icons/bloxorz.svg"},
-{"name":"blumgiracers","file":"blumgiracers.html","icon":"icons/blumgiracers.svg"},
-{"name":"blumgirocket","file":"blumgirocket.html","icon":"icons/blumgirocket.svg"},
-{"name":"bobtherobber","file":"bobtherobber.html","icon":"icons/bobtherobber.svg"},
-{"name":"bobtherobber2","file":"bobtherobber2.html","icon":"icons/bobtherobber2.svg"},
-{"name":"bobtherobber5","file":"bobtherobber5.html","icon":"icons/bobtherobber5.svg"},
-{"name":"breakingthebank","file":"breakingthebank.html","icon":"icons/breakingthebank.svg"},
-{"name":"bubbleshooter","file":"bubbleshooter.html","icon":"icons/bubbleshooter.svg"},
-{"name":"candycrush","file":"candycrush.html","icon":"icons/candycrush.svg"},
-{"name":"capybaraclicker","file":"capybaraclicker.html","icon":"icons/capybaraclicker.svg"},
-{"name":"cardrawing","file":"cardrawing.html","icon":"icons/cardrawing.svg"},
-{"name":"carkingarena","file":"carkingarena.html","icon":"icons/carkingarena.svg"},
-{"name":"chess","file":"chess.html","icon":"icons/chess.svg"},
-{"name":"choppyorc","file":"choppyorc.html","icon":"icons/choppyorc.svg"},
-{"name":"circloO","file":"circloO.html","icon":"icons/circloO.svg"},
-{"name":"circloO2","file":"circloO2.html","icon":"icons/circloO2.svg"},
-{"name":"clashofvikings","file":"clashofvikings.html","icon":"icons/clashofvikings.svg"},
-{"name":"cleanupio","file":"cleanupio.html","icon":"icons/cleanupio.svg"},
-{"name":"Cluster Rush","file":"clusterrush.html","icon":"icons/clusterrush.svg"},
-{"name":"crazycars","file":"crazycars.html","icon":"icons/crazycars.svg"},
-{"name":"crazymotorcycle","file":"crazymotorcycle.html","icon":"icons/crazymotorcycle.svg"},
-{"name":"dadish","file":"dadish.html","icon":"icons/dadish.svg"},
-{"name":"dadish2","file":"dadish2.html","icon":"icons/dadish2.svg"},
-{"name":"dadish3","file":"dadish3.html","icon":"icons/dadish3.svg"},
-{"name":"deathrun3D","file":"deathrun3D.html","icon":"icons/deathrun3D.svg"},
-{"name":"doodlejump","file":"doodlejump.html","icon":"icons/doodlejump.svg"},
-{"name":"drawclimber","file":"drawclimber.html","icon":"icons/drawclimber.svg"},
-{"name":"ducklife","file":"ducklife.html","icon":"icons/ducklife.svg"},
-{"name":"ducklife2","file":"ducklife2.html","icon":"icons/ducklife2.svg"},
-{"name":"ducklife3","file":"ducklife3.html","icon":"icons/ducklife3.svg"},
-{"name":"ducklife4","file":"ducklife4.html","icon":"icons/ducklife4.svg"},
-{"name":"ducklife5","file":"ducklife5.html","icon":"icons/ducklife5.svg"},
-{"name":"ducklingsio","file":"ducklingsio.html","icon":"icons/ducklingsio.svg"},
-{"name":"eagleride","file":"eagleride.html","icon":"icons/eagleride.svg"},
-{"name":"earntodie","file":"earntodie.html","icon":"icons/earntodie.svg"},
-{"name":"earntodie2","file":"earntodie2.html","icon":"icons/earntodie2.svg"},
-{"name":"eggycar","file":"eggycar.html","icon":"icons/eggycar.svg"},
-{"name":"escapingtheprison","file":"escapingtheprison.html","icon":"icons/escapingtheprison.svg"},
-{"name":"Evil Glitch","file":"evilglitch.html","icon":"icons/evilglitch.svg"},
-{"name":"fancypantsadventure","file":"fancypantsadventure.html","icon":"icons/fancypantsadventure.svg"},
-{"name":"fancypantsadventure2","file":"fancypantsadventure2.html","icon":"icons/fancypantsadventure2.svg"},
-{"name":"fireboyandwatergirl","file":"fireboyandwatergirl.html","icon":"icons/fireboyandwatergirl.svg"},
-{"name":"fireboyandwatergirl2","file":"fireboyandwatergirl2.html","icon":"icons/fireboyandwatergirl2.svg"},
-{"name":"fireboyandwatergirl3","file":"fireboyandwatergirl3.html","icon":"icons/fireboyandwatergirl3.svg"},
-{"name":"fireboyandwatergirl4","file":"fireboyandwatergirl4.html","icon":"icons/fireboyandwatergirl4.svg"},
-{"name":"Flappy Bird","file":"flappybird.html","icon":"icons/flappybird.svg"},
-{"name":"floodrunner2","file":"floodrunner2.html","icon":"icons/floodrunner2.svg"},
-{"name":"floodrunner3","file":"floodrunner3.html","icon":"icons/floodrunner3.svg"},
-{"name":"floodrunner4","file":"floodrunner4.html","icon":"icons/floodrunner4.svg"},
-{"name":"fnaf","file":"fnaf.html","icon":"icons/fnaf.svg"},
-{"name":"FNAF","file":"fnaf4.html","icon":"icons/fnaf4.svg"},
-{"name":"FOOTBALL BROS!","file":"footballbros.html","icon":"icons/footballbros.svg"},
-{"name":"footballlegends","file":"footballlegends.html","icon":"icons/footballlegends.svg"},
-{"name":"freerider3","file":"freerider3.html","icon":"icons/freerider3.svg"},
-{"name":"fruitninja","file":"fruitninja.html","icon":"icons/fruitninja.svg"},
-{"name":"funnybattle","file":"funnybattle.html","icon":"icons/funnybattle.svg"},
-{"name":"funnybattle2","file":"funnybattle2.html","icon":"icons/funnybattle2.svg"},
-{"name":"Geometry Dash","file":"geometrydash.html","icon":"icons/geometrydash.svg"},
-{"name":"getontop","file":"getontop.html","icon":"icons/getontop.svg"},
-{"name":"googlebaseball","file":"googlebaseball.html","icon":"icons/googlebaseball.svg"},
-{"name":"Dinosaur Game Chrome","file":"googledino.html","icon":"icons/googledino.svg"},
-{"name":"guesstheiranswer","file":"guesstheiranswer.html","icon":"icons/guesstheiranswer.svg"},
-{"name":"hanger2","file":"hanger2.html","icon":"icons/hanger2.svg"},
-{"name":"happywheels","file":"happywheels.html","icon":"icons/happywheels.svg"},
-{"name":"helixjump","file":"helixjump.html","icon":"icons/helixjump.svg"},
-{"name":"hillclimbracinglite","file":"hillclimbracinglite.html","icon":"icons/hillclimbracinglite.svg"},
-{"name":"holeio","file":"holeio.html","icon":"icons/holeio.svg"},
-{"name":"houseofhazards","file":"houseofhazards.html","icon":"icons/houseofhazards.svg"},
-{"name":"hoverracerdrive","file":"hoverracerdrive.html","icon":"icons/hoverracerdrive.svg"},
-{"name":"idlebreakout","file":"idlebreakout.html","icon":"icons/idlebreakout.svg"},
-{"name":"ironsnout","file":"ironsnout.html","icon":"icons/ironsnout.svg"},
-{"name":"jetpackjoyride","file":"jetpackjoyride.html","icon":"icons/jetpackjoyride.svg"},
-{"name":"johnnytrigger","file":"johnnytrigger.html","icon":"icons/johnnytrigger.svg"},
-{"name":"jumpingshell","file":"jumpingshell.html","icon":"icons/jumpingshell.svg"},
-{"name":"karatebros","file":"karatebros.html","icon":"icons/karatebros.svg"},
-{"name":"learntofly","file":"learntofly.html","icon":"icons/learntofly.svg"},
-{"name":"learntofly2","file":"learntofly2.html","icon":"icons/learntofly2.svg"},
-{"name":"learntoflyidle","file":"learntoflyidle.html","icon":"icons/learntoflyidle.svg"},
-{"name":"Level Devil","file":"leveldevil.html","icon":"icons/leveldevil.svg"},
-{"name":"melonplayground","file":"melonplayground.html","icon":"icons/melonplayground.svg"},
-{"name":"mergeroundracers","file":"mergeroundracers.html","icon":"icons/mergeroundracers.svg"},
-{"name":"minesweeper","file":"minesweeper.html","icon":"icons/minesweeper.svg"},
-{"name":"monstertracks","file":"monstertracks.html","icon":"icons/monstertracks.svg"},
-{"name":"motox3m2","file":"motox3m2.html","icon":"icons/motox3m2.svg"},
-{"name":"motox3m3","file":"motox3m3.html","icon":"icons/motox3m3.svg"},
-{"name":"motox3mpoolparty","file":"motox3mpoolparty.html","icon":"icons/motox3mpoolparty.svg"},
-{"name":"motox3mspookyland","file":"motox3mspookyland.html","icon":"icons/motox3mspookyland.svg"},
-{"name":"motox3mwinter","file":"motox3mwinter.html","icon":"icons/motox3mwinter.svg"},
-{"name":"Noob Miner","file":"noobminer.html","icon":"icons/noobminer.svg"},
-{"name":"oppositeday","file":"oppositeday.html","icon":"icons/oppositeday.svg"},
-{"name":"OvOfw","file":"ovo.html","icon":"icons/ovo.svg"},
-{"name":"OvO 2","file":"ovo2.html","icon":"icons/ovo2.svg"},
-{"name":"Pac Man","file":"pacman.html","icon":"icons/pacman.svg"},
-{"name":"papasburgeria","file":"papasburgeria.html","icon":"icons/papasburgeria.svg"},
-{"name":"papascheeseria","file":"papascheeseria.html","icon":"icons/papascheeseria.svg"},
-{"name":"papascupcakeria","file":"papascupcakeria.html","icon":"icons/papascupcakeria.svg"},
-{"name":"papasdonuteria","file":"papasdonuteria.html","icon":"icons/papasdonuteria.svg"},
-{"name":"papasfreezeria","file":"papasfreezeria.html","icon":"icons/papasfreezeria.svg"},
-{"name":"papashotdoggeria","file":"papashotdoggeria.html","icon":"icons/papashotdoggeria.svg"},
-{"name":"papaspancakeria","file":"papaspancakeria.html","icon":"icons/papaspancakeria.svg"},
-{"name":"papaspastaria","file":"papaspastaria.html","icon":"icons/papaspastaria.svg"},
-{"name":"papaspizzeria","file":"papaspizzeria.html","icon":"icons/papaspizzeria.svg"},
-{"name":"papastacomia","file":"papastacomia.html","icon":"icons/papastacomia.svg"},
-{"name":"papaswingeria","file":"papaswingeria.html","icon":"icons/papaswingeria.svg"},
-{"name":"parkingfury","file":"parkingfury.html","icon":"icons/parkingfury.svg"},
-{"name":"parkingfury2","file":"parkingfury2.html","icon":"icons/parkingfury2.svg"},
-{"name":"parkingfury3","file":"parkingfury3.html","icon":"icons/parkingfury3.svg"},
-{"name":"picosschool","file":"picosschool.html","icon":"icons/picosschool.svg"},
-{"name":"pingpongchaos","file":"pingpongchaos.html","icon":"icons/pingpongchaos.svg"},
-{"name":"Pixel Speedrun","file":"pixelspeedrun.html","icon":"icons/pixelspeedrun.svg"},
-{"name":"plantsvszombies","file":"plantsvszombies.html","icon":"icons/plantsvszombies.svg"},
-{"name":"plonky","file":"plonky.html","icon":"icons/plonky.svg"},
-{"name":"polytrack","file":"polytrack.html","icon":"icons/polytrack.svg"},
-{"name":"poorbunny","file":"poorbunny.html","icon":"icons/poorbunny.svg"},
-{"name":"pou","file":"pou.html","icon":"icons/pou.svg"},
-{"name":"ragdollhit","file":"ragdollhit.html","icon":"icons/ragdollhit.svg"},
-{"name":"ragdollsoccer","file":"ragdollsoccer.html","icon":"icons/ragdollsoccer.svg"},
-{"name":"redball4vol1","file":"redball4vol1.html","icon":"icons/redball4vol1.svg"},
-{"name":"redball4vol2","file":"redball4vol2.html","icon":"icons/redball4vol2.svg"},
-{"name":"redball4vol3","file":"redball4vol3.html","icon":"icons/redball4vol3.svg"},
-{"name":"retrobowl","file":"retrobowl.html","icon":"icons/retrobowl.svg"},
-{"name":"retrobowlcollege","file":"retrobowlcollege.html","icon":"icons/retrobowlcollege.svg"},
-{"name":"retrohighway","file":"retrohighway.html","icon":"icons/retrohighway.svg"},
-{"name":"Retro","file":"retropingpong.html","icon":"icons/retropingpong.svg"},
-{"name":"riddleschool","file":"riddleschool.html","icon":"icons/riddleschool.svg"},
-{"name":"riddleschool2","file":"riddleschool2.html","icon":"icons/riddleschool2.svg"},
-{"name":"riddleschool3","file":"riddleschool3.html","icon":"icons/riddleschool3.svg"},
-{"name":"riddleschool4","file":"riddleschool4.html","icon":"icons/riddleschool4.svg"},
-{"name":"Rooftop Snipers 2","file":"rooftopsnipers2.html","icon":"icons/rooftopsnipers2.svg"},
-{"name":"run","file":"run.html","icon":"icons/run.svg"},
-{"name":"run2","file":"run2.html","icon":"icons/run2.svg"},
-{"name":"run3","file":"run3.html","icon":"icons/run3.svg"},
-{"name":"Sand","file":"sandgame.html","icon":"icons/sandgame.svg"},
-{"name":"shortlife","file":"shortlife.html","icon":"icons/shortlife.svg"},
-{"name":"slope2player","file":"slope2player.html","icon":"icons/slope2player.svg"},
-{"name":"slowroads","file":"slowroads.html","icon":"icons/slowroads.svg"},
-{"name":"Super Mario 64","file":"sm64.html","icon":"icons/sm64.svg"},
-{"name":"snowballio","file":"snowballio.html","icon":"icons/snowballio.svg"},
-{"name":"soccerbros","file":"soccerbros.html","icon":"icons/soccerbros.svg"},
-{"name":"SPACEBAR CLICKER","file":"spacebarclicker.html","icon":"icons/spacebarclicker.svg"},
-{"name":"spaceiskey","file":"spaceiskey.html","icon":"icons/spaceiskey.svg"},
-{"name":"spaceiskey2","file":"spaceiskey2.html","icon":"icons/spaceiskey2.svg"},
-{"name":"Space Waves","file":"spacewaves.html","icon":"icons/spacewaves.svg"},
-{"name":"speedstars","file":"speedstars.html","icon":"icons/speedstars.svg"},
-{"name":"Sprunki","file":"sprunki.html","icon":"icons/sprunki.svg"},
-{"name":"stack","file":"stack.html","icon":"icons/stack.svg"},
-{"name":"stacktris","file":"stacktris.html","icon":"icons/stacktris.svg"},
-{"name":"stateio","file":"stateio.html","icon":"icons/stateio.svg"},
-{"name":"stickarchersbattle","file":"stickarchersbattle.html","icon":"icons/stickarchersbattle.svg"},
-{"name":"stickfighter","file":"stickfighter.html","icon":"icons/stickfighter.svg"},
-{"name":"Stickman Hook","file":"stickmanhook.html","icon":"icons/stickmanhook.svg"},
-{"name":"stickmerge","file":"stickmerge.html","icon":"icons/stickmerge.svg"},
-{"name":"superliquidsoccer","file":"superliquidsoccer.html","icon":"icons/superliquidsoccer.svg"},
-{"name":"tabletennisworldtour","file":"tabletennisworldtour.html","icon":"icons/tabletennisworldtour.svg"},
-{"name":"tag","file":"tag.html","icon":"icons/tag.svg"},
-{"name":"templeofboom","file":"templeofboom.html","icon":"icons/templeofboom.svg"},
-{"name":"territorialio","file":"territorialio.html","icon":"icons/territorialio.svg"},
-{"name":"theimpossiblequiz","file":"theimpossiblequiz.html","icon":"icons/theimpossiblequiz.svg"},
-{"name":"theimpossiblequiz2","file":"theimpossiblequiz2.html","icon":"icons/theimpossiblequiz2.svg"},
-{"name":"thereisnog","file":"thereisnog.html","icon":"icons/thereisnog.svg"},
-{"name":"thisistheonlylevel","file":"thisistheonlylevel.html","icon":"icons/thisistheonlylevel.svg"},
-{"name":"thisistheonlyleveltoo","file":"thisistheonlyleveltoo.html","icon":"icons/thisistheonlyleveltoo.svg"},
-{"name":"timeshooter2","file":"timeshooter2.html","icon":"icons/timeshooter2.svg"},
-{"name":"tinyfishing","file":"tinyfishing.html","icon":"icons/tinyfishing.svg"},
-{"name":"trapthecat","file":"trapthecat.html","icon":"icons/trapthecat.svg"},
-{"name":"triviacrack","file":"triviacrack.html","icon":"icons/triviacrack.svg"},
-{"name":"tubejumpers","file":"tubejumpers.html","icon":"icons/tubejumpers.svg"},
-{"name":"tunnelrush","file":"tunnelrush.html","icon":"icons/tunnelrush.svg"},
-{"name":"unicyclehero","file":"unicyclehero.html","icon":"icons/unicyclehero.svg"},
-{"name":"vex4","file":"vex4.html","icon":"icons/vex4.svg"},
-{"name":"vex5","file":"vex5.html","icon":"icons/vex5.svg"},
-{"name":"vexx3m","file":"vexx3m.html","icon":"icons/vexx3m.svg"},
-{"name":"vexx3m2","file":"vexx3m2.html","icon":"icons/vexx3m2.svg"},
-{"name":"volleyrandom","file":"volleyrandom.html","icon":"icons/volleyrandom.svg"},
-{"name":"webecomewhatwebehold","file":"webecomewhatwebehold.html","icon":"icons/webecomewhatwebehold.svg"},
-{"name":"wheeliebike","file":"wheeliebike.html","icon":"icons/wheeliebike.svg"},
-{"name":"wheely","file":"wheely.html","icon":"icons/wheely.svg"},
-{"name":"wheely2","file":"wheely2.html","icon":"icons/wheely2.svg"},
-{"name":"wheely3","file":"wheely3.html","icon":"icons/wheely3.svg"},
-{"name":"wheely6","file":"wheely6.html","icon":"icons/wheely6.svg"},
-{"name":"wheely8","file":"wheely8.html","icon":"icons/wheely8.svg"},
-{"name":"wordleunlimited","file":"wordleunlimited.html","icon":"icons/wordleunlimited.svg"},
-{"name":"worldshardestgame","file":"worldshardestgame.html","icon":"icons/worldshardestgame.svg"},
-{"name":"worldshardestgame2","file":"worldshardestgame2.html","icon":"icons/worldshardestgame2.svg"},
-{"name":"worldshardestgame3","file":"worldshardestgame3.html","icon":"icons/worldshardestgame3.svg"},
-{"name":"wrestlebros","file":"wrestlebros.html","icon":"icons/wrestlebros.svg"},
-{"name":"zombierush","file":"zombierush.html","icon":"icons/zombierush.svg"}];
-const grid=document.getElementById("grid");
-const search=document.getElementById("search");
-const countEl=document.getElementById("count");
-const noResults=document.getElementById("noResults");
+var GAMES=[{name:"My Drive - Google Drive",file:"1.5.html",icon:"icons/1.5.svg",search:"my drive - google drive 1.5"},
+{name:"School",file:"1.8.html",icon:"icons/1.8.svg",search:"school 1.8"},
+{name:"12minibattles",file:"12minibattles.html",icon:"icons/12minibattles.svg",search:"12minibattles 12minibattles"},
+{name:"1on1soccer",file:"1on1soccer.html",icon:"icons/1on1soccer.svg",search:"1on1soccer 1on1soccer"},
+{name:"1on1tennis",file:"1on1tennis.html",icon:"icons/1on1tennis.svg",search:"1on1tennis 1on1tennis"},
+{name:"2048",file:"2048.html",icon:"icons/2048.svg",search:"2048 2048"},
+{name:"2048cupcakes",file:"2048cupcakes.html",icon:"icons/2048cupcakes.svg",search:"2048cupcakes 2048cupcakes"},
+{name:"8ballclassic",file:"8ballclassic.html",icon:"icons/8ballclassic.svg",search:"8ballclassic 8ballclassic"},
+{name:"Alpha_1.2.6",file:"Alpha_1.2.6.html",icon:"icons/Alpha_1.2.6.svg",search:"alpha_1.2.6 alpha_1.2.6"},
+{name:"Eaglercraft Launcher",file:"Beta_1.3.html",icon:"icons/Beta_1.3.svg",search:"eaglercraft launcher beta_1.3"},
+{name:"Eaglercraft Launcher",file:"Indev.html",icon:"icons/Indev.svg",search:"eaglercraft launcher indev"},
+{name:"Solo Agario",file:"agariolite.html",icon:"icons/agariolite.svg",search:"solo agario agariolite"},
+{name:"ageofwar",file:"ageofwar.html",icon:"icons/ageofwar.svg",search:"ageofwar ageofwar"},
+{name:"ageofwar2",file:"ageofwar2.html",icon:"icons/ageofwar2.svg",search:"ageofwar2 ageofwar2"},
+{name:"agesofconflict",file:"agesofconflict.html",icon:"icons/agesofconflict.svg",search:"agesofconflict agesofconflict"},
+{name:"amongus",file:"amongus.html",icon:"icons/amongus.svg",search:"amongus amongus"},
+{name:"angrybirds",file:"angrybirds.html",icon:"icons/angrybirds.svg",search:"angrybirds angrybirds"},
+{name:"angrybirdsspace",file:"angrybirdsspace.html",icon:"icons/angrybirdsspace.svg",search:"angrybirdsspace angrybirdsspace"},
+{name:"awesometanks",file:"awesometanks.html",icon:"icons/awesometanks.svg",search:"awesometanks awesometanks"},
+{name:"awesometanks2",file:"awesometanks2.html",icon:"icons/awesometanks2.svg",search:"awesometanks2 awesometanks2"},
+{name:"backrooms",file:"backrooms.html",icon:"icons/backrooms.svg",search:"backrooms backrooms"},
+{name:"baconmaydie",file:"baconmaydie.html",icon:"icons/baconmaydie.svg",search:"baconmaydie baconmaydie"},
+{name:"badicecream",file:"badicecream.html",icon:"icons/badicecream.svg",search:"badicecream badicecream"},
+{name:"badicecream2",file:"badicecream2.html",icon:"icons/badicecream2.svg",search:"badicecream2 badicecream2"},
+{name:"badicecream3",file:"badicecream3.html",icon:"icons/badicecream3.svg",search:"badicecream3 badicecream3"},
+{name:"badpiggies",file:"badpiggies.html",icon:"icons/badpiggies.svg",search:"badpiggies badpiggies"},
+{name:"baseballbros",file:"baseballbros.html",icon:"icons/baseballbros.svg",search:"baseballbros baseballbros"},
+{name:"basketballlegends",file:"basketballlegends.html",icon:"icons/basketballlegends.svg",search:"basketballlegends basketballlegends"},
+{name:"basketballstars",file:"basketballstars.html",icon:"icons/basketballstars.svg",search:"basketballstars basketballstars"},
+{name:"basketbros",file:"basketbros.html",icon:"icons/basketbros.svg",search:"basketbros basketbros"},
+{name:"Class",file:"basketrandom.html",icon:"icons/basketrandom.svg",search:"class basketrandom"},
+{name:"blockysnakes",file:"blockysnakes.html",icon:"icons/blockysnakes.svg",search:"blockysnakes blockysnakes"},
+{name:"bloonsTD",file:"bloonsTD.html",icon:"icons/bloonsTD.svg",search:"bloonstd bloonstd"},
+{name:"bloonsTD2",file:"bloonsTD2.html",icon:"icons/bloonsTD2.svg",search:"bloonstd2 bloonstd2"},
+{name:"bloonsTD3",file:"bloonsTD3.html",icon:"icons/bloonsTD3.svg",search:"bloonstd3 bloonstd3"},
+{name:"bloonsTD4",file:"bloonsTD4.html",icon:"icons/bloonsTD4.svg",search:"bloonstd4 bloonstd4"},
+{name:"bloonsTD5",file:"bloonsTD5.html",icon:"icons/bloonsTD5.svg",search:"bloonstd5 bloonstd5"},
+{name:"bloxorz",file:"bloxorz.html",icon:"icons/bloxorz.svg",search:"bloxorz bloxorz"},
+{name:"blumgiracers",file:"blumgiracers.html",icon:"icons/blumgiracers.svg",search:"blumgiracers blumgiracers"},
+{name:"blumgirocket",file:"blumgirocket.html",icon:"icons/blumgirocket.svg",search:"blumgirocket blumgirocket"},
+{name:"bobtherobber",file:"bobtherobber.html",icon:"icons/bobtherobber.svg",search:"bobtherobber bobtherobber"},
+{name:"bobtherobber2",file:"bobtherobber2.html",icon:"icons/bobtherobber2.svg",search:"bobtherobber2 bobtherobber2"},
+{name:"bobtherobber5",file:"bobtherobber5.html",icon:"icons/bobtherobber5.svg",search:"bobtherobber5 bobtherobber5"},
+{name:"breakingthebank",file:"breakingthebank.html",icon:"icons/breakingthebank.svg",search:"breakingthebank breakingthebank"},
+{name:"bubbleshooter",file:"bubbleshooter.html",icon:"icons/bubbleshooter.svg",search:"bubbleshooter bubbleshooter"},
+{name:"candycrush",file:"candycrush.html",icon:"icons/candycrush.svg",search:"candycrush candycrush"},
+{name:"capybaraclicker",file:"capybaraclicker.html",icon:"icons/capybaraclicker.svg",search:"capybaraclicker capybaraclicker"},
+{name:"cardrawing",file:"cardrawing.html",icon:"icons/cardrawing.svg",search:"cardrawing cardrawing"},
+{name:"carkingarena",file:"carkingarena.html",icon:"icons/carkingarena.svg",search:"carkingarena carkingarena"},
+{name:"chess",file:"chess.html",icon:"icons/chess.svg",search:"chess chess"},
+{name:"choppyorc",file:"choppyorc.html",icon:"icons/choppyorc.svg",search:"choppyorc choppyorc"},
+{name:"circloO",file:"circloO.html",icon:"icons/circloO.svg",search:"circloo circloo"},
+{name:"circloO2",file:"circloO2.html",icon:"icons/circloO2.svg",search:"circloo2 circloo2"},
+{name:"clashofvikings",file:"clashofvikings.html",icon:"icons/clashofvikings.svg",search:"clashofvikings clashofvikings"},
+{name:"cleanupio",file:"cleanupio.html",icon:"icons/cleanupio.svg",search:"cleanupio cleanupio"},
+{name:"Cluster Rush",file:"clusterrush.html",icon:"icons/clusterrush.svg",search:"cluster rush clusterrush"},
+{name:"crazycars",file:"crazycars.html",icon:"icons/crazycars.svg",search:"crazycars crazycars"},
+{name:"crazymotorcycle",file:"crazymotorcycle.html",icon:"icons/crazymotorcycle.svg",search:"crazymotorcycle crazymotorcycle"},
+{name:"dadish",file:"dadish.html",icon:"icons/dadish.svg",search:"dadish dadish"},
+{name:"dadish2",file:"dadish2.html",icon:"icons/dadish2.svg",search:"dadish2 dadish2"},
+{name:"dadish3",file:"dadish3.html",icon:"icons/dadish3.svg",search:"dadish3 dadish3"},
+{name:"deathrun3D",file:"deathrun3D.html",icon:"icons/deathrun3D.svg",search:"deathrun3d deathrun3d"},
+{name:"Jump",file:"doodlejump.html",icon:"icons/doodlejump.svg",search:"jump doodlejump"},
+{name:"drawclimber",file:"drawclimber.html",icon:"icons/drawclimber.svg",search:"drawclimber drawclimber"},
+{name:"ducklife",file:"ducklife.html",icon:"icons/ducklife.svg",search:"ducklife ducklife"},
+{name:"ducklife2",file:"ducklife2.html",icon:"icons/ducklife2.svg",search:"ducklife2 ducklife2"},
+{name:"ducklife3",file:"ducklife3.html",icon:"icons/ducklife3.svg",search:"ducklife3 ducklife3"},
+{name:"ducklife4",file:"ducklife4.html",icon:"icons/ducklife4.svg",search:"ducklife4 ducklife4"},
+{name:"ducklife5",file:"ducklife5.html",icon:"icons/ducklife5.svg",search:"ducklife5 ducklife5"},
+{name:"ducklingsio",file:"ducklingsio.html",icon:"icons/ducklingsio.svg",search:"ducklingsio ducklingsio"},
+{name:"eagleride",file:"eagleride.html",icon:"icons/eagleride.svg",search:"eagleride eagleride"},
+{name:"earntodie",file:"earntodie.html",icon:"icons/earntodie.svg",search:"earntodie earntodie"},
+{name:"earntodie2",file:"earntodie2.html",icon:"icons/earntodie2.svg",search:"earntodie2 earntodie2"},
+{name:"eggycar",file:"eggycar.html",icon:"icons/eggycar.svg",search:"eggycar eggycar"},
+{name:"escapingtheprison",file:"escapingtheprison.html",icon:"icons/escapingtheprison.svg",search:"escapingtheprison escapingtheprison"},
+{name:"Evil Glitch",file:"evilglitch.html",icon:"icons/evilglitch.svg",search:"evil glitch evilglitch"},
+{name:"fancypantsadventure",file:"fancypantsadventure.html",icon:"icons/fancypantsadventure.svg",search:"fancypantsadventure fancypantsadventure"},
+{name:"fancypantsadventure2",file:"fancypantsadventure2.html",icon:"icons/fancypantsadventure2.svg",search:"fancypantsadventure2 fancypantsadventure2"},
+{name:"fireboyandwatergirl",file:"fireboyandwatergirl.html",icon:"icons/fireboyandwatergirl.svg",search:"fireboyandwatergirl fireboyandwatergirl"},
+{name:"fireboyandwatergirl2",file:"fireboyandwatergirl2.html",icon:"icons/fireboyandwatergirl2.svg",search:"fireboyandwatergirl2 fireboyandwatergirl2"},
+{name:"fireboyandwatergirl3",file:"fireboyandwatergirl3.html",icon:"icons/fireboyandwatergirl3.svg",search:"fireboyandwatergirl3 fireboyandwatergirl3"},
+{name:"fireboyandwatergirl4",file:"fireboyandwatergirl4.html",icon:"icons/fireboyandwatergirl4.svg",search:"fireboyandwatergirl4 fireboyandwatergirl4"},
+{name:"Flappy Bird",file:"flappybird.html",icon:"icons/flappybird.svg",search:"flappy bird flappybird"},
+{name:"floodrunner2",file:"floodrunner2.html",icon:"icons/floodrunner2.svg",search:"floodrunner2 floodrunner2"},
+{name:"floodrunner3",file:"floodrunner3.html",icon:"icons/floodrunner3.svg",search:"floodrunner3 floodrunner3"},
+{name:"floodrunner4",file:"floodrunner4.html",icon:"icons/floodrunner4.svg",search:"floodrunner4 floodrunner4"},
+{name:"fnaf",file:"fnaf.html",icon:"icons/fnaf.svg",search:"fnaf fnaf"},
+{name:"FNAF-4",file:"fnaf4.html",icon:"icons/fnaf4.svg",search:"fnaf-4 fnaf4"},
+{name:"FOOTBALL BROS!",file:"footballbros.html",icon:"icons/footballbros.svg",search:"football bros! footballbros"},
+{name:"footballlegends",file:"footballlegends.html",icon:"icons/footballlegends.svg",search:"footballlegends footballlegends"},
+{name:"freerider3",file:"freerider3.html",icon:"icons/freerider3.svg",search:"freerider3 freerider3"},
+{name:"fruitninja",file:"fruitninja.html",icon:"icons/fruitninja.svg",search:"fruitninja fruitninja"},
+{name:"funnybattle",file:"funnybattle.html",icon:"icons/funnybattle.svg",search:"funnybattle funnybattle"},
+{name:"funnybattle2",file:"funnybattle2.html",icon:"icons/funnybattle2.svg",search:"funnybattle2 funnybattle2"},
+{name:"Geometry Dash",file:"geometrydash.html",icon:"icons/geometrydash.svg",search:"geometry dash geometrydash"},
+{name:"getontop",file:"getontop.html",icon:"icons/getontop.svg",search:"getontop getontop"},
+{name:"googlebaseball",file:"googlebaseball.html",icon:"icons/googlebaseball.svg",search:"googlebaseball googlebaseball"},
+{name:"Dinosaur Game Chrome",file:"googledino.html",icon:"icons/googledino.svg",search:"dinosaur game chrome googledino"},
+{name:"guesstheiranswer",file:"guesstheiranswer.html",icon:"icons/guesstheiranswer.svg",search:"guesstheiranswer guesstheiranswer"},
+{name:"hanger2",file:"hanger2.html",icon:"icons/hanger2.svg",search:"hanger2 hanger2"},
+{name:"happywheels",file:"happywheels.html",icon:"icons/happywheels.svg",search:"happywheels happywheels"},
+{name:"helixjump",file:"helixjump.html",icon:"icons/helixjump.svg",search:"helixjump helixjump"},
+{name:"hillclimbracinglite",file:"hillclimbracinglite.html",icon:"icons/hillclimbracinglite.svg",search:"hillclimbracinglite hillclimbracinglite"},
+{name:"holeio",file:"holeio.html",icon:"icons/holeio.svg",search:"holeio holeio"},
+{name:"houseofhazards",file:"houseofhazards.html",icon:"icons/houseofhazards.svg",search:"houseofhazards houseofhazards"},
+{name:"hoverracerdrive",file:"hoverracerdrive.html",icon:"icons/hoverracerdrive.svg",search:"hoverracerdrive hoverracerdrive"},
+{name:"idlebreakout",file:"idlebreakout.html",icon:"icons/idlebreakout.svg",search:"idlebreakout idlebreakout"},
+{name:"游戏大厅 · Game Hub",file:"index.html",icon:"icons/index.svg",search:"游戏大厅 · game hub index"},
+{name:"ironsnout",file:"ironsnout.html",icon:"icons/ironsnout.svg",search:"ironsnout ironsnout"},
+{name:"jetpackjoyride",file:"jetpackjoyride.html",icon:"icons/jetpackjoyride.svg",search:"jetpackjoyride jetpackjoyride"},
+{name:"johnnytrigger",file:"johnnytrigger.html",icon:"icons/johnnytrigger.svg",search:"johnnytrigger johnnytrigger"},
+{name:"Jumping Shell",file:"jumpingshell.html",icon:"icons/jumpingshell.svg",search:"jumping shell jumpingshell"},
+{name:"karatebros",file:"karatebros.html",icon:"icons/karatebros.svg",search:"karatebros karatebros"},
+{name:"learntofly",file:"learntofly.html",icon:"icons/learntofly.svg",search:"learntofly learntofly"},
+{name:"learntofly2",file:"learntofly2.html",icon:"icons/learntofly2.svg",search:"learntofly2 learntofly2"},
+{name:"learntoflyidle",file:"learntoflyidle.html",icon:"icons/learntoflyidle.svg",search:"learntoflyidle learntoflyidle"},
+{name:"Level Devil",file:"leveldevil.html",icon:"icons/leveldevil.svg",search:"level devil leveldevil"},
+{name:"melonplayground",file:"melonplayground.html",icon:"icons/melonplayground.svg",search:"melonplayground melonplayground"},
+{name:"mergeroundracers",file:"mergeroundracers.html",icon:"icons/mergeroundracers.svg",search:"mergeroundracers mergeroundracers"},
+{name:"minesweeper",file:"minesweeper.html",icon:"icons/minesweeper.svg",search:"minesweeper minesweeper"},
+{name:"monstertracks",file:"monstertracks.html",icon:"icons/monstertracks.svg",search:"monstertracks monstertracks"},
+{name:"motox3m2",file:"motox3m2.html",icon:"icons/motox3m2.svg",search:"motox3m2 motox3m2"},
+{name:"motox3m3",file:"motox3m3.html",icon:"icons/motox3m3.svg",search:"motox3m3 motox3m3"},
+{name:"motox3mpoolparty",file:"motox3mpoolparty.html",icon:"icons/motox3mpoolparty.svg",search:"motox3mpoolparty motox3mpoolparty"},
+{name:"motox3mspookyland",file:"motox3mspookyland.html",icon:"icons/motox3mspookyland.svg",search:"motox3mspookyland motox3mspookyland"},
+{name:"motox3mwinter",file:"motox3mwinter.html",icon:"icons/motox3mwinter.svg",search:"motox3mwinter motox3mwinter"},
+{name:"Noob Miner",file:"noobminer.html",icon:"icons/noobminer.svg",search:"noob miner noobminer"},
+{name:"oppositeday",file:"oppositeday.html",icon:"icons/oppositeday.svg",search:"oppositeday oppositeday"},
+{name:"OvOfw",file:"ovo.html",icon:"icons/ovo.svg",search:"ovofw ovo"},
+{name:"OvO 2",file:"ovo2.html",icon:"icons/ovo2.svg",search:"ovo 2 ovo2"},
+{name:"Pac Man",file:"pacman.html",icon:"icons/pacman.svg",search:"pac man pacman"},
+{name:"papasburgeria",file:"papasburgeria.html",icon:"icons/papasburgeria.svg",search:"papasburgeria papasburgeria"},
+{name:"papascheeseria",file:"papascheeseria.html",icon:"icons/papascheeseria.svg",search:"papascheeseria papascheeseria"},
+{name:"papascupcakeria",file:"papascupcakeria.html",icon:"icons/papascupcakeria.svg",search:"papascupcakeria papascupcakeria"},
+{name:"papasdonuteria",file:"papasdonuteria.html",icon:"icons/papasdonuteria.svg",search:"papasdonuteria papasdonuteria"},
+{name:"papasfreezeria",file:"papasfreezeria.html",icon:"icons/papasfreezeria.svg",search:"papasfreezeria papasfreezeria"},
+{name:"papashotdoggeria",file:"papashotdoggeria.html",icon:"icons/papashotdoggeria.svg",search:"papashotdoggeria papashotdoggeria"},
+{name:"papaspancakeria",file:"papaspancakeria.html",icon:"icons/papaspancakeria.svg",search:"papaspancakeria papaspancakeria"},
+{name:"papaspastaria",file:"papaspastaria.html",icon:"icons/papaspastaria.svg",search:"papaspastaria papaspastaria"},
+{name:"papaspizzeria",file:"papaspizzeria.html",icon:"icons/papaspizzeria.svg",search:"papaspizzeria papaspizzeria"},
+{name:"papastacomia",file:"papastacomia.html",icon:"icons/papastacomia.svg",search:"papastacomia papastacomia"},
+{name:"papaswingeria",file:"papaswingeria.html",icon:"icons/papaswingeria.svg",search:"papaswingeria papaswingeria"},
+{name:"parkingfury",file:"parkingfury.html",icon:"icons/parkingfury.svg",search:"parkingfury parkingfury"},
+{name:"parkingfury2",file:"parkingfury2.html",icon:"icons/parkingfury2.svg",search:"parkingfury2 parkingfury2"},
+{name:"parkingfury3",file:"parkingfury3.html",icon:"icons/parkingfury3.svg",search:"parkingfury3 parkingfury3"},
+{name:"picosschool",file:"picosschool.html",icon:"icons/picosschool.svg",search:"picosschool picosschool"},
+{name:"pingpongchaos",file:"pingpongchaos.html",icon:"icons/pingpongchaos.svg",search:"pingpongchaos pingpongchaos"},
+{name:"Pixel Speedrun",file:"pixelspeedrun.html",icon:"icons/pixelspeedrun.svg",search:"pixel speedrun pixelspeedrun"},
+{name:"plantsvszombies",file:"plantsvszombies.html",icon:"icons/plantsvszombies.svg",search:"plantsvszombies plantsvszombies"},
+{name:"plonky",file:"plonky.html",icon:"icons/plonky.svg",search:"plonky plonky"},
+{name:"polytrack",file:"polytrack.html",icon:"icons/polytrack.svg",search:"polytrack polytrack"},
+{name:"poorbunny",file:"poorbunny.html",icon:"icons/poorbunny.svg",search:"poorbunny poorbunny"},
+{name:"pou",file:"pou.html",icon:"icons/pou.svg",search:"pou pou"},
+{name:"ragdollhit",file:"ragdollhit.html",icon:"icons/ragdollhit.svg",search:"ragdollhit ragdollhit"},
+{name:"ragdollsoccer",file:"ragdollsoccer.html",icon:"icons/ragdollsoccer.svg",search:"ragdollsoccer ragdollsoccer"},
+{name:"redball4vol1",file:"redball4vol1.html",icon:"icons/redball4vol1.svg",search:"redball4vol1 redball4vol1"},
+{name:"redball4vol2",file:"redball4vol2.html",icon:"icons/redball4vol2.svg",search:"redball4vol2 redball4vol2"},
+{name:"redball4vol3",file:"redball4vol3.html",icon:"icons/redball4vol3.svg",search:"redball4vol3 redball4vol3"},
+{name:"retrobowl",file:"retrobowl.html",icon:"icons/retrobowl.svg",search:"retrobowl retrobowl"},
+{name:"retrobowlcollege",file:"retrobowlcollege.html",icon:"icons/retrobowlcollege.svg",search:"retrobowlcollege retrobowlcollege"},
+{name:"retrohighway",file:"retrohighway.html",icon:"icons/retrohighway.svg",search:"retrohighway retrohighway"},
+{name:"Retro-Ping-Pong",file:"retropingpong.html",icon:"icons/retropingpong.svg",search:"retro-ping-pong retropingpong"},
+{name:"riddleschool",file:"riddleschool.html",icon:"icons/riddleschool.svg",search:"riddleschool riddleschool"},
+{name:"riddleschool2",file:"riddleschool2.html",icon:"icons/riddleschool2.svg",search:"riddleschool2 riddleschool2"},
+{name:"riddleschool3",file:"riddleschool3.html",icon:"icons/riddleschool3.svg",search:"riddleschool3 riddleschool3"},
+{name:"riddleschool4",file:"riddleschool4.html",icon:"icons/riddleschool4.svg",search:"riddleschool4 riddleschool4"},
+{name:"Rooftop Snipers 2",file:"rooftopsnipers2.html",icon:"icons/rooftopsnipers2.svg",search:"rooftop snipers 2 rooftopsnipers2"},
+{name:"run",file:"run.html",icon:"icons/run.svg",search:"run run"},
+{name:"run2",file:"run2.html",icon:"icons/run2.svg",search:"run2 run2"},
+{name:"run3",file:"run3.html",icon:"icons/run3.svg",search:"run3 run3"},
+{name:"Sand",file:"sandgame.html",icon:"icons/sandgame.svg",search:"sand sandgame"},
+{name:"shortlife",file:"shortlife.html",icon:"icons/shortlife.svg",search:"shortlife shortlife"},
+{name:"slope2player",file:"slope2player.html",icon:"icons/slope2player.svg",search:"slope2player slope2player"},
+{name:"slowroads",file:"slowroads.html",icon:"icons/slowroads.svg",search:"slowroads slowroads"},
+{name:"Super Mario 64",file:"sm64.html",icon:"icons/sm64.svg",search:"super mario 64 sm64"},
+{name:"snowballio",file:"snowballio.html",icon:"icons/snowballio.svg",search:"snowballio snowballio"},
+{name:"soccerbros",file:"soccerbros.html",icon:"icons/soccerbros.svg",search:"soccerbros soccerbros"},
+{name:"SPACEBAR CLICKER",file:"spacebarclicker.html",icon:"icons/spacebarclicker.svg",search:"spacebar clicker spacebarclicker"},
+{name:"spaceiskey",file:"spaceiskey.html",icon:"icons/spaceiskey.svg",search:"spaceiskey spaceiskey"},
+{name:"spaceiskey2",file:"spaceiskey2.html",icon:"icons/spaceiskey2.svg",search:"spaceiskey2 spaceiskey2"},
+{name:"Space Waves",file:"spacewaves.html",icon:"icons/spacewaves.svg",search:"space waves spacewaves"},
+{name:"speedstars",file:"speedstars.html",icon:"icons/speedstars.svg",search:"speedstars speedstars"},
+{name:"Sprunki",file:"sprunki.html",icon:"icons/sprunki.svg",search:"sprunki sprunki"},
+{name:"stack",file:"stack.html",icon:"icons/stack.svg",search:"stack stack"},
+{name:"stacktris",file:"stacktris.html",icon:"icons/stacktris.svg",search:"stacktris stacktris"},
+{name:"stateio",file:"stateio.html",icon:"icons/stateio.svg",search:"stateio stateio"},
+{name:"stickarchersbattle",file:"stickarchersbattle.html",icon:"icons/stickarchersbattle.svg",search:"stickarchersbattle stickarchersbattle"},
+{name:"stickfighter",file:"stickfighter.html",icon:"icons/stickfighter.svg",search:"stickfighter stickfighter"},
+{name:"Stickman Hook",file:"stickmanhook.html",icon:"icons/stickmanhook.svg",search:"stickman hook stickmanhook"},
+{name:"stickmerge",file:"stickmerge.html",icon:"icons/stickmerge.svg",search:"stickmerge stickmerge"},
+{name:"superliquidsoccer",file:"superliquidsoccer.html",icon:"icons/superliquidsoccer.svg",search:"superliquidsoccer superliquidsoccer"},
+{name:"tabletennisworldtour",file:"tabletennisworldtour.html",icon:"icons/tabletennisworldtour.svg",search:"tabletennisworldtour tabletennisworldtour"},
+{name:"tag",file:"tag.html",icon:"icons/tag.svg",search:"tag tag"},
+{name:"templeofboom",file:"templeofboom.html",icon:"icons/templeofboom.svg",search:"templeofboom templeofboom"},
+{name:"territorialio",file:"territorialio.html",icon:"icons/territorialio.svg",search:"territorialio territorialio"},
+{name:"theimpossiblequiz",file:"theimpossiblequiz.html",icon:"icons/theimpossiblequiz.svg",search:"theimpossiblequiz theimpossiblequiz"},
+{name:"theimpossiblequiz2",file:"theimpossiblequiz2.html",icon:"icons/theimpossiblequiz2.svg",search:"theimpossiblequiz2 theimpossiblequiz2"},
+{name:"thereisnog",file:"thereisnog.html",icon:"icons/thereisnog.svg",search:"thereisnog thereisnog"},
+{name:"thisistheonlylevel",file:"thisistheonlylevel.html",icon:"icons/thisistheonlylevel.svg",search:"thisistheonlylevel thisistheonlylevel"},
+{name:"thisistheonlyleveltoo",file:"thisistheonlyleveltoo.html",icon:"icons/thisistheonlyleveltoo.svg",search:"thisistheonlyleveltoo thisistheonlyleveltoo"},
+{name:"timeshooter2",file:"timeshooter2.html",icon:"icons/timeshooter2.svg",search:"timeshooter2 timeshooter2"},
+{name:"tinyfishing",file:"tinyfishing.html",icon:"icons/tinyfishing.svg",search:"tinyfishing tinyfishing"},
+{name:"trapthecat",file:"trapthecat.html",icon:"icons/trapthecat.svg",search:"trapthecat trapthecat"},
+{name:"triviacrack",file:"triviacrack.html",icon:"icons/triviacrack.svg",search:"triviacrack triviacrack"},
+{name:"tubejumpers",file:"tubejumpers.html",icon:"icons/tubejumpers.svg",search:"tubejumpers tubejumpers"},
+{name:"tunnelrush",file:"tunnelrush.html",icon:"icons/tunnelrush.svg",search:"tunnelrush tunnelrush"},
+{name:"unicyclehero",file:"unicyclehero.html",icon:"icons/unicyclehero.svg",search:"unicyclehero unicyclehero"},
+{name:"vex4",file:"vex4.html",icon:"icons/vex4.svg",search:"vex4 vex4"},
+{name:"vex5",file:"vex5.html",icon:"icons/vex5.svg",search:"vex5 vex5"},
+{name:"vexx3m",file:"vexx3m.html",icon:"icons/vexx3m.svg",search:"vexx3m vexx3m"},
+{name:"vexx3m2",file:"vexx3m2.html",icon:"icons/vexx3m2.svg",search:"vexx3m2 vexx3m2"},
+{name:"volleyrandom",file:"volleyrandom.html",icon:"icons/volleyrandom.svg",search:"volleyrandom volleyrandom"},
+{name:"webecomewhatwebehold",file:"webecomewhatwebehold.html",icon:"icons/webecomewhatwebehold.svg",search:"webecomewhatwebehold webecomewhatwebehold"},
+{name:"wheeliebike",file:"wheeliebike.html",icon:"icons/wheeliebike.svg",search:"wheeliebike wheeliebike"},
+{name:"wheely",file:"wheely.html",icon:"icons/wheely.svg",search:"wheely wheely"},
+{name:"wheely2",file:"wheely2.html",icon:"icons/wheely2.svg",search:"wheely2 wheely2"},
+{name:"wheely3",file:"wheely3.html",icon:"icons/wheely3.svg",search:"wheely3 wheely3"},
+{name:"wheely6",file:"wheely6.html",icon:"icons/wheely6.svg",search:"wheely6 wheely6"},
+{name:"wheely8",file:"wheely8.html",icon:"icons/wheely8.svg",search:"wheely8 wheely8"},
+{name:"wordleunlimited",file:"wordleunlimited.html",icon:"icons/wordleunlimited.svg",search:"wordleunlimited wordleunlimited"},
+{name:"worldshardestgame",file:"worldshardestgame.html",icon:"icons/worldshardestgame.svg",search:"worldshardestgame worldshardestgame"},
+{name:"worldshardestgame2",file:"worldshardestgame2.html",icon:"icons/worldshardestgame2.svg",search:"worldshardestgame2 worldshardestgame2"},
+{name:"worldshardestgame3",file:"worldshardestgame3.html",icon:"icons/worldshardestgame3.svg",search:"worldshardestgame3 worldshardestgame3"},
+{name:"wrestlebros",file:"wrestlebros.html",icon:"icons/wrestlebros.svg",search:"wrestlebros wrestlebros"},
+{name:"zombierush",file:"zombierush.html",icon:"icons/zombierush.svg",search:"zombierush zombierush"}];
+var grid=document.getElementById("grid");
+var countEl=document.getElementById("count");
+var noResults=document.getElementById("noresults");
+var searchEl=document.getElementById("search");
+
 function render(filter){
-  const f=(filter||"").toLowerCase();
-  const filtered=f?GAMES.filter(g=>g.name.toLowerCase().includes(f)):GAMES;
-  grid.innerHTML="";
-  if(filtered.length===0){noResults.style.display="block";countEl.textContent="0 games";return;}
-  noResults.style.display="none";
-  countEl.textContent=filtered.length+" game"+(filtered.length!==1?"s":"");
-  filtered.forEach(g=>{
-    const a=document.createElement("a");
-    a.className="card";
-    a.href=g.file;
-    a.innerHTML='<img class="card-icon" src="'+g.icon+'" alt="'+g.name+'" loading="lazy"><div class="card-name">'+g.name+'</div>';
-    grid.appendChild(a);
-  });
+  filter=(filter||"").toLowerCase().trim();
+  var html="";
+  var n=0;
+  for(var i=0;i<GAMES.length;i++){
+    var g=GAMES[i];
+    if(filter && g.search.indexOf(filter)===-1) continue;
+    html+='<a class="card" href="'+g.file+'"><div class="card-icon"><img src="'+g.icon+'" alt="'+g.name+'" loading="lazy"></div><div class="card-name">'+g.name+'</div></a>';
+    n++;
+  }
+  grid.innerHTML=html;
+  countEl.textContent=n+" games";
+  noResults.style.display=n===0?"block":"none";
 }
-search.addEventListener("input",function(){render(this.value)});
+
+searchEl.addEventListener("input",function(){render(this.value)});
 render("");
 </script>
 </body>
