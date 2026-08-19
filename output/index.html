@@ -1,293 +1,1421 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Game Lobby</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Game Hub</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#1a1a2e;color:#e0e0e0;min-height:100vh;overflow-x:hidden}
-.header{background:linear-gradient(135deg,#16213e 0%,#0f3460 100%);padding:16px 12px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.4)}
-.search-wrap{position:relative;margin-bottom:8px}
-.search-wrap input{width:100%;padding:10px 14px 10px 38px;border:none;border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-size:15px;outline:none;transition:background .2s}
-.search-wrap input:focus{background:rgba(255,255,255,.18)}
-.search-wrap input::placeholder{color:rgba(255,255,255,.45)}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.45);font-size:16px;pointer-events:none}
-.count{font-size:12px;color:rgba(255,255,255,.5);text-align:right;padding:0 4px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px 10px 20px;max-width:800px;margin:0 auto}
-@media(min-width:480px){.grid{grid-template-columns:repeat(3,1fr);gap:12px;padding:12px 16px 24px}}
-@media(min-width:768px){.grid{grid-template-columns:repeat(4,1fr);gap:14px;padding:14px 20px 28px}}
-@media(min-width:1024px){.grid{grid-template-columns:repeat(5,1fr);gap:16px;padding:16px 24px 32px}}
-.card{background:#16213e;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px}
-.card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.35)}
-.card:active{transform:scale(.96)}
-.icon-wrap{width:108px;height:108px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden}
-.icon-wrap img{width:86px;height:86px;display:block}
-.card-name{font-size:11px;color:rgba(255,255,255,.75);text-align:center;margin-top:6px;line-height:1.3;max-width:108px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.no-results{text-align:center;padding:60px 20px;color:rgba(255,255,255,.35);font-size:15px;display:none}
+html,body{width:100%;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{background:#000;color:#fff;display:flex;flex-direction:column}
+.header{background:linear-gradient(135deg,#0a0a1a 0%,#1a1a3e 50%,#0a0a1a 100%);padding:16px 16px 12px;flex-shrink:0;position:relative;z-index:10}
+.header::after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(233,69,96,0.3),transparent)}
+.header h1{font-size:20px;font-weight:600;background:linear-gradient(135deg,#e94560,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;letter-spacing:1px}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;padding:10px 14px 10px 36px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:rgba(233,69,96,0.5)}
+.search-wrap input::placeholder{color:rgba(255,255,255,0.35)}
+.search-wrap::before{content:"&#128269;";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;opacity:0.4}
+.count{padding:6px 16px;font-size:12px;color:rgba(255,255,255,0.4);flex-shrink:0;background:rgba(0,0,0,0.3)}
+.grid-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 12px 20px;-webkit-overflow-scrolling:touch}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:480px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:720px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:960px){.grid{grid-template-columns:repeat(5,1fr)}}
+@media(min-width:1200px){.grid{grid-template-columns:repeat(6,1fr)}}
+.card{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,0.04);border-radius:12px;padding:10px 4px 8px;text-decoration:none;color:#fff;transition:transform .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.card:active{transform:scale(0.95);background:rgba(255,255,255,0.08)}
+.icon-wrap{width:86px;height:86px;border-radius:0;overflow:hidden;flex-shrink:0}
+.icon-wrap img{width:100%;height:100%;display:block}
+.card-title{font-size:11px;text-align:center;line-height:1.3;margin-top:6px;color:rgba(255,255,255,0.75);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;max-height:28px;padding:0 4px}
+.no-results{display:none;text-align:center;padding:40px 20px;color:rgba(255,255,255,0.3);font-size:14px}
 </style>
 </head>
 <body>
 <div class="header">
-<div class="search-wrap">
-<span class="search-icon">&#128269;</span>
-<input type="text" id="search" placeholder="Search games..." autocomplete="off">
+  <h1>Game Hub</h1>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="Search games..." autocomplete="off">
+  </div>
 </div>
-<div class="count" id="count"></div>
+<div class="count" id="count">225 games</div>
+<div class="grid-wrap">
+  <div class="grid" id="grid">
+      <a class="card" href="1.5.html" title="My Drive - Google Drive">
+        <div class="icon-wrap">
+          <img src="icons/1_5.svg" alt="My Drive - Google Drive" loading="lazy">
+        </div>
+        <div class="card-title">My Drive - Google Drive</div>
+      </a>
+      <a class="card" href="1.8.html" title="School">
+        <div class="icon-wrap">
+          <img src="icons/1_8.svg" alt="School" loading="lazy">
+        </div>
+        <div class="card-title">School</div>
+      </a>
+      <a class="card" href="12minibattles.html" title="12minibattles">
+        <div class="icon-wrap">
+          <img src="icons/12minibattles.svg" alt="12minibattles" loading="lazy">
+        </div>
+        <div class="card-title">12minibattles</div>
+      </a>
+      <a class="card" href="1on1soccer.html" title="1on1soccer">
+        <div class="icon-wrap">
+          <img src="icons/1on1soccer.svg" alt="1on1soccer" loading="lazy">
+        </div>
+        <div class="card-title">1on1soccer</div>
+      </a>
+      <a class="card" href="1on1tennis.html" title="1on1tennis">
+        <div class="icon-wrap">
+          <img src="icons/1on1tennis.svg" alt="1on1tennis" loading="lazy">
+        </div>
+        <div class="card-title">1on1tennis</div>
+      </a>
+      <a class="card" href="2048.html" title="2048">
+        <div class="icon-wrap">
+          <img src="icons/2048.svg" alt="2048" loading="lazy">
+        </div>
+        <div class="card-title">2048</div>
+      </a>
+      <a class="card" href="2048cupcakes.html" title="2048cupcakes">
+        <div class="icon-wrap">
+          <img src="icons/2048cupcakes.svg" alt="2048cupcakes" loading="lazy">
+        </div>
+        <div class="card-title">2048cupcakes</div>
+      </a>
+      <a class="card" href="8ballclassic.html" title="8ballclassic">
+        <div class="icon-wrap">
+          <img src="icons/8ballclassic.svg" alt="8ballclassic" loading="lazy">
+        </div>
+        <div class="card-title">8ballclassic</div>
+      </a>
+      <a class="card" href="Alpha_1.2.6.html" title="Alpha_1.2.6">
+        <div class="icon-wrap">
+          <img src="icons/Alpha_1_2_6.svg" alt="Alpha_1.2.6" loading="lazy">
+        </div>
+        <div class="card-title">Alpha_1.2.6</div>
+      </a>
+      <a class="card" href="Beta_1.3.html" title="Eaglercraft Launcher  -  Beta 1.3 Offline">
+        <div class="icon-wrap">
+          <img src="icons/Beta_1_3.svg" alt="Eaglercraft Launcher  -  Beta 1.3 Offline" loading="lazy">
+        </div>
+        <div class="card-title">Eaglercraft Launcher  -  Beta 1.3 Offline</div>
+      </a>
+      <a class="card" href="Indev.html" title="Eaglercraft Launcher  -  Indev Offline">
+        <div class="icon-wrap">
+          <img src="icons/Indev.svg" alt="Eaglercraft Launcher  -  Indev Offline" loading="lazy">
+        </div>
+        <div class="card-title">Eaglercraft Launcher  -  Indev Offline</div>
+      </a>
+      <a class="card" href="agariolite.html" title="Solo Agario">
+        <div class="icon-wrap">
+          <img src="icons/agariolite.svg" alt="Solo Agario" loading="lazy">
+        </div>
+        <div class="card-title">Solo Agario</div>
+      </a>
+      <a class="card" href="ageofwar.html" title="ageofwar">
+        <div class="icon-wrap">
+          <img src="icons/ageofwar.svg" alt="ageofwar" loading="lazy">
+        </div>
+        <div class="card-title">ageofwar</div>
+      </a>
+      <a class="card" href="ageofwar2.html" title="ageofwar2">
+        <div class="icon-wrap">
+          <img src="icons/ageofwar2.svg" alt="ageofwar2" loading="lazy">
+        </div>
+        <div class="card-title">ageofwar2</div>
+      </a>
+      <a class="card" href="agesofconflict.html" title="agesofconflict">
+        <div class="icon-wrap">
+          <img src="icons/agesofconflict.svg" alt="agesofconflict" loading="lazy">
+        </div>
+        <div class="card-title">agesofconflict</div>
+      </a>
+      <a class="card" href="amongus.html" title="amongus">
+        <div class="icon-wrap">
+          <img src="icons/amongus.svg" alt="amongus" loading="lazy">
+        </div>
+        <div class="card-title">amongus</div>
+      </a>
+      <a class="card" href="angrybirds.html" title="angrybirds">
+        <div class="icon-wrap">
+          <img src="icons/angrybirds.svg" alt="angrybirds" loading="lazy">
+        </div>
+        <div class="card-title">angrybirds</div>
+      </a>
+      <a class="card" href="angrybirdsspace.html" title="angrybirdsspace">
+        <div class="icon-wrap">
+          <img src="icons/angrybirdsspace.svg" alt="angrybirdsspace" loading="lazy">
+        </div>
+        <div class="card-title">angrybirdsspace</div>
+      </a>
+      <a class="card" href="awesometanks.html" title="awesometanks">
+        <div class="icon-wrap">
+          <img src="icons/awesometanks.svg" alt="awesometanks" loading="lazy">
+        </div>
+        <div class="card-title">awesometanks</div>
+      </a>
+      <a class="card" href="awesometanks2.html" title="awesometanks2">
+        <div class="icon-wrap">
+          <img src="icons/awesometanks2.svg" alt="awesometanks2" loading="lazy">
+        </div>
+        <div class="card-title">awesometanks2</div>
+      </a>
+      <a class="card" href="backrooms.html" title="backrooms">
+        <div class="icon-wrap">
+          <img src="icons/backrooms.svg" alt="backrooms" loading="lazy">
+        </div>
+        <div class="card-title">backrooms</div>
+      </a>
+      <a class="card" href="baconmaydie.html" title="baconmaydie">
+        <div class="icon-wrap">
+          <img src="icons/baconmaydie.svg" alt="baconmaydie" loading="lazy">
+        </div>
+        <div class="card-title">baconmaydie</div>
+      </a>
+      <a class="card" href="badicecream.html" title="badicecream">
+        <div class="icon-wrap">
+          <img src="icons/badicecream.svg" alt="badicecream" loading="lazy">
+        </div>
+        <div class="card-title">badicecream</div>
+      </a>
+      <a class="card" href="badicecream2.html" title="badicecream2">
+        <div class="icon-wrap">
+          <img src="icons/badicecream2.svg" alt="badicecream2" loading="lazy">
+        </div>
+        <div class="card-title">badicecream2</div>
+      </a>
+      <a class="card" href="badicecream3.html" title="badicecream3">
+        <div class="icon-wrap">
+          <img src="icons/badicecream3.svg" alt="badicecream3" loading="lazy">
+        </div>
+        <div class="card-title">badicecream3</div>
+      </a>
+      <a class="card" href="badpiggies.html" title="badpiggies">
+        <div class="icon-wrap">
+          <img src="icons/badpiggies.svg" alt="badpiggies" loading="lazy">
+        </div>
+        <div class="card-title">badpiggies</div>
+      </a>
+      <a class="card" href="baseballbros.html" title="baseballbros">
+        <div class="icon-wrap">
+          <img src="icons/baseballbros.svg" alt="baseballbros" loading="lazy">
+        </div>
+        <div class="card-title">baseballbros</div>
+      </a>
+      <a class="card" href="basketballlegends.html" title="basketballlegends">
+        <div class="icon-wrap">
+          <img src="icons/basketballlegends.svg" alt="basketballlegends" loading="lazy">
+        </div>
+        <div class="card-title">basketballlegends</div>
+      </a>
+      <a class="card" href="basketballstars.html" title="basketballstars">
+        <div class="icon-wrap">
+          <img src="icons/basketballstars.svg" alt="basketballstars" loading="lazy">
+        </div>
+        <div class="card-title">basketballstars</div>
+      </a>
+      <a class="card" href="basketbros.html" title="basketbros">
+        <div class="icon-wrap">
+          <img src="icons/basketbros.svg" alt="basketbros" loading="lazy">
+        </div>
+        <div class="card-title">basketbros</div>
+      </a>
+      <a class="card" href="basketrandom.html" title="Class">
+        <div class="icon-wrap">
+          <img src="icons/basketrandom.svg" alt="Class" loading="lazy">
+        </div>
+        <div class="card-title">Class</div>
+      </a>
+      <a class="card" href="blockysnakes.html" title="blockysnakes">
+        <div class="icon-wrap">
+          <img src="icons/blockysnakes.svg" alt="blockysnakes" loading="lazy">
+        </div>
+        <div class="card-title">blockysnakes</div>
+      </a>
+      <a class="card" href="bloonsTD.html" title="bloonsTD">
+        <div class="icon-wrap">
+          <img src="icons/bloonsTD.svg" alt="bloonsTD" loading="lazy">
+        </div>
+        <div class="card-title">bloonsTD</div>
+      </a>
+      <a class="card" href="bloonsTD2.html" title="bloonsTD2">
+        <div class="icon-wrap">
+          <img src="icons/bloonsTD2.svg" alt="bloonsTD2" loading="lazy">
+        </div>
+        <div class="card-title">bloonsTD2</div>
+      </a>
+      <a class="card" href="bloonsTD3.html" title="bloonsTD3">
+        <div class="icon-wrap">
+          <img src="icons/bloonsTD3.svg" alt="bloonsTD3" loading="lazy">
+        </div>
+        <div class="card-title">bloonsTD3</div>
+      </a>
+      <a class="card" href="bloonsTD4.html" title="bloonsTD4">
+        <div class="icon-wrap">
+          <img src="icons/bloonsTD4.svg" alt="bloonsTD4" loading="lazy">
+        </div>
+        <div class="card-title">bloonsTD4</div>
+      </a>
+      <a class="card" href="bloonsTD5.html" title="bloonsTD5">
+        <div class="icon-wrap">
+          <img src="icons/bloonsTD5.svg" alt="bloonsTD5" loading="lazy">
+        </div>
+        <div class="card-title">bloonsTD5</div>
+      </a>
+      <a class="card" href="bloxorz.html" title="bloxorz">
+        <div class="icon-wrap">
+          <img src="icons/bloxorz.svg" alt="bloxorz" loading="lazy">
+        </div>
+        <div class="card-title">bloxorz</div>
+      </a>
+      <a class="card" href="blumgiracers.html" title="blumgiracers">
+        <div class="icon-wrap">
+          <img src="icons/blumgiracers.svg" alt="blumgiracers" loading="lazy">
+        </div>
+        <div class="card-title">blumgiracers</div>
+      </a>
+      <a class="card" href="blumgirocket.html" title="blumgirocket">
+        <div class="icon-wrap">
+          <img src="icons/blumgirocket.svg" alt="blumgirocket" loading="lazy">
+        </div>
+        <div class="card-title">blumgirocket</div>
+      </a>
+      <a class="card" href="bobtherobber.html" title="bobtherobber">
+        <div class="icon-wrap">
+          <img src="icons/bobtherobber.svg" alt="bobtherobber" loading="lazy">
+        </div>
+        <div class="card-title">bobtherobber</div>
+      </a>
+      <a class="card" href="bobtherobber2.html" title="bobtherobber2">
+        <div class="icon-wrap">
+          <img src="icons/bobtherobber2.svg" alt="bobtherobber2" loading="lazy">
+        </div>
+        <div class="card-title">bobtherobber2</div>
+      </a>
+      <a class="card" href="bobtherobber5.html" title="bobtherobber5">
+        <div class="icon-wrap">
+          <img src="icons/bobtherobber5.svg" alt="bobtherobber5" loading="lazy">
+        </div>
+        <div class="card-title">bobtherobber5</div>
+      </a>
+      <a class="card" href="breakingthebank.html" title="breakingthebank">
+        <div class="icon-wrap">
+          <img src="icons/breakingthebank.svg" alt="breakingthebank" loading="lazy">
+        </div>
+        <div class="card-title">breakingthebank</div>
+      </a>
+      <a class="card" href="bubbleshooter.html" title="bubbleshooter">
+        <div class="icon-wrap">
+          <img src="icons/bubbleshooter.svg" alt="bubbleshooter" loading="lazy">
+        </div>
+        <div class="card-title">bubbleshooter</div>
+      </a>
+      <a class="card" href="candycrush.html" title="candycrush">
+        <div class="icon-wrap">
+          <img src="icons/candycrush.svg" alt="candycrush" loading="lazy">
+        </div>
+        <div class="card-title">candycrush</div>
+      </a>
+      <a class="card" href="capybaraclicker.html" title="capybaraclicker">
+        <div class="icon-wrap">
+          <img src="icons/capybaraclicker.svg" alt="capybaraclicker" loading="lazy">
+        </div>
+        <div class="card-title">capybaraclicker</div>
+      </a>
+      <a class="card" href="cardrawing.html" title="cardrawing">
+        <div class="icon-wrap">
+          <img src="icons/cardrawing.svg" alt="cardrawing" loading="lazy">
+        </div>
+        <div class="card-title">cardrawing</div>
+      </a>
+      <a class="card" href="carkingarena.html" title="carkingarena">
+        <div class="icon-wrap">
+          <img src="icons/carkingarena.svg" alt="carkingarena" loading="lazy">
+        </div>
+        <div class="card-title">carkingarena</div>
+      </a>
+      <a class="card" href="chess.html" title="chess">
+        <div class="icon-wrap">
+          <img src="icons/chess.svg" alt="chess" loading="lazy">
+        </div>
+        <div class="card-title">chess</div>
+      </a>
+      <a class="card" href="choppyorc.html" title="choppyorc">
+        <div class="icon-wrap">
+          <img src="icons/choppyorc.svg" alt="choppyorc" loading="lazy">
+        </div>
+        <div class="card-title">choppyorc</div>
+      </a>
+      <a class="card" href="circloO.html" title="circloO">
+        <div class="icon-wrap">
+          <img src="icons/circloO.svg" alt="circloO" loading="lazy">
+        </div>
+        <div class="card-title">circloO</div>
+      </a>
+      <a class="card" href="circloO2.html" title="circloO2">
+        <div class="icon-wrap">
+          <img src="icons/circloO2.svg" alt="circloO2" loading="lazy">
+        </div>
+        <div class="card-title">circloO2</div>
+      </a>
+      <a class="card" href="clashofvikings.html" title="clashofvikings">
+        <div class="icon-wrap">
+          <img src="icons/clashofvikings.svg" alt="clashofvikings" loading="lazy">
+        </div>
+        <div class="card-title">clashofvikings</div>
+      </a>
+      <a class="card" href="cleanupio.html" title="cleanupio">
+        <div class="icon-wrap">
+          <img src="icons/cleanupio.svg" alt="cleanupio" loading="lazy">
+        </div>
+        <div class="card-title">cleanupio</div>
+      </a>
+      <a class="card" href="clusterrush.html" title="Cluster Rush">
+        <div class="icon-wrap">
+          <img src="icons/clusterrush.svg" alt="Cluster Rush" loading="lazy">
+        </div>
+        <div class="card-title">Cluster Rush</div>
+      </a>
+      <a class="card" href="crazycars.html" title="crazycars">
+        <div class="icon-wrap">
+          <img src="icons/crazycars.svg" alt="crazycars" loading="lazy">
+        </div>
+        <div class="card-title">crazycars</div>
+      </a>
+      <a class="card" href="crazymotorcycle.html" title="crazymotorcycle">
+        <div class="icon-wrap">
+          <img src="icons/crazymotorcycle.svg" alt="crazymotorcycle" loading="lazy">
+        </div>
+        <div class="card-title">crazymotorcycle</div>
+      </a>
+      <a class="card" href="dadish.html" title="dadish">
+        <div class="icon-wrap">
+          <img src="icons/dadish.svg" alt="dadish" loading="lazy">
+        </div>
+        <div class="card-title">dadish</div>
+      </a>
+      <a class="card" href="dadish2.html" title="dadish2">
+        <div class="icon-wrap">
+          <img src="icons/dadish2.svg" alt="dadish2" loading="lazy">
+        </div>
+        <div class="card-title">dadish2</div>
+      </a>
+      <a class="card" href="dadish3.html" title="dadish3">
+        <div class="icon-wrap">
+          <img src="icons/dadish3.svg" alt="dadish3" loading="lazy">
+        </div>
+        <div class="card-title">dadish3</div>
+      </a>
+      <a class="card" href="deathrun3D.html" title="deathrun3D">
+        <div class="icon-wrap">
+          <img src="icons/deathrun3D.svg" alt="deathrun3D" loading="lazy">
+        </div>
+        <div class="card-title">deathrun3D</div>
+      </a>
+      <a class="card" href="doodlejump.html" title="doodlejump">
+        <div class="icon-wrap">
+          <img src="icons/doodlejump.svg" alt="doodlejump" loading="lazy">
+        </div>
+        <div class="card-title">doodlejump</div>
+      </a>
+      <a class="card" href="drawclimber.html" title="drawclimber">
+        <div class="icon-wrap">
+          <img src="icons/drawclimber.svg" alt="drawclimber" loading="lazy">
+        </div>
+        <div class="card-title">drawclimber</div>
+      </a>
+      <a class="card" href="ducklife.html" title="ducklife">
+        <div class="icon-wrap">
+          <img src="icons/ducklife.svg" alt="ducklife" loading="lazy">
+        </div>
+        <div class="card-title">ducklife</div>
+      </a>
+      <a class="card" href="ducklife2.html" title="ducklife2">
+        <div class="icon-wrap">
+          <img src="icons/ducklife2.svg" alt="ducklife2" loading="lazy">
+        </div>
+        <div class="card-title">ducklife2</div>
+      </a>
+      <a class="card" href="ducklife3.html" title="ducklife3">
+        <div class="icon-wrap">
+          <img src="icons/ducklife3.svg" alt="ducklife3" loading="lazy">
+        </div>
+        <div class="card-title">ducklife3</div>
+      </a>
+      <a class="card" href="ducklife4.html" title="ducklife4">
+        <div class="icon-wrap">
+          <img src="icons/ducklife4.svg" alt="ducklife4" loading="lazy">
+        </div>
+        <div class="card-title">ducklife4</div>
+      </a>
+      <a class="card" href="ducklife5.html" title="ducklife5">
+        <div class="icon-wrap">
+          <img src="icons/ducklife5.svg" alt="ducklife5" loading="lazy">
+        </div>
+        <div class="card-title">ducklife5</div>
+      </a>
+      <a class="card" href="ducklingsio.html" title="ducklingsio">
+        <div class="icon-wrap">
+          <img src="icons/ducklingsio.svg" alt="ducklingsio" loading="lazy">
+        </div>
+        <div class="card-title">ducklingsio</div>
+      </a>
+      <a class="card" href="eagleride.html" title="eagleride">
+        <div class="icon-wrap">
+          <img src="icons/eagleride.svg" alt="eagleride" loading="lazy">
+        </div>
+        <div class="card-title">eagleride</div>
+      </a>
+      <a class="card" href="earntodie.html" title="earntodie">
+        <div class="icon-wrap">
+          <img src="icons/earntodie.svg" alt="earntodie" loading="lazy">
+        </div>
+        <div class="card-title">earntodie</div>
+      </a>
+      <a class="card" href="earntodie2.html" title="earntodie2">
+        <div class="icon-wrap">
+          <img src="icons/earntodie2.svg" alt="earntodie2" loading="lazy">
+        </div>
+        <div class="card-title">earntodie2</div>
+      </a>
+      <a class="card" href="eggycar.html" title="eggycar">
+        <div class="icon-wrap">
+          <img src="icons/eggycar.svg" alt="eggycar" loading="lazy">
+        </div>
+        <div class="card-title">eggycar</div>
+      </a>
+      <a class="card" href="escapingtheprison.html" title="escapingtheprison">
+        <div class="icon-wrap">
+          <img src="icons/escapingtheprison.svg" alt="escapingtheprison" loading="lazy">
+        </div>
+        <div class="card-title">escapingtheprison</div>
+      </a>
+      <a class="card" href="evilglitch.html" title="Evil Glitch">
+        <div class="icon-wrap">
+          <img src="icons/evilglitch.svg" alt="Evil Glitch" loading="lazy">
+        </div>
+        <div class="card-title">Evil Glitch</div>
+      </a>
+      <a class="card" href="fancypantsadventure.html" title="fancypantsadventure">
+        <div class="icon-wrap">
+          <img src="icons/fancypantsadventure.svg" alt="fancypantsadventure" loading="lazy">
+        </div>
+        <div class="card-title">fancypantsadventure</div>
+      </a>
+      <a class="card" href="fancypantsadventure2.html" title="fancypantsadventure2">
+        <div class="icon-wrap">
+          <img src="icons/fancypantsadventure2.svg" alt="fancypantsadventure2" loading="lazy">
+        </div>
+        <div class="card-title">fancypantsadventure2</div>
+      </a>
+      <a class="card" href="fireboyandwatergirl.html" title="fireboyandwatergirl">
+        <div class="icon-wrap">
+          <img src="icons/fireboyandwatergirl.svg" alt="fireboyandwatergirl" loading="lazy">
+        </div>
+        <div class="card-title">fireboyandwatergirl</div>
+      </a>
+      <a class="card" href="fireboyandwatergirl2.html" title="fireboyandwatergirl2">
+        <div class="icon-wrap">
+          <img src="icons/fireboyandwatergirl2.svg" alt="fireboyandwatergirl2" loading="lazy">
+        </div>
+        <div class="card-title">fireboyandwatergirl2</div>
+      </a>
+      <a class="card" href="fireboyandwatergirl3.html" title="fireboyandwatergirl3">
+        <div class="icon-wrap">
+          <img src="icons/fireboyandwatergirl3.svg" alt="fireboyandwatergirl3" loading="lazy">
+        </div>
+        <div class="card-title">fireboyandwatergirl3</div>
+      </a>
+      <a class="card" href="fireboyandwatergirl4.html" title="fireboyandwatergirl4">
+        <div class="icon-wrap">
+          <img src="icons/fireboyandwatergirl4.svg" alt="fireboyandwatergirl4" loading="lazy">
+        </div>
+        <div class="card-title">fireboyandwatergirl4</div>
+      </a>
+      <a class="card" href="flappybird.html" title="Flappy Bird">
+        <div class="icon-wrap">
+          <img src="icons/flappybird.svg" alt="Flappy Bird" loading="lazy">
+        </div>
+        <div class="card-title">Flappy Bird</div>
+      </a>
+      <a class="card" href="floodrunner2.html" title="floodrunner2">
+        <div class="icon-wrap">
+          <img src="icons/floodrunner2.svg" alt="floodrunner2" loading="lazy">
+        </div>
+        <div class="card-title">floodrunner2</div>
+      </a>
+      <a class="card" href="floodrunner3.html" title="floodrunner3">
+        <div class="icon-wrap">
+          <img src="icons/floodrunner3.svg" alt="floodrunner3" loading="lazy">
+        </div>
+        <div class="card-title">floodrunner3</div>
+      </a>
+      <a class="card" href="floodrunner4.html" title="floodrunner4">
+        <div class="icon-wrap">
+          <img src="icons/floodrunner4.svg" alt="floodrunner4" loading="lazy">
+        </div>
+        <div class="card-title">floodrunner4</div>
+      </a>
+      <a class="card" href="fnaf.html" title="fnaf">
+        <div class="icon-wrap">
+          <img src="icons/fnaf.svg" alt="fnaf" loading="lazy">
+        </div>
+        <div class="card-title">fnaf</div>
+      </a>
+      <a class="card" href="fnaf4.html" title="FNAF-4">
+        <div class="icon-wrap">
+          <img src="icons/fnaf4.svg" alt="FNAF-4" loading="lazy">
+        </div>
+        <div class="card-title">FNAF-4</div>
+      </a>
+      <a class="card" href="footballbros.html" title="FOOTBALL BROS!  -  Official Site">
+        <div class="icon-wrap">
+          <img src="icons/footballbros.svg" alt="FOOTBALL BROS!  -  Official Site" loading="lazy">
+        </div>
+        <div class="card-title">FOOTBALL BROS!  -  Official Site</div>
+      </a>
+      <a class="card" href="footballlegends.html" title="footballlegends">
+        <div class="icon-wrap">
+          <img src="icons/footballlegends.svg" alt="footballlegends" loading="lazy">
+        </div>
+        <div class="card-title">footballlegends</div>
+      </a>
+      <a class="card" href="freerider3.html" title="freerider3">
+        <div class="icon-wrap">
+          <img src="icons/freerider3.svg" alt="freerider3" loading="lazy">
+        </div>
+        <div class="card-title">freerider3</div>
+      </a>
+      <a class="card" href="fruitninja.html" title="fruitninja">
+        <div class="icon-wrap">
+          <img src="icons/fruitninja.svg" alt="fruitninja" loading="lazy">
+        </div>
+        <div class="card-title">fruitninja</div>
+      </a>
+      <a class="card" href="funnybattle.html" title="funnybattle">
+        <div class="icon-wrap">
+          <img src="icons/funnybattle.svg" alt="funnybattle" loading="lazy">
+        </div>
+        <div class="card-title">funnybattle</div>
+      </a>
+      <a class="card" href="funnybattle2.html" title="funnybattle2">
+        <div class="icon-wrap">
+          <img src="icons/funnybattle2.svg" alt="funnybattle2" loading="lazy">
+        </div>
+        <div class="card-title">funnybattle2</div>
+      </a>
+      <a class="card" href="geometrydash.html" title="Geometry Dash">
+        <div class="icon-wrap">
+          <img src="icons/geometrydash.svg" alt="Geometry Dash" loading="lazy">
+        </div>
+        <div class="card-title">Geometry Dash</div>
+      </a>
+      <a class="card" href="getontop.html" title="getontop">
+        <div class="icon-wrap">
+          <img src="icons/getontop.svg" alt="getontop" loading="lazy">
+        </div>
+        <div class="card-title">getontop</div>
+      </a>
+      <a class="card" href="googlebaseball.html" title="googlebaseball">
+        <div class="icon-wrap">
+          <img src="icons/googlebaseball.svg" alt="googlebaseball" loading="lazy">
+        </div>
+        <div class="card-title">googlebaseball</div>
+      </a>
+      <a class="card" href="googledino.html" title="Dinosaur Game Chrome">
+        <div class="icon-wrap">
+          <img src="icons/googledino.svg" alt="Dinosaur Game Chrome" loading="lazy">
+        </div>
+        <div class="card-title">Dinosaur Game Chrome</div>
+      </a>
+      <a class="card" href="guesstheiranswer.html" title="guesstheiranswer">
+        <div class="icon-wrap">
+          <img src="icons/guesstheiranswer.svg" alt="guesstheiranswer" loading="lazy">
+        </div>
+        <div class="card-title">guesstheiranswer</div>
+      </a>
+      <a class="card" href="hanger2.html" title="hanger2">
+        <div class="icon-wrap">
+          <img src="icons/hanger2.svg" alt="hanger2" loading="lazy">
+        </div>
+        <div class="card-title">hanger2</div>
+      </a>
+      <a class="card" href="happywheels.html" title="happywheels">
+        <div class="icon-wrap">
+          <img src="icons/happywheels.svg" alt="happywheels" loading="lazy">
+        </div>
+        <div class="card-title">happywheels</div>
+      </a>
+      <a class="card" href="helixjump.html" title="helixjump">
+        <div class="icon-wrap">
+          <img src="icons/helixjump.svg" alt="helixjump" loading="lazy">
+        </div>
+        <div class="card-title">helixjump</div>
+      </a>
+      <a class="card" href="hillclimbracinglite.html" title="hillclimbracinglite">
+        <div class="icon-wrap">
+          <img src="icons/hillclimbracinglite.svg" alt="hillclimbracinglite" loading="lazy">
+        </div>
+        <div class="card-title">hillclimbracinglite</div>
+      </a>
+      <a class="card" href="holeio.html" title="holeio">
+        <div class="icon-wrap">
+          <img src="icons/holeio.svg" alt="holeio" loading="lazy">
+        </div>
+        <div class="card-title">holeio</div>
+      </a>
+      <a class="card" href="houseofhazards.html" title="houseofhazards">
+        <div class="icon-wrap">
+          <img src="icons/houseofhazards.svg" alt="houseofhazards" loading="lazy">
+        </div>
+        <div class="card-title">houseofhazards</div>
+      </a>
+      <a class="card" href="hoverracerdrive.html" title="hoverracerdrive">
+        <div class="icon-wrap">
+          <img src="icons/hoverracerdrive.svg" alt="hoverracerdrive" loading="lazy">
+        </div>
+        <div class="card-title">hoverracerdrive</div>
+      </a>
+      <a class="card" href="idlebreakout.html" title="idlebreakout">
+        <div class="icon-wrap">
+          <img src="icons/idlebreakout.svg" alt="idlebreakout" loading="lazy">
+        </div>
+        <div class="card-title">idlebreakout</div>
+      </a>
+      <a class="card" href="index.html" title="游戏大厅 · Game Hub">
+        <div class="icon-wrap">
+          <img src="icons/index.svg" alt="游戏大厅 · Game Hub" loading="lazy">
+        </div>
+        <div class="card-title">游戏大厅 · Game Hub</div>
+      </a>
+      <a class="card" href="ironsnout.html" title="ironsnout">
+        <div class="icon-wrap">
+          <img src="icons/ironsnout.svg" alt="ironsnout" loading="lazy">
+        </div>
+        <div class="card-title">ironsnout</div>
+      </a>
+      <a class="card" href="jetpackjoyride.html" title="jetpackjoyride">
+        <div class="icon-wrap">
+          <img src="icons/jetpackjoyride.svg" alt="jetpackjoyride" loading="lazy">
+        </div>
+        <div class="card-title">jetpackjoyride</div>
+      </a>
+      <a class="card" href="johnnytrigger.html" title="johnnytrigger">
+        <div class="icon-wrap">
+          <img src="icons/johnnytrigger.svg" alt="johnnytrigger" loading="lazy">
+        </div>
+        <div class="card-title">johnnytrigger</div>
+      </a>
+      <a class="card" href="jumpingshell.html" title="jumpingshell">
+        <div class="icon-wrap">
+          <img src="icons/jumpingshell.svg" alt="jumpingshell" loading="lazy">
+        </div>
+        <div class="card-title">jumpingshell</div>
+      </a>
+      <a class="card" href="karatebros.html" title="karatebros">
+        <div class="icon-wrap">
+          <img src="icons/karatebros.svg" alt="karatebros" loading="lazy">
+        </div>
+        <div class="card-title">karatebros</div>
+      </a>
+      <a class="card" href="learntofly.html" title="learntofly">
+        <div class="icon-wrap">
+          <img src="icons/learntofly.svg" alt="learntofly" loading="lazy">
+        </div>
+        <div class="card-title">learntofly</div>
+      </a>
+      <a class="card" href="learntofly2.html" title="learntofly2">
+        <div class="icon-wrap">
+          <img src="icons/learntofly2.svg" alt="learntofly2" loading="lazy">
+        </div>
+        <div class="card-title">learntofly2</div>
+      </a>
+      <a class="card" href="learntoflyidle.html" title="learntoflyidle">
+        <div class="icon-wrap">
+          <img src="icons/learntoflyidle.svg" alt="learntoflyidle" loading="lazy">
+        </div>
+        <div class="card-title">learntoflyidle</div>
+      </a>
+      <a class="card" href="leveldevil.html" title="Level Devil">
+        <div class="icon-wrap">
+          <img src="icons/leveldevil.svg" alt="Level Devil" loading="lazy">
+        </div>
+        <div class="card-title">Level Devil</div>
+      </a>
+      <a class="card" href="melonplayground.html" title="melonplayground">
+        <div class="icon-wrap">
+          <img src="icons/melonplayground.svg" alt="melonplayground" loading="lazy">
+        </div>
+        <div class="card-title">melonplayground</div>
+      </a>
+      <a class="card" href="mergeroundracers.html" title="mergeroundracers">
+        <div class="icon-wrap">
+          <img src="icons/mergeroundracers.svg" alt="mergeroundracers" loading="lazy">
+        </div>
+        <div class="card-title">mergeroundracers</div>
+      </a>
+      <a class="card" href="minesweeper.html" title="minesweeper">
+        <div class="icon-wrap">
+          <img src="icons/minesweeper.svg" alt="minesweeper" loading="lazy">
+        </div>
+        <div class="card-title">minesweeper</div>
+      </a>
+      <a class="card" href="monstertracks.html" title="monstertracks">
+        <div class="icon-wrap">
+          <img src="icons/monstertracks.svg" alt="monstertracks" loading="lazy">
+        </div>
+        <div class="card-title">monstertracks</div>
+      </a>
+      <a class="card" href="motox3m2.html" title="motox3m2">
+        <div class="icon-wrap">
+          <img src="icons/motox3m2.svg" alt="motox3m2" loading="lazy">
+        </div>
+        <div class="card-title">motox3m2</div>
+      </a>
+      <a class="card" href="motox3m3.html" title="motox3m3">
+        <div class="icon-wrap">
+          <img src="icons/motox3m3.svg" alt="motox3m3" loading="lazy">
+        </div>
+        <div class="card-title">motox3m3</div>
+      </a>
+      <a class="card" href="motox3mpoolparty.html" title="motox3mpoolparty">
+        <div class="icon-wrap">
+          <img src="icons/motox3mpoolparty.svg" alt="motox3mpoolparty" loading="lazy">
+        </div>
+        <div class="card-title">motox3mpoolparty</div>
+      </a>
+      <a class="card" href="motox3mspookyland.html" title="motox3mspookyland">
+        <div class="icon-wrap">
+          <img src="icons/motox3mspookyland.svg" alt="motox3mspookyland" loading="lazy">
+        </div>
+        <div class="card-title">motox3mspookyland</div>
+      </a>
+      <a class="card" href="motox3mwinter.html" title="motox3mwinter">
+        <div class="icon-wrap">
+          <img src="icons/motox3mwinter.svg" alt="motox3mwinter" loading="lazy">
+        </div>
+        <div class="card-title">motox3mwinter</div>
+      </a>
+      <a class="card" href="noobminer.html" title="Noob Miner">
+        <div class="icon-wrap">
+          <img src="icons/noobminer.svg" alt="Noob Miner" loading="lazy">
+        </div>
+        <div class="card-title">Noob Miner</div>
+      </a>
+      <a class="card" href="oppositeday.html" title="oppositeday">
+        <div class="icon-wrap">
+          <img src="icons/oppositeday.svg" alt="oppositeday" loading="lazy">
+        </div>
+        <div class="card-title">oppositeday</div>
+      </a>
+      <a class="card" href="ovo.html" title="OvOfw">
+        <div class="icon-wrap">
+          <img src="icons/ovo.svg" alt="OvOfw" loading="lazy">
+        </div>
+        <div class="card-title">OvOfw</div>
+      </a>
+      <a class="card" href="ovo2.html" title="OvO 2">
+        <div class="icon-wrap">
+          <img src="icons/ovo2.svg" alt="OvO 2" loading="lazy">
+        </div>
+        <div class="card-title">OvO 2</div>
+      </a>
+      <a class="card" href="pacman.html" title="Pac Man">
+        <div class="icon-wrap">
+          <img src="icons/pacman.svg" alt="Pac Man" loading="lazy">
+        </div>
+        <div class="card-title">Pac Man</div>
+      </a>
+      <a class="card" href="papasburgeria.html" title="papasburgeria">
+        <div class="icon-wrap">
+          <img src="icons/papasburgeria.svg" alt="papasburgeria" loading="lazy">
+        </div>
+        <div class="card-title">papasburgeria</div>
+      </a>
+      <a class="card" href="papascheeseria.html" title="papascheeseria">
+        <div class="icon-wrap">
+          <img src="icons/papascheeseria.svg" alt="papascheeseria" loading="lazy">
+        </div>
+        <div class="card-title">papascheeseria</div>
+      </a>
+      <a class="card" href="papascupcakeria.html" title="papascupcakeria">
+        <div class="icon-wrap">
+          <img src="icons/papascupcakeria.svg" alt="papascupcakeria" loading="lazy">
+        </div>
+        <div class="card-title">papascupcakeria</div>
+      </a>
+      <a class="card" href="papasdonuteria.html" title="papasdonuteria">
+        <div class="icon-wrap">
+          <img src="icons/papasdonuteria.svg" alt="papasdonuteria" loading="lazy">
+        </div>
+        <div class="card-title">papasdonuteria</div>
+      </a>
+      <a class="card" href="papasfreezeria.html" title="papasfreezeria">
+        <div class="icon-wrap">
+          <img src="icons/papasfreezeria.svg" alt="papasfreezeria" loading="lazy">
+        </div>
+        <div class="card-title">papasfreezeria</div>
+      </a>
+      <a class="card" href="papashotdoggeria.html" title="papashotdoggeria">
+        <div class="icon-wrap">
+          <img src="icons/papashotdoggeria.svg" alt="papashotdoggeria" loading="lazy">
+        </div>
+        <div class="card-title">papashotdoggeria</div>
+      </a>
+      <a class="card" href="papaspancakeria.html" title="papaspancakeria">
+        <div class="icon-wrap">
+          <img src="icons/papaspancakeria.svg" alt="papaspancakeria" loading="lazy">
+        </div>
+        <div class="card-title">papaspancakeria</div>
+      </a>
+      <a class="card" href="papaspastaria.html" title="papaspastaria">
+        <div class="icon-wrap">
+          <img src="icons/papaspastaria.svg" alt="papaspastaria" loading="lazy">
+        </div>
+        <div class="card-title">papaspastaria</div>
+      </a>
+      <a class="card" href="papaspizzeria.html" title="papaspizzeria">
+        <div class="icon-wrap">
+          <img src="icons/papaspizzeria.svg" alt="papaspizzeria" loading="lazy">
+        </div>
+        <div class="card-title">papaspizzeria</div>
+      </a>
+      <a class="card" href="papastacomia.html" title="papastacomia">
+        <div class="icon-wrap">
+          <img src="icons/papastacomia.svg" alt="papastacomia" loading="lazy">
+        </div>
+        <div class="card-title">papastacomia</div>
+      </a>
+      <a class="card" href="papaswingeria.html" title="papaswingeria">
+        <div class="icon-wrap">
+          <img src="icons/papaswingeria.svg" alt="papaswingeria" loading="lazy">
+        </div>
+        <div class="card-title">papaswingeria</div>
+      </a>
+      <a class="card" href="parkingfury.html" title="parkingfury">
+        <div class="icon-wrap">
+          <img src="icons/parkingfury.svg" alt="parkingfury" loading="lazy">
+        </div>
+        <div class="card-title">parkingfury</div>
+      </a>
+      <a class="card" href="parkingfury2.html" title="parkingfury2">
+        <div class="icon-wrap">
+          <img src="icons/parkingfury2.svg" alt="parkingfury2" loading="lazy">
+        </div>
+        <div class="card-title">parkingfury2</div>
+      </a>
+      <a class="card" href="parkingfury3.html" title="parkingfury3">
+        <div class="icon-wrap">
+          <img src="icons/parkingfury3.svg" alt="parkingfury3" loading="lazy">
+        </div>
+        <div class="card-title">parkingfury3</div>
+      </a>
+      <a class="card" href="picosschool.html" title="picosschool">
+        <div class="icon-wrap">
+          <img src="icons/picosschool.svg" alt="picosschool" loading="lazy">
+        </div>
+        <div class="card-title">picosschool</div>
+      </a>
+      <a class="card" href="pingpongchaos.html" title="pingpongchaos">
+        <div class="icon-wrap">
+          <img src="icons/pingpongchaos.svg" alt="pingpongchaos" loading="lazy">
+        </div>
+        <div class="card-title">pingpongchaos</div>
+      </a>
+      <a class="card" href="pixelspeedrun.html" title="Pixel Speedrun">
+        <div class="icon-wrap">
+          <img src="icons/pixelspeedrun.svg" alt="Pixel Speedrun" loading="lazy">
+        </div>
+        <div class="card-title">Pixel Speedrun</div>
+      </a>
+      <a class="card" href="plantsvszombies.html" title="plantsvszombies">
+        <div class="icon-wrap">
+          <img src="icons/plantsvszombies.svg" alt="plantsvszombies" loading="lazy">
+        </div>
+        <div class="card-title">plantsvszombies</div>
+      </a>
+      <a class="card" href="plonky.html" title="plonky">
+        <div class="icon-wrap">
+          <img src="icons/plonky.svg" alt="plonky" loading="lazy">
+        </div>
+        <div class="card-title">plonky</div>
+      </a>
+      <a class="card" href="polytrack.html" title="polytrack">
+        <div class="icon-wrap">
+          <img src="icons/polytrack.svg" alt="polytrack" loading="lazy">
+        </div>
+        <div class="card-title">polytrack</div>
+      </a>
+      <a class="card" href="poorbunny.html" title="poorbunny">
+        <div class="icon-wrap">
+          <img src="icons/poorbunny.svg" alt="poorbunny" loading="lazy">
+        </div>
+        <div class="card-title">poorbunny</div>
+      </a>
+      <a class="card" href="pou.html" title="pou">
+        <div class="icon-wrap">
+          <img src="icons/pou.svg" alt="pou" loading="lazy">
+        </div>
+        <div class="card-title">pou</div>
+      </a>
+      <a class="card" href="ragdollhit.html" title="ragdollhit">
+        <div class="icon-wrap">
+          <img src="icons/ragdollhit.svg" alt="ragdollhit" loading="lazy">
+        </div>
+        <div class="card-title">ragdollhit</div>
+      </a>
+      <a class="card" href="ragdollsoccer.html" title="ragdollsoccer">
+        <div class="icon-wrap">
+          <img src="icons/ragdollsoccer.svg" alt="ragdollsoccer" loading="lazy">
+        </div>
+        <div class="card-title">ragdollsoccer</div>
+      </a>
+      <a class="card" href="redball4vol1.html" title="redball4vol1">
+        <div class="icon-wrap">
+          <img src="icons/redball4vol1.svg" alt="redball4vol1" loading="lazy">
+        </div>
+        <div class="card-title">redball4vol1</div>
+      </a>
+      <a class="card" href="redball4vol2.html" title="redball4vol2">
+        <div class="icon-wrap">
+          <img src="icons/redball4vol2.svg" alt="redball4vol2" loading="lazy">
+        </div>
+        <div class="card-title">redball4vol2</div>
+      </a>
+      <a class="card" href="redball4vol3.html" title="redball4vol3">
+        <div class="icon-wrap">
+          <img src="icons/redball4vol3.svg" alt="redball4vol3" loading="lazy">
+        </div>
+        <div class="card-title">redball4vol3</div>
+      </a>
+      <a class="card" href="retrobowl.html" title="retrobowl">
+        <div class="icon-wrap">
+          <img src="icons/retrobowl.svg" alt="retrobowl" loading="lazy">
+        </div>
+        <div class="card-title">retrobowl</div>
+      </a>
+      <a class="card" href="retrobowlcollege.html" title="retrobowlcollege">
+        <div class="icon-wrap">
+          <img src="icons/retrobowlcollege.svg" alt="retrobowlcollege" loading="lazy">
+        </div>
+        <div class="card-title">retrobowlcollege</div>
+      </a>
+      <a class="card" href="retrohighway.html" title="retrohighway">
+        <div class="icon-wrap">
+          <img src="icons/retrohighway.svg" alt="retrohighway" loading="lazy">
+        </div>
+        <div class="card-title">retrohighway</div>
+      </a>
+      <a class="card" href="retropingpong.html" title="Retro-Ping-Pong">
+        <div class="icon-wrap">
+          <img src="icons/retropingpong.svg" alt="Retro-Ping-Pong" loading="lazy">
+        </div>
+        <div class="card-title">Retro-Ping-Pong</div>
+      </a>
+      <a class="card" href="riddleschool.html" title="riddleschool">
+        <div class="icon-wrap">
+          <img src="icons/riddleschool.svg" alt="riddleschool" loading="lazy">
+        </div>
+        <div class="card-title">riddleschool</div>
+      </a>
+      <a class="card" href="riddleschool2.html" title="riddleschool2">
+        <div class="icon-wrap">
+          <img src="icons/riddleschool2.svg" alt="riddleschool2" loading="lazy">
+        </div>
+        <div class="card-title">riddleschool2</div>
+      </a>
+      <a class="card" href="riddleschool3.html" title="riddleschool3">
+        <div class="icon-wrap">
+          <img src="icons/riddleschool3.svg" alt="riddleschool3" loading="lazy">
+        </div>
+        <div class="card-title">riddleschool3</div>
+      </a>
+      <a class="card" href="riddleschool4.html" title="riddleschool4">
+        <div class="icon-wrap">
+          <img src="icons/riddleschool4.svg" alt="riddleschool4" loading="lazy">
+        </div>
+        <div class="card-title">riddleschool4</div>
+      </a>
+      <a class="card" href="rooftopsnipers2.html" title="Rooftop Snipers 2">
+        <div class="icon-wrap">
+          <img src="icons/rooftopsnipers2.svg" alt="Rooftop Snipers 2" loading="lazy">
+        </div>
+        <div class="card-title">Rooftop Snipers 2</div>
+      </a>
+      <a class="card" href="run.html" title="run">
+        <div class="icon-wrap">
+          <img src="icons/run.svg" alt="run" loading="lazy">
+        </div>
+        <div class="card-title">run</div>
+      </a>
+      <a class="card" href="run2.html" title="run2">
+        <div class="icon-wrap">
+          <img src="icons/run2.svg" alt="run2" loading="lazy">
+        </div>
+        <div class="card-title">run2</div>
+      </a>
+      <a class="card" href="run3.html" title="run3">
+        <div class="icon-wrap">
+          <img src="icons/run3.svg" alt="run3" loading="lazy">
+        </div>
+        <div class="card-title">run3</div>
+      </a>
+      <a class="card" href="sandgame.html" title="Sand">
+        <div class="icon-wrap">
+          <img src="icons/sandgame.svg" alt="Sand" loading="lazy">
+        </div>
+        <div class="card-title">Sand</div>
+      </a>
+      <a class="card" href="shortlife.html" title="shortlife">
+        <div class="icon-wrap">
+          <img src="icons/shortlife.svg" alt="shortlife" loading="lazy">
+        </div>
+        <div class="card-title">shortlife</div>
+      </a>
+      <a class="card" href="slope2player.html" title="slope2player">
+        <div class="icon-wrap">
+          <img src="icons/slope2player.svg" alt="slope2player" loading="lazy">
+        </div>
+        <div class="card-title">slope2player</div>
+      </a>
+      <a class="card" href="slowroads.html" title="slowroads">
+        <div class="icon-wrap">
+          <img src="icons/slowroads.svg" alt="slowroads" loading="lazy">
+        </div>
+        <div class="card-title">slowroads</div>
+      </a>
+      <a class="card" href="sm64.html" title="Super Mario 64">
+        <div class="icon-wrap">
+          <img src="icons/sm64.svg" alt="Super Mario 64" loading="lazy">
+        </div>
+        <div class="card-title">Super Mario 64</div>
+      </a>
+      <a class="card" href="snowballio.html" title="snowballio">
+        <div class="icon-wrap">
+          <img src="icons/snowballio.svg" alt="snowballio" loading="lazy">
+        </div>
+        <div class="card-title">snowballio</div>
+      </a>
+      <a class="card" href="soccerbros.html" title="soccerbros">
+        <div class="icon-wrap">
+          <img src="icons/soccerbros.svg" alt="soccerbros" loading="lazy">
+        </div>
+        <div class="card-title">soccerbros</div>
+      </a>
+      <a class="card" href="spacebarclicker.html" title="SPACEBAR CLICKER">
+        <div class="icon-wrap">
+          <img src="icons/spacebarclicker.svg" alt="SPACEBAR CLICKER" loading="lazy">
+        </div>
+        <div class="card-title">SPACEBAR CLICKER</div>
+      </a>
+      <a class="card" href="spaceiskey.html" title="spaceiskey">
+        <div class="icon-wrap">
+          <img src="icons/spaceiskey.svg" alt="spaceiskey" loading="lazy">
+        </div>
+        <div class="card-title">spaceiskey</div>
+      </a>
+      <a class="card" href="spaceiskey2.html" title="spaceiskey2">
+        <div class="icon-wrap">
+          <img src="icons/spaceiskey2.svg" alt="spaceiskey2" loading="lazy">
+        </div>
+        <div class="card-title">spaceiskey2</div>
+      </a>
+      <a class="card" href="spacewaves.html" title="Space Waves">
+        <div class="icon-wrap">
+          <img src="icons/spacewaves.svg" alt="Space Waves" loading="lazy">
+        </div>
+        <div class="card-title">Space Waves</div>
+      </a>
+      <a class="card" href="speedstars.html" title="speedstars">
+        <div class="icon-wrap">
+          <img src="icons/speedstars.svg" alt="speedstars" loading="lazy">
+        </div>
+        <div class="card-title">speedstars</div>
+      </a>
+      <a class="card" href="sprunki.html" title="Sprunki">
+        <div class="icon-wrap">
+          <img src="icons/sprunki.svg" alt="Sprunki" loading="lazy">
+        </div>
+        <div class="card-title">Sprunki</div>
+      </a>
+      <a class="card" href="stack.html" title="stack">
+        <div class="icon-wrap">
+          <img src="icons/stack.svg" alt="stack" loading="lazy">
+        </div>
+        <div class="card-title">stack</div>
+      </a>
+      <a class="card" href="stacktris.html" title="stacktris">
+        <div class="icon-wrap">
+          <img src="icons/stacktris.svg" alt="stacktris" loading="lazy">
+        </div>
+        <div class="card-title">stacktris</div>
+      </a>
+      <a class="card" href="stateio.html" title="stateio">
+        <div class="icon-wrap">
+          <img src="icons/stateio.svg" alt="stateio" loading="lazy">
+        </div>
+        <div class="card-title">stateio</div>
+      </a>
+      <a class="card" href="stickarchersbattle.html" title="stickarchersbattle">
+        <div class="icon-wrap">
+          <img src="icons/stickarchersbattle.svg" alt="stickarchersbattle" loading="lazy">
+        </div>
+        <div class="card-title">stickarchersbattle</div>
+      </a>
+      <a class="card" href="stickfighter.html" title="stickfighter">
+        <div class="icon-wrap">
+          <img src="icons/stickfighter.svg" alt="stickfighter" loading="lazy">
+        </div>
+        <div class="card-title">stickfighter</div>
+      </a>
+      <a class="card" href="stickmanhook.html" title="Stickman Hook">
+        <div class="icon-wrap">
+          <img src="icons/stickmanhook.svg" alt="Stickman Hook" loading="lazy">
+        </div>
+        <div class="card-title">Stickman Hook</div>
+      </a>
+      <a class="card" href="stickmerge.html" title="stickmerge">
+        <div class="icon-wrap">
+          <img src="icons/stickmerge.svg" alt="stickmerge" loading="lazy">
+        </div>
+        <div class="card-title">stickmerge</div>
+      </a>
+      <a class="card" href="superliquidsoccer.html" title="superliquidsoccer">
+        <div class="icon-wrap">
+          <img src="icons/superliquidsoccer.svg" alt="superliquidsoccer" loading="lazy">
+        </div>
+        <div class="card-title">superliquidsoccer</div>
+      </a>
+      <a class="card" href="tabletennisworldtour.html" title="tabletennisworldtour">
+        <div class="icon-wrap">
+          <img src="icons/tabletennisworldtour.svg" alt="tabletennisworldtour" loading="lazy">
+        </div>
+        <div class="card-title">tabletennisworldtour</div>
+      </a>
+      <a class="card" href="tag.html" title="tag">
+        <div class="icon-wrap">
+          <img src="icons/tag.svg" alt="tag" loading="lazy">
+        </div>
+        <div class="card-title">tag</div>
+      </a>
+      <a class="card" href="templeofboom.html" title="templeofboom">
+        <div class="icon-wrap">
+          <img src="icons/templeofboom.svg" alt="templeofboom" loading="lazy">
+        </div>
+        <div class="card-title">templeofboom</div>
+      </a>
+      <a class="card" href="territorialio.html" title="territorialio">
+        <div class="icon-wrap">
+          <img src="icons/territorialio.svg" alt="territorialio" loading="lazy">
+        </div>
+        <div class="card-title">territorialio</div>
+      </a>
+      <a class="card" href="theimpossiblequiz.html" title="theimpossiblequiz">
+        <div class="icon-wrap">
+          <img src="icons/theimpossiblequiz.svg" alt="theimpossiblequiz" loading="lazy">
+        </div>
+        <div class="card-title">theimpossiblequiz</div>
+      </a>
+      <a class="card" href="theimpossiblequiz2.html" title="theimpossiblequiz2">
+        <div class="icon-wrap">
+          <img src="icons/theimpossiblequiz2.svg" alt="theimpossiblequiz2" loading="lazy">
+        </div>
+        <div class="card-title">theimpossiblequiz2</div>
+      </a>
+      <a class="card" href="thereisnog.html" title="thereisnog">
+        <div class="icon-wrap">
+          <img src="icons/thereisnog.svg" alt="thereisnog" loading="lazy">
+        </div>
+        <div class="card-title">thereisnog</div>
+      </a>
+      <a class="card" href="thisistheonlylevel.html" title="thisistheonlylevel">
+        <div class="icon-wrap">
+          <img src="icons/thisistheonlylevel.svg" alt="thisistheonlylevel" loading="lazy">
+        </div>
+        <div class="card-title">thisistheonlylevel</div>
+      </a>
+      <a class="card" href="thisistheonlyleveltoo.html" title="thisistheonlyleveltoo">
+        <div class="icon-wrap">
+          <img src="icons/thisistheonlyleveltoo.svg" alt="thisistheonlyleveltoo" loading="lazy">
+        </div>
+        <div class="card-title">thisistheonlyleveltoo</div>
+      </a>
+      <a class="card" href="timeshooter2.html" title="timeshooter2">
+        <div class="icon-wrap">
+          <img src="icons/timeshooter2.svg" alt="timeshooter2" loading="lazy">
+        </div>
+        <div class="card-title">timeshooter2</div>
+      </a>
+      <a class="card" href="tinyfishing.html" title="tinyfishing">
+        <div class="icon-wrap">
+          <img src="icons/tinyfishing.svg" alt="tinyfishing" loading="lazy">
+        </div>
+        <div class="card-title">tinyfishing</div>
+      </a>
+      <a class="card" href="trapthecat.html" title="trapthecat">
+        <div class="icon-wrap">
+          <img src="icons/trapthecat.svg" alt="trapthecat" loading="lazy">
+        </div>
+        <div class="card-title">trapthecat</div>
+      </a>
+      <a class="card" href="triviacrack.html" title="triviacrack">
+        <div class="icon-wrap">
+          <img src="icons/triviacrack.svg" alt="triviacrack" loading="lazy">
+        </div>
+        <div class="card-title">triviacrack</div>
+      </a>
+      <a class="card" href="tubejumpers.html" title="tubejumpers">
+        <div class="icon-wrap">
+          <img src="icons/tubejumpers.svg" alt="tubejumpers" loading="lazy">
+        </div>
+        <div class="card-title">tubejumpers</div>
+      </a>
+      <a class="card" href="tunnelrush.html" title="tunnelrush">
+        <div class="icon-wrap">
+          <img src="icons/tunnelrush.svg" alt="tunnelrush" loading="lazy">
+        </div>
+        <div class="card-title">tunnelrush</div>
+      </a>
+      <a class="card" href="unicyclehero.html" title="unicyclehero">
+        <div class="icon-wrap">
+          <img src="icons/unicyclehero.svg" alt="unicyclehero" loading="lazy">
+        </div>
+        <div class="card-title">unicyclehero</div>
+      </a>
+      <a class="card" href="vex4.html" title="vex4">
+        <div class="icon-wrap">
+          <img src="icons/vex4.svg" alt="vex4" loading="lazy">
+        </div>
+        <div class="card-title">vex4</div>
+      </a>
+      <a class="card" href="vex5.html" title="vex5">
+        <div class="icon-wrap">
+          <img src="icons/vex5.svg" alt="vex5" loading="lazy">
+        </div>
+        <div class="card-title">vex5</div>
+      </a>
+      <a class="card" href="vexx3m.html" title="vexx3m">
+        <div class="icon-wrap">
+          <img src="icons/vexx3m.svg" alt="vexx3m" loading="lazy">
+        </div>
+        <div class="card-title">vexx3m</div>
+      </a>
+      <a class="card" href="vexx3m2.html" title="vexx3m2">
+        <div class="icon-wrap">
+          <img src="icons/vexx3m2.svg" alt="vexx3m2" loading="lazy">
+        </div>
+        <div class="card-title">vexx3m2</div>
+      </a>
+      <a class="card" href="volleyrandom.html" title="volleyrandom">
+        <div class="icon-wrap">
+          <img src="icons/volleyrandom.svg" alt="volleyrandom" loading="lazy">
+        </div>
+        <div class="card-title">volleyrandom</div>
+      </a>
+      <a class="card" href="webecomewhatwebehold.html" title="webecomewhatwebehold">
+        <div class="icon-wrap">
+          <img src="icons/webecomewhatwebehold.svg" alt="webecomewhatwebehold" loading="lazy">
+        </div>
+        <div class="card-title">webecomewhatwebehold</div>
+      </a>
+      <a class="card" href="wheeliebike.html" title="wheeliebike">
+        <div class="icon-wrap">
+          <img src="icons/wheeliebike.svg" alt="wheeliebike" loading="lazy">
+        </div>
+        <div class="card-title">wheeliebike</div>
+      </a>
+      <a class="card" href="wheely.html" title="wheely">
+        <div class="icon-wrap">
+          <img src="icons/wheely.svg" alt="wheely" loading="lazy">
+        </div>
+        <div class="card-title">wheely</div>
+      </a>
+      <a class="card" href="wheely2.html" title="wheely2">
+        <div class="icon-wrap">
+          <img src="icons/wheely2.svg" alt="wheely2" loading="lazy">
+        </div>
+        <div class="card-title">wheely2</div>
+      </a>
+      <a class="card" href="wheely3.html" title="wheely3">
+        <div class="icon-wrap">
+          <img src="icons/wheely3.svg" alt="wheely3" loading="lazy">
+        </div>
+        <div class="card-title">wheely3</div>
+      </a>
+      <a class="card" href="wheely6.html" title="wheely6">
+        <div class="icon-wrap">
+          <img src="icons/wheely6.svg" alt="wheely6" loading="lazy">
+        </div>
+        <div class="card-title">wheely6</div>
+      </a>
+      <a class="card" href="wheely8.html" title="wheely8">
+        <div class="icon-wrap">
+          <img src="icons/wheely8.svg" alt="wheely8" loading="lazy">
+        </div>
+        <div class="card-title">wheely8</div>
+      </a>
+      <a class="card" href="wordleunlimited.html" title="wordleunlimited">
+        <div class="icon-wrap">
+          <img src="icons/wordleunlimited.svg" alt="wordleunlimited" loading="lazy">
+        </div>
+        <div class="card-title">wordleunlimited</div>
+      </a>
+      <a class="card" href="worldshardestgame.html" title="worldshardestgame">
+        <div class="icon-wrap">
+          <img src="icons/worldshardestgame.svg" alt="worldshardestgame" loading="lazy">
+        </div>
+        <div class="card-title">worldshardestgame</div>
+      </a>
+      <a class="card" href="worldshardestgame2.html" title="worldshardestgame2">
+        <div class="icon-wrap">
+          <img src="icons/worldshardestgame2.svg" alt="worldshardestgame2" loading="lazy">
+        </div>
+        <div class="card-title">worldshardestgame2</div>
+      </a>
+      <a class="card" href="worldshardestgame3.html" title="worldshardestgame3">
+        <div class="icon-wrap">
+          <img src="icons/worldshardestgame3.svg" alt="worldshardestgame3" loading="lazy">
+        </div>
+        <div class="card-title">worldshardestgame3</div>
+      </a>
+      <a class="card" href="wrestlebros.html" title="wrestlebros">
+        <div class="icon-wrap">
+          <img src="icons/wrestlebros.svg" alt="wrestlebros" loading="lazy">
+        </div>
+        <div class="card-title">wrestlebros</div>
+      </a>
+      <a class="card" href="zombierush.html" title="zombierush">
+        <div class="icon-wrap">
+          <img src="icons/zombierush.svg" alt="zombierush" loading="lazy">
+        </div>
+        <div class="card-title">zombierush</div>
+      </a>
+  </div>
+  <div class="no-results" id="noResults">No games found</div>
 </div>
-<div class="grid" id="grid"></div>
-<div class="no-results" id="noResults">No games found</div>
 <script>
-var GAMES=[
-{n:"My Drive - Google Drive",f:"1.5.html",i:"icons/1.5.svg"},
-{n:"School",f:"1.8.html",i:"icons/1.8.svg"},
-{n:"12minibattles",f:"12minibattles.html",i:"icons/12minibattles.svg"},
-{n:"1on1soccer",f:"1on1soccer.html",i:"icons/1on1soccer.svg"},
-{n:"1on1tennis",f:"1on1tennis.html",i:"icons/1on1tennis.svg"},
-{n:"2048",f:"2048.html",i:"icons/2048.svg"},
-{n:"2048cupcakes",f:"2048cupcakes.html",i:"icons/2048cupcakes.svg"},
-{n:"8ballclassic",f:"8ballclassic.html",i:"icons/8ballclassic.svg"},
-{n:"Alpha_1.2.6",f:"Alpha_1.2.6.html",i:"icons/Alpha_1.2.6.svg"},
-{n:"Eaglercraft Launcher | Beta 1.3 Offline",f:"Beta_1.3.html",i:"icons/Beta_1.3.svg"},
-{n:"Eaglercraft Launcher | Indev Offline",f:"Indev.html",i:"icons/Indev.svg"},
-{n:"Solo Agario",f:"agariolite.html",i:"icons/agariolite.svg"},
-{n:"ageofwar",f:"ageofwar.html",i:"icons/ageofwar.svg"},
-{n:"ageofwar2",f:"ageofwar2.html",i:"icons/ageofwar2.svg"},
-{n:"agesofconflict",f:"agesofconflict.html",i:"icons/agesofconflict.svg"},
-{n:"amongus",f:"amongus.html",i:"icons/amongus.svg"},
-{n:"angrybirds",f:"angrybirds.html",i:"icons/angrybirds.svg"},
-{n:"angrybirdsspace",f:"angrybirdsspace.html",i:"icons/angrybirdsspace.svg"},
-{n:"awesometanks",f:"awesometanks.html",i:"icons/awesometanks.svg"},
-{n:"awesometanks2",f:"awesometanks2.html",i:"icons/awesometanks2.svg"},
-{n:"backrooms",f:"backrooms.html",i:"icons/backrooms.svg"},
-{n:"baconmaydie",f:"baconmaydie.html",i:"icons/baconmaydie.svg"},
-{n:"badicecream",f:"badicecream.html",i:"icons/badicecream.svg"},
-{n:"badicecream2",f:"badicecream2.html",i:"icons/badicecream2.svg"},
-{n:"badicecream3",f:"badicecream3.html",i:"icons/badicecream3.svg"},
-{n:"badpiggies",f:"badpiggies.html",i:"icons/badpiggies.svg"},
-{n:"baseballbros",f:"baseballbros.html",i:"icons/baseballbros.svg"},
-{n:"basketballlegends",f:"basketballlegends.html",i:"icons/basketballlegends.svg"},
-{n:"basketballstars",f:"basketballstars.html",i:"icons/basketballstars.svg"},
-{n:"basketbros",f:"basketbros.html",i:"icons/basketbros.svg"},
-{n:"Class",f:"basketrandom.html",i:"icons/basketrandom.svg"},
-{n:"blockysnakes",f:"blockysnakes.html",i:"icons/blockysnakes.svg"},
-{n:"bloonsTD",f:"bloonsTD.html",i:"icons/bloonsTD.svg"},
-{n:"bloonsTD2",f:"bloonsTD2.html",i:"icons/bloonsTD2.svg"},
-{n:"bloonsTD3",f:"bloonsTD3.html",i:"icons/bloonsTD3.svg"},
-{n:"bloonsTD4",f:"bloonsTD4.html",i:"icons/bloonsTD4.svg"},
-{n:"bloonsTD5",f:"bloonsTD5.html",i:"icons/bloonsTD5.svg"},
-{n:"bloxorz",f:"bloxorz.html",i:"icons/bloxorz.svg"},
-{n:"blumgiracers",f:"blumgiracers.html",i:"icons/blumgiracers.svg"},
-{n:"blumgirocket",f:"blumgirocket.html",i:"icons/blumgirocket.svg"},
-{n:"bobtherobber",f:"bobtherobber.html",i:"icons/bobtherobber.svg"},
-{n:"bobtherobber2",f:"bobtherobber2.html",i:"icons/bobtherobber2.svg"},
-{n:"bobtherobber5",f:"bobtherobber5.html",i:"icons/bobtherobber5.svg"},
-{n:"breakingthebank",f:"breakingthebank.html",i:"icons/breakingthebank.svg"},
-{n:"bubbleshooter",f:"bubbleshooter.html",i:"icons/bubbleshooter.svg"},
-{n:"candycrush",f:"candycrush.html",i:"icons/candycrush.svg"},
-{n:"capybaraclicker",f:"capybaraclicker.html",i:"icons/capybaraclicker.svg"},
-{n:"cardrawing",f:"cardrawing.html",i:"icons/cardrawing.svg"},
-{n:"carkingarena",f:"carkingarena.html",i:"icons/carkingarena.svg"},
-{n:"chess",f:"chess.html",i:"icons/chess.svg"},
-{n:"choppyorc",f:"choppyorc.html",i:"icons/choppyorc.svg"},
-{n:"circloO",f:"circloO.html",i:"icons/circloO.svg"},
-{n:"circloO2",f:"circloO2.html",i:"icons/circloO2.svg"},
-{n:"clashofvikings",f:"clashofvikings.html",i:"icons/clashofvikings.svg"},
-{n:"cleanupio",f:"cleanupio.html",i:"icons/cleanupio.svg"},
-{n:"Cluster Rush",f:"clusterrush.html",i:"icons/clusterrush.svg"},
-{n:"crazycars",f:"crazycars.html",i:"icons/crazycars.svg"},
-{n:"crazymotorcycle",f:"crazymotorcycle.html",i:"icons/crazymotorcycle.svg"},
-{n:"dadish",f:"dadish.html",i:"icons/dadish.svg"},
-{n:"dadish2",f:"dadish2.html",i:"icons/dadish2.svg"},
-{n:"dadish3",f:"dadish3.html",i:"icons/dadish3.svg"},
-{n:"deathrun3D",f:"deathrun3D.html",i:"icons/deathrun3D.svg"},
-{n:"doodlejump",f:"doodlejump.html",i:"icons/doodlejump.svg"},
-{n:"drawclimber",f:"drawclimber.html",i:"icons/drawclimber.svg"},
-{n:"ducklife",f:"ducklife.html",i:"icons/ducklife.svg"},
-{n:"ducklife2",f:"ducklife2.html",i:"icons/ducklife2.svg"},
-{n:"ducklife3",f:"ducklife3.html",i:"icons/ducklife3.svg"},
-{n:"ducklife4",f:"ducklife4.html",i:"icons/ducklife4.svg"},
-{n:"ducklife5",f:"ducklife5.html",i:"icons/ducklife5.svg"},
-{n:"ducklingsio",f:"ducklingsio.html",i:"icons/ducklingsio.svg"},
-{n:"eagleride",f:"eagleride.html",i:"icons/eagleride.svg"},
-{n:"earntodie",f:"earntodie.html",i:"icons/earntodie.svg"},
-{n:"earntodie2",f:"earntodie2.html",i:"icons/earntodie2.svg"},
-{n:"eggycar",f:"eggycar.html",i:"icons/eggycar.svg"},
-{n:"escapingtheprison",f:"escapingtheprison.html",i:"icons/escapingtheprison.svg"},
-{n:"Evil Glitch",f:"evilglitch.html",i:"icons/evilglitch.svg"},
-{n:"fancypantsadventure",f:"fancypantsadventure.html",i:"icons/fancypantsadventure.svg"},
-{n:"fancypantsadventure2",f:"fancypantsadventure2.html",i:"icons/fancypantsadventure2.svg"},
-{n:"fireboyandwatergirl",f:"fireboyandwatergirl.html",i:"icons/fireboyandwatergirl.svg"},
-{n:"fireboyandwatergirl2",f:"fireboyandwatergirl2.html",i:"icons/fireboyandwatergirl2.svg"},
-{n:"fireboyandwatergirl3",f:"fireboyandwatergirl3.html",i:"icons/fireboyandwatergirl3.svg"},
-{n:"fireboyandwatergirl4",f:"fireboyandwatergirl4.html",i:"icons/fireboyandwatergirl4.svg"},
-{n:"Flappy Bird",f:"flappybird.html",i:"icons/flappybird.svg"},
-{n:"floodrunner2",f:"floodrunner2.html",i:"icons/floodrunner2.svg"},
-{n:"floodrunner3",f:"floodrunner3.html",i:"icons/floodrunner3.svg"},
-{n:"floodrunner4",f:"floodrunner4.html",i:"icons/floodrunner4.svg"},
-{n:"fnaf",f:"fnaf.html",i:"icons/fnaf.svg"},
-{n:"FNAF-4",f:"fnaf4.html",i:"icons/fnaf4.svg"},
-{n:"FOOTBALL BROS! | Official Site",f:"footballbros.html",i:"icons/footballbros.svg"},
-{n:"footballlegends",f:"footballlegends.html",i:"icons/footballlegends.svg"},
-{n:"freerider3",f:"freerider3.html",i:"icons/freerider3.svg"},
-{n:"fruitninja",f:"fruitninja.html",i:"icons/fruitninja.svg"},
-{n:"funnybattle",f:"funnybattle.html",i:"icons/funnybattle.svg"},
-{n:"funnybattle2",f:"funnybattle2.html",i:"icons/funnybattle2.svg"},
-{n:"Geometry Dash",f:"geometrydash.html",i:"icons/geometrydash.svg"},
-{n:"getontop",f:"getontop.html",i:"icons/getontop.svg"},
-{n:"googlebaseball",f:"googlebaseball.html",i:"icons/googlebaseball.svg"},
-{n:"Dinosaur Game Chrome",f:"googledino.html",i:"icons/googledino.svg"},
-{n:"guesstheiranswer",f:"guesstheiranswer.html",i:"icons/guesstheiranswer.svg"},
-{n:"hanger2",f:"hanger2.html",i:"icons/hanger2.svg"},
-{n:"happywheels",f:"happywheels.html",i:"icons/happywheels.svg"},
-{n:"helixjump",f:"helixjump.html",i:"icons/helixjump.svg"},
-{n:"hillclimbracinglite",f:"hillclimbracinglite.html",i:"icons/hillclimbracinglite.svg"},
-{n:"holeio",f:"holeio.html",i:"icons/holeio.svg"},
-{n:"houseofhazards",f:"houseofhazards.html",i:"icons/houseofhazards.svg"},
-{n:"hoverracerdrive",f:"hoverracerdrive.html",i:"icons/hoverracerdrive.svg"},
-{n:"idlebreakout",f:"idlebreakout.html",i:"icons/idlebreakout.svg"},
-{n:"ironsnout",f:"ironsnout.html",i:"icons/ironsnout.svg"},
-{n:"jetpackjoyride",f:"jetpackjoyride.html",i:"icons/jetpackjoyride.svg"},
-{n:"johnnytrigger",f:"johnnytrigger.html",i:"icons/johnnytrigger.svg"},
-{n:"jumpingshell",f:"jumpingshell.html",i:"icons/jumpingshell.svg"},
-{n:"karatebros",f:"karatebros.html",i:"icons/karatebros.svg"},
-{n:"learntofly",f:"learntofly.html",i:"icons/learntofly.svg"},
-{n:"learntofly2",f:"learntofly2.html",i:"icons/learntofly2.svg"},
-{n:"learntoflyidle",f:"learntoflyidle.html",i:"icons/learntoflyidle.svg"},
-{n:"Level Devil",f:"leveldevil.html",i:"icons/leveldevil.svg"},
-{n:"melonplayground",f:"melonplayground.html",i:"icons/melonplayground.svg"},
-{n:"mergeroundracers",f:"mergeroundracers.html",i:"icons/mergeroundracers.svg"},
-{n:"minesweeper",f:"minesweeper.html",i:"icons/minesweeper.svg"},
-{n:"monstertracks",f:"monstertracks.html",i:"icons/monstertracks.svg"},
-{n:"motox3m2",f:"motox3m2.html",i:"icons/motox3m2.svg"},
-{n:"motox3m3",f:"motox3m3.html",i:"icons/motox3m3.svg"},
-{n:"motox3mpoolparty",f:"motox3mpoolparty.html",i:"icons/motox3mpoolparty.svg"},
-{n:"motox3mspookyland",f:"motox3mspookyland.html",i:"icons/motox3mspookyland.svg"},
-{n:"motox3mwinter",f:"motox3mwinter.html",i:"icons/motox3mwinter.svg"},
-{n:"Noob Miner",f:"noobminer.html",i:"icons/noobminer.svg"},
-{n:"oppositeday",f:"oppositeday.html",i:"icons/oppositeday.svg"},
-{n:"OvOfw",f:"ovo.html",i:"icons/ovo.svg"},
-{n:"OvO 2",f:"ovo2.html",i:"icons/ovo2.svg"},
-{n:"Pac Man",f:"pacman.html",i:"icons/pacman.svg"},
-{n:"papasburgeria",f:"papasburgeria.html",i:"icons/papasburgeria.svg"},
-{n:"papascheeseria",f:"papascheeseria.html",i:"icons/papascheeseria.svg"},
-{n:"papascupcakeria",f:"papascupcakeria.html",i:"icons/papascupcakeria.svg"},
-{n:"papasdonuteria",f:"papasdonuteria.html",i:"icons/papasdonuteria.svg"},
-{n:"papasfreezeria",f:"papasfreezeria.html",i:"icons/papasfreezeria.svg"},
-{n:"papashotdoggeria",f:"papashotdoggeria.html",i:"icons/papashotdoggeria.svg"},
-{n:"papaspancakeria",f:"papaspancakeria.html",i:"icons/papaspancakeria.svg"},
-{n:"papaspastaria",f:"papaspastaria.html",i:"icons/papaspastaria.svg"},
-{n:"papaspizzeria",f:"papaspizzeria.html",i:"icons/papaspizzeria.svg"},
-{n:"papastacomia",f:"papastacomia.html",i:"icons/papastacomia.svg"},
-{n:"papaswingeria",f:"papaswingeria.html",i:"icons/papaswingeria.svg"},
-{n:"parkingfury",f:"parkingfury.html",i:"icons/parkingfury.svg"},
-{n:"parkingfury2",f:"parkingfury2.html",i:"icons/parkingfury2.svg"},
-{n:"parkingfury3",f:"parkingfury3.html",i:"icons/parkingfury3.svg"},
-{n:"picosschool",f:"picosschool.html",i:"icons/picosschool.svg"},
-{n:"pingpongchaos",f:"pingpongchaos.html",i:"icons/pingpongchaos.svg"},
-{n:"Pixel Speedrun",f:"pixelspeedrun.html",i:"icons/pixelspeedrun.svg"},
-{n:"plantsvszombies",f:"plantsvszombies.html",i:"icons/plantsvszombies.svg"},
-{n:"plonky",f:"plonky.html",i:"icons/plonky.svg"},
-{n:"polytrack",f:"polytrack.html",i:"icons/polytrack.svg"},
-{n:"poorbunny",f:"poorbunny.html",i:"icons/poorbunny.svg"},
-{n:"pou",f:"pou.html",i:"icons/pou.svg"},
-{n:"ragdollhit",f:"ragdollhit.html",i:"icons/ragdollhit.svg"},
-{n:"ragdollsoccer",f:"ragdollsoccer.html",i:"icons/ragdollsoccer.svg"},
-{n:"redball4vol1",f:"redball4vol1.html",i:"icons/redball4vol1.svg"},
-{n:"redball4vol2",f:"redball4vol2.html",i:"icons/redball4vol2.svg"},
-{n:"redball4vol3",f:"redball4vol3.html",i:"icons/redball4vol3.svg"},
-{n:"retrobowl",f:"retrobowl.html",i:"icons/retrobowl.svg"},
-{n:"retrobowlcollege",f:"retrobowlcollege.html",i:"icons/retrobowlcollege.svg"},
-{n:"retrohighway",f:"retrohighway.html",i:"icons/retrohighway.svg"},
-{n:"Retro-Ping-Pong",f:"retropingpong.html",i:"icons/retropingpong.svg"},
-{n:"riddleschool",f:"riddleschool.html",i:"icons/riddleschool.svg"},
-{n:"riddleschool2",f:"riddleschool2.html",i:"icons/riddleschool2.svg"},
-{n:"riddleschool3",f:"riddleschool3.html",i:"icons/riddleschool3.svg"},
-{n:"riddleschool4",f:"riddleschool4.html",i:"icons/riddleschool4.svg"},
-{n:"Rooftop Snipers 2",f:"rooftopsnipers2.html",i:"icons/rooftopsnipers2.svg"},
-{n:"run",f:"run.html",i:"icons/run.svg"},
-{n:"run2",f:"run2.html",i:"icons/run2.svg"},
-{n:"run3",f:"run3.html",i:"icons/run3.svg"},
-{n:"Sand",f:"sandgame.html",i:"icons/sandgame.svg"},
-{n:"shortlife",f:"shortlife.html",i:"icons/shortlife.svg"},
-{n:"slope2player",f:"slope2player.html",i:"icons/slope2player.svg"},
-{n:"slowroads",f:"slowroads.html",i:"icons/slowroads.svg"},
-{n:"Super Mario 64",f:"sm64.html",i:"icons/sm64.svg"},
-{n:"snowballio",f:"snowballio.html",i:"icons/snowballio.svg"},
-{n:"soccerbros",f:"soccerbros.html",i:"icons/soccerbros.svg"},
-{n:"SPACEBAR CLICKER",f:"spacebarclicker.html",i:"icons/spacebarclicker.svg"},
-{n:"spaceiskey",f:"spaceiskey.html",i:"icons/spaceiskey.svg"},
-{n:"spaceiskey2",f:"spaceiskey2.html",i:"icons/spaceiskey2.svg"},
-{n:"Space Waves",f:"spacewaves.html",i:"icons/spacewaves.svg"},
-{n:"speedstars",f:"speedstars.html",i:"icons/speedstars.svg"},
-{n:"Sprunki",f:"sprunki.html",i:"icons/sprunki.svg"},
-{n:"stack",f:"stack.html",i:"icons/stack.svg"},
-{n:"stacktris",f:"stacktris.html",i:"icons/stacktris.svg"},
-{n:"stateio",f:"stateio.html",i:"icons/stateio.svg"},
-{n:"stickarchersbattle",f:"stickarchersbattle.html",i:"icons/stickarchersbattle.svg"},
-{n:"stickfighter",f:"stickfighter.html",i:"icons/stickfighter.svg"},
-{n:"Stickman Hook",f:"stickmanhook.html",i:"icons/stickmanhook.svg"},
-{n:"stickmerge",f:"stickmerge.html",i:"icons/stickmerge.svg"},
-{n:"superliquidsoccer",f:"superliquidsoccer.html",i:"icons/superliquidsoccer.svg"},
-{n:"tabletennisworldtour",f:"tabletennisworldtour.html",i:"icons/tabletennisworldtour.svg"},
-{n:"tag",f:"tag.html",i:"icons/tag.svg"},
-{n:"templeofboom",f:"templeofboom.html",i:"icons/templeofboom.svg"},
-{n:"territorialio",f:"territorialio.html",i:"icons/territorialio.svg"},
-{n:"theimpossiblequiz",f:"theimpossiblequiz.html",i:"icons/theimpossiblequiz.svg"},
-{n:"theimpossiblequiz2",f:"theimpossiblequiz2.html",i:"icons/theimpossiblequiz2.svg"},
-{n:"thereisnog",f:"thereisnog.html",i:"icons/thereisnog.svg"},
-{n:"thisistheonlylevel",f:"thisistheonlylevel.html",i:"icons/thisistheonlylevel.svg"},
-{n:"thisistheonlyleveltoo",f:"thisistheonlyleveltoo.html",i:"icons/thisistheonlyleveltoo.svg"},
-{n:"timeshooter2",f:"timeshooter2.html",i:"icons/timeshooter2.svg"},
-{n:"tinyfishing",f:"tinyfishing.html",i:"icons/tinyfishing.svg"},
-{n:"trapthecat",f:"trapthecat.html",i:"icons/trapthecat.svg"},
-{n:"triviacrack",f:"triviacrack.html",i:"icons/triviacrack.svg"},
-{n:"tubejumpers",f:"tubejumpers.html",i:"icons/tubejumpers.svg"},
-{n:"tunnelrush",f:"tunnelrush.html",i:"icons/tunnelrush.svg"},
-{n:"unicyclehero",f:"unicyclehero.html",i:"icons/unicyclehero.svg"},
-{n:"vex4",f:"vex4.html",i:"icons/vex4.svg"},
-{n:"vex5",f:"vex5.html",i:"icons/vex5.svg"},
-{n:"vexx3m",f:"vexx3m.html",i:"icons/vexx3m.svg"},
-{n:"vexx3m2",f:"vexx3m2.html",i:"icons/vexx3m2.svg"},
-{n:"volleyrandom",f:"volleyrandom.html",i:"icons/volleyrandom.svg"},
-{n:"webecomewhatwebehold",f:"webecomewhatwebehold.html",i:"icons/webecomewhatwebehold.svg"},
-{n:"wheeliebike",f:"wheeliebike.html",i:"icons/wheeliebike.svg"},
-{n:"wheely",f:"wheely.html",i:"icons/wheely.svg"},
-{n:"wheely2",f:"wheely2.html",i:"icons/wheely2.svg"},
-{n:"wheely3",f:"wheely3.html",i:"icons/wheely3.svg"},
-{n:"wheely6",f:"wheely6.html",i:"icons/wheely6.svg"},
-{n:"wheely8",f:"wheely8.html",i:"icons/wheely8.svg"},
-{n:"wordleunlimited",f:"wordleunlimited.html",i:"icons/wordleunlimited.svg"},
-{n:"worldshardestgame",f:"worldshardestgame.html",i:"icons/worldshardestgame.svg"},
-{n:"worldshardestgame2",f:"worldshardestgame2.html",i:"icons/worldshardestgame2.svg"},
-{n:"worldshardestgame3",f:"worldshardestgame3.html",i:"icons/worldshardestgame3.svg"},
-{n:"wrestlebros",f:"wrestlebros.html",i:"icons/wrestlebros.svg"},
-{n:"zombierush",f:"zombierush.html",i:"icons/zombierush.svg"},
-
-];
-var grid=document.getElementById("grid");
-var search=document.getElementById("search");
-var countEl=document.getElementById("count");
-var noRes=document.getElementById("noResults");
-function render(q){
-q=(q||"").toLowerCase().trim();
-grid.innerHTML="";
-var c=0;
-for(var i=0;i<GAMES.length;i++){
-var g=GAMES[i];
-if(q&&g.n.toLowerCase().indexOf(q)===-1&&g.f.toLowerCase().indexOf(q)===-1)continue;
-c++;
-var d=document.createElement("div");
-d.className="card";
-d.onclick=(function(f){return function(){window.location.href="../games-web/"+f}})(g.f);
-d.innerHTML="<div class=\"icon-wrap\"><img src=\""+g.i+"\" alt=\""+g.n.replace(/"/g,"&quot;")+"\"></div><div class=\"card-name\">"+g.n+"</div>";
-grid.appendChild(d);
-}
-countEl.textContent=c+" game"+(c!==1?"s":"");
-noRes.style.display=c===0?"block":"none";
-}
-search.addEventListener("input",function(){render(this.value)});
-render("");
+(function(){
+  var input=document.getElementById("search");
+  var grid=document.getElementById("grid");
+  var cards=grid.querySelectorAll(".card");
+  var countEl=document.getElementById("count");
+  var noRes=document.getElementById("noResults");
+  var total=cards.length;
+  input.addEventListener("input",function(){
+    var q=this.value.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g,"");
+    var shown=0;
+    for(var i=0;i<cards.length;i++){
+      var c=cards[i];
+      var t=(c.getAttribute("title")||"").toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g,"");
+      var h=t.indexOf(q)!==-1;
+      c.style.display=h?"":"none";
+      if(h)shown++;
+    }
+    countEl.textContent=shown+" / "+total+" games";
+    noRes.style.display=shown===0?"block":"none";
+  });
+})();
 </script>
 </body>
 </html>
